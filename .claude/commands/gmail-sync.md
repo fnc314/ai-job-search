@@ -237,7 +237,7 @@ Rejecting writes nothing to `applications`. The message ids stay processed, so t
 
 ### Step 6a: Update the per-application archive
 
-The tracker is updated by `approve`; `documents/applications/<company>_<role>/outcome.md` is not. For each **approved** change, update the archive:
+The tracker is updated by `approve`; `documents/applications/<Company>/<Role>/<YYYY-MM-DD>/outcome.md` is not. For each **approved** change, update the archive:
 
 | Signal | `outcome.md` action |
 |---|---|

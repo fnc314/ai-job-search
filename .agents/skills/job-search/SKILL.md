@@ -28,3 +28,23 @@ user_invocable: true
 
 ## Context Loading
 Read `AGENTS.md` for candidate profile and shared workflow rules, then read and execute the requested mode file in `.claude/commands/`.
+
+## Artifact Placement
+
+All application artifacts (CV, cover letter, outcome.md) are stored under:
+
+```
+documents/applications/<Company>/<Role>/<YYYY-MM-DD>/
+```
+
+- **Company and role** use Title-Case with underscores for spaces (e.g., `Snap_Inc/Software_Engineer_Android_Level_5/2026-10-30/`)
+- **Date subdirectory** allows multiple applications to the same role over time
+- Each dated folder contains:
+  - `main_<company>_<role>.tex` — CV source
+  - `main_<company>_<role>.pdf` — Compiled CV
+  - `cover_<company>_<role>.tex` — Cover letter source
+  - `cover_<company>_<role>.pdf` — Compiled cover letter
+  - `outcome.md` — Fit evaluation and result
+  - `job_posting.md` — Original posting text (archived by `/outcome`)
+
+See `documents/README.md` for the full convention.
