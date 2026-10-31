@@ -1158,42 +1158,55 @@ def commandImport(args) -> int:
         resolved.append((document, pendingEvents, artifacts))
 
     reconciliation = importer.reconciliation(payloads, rows, existingIds=alreadyImported)
-    checks = {
-        f"rows read == {profile['rows']}": "PASS" if summary["rows"] == profile["rows"] else f"FAIL ({summary['rows']})",
-        f"unique ids == {profile['distinctIds']}": (
-            "PASS" if summary["uniqueIds"] == profile["distinctIds"] else f"FAIL ({summary['uniqueIds']})"
-        ),
-        "duplicate ids == 0": "PASS" if reconciliation["duplicateIds"] == 0 else f"FAIL ({reconciliation['duplicateIds']})",
-        "every id derives exactly": "PASS" if not reconciliation["idMismatches"] else "FAIL",
-        "notes preserved verbatim": (
-            "PASS" if not reconciliation["notesVerbatimMismatches"] else f"FAIL ({len(reconciliation['notesVerbatimMismatches'])})"
-        ),
-        f"rows with no role == {profile['rows'] - profile['populated']['role']}": (
-            "PASS"
-            if summary["emptyRoles"] == profile["rows"] - profile["populated"]["role"]
-            else f"FAIL ({summary['emptyRoles']})"
-        ),
-        f"CV artifacts == {profile['populated']['cv_file']}": (
-            "PASS" if summary["artifacts"]["cv"] == profile["populated"]["cv_file"] else f"FAIL ({summary['artifacts']['cv']})"
-        ),
-        f"cover-letter artifacts == {profile['populated']['cover_letter_file']}": (
-            "PASS"
-            if summary["artifacts"]["coverLetter"] == profile["populated"]["cover_letter_file"]
-            else f"FAIL ({summary['artifacts']['coverLetter']})"
-        ),
-        "one event:imported per row": (
-            "PASS" if all(len(events) == 1 for _document, events, _artifacts in resolved) else "FAIL"
-        ),
-        f"fitRating within {profile['fitRatingRange'][0]}-{profile['fitRatingRange'][1]}": (
-            "PASS"
-            if all(
-                isinstance(document.get("fitRating"), int)
-                and profile["fitRatingRange"][0] <= document["fitRating"] <= profile["fitRatingRange"][1]
-                for document, _events, _artifacts in resolved
-            )
-            else "FAIL"
-        ),
-    }
+    if getattr(args, "mock", False):
+        # Mock fixtures are not the historical 84-row CSV; skip profile reconciliation.
+        checks = {
+            "duplicate ids == 0": "PASS" if reconciliation["duplicateIds"] == 0 else f"FAIL ({reconciliation['duplicateIds']})",
+            "every id derives exactly": "PASS" if not reconciliation["idMismatches"] else "FAIL",
+            "notes preserved verbatim": (
+                "PASS" if not reconciliation["notesVerbatimMismatches"] else f"FAIL ({len(reconciliation['notesVerbatimMismatches'])})"
+            ),
+            "one event:imported per row": (
+                "PASS" if all(len(events) == 1 for _document, events, _artifacts in resolved) else "FAIL"
+            ),
+        }
+    else:
+        checks = {
+            f"rows read == {profile['rows']}": "PASS" if summary["rows"] == profile["rows"] else f"FAIL ({summary['rows']})",
+            f"unique ids == {profile['distinctIds']}": (
+                "PASS" if summary["uniqueIds"] == profile["distinctIds"] else f"FAIL ({summary['uniqueIds']})"
+            ),
+            "duplicate ids == 0": "PASS" if reconciliation["duplicateIds"] == 0 else f"FAIL ({reconciliation['duplicateIds']})",
+            "every id derives exactly": "PASS" if not reconciliation["idMismatches"] else "FAIL",
+            "notes preserved verbatim": (
+                "PASS" if not reconciliation["notesVerbatimMismatches"] else f"FAIL ({len(reconciliation['notesVerbatimMismatches'])})"
+            ),
+            f"rows with no role == {profile['rows'] - profile['populated']['role']}": (
+                "PASS"
+                if summary["emptyRoles"] == profile["rows"] - profile["populated"]["role"]
+                else f"FAIL ({summary['emptyRoles']})"
+            ),
+            f"CV artifacts == {profile['populated']['cv_file']}": (
+                "PASS" if summary["artifacts"]["cv"] == profile["populated"]["cv_file"] else f"FAIL ({summary['artifacts']['cv']})"
+            ),
+            f"cover-letter artifacts == {profile['populated']['cover_letter_file']}": (
+                "PASS"
+                if summary["artifacts"]["coverLetter"] == profile["populated"]["cover_letter_file"]
+                else f"FAIL ({summary['artifacts']['coverLetter']})"
+            ),
+            "one event:imported per row": (
+                "PASS" if all(len(events) == 1 for _document, events, _artifacts in resolved) else "FAIL"
+            ),
+            f"fitRating within {profile['fitRatingRange'][0]}-{profile['fitRatingRange'][1]}": (
+                "PASS"
+                if all(
+                    isinstance(document.get("fitRating"), int)
+                    and profile["fitRatingRange"][0] <= document["fitRating"] <= profile["fitRatingRange"][1]
+                    for document, _events, _artifacts in resolved
+                )
+                else "FAIL"
+            ),
+        }
     issues = [f"{name}: {value}" for name, value in checks.items() if value.startswith("FAIL")]
 
     report = {
@@ -1587,6 +1600,21 @@ def commandSyncDue(args) -> int:
     return EXIT_OK
 
 
+def commandMockClear(args) -> int:
+    """Delete namespaced mock records through the tracker CLI.
+
+    Delegates to mock_data.clear() so the single-write-path rule is preserved:
+    all deletions go through tracker.py, not an ad-hoc Firestore client.
+    """
+    REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(REPO_ROOT / "tools"))
+    import mock_data  # noqa: E402
+
+    result = mock_data.clear(apply=args.apply)
+    emit({"ok": True, "command": "mock-clear", **result})
+    return EXIT_OK
+
+
 def buildParser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="tracker",
@@ -1688,6 +1716,7 @@ def buildParser() -> argparse.ArgumentParser:
     importing = subparsers.add_parser("import", help="one-shot import of the legacy CSV")
     importing.add_argument("--csv", required=True, help="path to a legacy tracker CSV (archive/job_search_tracker.csv for a re-import)")
     importing.add_argument("--dry-run", action="store_true", help="report only, never write")
+    importing.add_argument("--mock", action="store_true", help="skip historical profile reconciliation (for mock fixtures)")
     importing.add_argument(
         "--report",
         nargs="?",
@@ -1755,6 +1784,10 @@ def buildParser() -> argparse.ArgumentParser:
     syncDue.add_argument("--json", help="inbox payload for every request")
     syncDue.add_argument("--dry-run", action="store_true", help="list what is due")
     syncDue.set_defaults(handler=commandSyncDue)
+
+    mockClear = subparsers.add_parser("mock-clear", help="delete namespaced mock records")
+    mockClear.add_argument("--apply", action="store_true", help="actually delete (default: dry run)")
+    mockClear.set_defaults(handler=commandMockClear)
 
     return parser
 

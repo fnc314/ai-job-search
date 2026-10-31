@@ -2,8 +2,7 @@
 # Pinned to match .github/workflows/ci.yml. The tracker scripts own the only
 # copy of the application record, so the interpreter is not allowed to drift.
 python = "3.15.2"
+bun = "latest"
 
 [env]
-# Secrets live in .env.local (gitignored) and are loaded here. Keeping them out
-# of mise.toml means the tracked file can be committed without leaking a key.
-_.file = ".env.local"
+_ = { file = ".env.local" }

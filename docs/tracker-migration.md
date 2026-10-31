@@ -7,7 +7,7 @@ what the CSV is still good for now that Firestore is authoritative.
 Companion documents: `docs/tracker-migration-plan.md` (design and rationale),
 `tracker.schema.json` (the contract).
 
-**Last updated:** 2026-10-31 (after Phase 10: the CSV moved to `archive/`, instructions consolidated under `.agents/`, and the CSV-era docs are scrubbed)
+**Last updated:** 2026-10-31 (after Phase 10 and the setup/mock-data follow-on)
 **Update rule:** revised at the end of every phase, including when an implementation decision
 changes the approved scope (see `docs/tracker-migration-plan.md` §16).
 
@@ -51,6 +51,23 @@ off.
 
 The gate is enforced in one function (`scripts/client.py: assertWritesAllowed`) and covered
 by tests, so it cannot be bypassed by a subcommand that forgets to check.
+
+### Fresh setup and mock records
+
+`scripts/setup.py --check` is the read-only readiness check — it does not require
+`TRACKER_ALLOW_WRITES=1`. Running setup without `--check` asks before seeding the schema
+and again before injecting mock data. The mock path uses `tracker.py import --csv … --mock`
+to skip the historical 84-row profile reconciliation, so any number of mock rows imports
+cleanly. The collector then stages a mock Gmail proposal. This path never invokes Composio:
+the fixture is simply `generated/mock/gmail-inbox.json`, containing only the fields a
+fetched inbox reader provides.
+
+Every injected company begins `Mock `, IDs begin `mock-`, and inbox message IDs begin
+`mock`. This is the cleanup namespace. Preview cleanup with
+`tracker.py mock-clear`; perform it with `tracker.py mock-clear --apply` (and
+`TRACKER_ALLOW_WRITES=1`). Cleanup removes only that namespace and its events, artifacts,
+proposals in any state that reference **only** mock applications (mixed proposals are left
+alone), and processed message IDs.
 
 ### If something still writes the CSV
 

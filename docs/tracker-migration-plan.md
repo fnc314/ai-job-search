@@ -3,7 +3,7 @@
 **Status:** complete — Phases 0–8, 9a, 9b, and 10 landed. Firestore holds the record (84 imported applications), every writer goes through `tracker.py`, the Sheet and dashboard are generated views, the CSV lives in `archive/`, and a 12-hour `launchd` job fetches Gmail and stages proposals for review
 **Owner:** Franco N. Colaizzi
 **Supersedes:** `job_search_tracker.schema.json` v1 (CSV contract), `scripts/export_tracker_json.py`
-**Last updated:** 2026-10-31
+**Last updated:** 2026-10-31 (post-migration setup/mock-data follow-on)
 **Update rule:** this file and `docs/tracker-migration.md` are revised at the end of **every phase**, including when an implementation decision changes the approved scope (§16 records those).
 
 ## Progress
@@ -24,6 +24,7 @@
 | 6 | **complete** | `/gmail-sync` split into fetch → `collect` → human review; `collect` stages one proposal and writes `meta/sync` (processed ids + Gmail label inventory) only; `proposals approve --only` supports selective review; TUI header shows the pending-review count; `tracker.py labels` exposes the last-seen inventory for `--label` validation; `tests/test_tracker_modules.py` +4 emulator tests, `tests/test_tracker_cli.py` +3 label tests, `tests/test_reader.py` +1 |
 | 10 | **complete** | `.agents/README.md` + `.agents/skills/job-tracker/SKILL.md` are the canonical instructions; each `.<agent>` directory holds one pointer file (`.claude/CLAUDE.md`, `.junie/JUNIE.md`, `.gemini/GEMINI.md`, `.opencode/OPENCODE.md`, `.qwen/QWEN.md`) instead of mirrored command/skill trees; `job_search_tracker.csv`, the retired CSV schema, and `export_tracker_json.py` moved to `archive/` with an `archive/README.md`; `tests/test_export_tracker.py` deleted; `.gitignore` and `tools/security_guards.py` now guard `archive/*.csv`; README/SETUP/documents/AGENTS scrubbed of CSV-era instructions |
 | 9b | **complete** | `scripts/gmail_fetch.py` + `scripts/gmail-fetch.sh` + `deploy/launchd/dev.fnc314.tracker-gmail-fetch.plist` installed as `gui/$UID/dev.fnc314.tracker-gmail-fetch` (every 12 h, `RunAtLoad`): fetch → `collect --trigger trigger:cron` → `sync-due`; fetches in pages of 50 because Composio rejects larger payloads; `collect` now marks every examined message processed so a scheduled run is idempotent; `tests/test_gmail_fetch.py` (13 tests) + 1 emulator idempotency test. Cloud Run/Scheduler was considered and rejected: it would add a credential surface for no benefit on an always-on laptop |
+| setup/mock | **complete** | `scripts/setup.py` provides a minimal interactive readiness/seed/mock flow; `--check` is read-only and does not require `TRACKER_ALLOW_WRITES`. `tools/mock_data.py` produces namespaced applications and a plain inbox-read JSON fixture; `tracker.py import --csv … --mock` imports them without the 84-row profile gate. `tracker.py mock-clear [--apply]` deletes only the `Mock ` namespace — applications, events, artifacts, mock-only proposals in any state, and processed message IDs — preserving mixed proposals; no mock path calls Composio. |
 
 
 ---
@@ -455,6 +456,7 @@ emitted, without writing.
 | `proposals list\|show\|approve\|reject` | review the queue |
 | `collect [--dry-run]` | run the unattended Gmail collector |
 | `sync-due` | execute due `sync-requests` (the `launchd` entrypoint); no-op when the inbox was not fetched |
+| `mock-clear [--apply]` | delete namespaced mock records (dry run by default) |
 | `check` | schema validation; CI gate |
 | `list [--status --tag --open]` / `get <id>` | JSON to stdout |
 
@@ -462,7 +464,7 @@ All output is JSON on stdout, diagnostics on stderr, so everything composes with
 
 Implemented: `check`, `seed`, `list`, `get`, `add`, `upsert`, `status`, `score`,
 `event`, `artifact`, `backfill`, `bulk`, `import`, `export`, `sheet`, `proposals`,
-`collect`, `sync-due`. Outstanding: nothing in the CLI surface.
+`collect`, `sync-due`, `mock-clear`, `labels`. Outstanding: nothing in the CLI surface.
 
 ## 10. Automation
 
@@ -715,6 +717,10 @@ entries are appended at the end of the phase that produced them.
 | 2026-10-31 | 9b | **`collect` marks every examined message processed, not only matched ones** | a 12-hour run makes "unmatched" repeat forever: the same newsletters and low-signal alerts would be re-examined and re-listed on every run because only changes were recorded. Recording the whole examined batch makes the run idempotent; the reason a message produced no change is still in the review table, so nothing is hidden. | `scripts/tracker.py`; `tests/test_tracker_modules.py` |
 | 2026-10-31 | 9b | **Fetches page at 50 messages** | Composio rejects a single response far above 50 full messages ("The tool response payload is too large"), which made the installed job fail on its first run. Paging at 50 and stopping at `--max` keeps every request under the cap while still covering a 30-day backfill. | `scripts/gmail_fetch.py`; `tests/test_gmail_fetch.py` |
 | 2026-10-31 | 4 | **`event:imported` no longer decorates its note with `date · type — `**; the 84 live documents were reprojected | the renderer treated the import marker as an activity, so every restored record's `notesRendered` became `2026-10-30 · event:imported — <prose>`. That is noise on 84 of 84 records and it made the dashboard differ from the pre-migration one for no informational gain. `notesRendered` is a derived field by contract, so regenerating it is a projection refresh, not a data edit: no application, event, or artifact document changed, and notes now equal `notesLegacy` exactly until a real post-import event appends a line. | `scripts/render.py`; migration §6 |
+| 2026-10-31 | setup/mock | **`import --mock` skips profile reconciliation for mock fixtures** | the setup flow imported mock CSV through `tracker.py import --csv`, which enforced the 84-row historical profile gate. Mock data (e.g. 18 rows) wrote the applications but returned exit code 2, aborting setup before `collect` staged the mock Gmail proposal. The `--mock` flag skips the profile checks while retaining structural validation (duplicates, ID derivation, notes verbatim). | `scripts/tracker.py`; `scripts/setup.py` |
+| 2026-10-31 | setup/mock | **`tracker.py mock-clear` is the canonical cleanup path** | `tools/mock_data.py --clear` directly constructed a Firestore client, bypassing the single-write-path invariant. The new `tracker.py mock-clear [--apply]` subcommand delegates to `mock_data.clear()` through the CLI. Cleanup now handles proposals in any state (not just pending) and preserves mixed proposals that contain both mock and real application IDs. | `scripts/tracker.py`; `tools/mock_data.py`; `scripts/setup.py` |
+| 2026-10-31 | setup/mock | **`setup.py --check` does not require `TRACKER_ALLOW_WRITES`** | the read-only readiness check failed if the write gate was absent, even though it performs no mutations. `check(write=False)` now omits the write-gate requirement. | `scripts/setup.py` |
+| 2026-10-31 | setup/mock | **Mock tests use `unittest` format** | `tests/test_mock_data.py` was pytest-style and not collected by the project's `unittest discover` suite. Converted to `unittest.TestCase` classes. | `tests/test_mock_data.py` |
 
 ### What a scope change must not do
 

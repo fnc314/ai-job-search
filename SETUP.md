@@ -2,6 +2,32 @@
 
 Step-by-step instructions for getting the AI Job Search framework running.
 
+## Fast path: verify the tracker and populate safe mock data
+
+After completing the Firestore and credential prerequisites below, the interactive
+wizard verifies the live connection, seeds the schema after confirmation, and can
+populate the ordinary tracker workflow with a namespaced mock record:
+
+```bash
+.venv/bin/python scripts/setup.py --check  # read-only readiness report
+.venv/bin/python scripts/setup.py --sheet  # interactive setup; also regenerates the Sheet
+```
+
+Mock applications use companies beginning with `Mock ` and mock message IDs beginning
+with `mock`. The generator writes only a plain inbox-read JSON payload — it makes **no
+Composio call** — then normal `tracker.py import` and `tracker.py collect` create the
+Firestore documents and pending proposals. The TUI, dashboard, generated Sheet, and
+proposal review behave normally.
+
+```bash
+# Preview exactly what would be removed (read-only)
+.venv/bin/python tools/mock_data.py --clear
+
+# Delete only namespaced mock applications, their events/artifacts, matching pending
+# proposals, and mock processed-message IDs. Requires TRACKER_ALLOW_WRITES=1.
+.venv/bin/python tools/mock_data.py --clear --apply
+```
+
 ## 1. Prerequisites
 
 ### Claude Code
