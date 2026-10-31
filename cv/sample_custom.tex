@@ -1,0 +1,210 @@
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[margin=0.5in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{calc}
+
+% Define the blue from the PDF
+\definecolor{color1}{HTML}{2F5597}
+
+% Two complementary fonts:
+\usepackage[varqu,varl]{inconsolata} % Consolas-like fixed width font for headings/titles/special
+\usepackage{tgheros}   % Helvetica clone (Sans) for body content
+
+% Default text to sans-serif for body
+\renewcommand{\familydefault}{\sfdefault}
+
+% Make links underlined explicitly, without boxes
+\usepackage[hidelinks]{hyperref}
+\usepackage[normalem]{ulem}
+\newcommand{\myhref}[2]{\href{#1}{\uline{#2}}}
+
+% No page numbers
+\pagestyle{empty}
+
+% Redefine section to look like the PDF
+\makeatletter
+\renewcommand{\section}[1]{%
+  \par\vspace{8pt}%
+  \noindent\colorbox{color1}{%
+    \makebox[\dimexpr\textwidth-2\fboxsep\relax][c]{%
+      \textcolor{white}{\ttfamily\bfseries\large\strut \MakeUppercase{#1}}%
+    }%
+  }%
+  \par\vspace{4pt}%
+}
+\makeatother
+
+\begin{document}
+
+\begin{center}
+    {\ttfamily\Huge\color{color1} FRANCO N. COLAIZZI}\\[0.2em]
+    {\sffamily\small
+        412-721-9550
+        ~|~ \myhref{mailto:fnc314@gmail.com}{fnc314@gmail.com} 
+        ~|~ \myhref{https://www.fnc314.dev}{www.fnc314.dev} 
+        ~|~ \myhref{https://blog.fnc314.dev}{blog.fnc314.dev}
+        ~|~ \myhref{https://linkedin.com/in/fnc314}{linkedin.com/in/fnc314} 
+        ~|~ Pittsburgh, PA
+    }
+\end{center}
+
+\vspace{4pt}
+
+\begin{center}
+    \colorbox{color1}{\makebox[\dimexpr\textwidth-2\fboxsep\relax]{\textcolor{white}{\ttfamily\bfseries\large\strut PRINCIPAL ANDROID SOFTWARE ENGINEER}}}
+\end{center}
+\vspace{2pt}
+
+% ============================================================
+%     PROFILE STATEMENT
+% ============================================================
+\vspace{4pt}
+{\sffamily Principal Android Software Engineer with 10+ years of experience defining technical strategy and architecture for large-scale mobile platforms. Proven track record of leading cross-functional teams through major architectural transformations across Android and distributed backend systems. Trusted by leadership to foster engineering excellence, standardize best practices, reduce technical debt, and align technical initiatives with business value.}
+\vspace{6pt}
+
+% ============================================================
+%     AREAS OF EXPERTISE
+% ============================================================
+\section{AREAS OF EXPERTISE}
+\vspace{1pt}
+\begin{center}
+\sffamily
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l c r @{}}
+Android Development & Modern API Standards & Code Maintenance / DevEx \\
+Mobile / Web Applications & Cross-Functional Collaboration & Accessibility Compliance \\
+Software Architecture & Stakeholder Alignment & Leadership / Mentoring \\
+\end{tabular*}
+\end{center}
+\vspace{4pt}
+
+% ============================================================
+%     TECHNICAL SKILLS
+% ============================================================
+\section{TECHNICAL SKILLS}
+\vspace{1pt}
+\begin{itemize}[label={}, leftmargin=0pt, itemsep=2pt, parsep=0pt]
+\item {\ttfamily\large\color{color1} Programming Languages:} {\sffamily Kotlin | Java | JavaScript/TypeScript | Bash}
+\item {\ttfamily\large\color{color1} Frameworks \& Libraries:} {\sffamily Android | Kotlin Multiplatform | Jetpack Compose | Coroutines/Flow | MVI}
+\item {\ttfamily\large\color{color1} Build \& DevOps:} {\sffamily Gradle (KTS/Groovy) | CI/CD | Jenkins | GitHub Actions | DevEx}
+\item {\ttfamily\large\color{color1} Cloud \& Backend:} {\sffamily Firebase | Google Cloud | Glassbox | Split.io | Akamai}
+\item {\ttfamily\large\color{color1} Platforms \& Security:} {\sffamily Samsung Knox | FIDO | MFA | Mobile Payment Systems}
+\item {\ttfamily\large\color{color1} Testing \& Automation:} {\sffamily A/B Testing | Bash Scripting | Fastlane}
+\end{itemize}
+
+% ============================================================
+%     PROFESSIONAL EXPERIENCE
+% ============================================================
+\section{PROFESSIONAL EXPERIENCE}
+\vspace{3pt}
+\begin{itemize}[label={}, leftmargin=0pt, itemsep=6pt, parsep=0pt]
+
+% --- Freelance Developer ---
+\item{
+\textbf{\ttfamily\large Freelance Developer} \hfill \textbf{\ttfamily\large\color{color1} 01/2026 - PRESENT}\\
+\textbf{\ttfamily\normalsize\color{color1} Independent} \hfill \textbf{\ttfamily\normalsize\color{color1} PITTSBURGH, PENNSYLVANIA}\vspace{2pt}\\
+{\itshape\sffamily Operating as an independent developer and technical author, focusing on full-stack application development and developer enablement.}\vspace{2pt}
+\begin{itemize}[label=\textbullet, leftmargin=15pt, itemsep=1pt, parsep=0pt]
+    \item {\sffamily Spearheaded development of a location-based dating app using React Native, Firebase, and Google Cloud Platform, effectively contributing to full-stack and backend systems.}
+    \item {\sffamily Leveraged generative AI tooling to accelerate independent feature prototyping, while retaining strict output validation.}
+    \item {\sffamily Authored the technical engineering series "Taming the Elephant Herd" at \myhref{https://blog.fnc314.dev}{blog.fnc314.dev}, publishing deep-dives on Gradle build optimization, repository maintenance, and developer experience.}
+\end{itemize}
+}
+
+% --- CGI ---
+\item{
+\textbf{\ttfamily\large Director, Consulting Expert} \hfill \textbf{\ttfamily\large\color{color1} 08/2014 - 01/2026}\\
+\textbf{\ttfamily\normalsize\color{color1} CGI} \hfill \textbf{\ttfamily\normalsize\color{color1} PITTSBURGH, PENNSYLVANIA}\vspace{2pt}\\
+{\itshape\sffamily Served as a technical expert, mentoring peer engineers and defining architectural strategy for enterprise applications across clients including PNC Financial Services, PPG Industries, and Samsung Electronics. Founded the CGI I.T. Girl Challenge, authoring foundational documentation and onboarding community partners including Pittsburgh Public Schools.}\vspace{1pt}
+}
+
+% --- PNC Android Tech Lead ---
+\item{
+\textbf{\ttfamily\normalsize Android Mobile Project Tech Lead} \hfill \textbf{\ttfamily\normalsize\color{color1} 01/2020 - 06/2025}\\
+\textbf{\ttfamily\small\color{color1} PNC Financial Services (Client)} \hfill \textbf{\ttfamily\small\color{color1} PITTSBURGH, PENNSYLVANIA}\vspace{2pt}\\
+{\itshape\sffamily Lead Architect for the flagship Android app (3.5M+ MAU), designing the mobile-to-backend interface for a highly resilient, high-volume in-app payment processing platform.}\vspace{2pt}
+\begin{itemize}[label=\textbullet, leftmargin=15pt, itemsep=1pt, parsep=0pt]
+    \item {\sffamily Modularized the entire codebase from a single ``god-module'' into a properly organized multi-module repository, reducing build times by 70\% and isolating code contributions thereby reducing conflicts in merges.}
+    \item {\sffamily Automated credential setup and environment validation with custom Bash scripts, reducing developer onboarding time by 80\%.}
+    \item {\sffamily Set technical standards and drove adoption across teams, breaking down complex initiatives into executable phases.}
+    \item {\sffamily Drove the implementation of in-app card payment acceptance integrating with a paired Bluetooth (BLE) card-reader device and third-party SDK.}
+    \item {\sffamily Produced comprehensive technical documentation to facilitate knowledge sharing and maintain feature parity.}
+    \item {\sffamily Partnered with Product and UX leadership to define roadmaps, aligning high-impact technical debt reduction with business value for stakeholders.}
+\end{itemize}
+}
+
+% --- PNC Mobile Redesign ---
+\item{
+\textbf{\ttfamily\normalsize Mobile Redesign Architect Lead} \hfill \textbf{\ttfamily\normalsize\color{color1} 11/2023 - 06/2025}\\
+\textbf{\ttfamily\small\color{color1} PNC Financial Services (Client)} \hfill \textbf{\ttfamily\small\color{color1} PITTSBURGH, PENNSYLVANIA}\vspace{2pt}\\
+{\itshape\sffamily Led major architectural transformations, instituting a 'best-practice-by-default' philosophy to seamlessly bridge Android and backend systems.}\vspace{2pt}
+\begin{itemize}[label=\textbullet, leftmargin=15pt, itemsep=1pt, parsep=0pt]
+    \item {\sffamily Coordinated cross-platform Design System governance, eliminating hardcoded UI values by mandating 100\% semantic token adoption.}
+    \item {\sffamily Engineered a Gradle module-generation workflow to enforce project-wide naming conventions and prevent architectural drift.}
+    \item {\sffamily Created a centralized workflow with enforced PR restrictions and direct integration with string management platforms (GL Strings/Applanga).}
+    \item {\sffamily Crafted interactive Bash scripts to streamline feature contributions and empower teams to build independently.}
+    \item {\sffamily Accelerated development by enforcing a design token system, launching dynamic screen sizes, dark mode, and branded themes without increasing project scope.}
+\end{itemize}
+}
+
+% --- PNC Security ---
+\item{
+\textbf{\ttfamily\normalsize Android Security \& Authentication Tech Lead} \hfill \textbf{\ttfamily\normalsize\color{color1} 08/2019 - 01/2020}\\
+\textbf{\ttfamily\small\color{color1} PNC Financial Services (Client)} \hfill \textbf{\ttfamily\small\color{color1} PITTSBURGH, PENNSYLVANIA}\vspace{2pt}\\
+{\itshape\sffamily Engineered a modern authentication platform, migrating 10M+ active users with zero downtime. Leveraged a robust communication pipeline to maintain project coordination.}\vspace{2pt}
+\begin{itemize}[label=\textbullet, leftmargin=15pt, itemsep=1pt, parsep=0pt]
+    \item {\sffamily Pioneered a Version Catalog (.toml) and KTS migration, creating a fully type-safe, auditable Gradle build system.}
+    \item {\sffamily Secured 98\% of mobile fraud avenues and streamlined security integrations to enable rapid team adoption.}
+    \item {\sffamily Designed observability patterns to pinpoint trouble spots in user flows and streamline issue reproduction.}
+\end{itemize}
+}
+
+% --- PNC Web Lead ---
+\item{
+\textbf{\ttfamily\normalsize Web Development Lead} \hfill \textbf{\ttfamily\normalsize\color{color1} 08/2017 - 08/2019}\\
+\textbf{\ttfamily\small\color{color1} PNC Financial Services (Client)} \hfill \textbf{\ttfamily\small\color{color1} PITTSBURGH, PENNSYLVANIA}\vspace{2pt}\\
+{\itshape\sffamily Guided the growth and development of peer engineers with mentoring and coaching across a 25+ person organization, delivering high-impact, scalable solutions during the redesign of a large-scale enterprise platform.}
+}
+
+% --- PNC Zelle ---
+\item{
+\textbf{\ttfamily\normalsize Web Developer} \hfill \textbf{\ttfamily\normalsize\color{color1} 08/2016 - 08/2017}\\
+\textbf{\ttfamily\small\color{color1} PNC Financial Services (Client)} \hfill \textbf{\ttfamily\small\color{color1} PITTSBURGH, PENNSYLVANIA}\vspace{2pt}\\
+{\itshape\sffamily Partnered closely with product owners and designers to architect and deliver the administration portal supporting the launch of the Zelle peer-to-peer payment platform.}
+}
+
+% --- PPG ---
+\item{
+\textbf{\ttfamily\normalsize Web Developer} \hfill \textbf{\ttfamily\normalsize\color{color1} 01/2015 - 08/2016}\\
+\textbf{\ttfamily\small\color{color1} PPG Industries (Client)} \hfill \textbf{\ttfamily\small\color{color1} PITTSBURGH, PENNSYLVANIA}\vspace{2pt}\\
+{\itshape\sffamily Reduced deployment time for brand-specific white-label applications from days to hours by streamlining deployment processes and enhancing automation tools.}
+}
+
+% --- Samsung PoC ---
+\item{
+\textbf{\ttfamily\normalsize Android Developer} \hfill \textbf{\ttfamily\normalsize\color{color1} 01/2015 - 08/2016}\\
+\textbf{\ttfamily\small\color{color1} Samsung (Client)} \hfill \textbf{\ttfamily\small\color{color1} PITTSBURGH, PENNSYLVANIA}\vspace{2pt}\\
+{\itshape\sffamily Designed solutions for complex, cross-system initiatives, delivering an Android FIDO authenticator proof-of-concept that spring-boarded institutional adoption of Samsung Knox and MFA.}
+}
+
+\end{itemize}
+
+% ============================================================
+%     EDUCATION
+% ============================================================
+\section{EDUCATION}
+\vspace{1pt}
+\begin{itemize}[label={}, leftmargin=0pt, itemsep=6pt]
+\item{
+\textbf{\ttfamily\large\color{color1} Web Development Immersive} {\sffamily | General Assembly | San Francisco, CA} \hfill \textbf{\ttfamily\large\color{color1} 2014}
+}
+\item{
+\textbf{\ttfamily\large\color{color1} Bachelor of Science, Mathematics} {\sffamily | University of Pittsburgh | Pittsburgh, PA} \hfill \textbf{\ttfamily\large\color{color1} 2011}
+}
+\end{itemize}
+
+\end{document}

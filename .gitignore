@@ -163,8 +163,8 @@ parse_html.py
 parse_html_stdin.py
 standardize_apps.py
 
-# Personal LaTeX samples & build logs
-cv/sample_*.tex
+# Personal LaTeX samples: track .tex sources, ignore only compiled artifacts.
+# (The .tex files are upstream reference templates; .pdf/.aux/.log are build output.)
 cover_*.log
 
 # Personal candidate outreach & profile disclosures (populated by /setup)
@@ -172,6 +172,5 @@ cover_*.log
 .claude/skills/job-application-assistant/02-behavioral-profile.md
 .claude/skills/job-application-assistant/04-job-evaluation.md
 .claude/skills/job-application-assistant/07-interview-prep.md
-.claude/skills/job-application-assistant/outreach_protocols.json
 .claude/skills/job-scraper/search-queries.md
 

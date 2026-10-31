@@ -27,6 +27,115 @@ UUID_V7 = re.compile(
 )
 _SLUG_STRIP = re.compile(r"[^a-z0-9]+")
 
+# --------------------------------------------------------------------------
+# Directory name normalization
+#
+# Used for filesystem and Google Drive paths so that {company}/{role}/...
+# directories are consistent regardless of how the human typed the name.
+# Rules:
+#   1. Expand common title contractions (Sr. -> Senior, etc.)
+#   2. Replace commas with hyphens
+#   3. Replace spaces and hyphens with underscores
+#   4. Title-case each word
+#   5. Strip leading/trailing underscores and collapse duplicates
+#   6. Deduplicate adjacent identical words (e.g. "Android_Android" -> "Android")
+# --------------------------------------------------------------------------
+
+_DIR_CONTRACTIONS = {
+    "sr": "Senior",
+    "sr.": "Senior",
+    "jr": "Junior",
+    "jr.": "Junior",
+    "asst": "Assistant",
+    "asst.": "Assistant",
+    "assoc": "Associate",
+    "assoc.": "Associate",
+    "eng": "Engineer",
+    "eng.": "Engineer",
+    "dev": "Developer",
+    "dev.": "Developer",
+    "mgt": "Management",
+    "mgmt": "Management",
+    "tech": "Technology",
+    "tech.": "Technology",
+    "ops": "Operations",
+    "qa": "Quality Assurance",
+    "ui": "User Interface",
+    "ux": "User Experience",
+    "devops": "DevOps",
+    "devrel": "Developer Relations",
+    "devex": "Developer Experience",
+    "devx": "Developer Experience",
+    "ml": "Machine Learning",
+    "ai": "Artificial Intelligence",
+    "vr": "Virtual Reality",
+    "ar": "Augmented Reality",
+    "iot": "Internet of Things",
+    "saas": "Software as a Service",
+    "api": "Application Programming Interface",
+    "ios": "iOS",
+}
+
+_DIR_BAD_WORDS = {"the", "a", "an", "of", "and", "or", "in", "on", "at", "to", "for"}
+
+# Roman numerals that should stay uppercase (common in job titles: Level II, III, IV, V)
+_ROMAN_NUMERALS = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"}
+
+
+def normalize_dir_name(raw: str) -> str:
+    """Normalize a company or role name for use in directory paths.
+
+    Example transformations:
+        "Sr. Software Engineer, Android"  ->  "Senior_Software_Engineer_Android"
+        "staff-android-engineer"          ->  "Staff_Android_Engineer"
+        "Sr-Mobile-Engineer-Android"      ->  "Senior_Mobile_Engineer_Android"
+        "EBay"                            ->  "EBay"
+        "onX"                             ->  "OnX"
+    """
+    if not raw:
+        return ""
+
+    text = raw.strip()
+
+    # 1. Replace commas with hyphens (so "Engineer, Android" becomes "Engineer-Android")
+    text = text.replace(",", "-")
+
+    # 2. Remove stray leading punctuation or special chars
+    text = re.sub(r"^[^a-zA-Z0-9]+", "", text)
+    text = re.sub(r"[^a-zA-Z0-9]+$", "", text)
+
+    # 3. Strip non-alphanumeric characters except spaces, hyphens, underscores, dots
+    #    (removes &, @, #, etc.)
+    text = re.sub(r"[^\w\s\-\.\_]", "", text)
+
+    # 4. Split on any non-alphanumeric boundary (hyphens, underscores, spaces, dots)
+    tokens = re.split(r"[\s_\-\.]+", text)
+
+    # 5. Expand contractions and title-case each token
+    expanded = []
+    for token in tokens:
+        if not token:
+            continue
+        lower = token.lower()
+        if lower in _DIR_CONTRACTIONS:
+            # Contractions may expand to multiple words
+            expanded.extend(_DIR_CONTRACTIONS[lower].split(" "))
+        elif token.upper() in _ROMAN_NUMERALS:
+            # Preserve Roman numerals (II, III, IV, V, etc.) as uppercase
+            expanded.append(token.upper())
+        else:
+            expanded.append(token.title())
+
+    # 5. Deduplicate adjacent identical words (case-insensitive)
+    deduped = []
+    for word in expanded:
+        if deduped and deduped[-1].lower() == word.lower():
+            continue
+        deduped.append(word)
+
+    # 6. Join with underscores
+    return "_".join(deduped)
+
 _CACHE: dict | None = None
 _VALIDATORS: dict[str, jsonschema.Draft202012Validator] = {}
 

@@ -1,0 +1,157 @@
+\documentclass[11pt,a4paper,sans]{moderncv}
+\moderncvstyle{banking}
+\moderncvcolor{blue} 
+
+\usepackage[margin=0.5in]{geometry}
+
+% Two complementary fonts:
+\usepackage{tgpagella} % Palatino clone (Serif) for headings/titles
+\usepackage{tgheros}   % Helvetica clone (Sans) for body content
+\renewcommand{\familydefault}{\sfdefault} % Default body text to sans-serif
+
+% Make links underlined
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=false,
+    pdfborderstyle={/S/U/W 1},
+    urlbordercolor=color1,
+    linkbordercolor=color1
+}
+
+% No page numbers
+\pagestyle{empty}
+
+% Redefine section fonts to explicitly use the serif font
+\renewcommand*{\sectionfont}{\rmfamily\Large\bfseries\color{color1}}
+\renewcommand*{\subsectionfont}{\rmfamily\large\bfseries\color{color1}}
+
+% Remove default moderncv itemize bullets, replace with solid disc
+\renewcommand{\labelitemi}{\color{color1}\textbullet}
+\renewcommand{\labelitemii}{\color{color1}--}
+
+
+\newcommand{\customcvtitle}{
+    \begin{center}
+        {\rmfamily\Huge\bfseries\color{color1} Franco N. Colaizzi}\\[0.2em]
+        {\rmfamily\Large\color{color1} Principal Android Software Engineer}\\[0.6em]
+        {\sffamily
+            Pittsburgh, PA, USA
+            ~|~ \href{mailto:fnc314@gmail.com}{fnc314@gmail.com} 
+            ~|~ 412-721-9550 
+            ~|~ \href{https://linkedin.com/in/fnc314}{LinkedIn} 
+            ~|~ \href{https://github.com/fnc314}{GitHub} 
+            ~|~ \href{https://www.fnc314.dev}{fnc314.dev} 
+            ~|~ \href{https://blog.fnc314.dev}{blog.fnc314.dev}
+        }
+    \end{center}
+    \vspace{1em}
+}
+\begin{document}
+\customcvtitle
+
+
+% ============================================================
+%     PROFILE STATEMENT
+% ============================================================
+\vspace{6pt}
+\small{Principal Android Software Engineer with over a decade of experience defining technical strategy and architecture for large-scale mobile platforms (3.5M+ MAU). Expert in building high-performance, interactive UIs with Jetpack Compose and establishing project-wide engineering standards. Proven track record of leading cross-functional teams through major architectural transformations, including zero-downtime authentication migrations and repository modularization.}
+
+% ============================================================
+%     CORE COMPETENCIES
+% ============================================================
+\section{Core Competencies}
+\vspace{1pt}
+\begin{itemize}
+\item \textbf{\rmfamily Android Architecture}: Kotlin, Jetpack Compose, Coroutines/Flow, MVI, Clean Architecture, Use Cases.
+\item \textbf{\rmfamily Technical Leadership}: Architectural strategy, mentoring 25+ person orgs, stakeholder alignment.
+\item \textbf{\rmfamily Developer Experience}: Gradle (KTS), Version Catalogs, custom module-generation, CI/CD automation.
+\item \textbf{\rmfamily Scale \& Security}: 10M+ user zero-downtime migrations, FIDO/MFA, Samsung Knox, payments engineering.
+\item \textbf{\rmfamily Platform Modernization}: Repository modularization (-70\% build times), design system governance.
+\end{itemize}
+
+% ============================================================
+%     PROFESSIONAL EXPERIENCE
+% ============================================================
+\section{Professional Experience}
+\vspace{3pt}
+\begin{itemize}
+
+% --- Freelance Developer ---
+\item{\cventry{\rmfamily 01/2026--Present}{{\rmfamily Freelance Developer}}{{\rmfamily Independent}}{Pittsburgh, PA}{}{\vspace{1pt}
+\begin{itemize}
+    \item Spearheaded development of a location-based dating app using React Native (Expo), Firebase, and GCP.
+    \item Leveraged generative AI tooling (Claude Code) to accelerate prototyping while maintaining strict validation.
+    \item Authored technical engineering series "Taming the Elephant Herd" at blog.fnc314.dev.
+\end{itemize}}}
+
+\vspace{3pt}
+
+% --- CGI Principal Role ---
+\item{\cventry{\rmfamily 01/2020--06/2025}{{\rmfamily Android Mobile Project Tech Lead}}{{\rmfamily PNC Financial Services (via CGI)}}{Pittsburgh, PA}{}{\vspace{1pt}
+\begin{itemize}
+    \item Lead Architect for flagship Android app (3.5M+ MAU); designed highly resilient mobile-to-backend interfaces.
+    \item Modularized codebase from "god-module" to multi-module repository, reducing build times by 70\%.
+    \item Automated credential setup and environment validation, reducing onboarding time by 80\%.
+    \item Drove implementation of in-app card payment acceptance with BLE card-reader and third-party SDK.
+\end{itemize}}}
+
+\vspace{3pt}
+
+% --- CGI Architect Role ---
+\item{\cventry{\rmfamily 11/2023--06/2025}{{\rmfamily Mobile Redesign Architect Lead}}{{\rmfamily PNC Financial Services (via CGI)}}{Pittsburgh, PA}{}{\vspace{1pt}
+\begin{itemize}
+    \item Led major architectural transformation and instituted 'best-practice-by-default' philosophy.
+    \item Coordinated cross-platform Design System governance with 100\% semantic token adoption.
+    \item Engineered Gradle module-generation workflow to prevent architectural drift across teams.
+\end{itemize}}}
+
+\vspace{3pt}
+
+% --- CGI Security Role ---
+\item{\cventry{\rmfamily 08/2019--01/2020}{{\rmfamily Android Security \& Authentication Tech Lead}}{{\rmfamily PNC Financial Services (via CGI)}}{Pittsburgh, PA}{}{\vspace{1pt}
+\begin{itemize}
+    \item Engineered modern authentication platform, migrating 10M+ active users with zero downtime.
+    \item Pioneered Version Catalog (.toml) and KTS migration for fully type-safe, auditable build systems.
+    \item Secured 98\% of mobile fraud avenues and designed observability patterns for critical flows.
+\end{itemize}}}
+
+\vspace{3pt}
+
+% --- Web Lead ---
+\item{\cventry{\rmfamily 08/2017--08/2019}{{\rmfamily Web Development Lead}}{{\rmfamily PNC Financial Services (via Summa/CGI)}}{Pittsburgh, PA}{}{\vspace{1pt}
+\begin{itemize}
+    \item Guided growth of 25+ peer engineers during redesign of large-scale enterprise platform.
+\end{itemize}}}
+
+\vspace{3pt}
+
+% --- Samsung PoC ---
+\item{\cventry{\rmfamily 01/2015--08/2016}{{\rmfamily Android Developer}}{{\rmfamily Samsung Electronics (via Summa)}}{Pittsburgh, PA}{}{\vspace{1pt}
+\begin{itemize}
+    \item Delivered Android FIDO authenticator PoC, spring-boarding institutional adoption of Samsung Knox and MFA.
+\end{itemize}}}
+
+\end{itemize}
+
+% ============================================================
+%     EDUCATION
+% ============================================================
+\section{Education}
+\vspace{1pt}
+\begin{itemize}
+\item{\cventry{\rmfamily Jan 2014--Apr 2014}{{\rmfamily Web Development Immersive}}{{\rmfamily General Assembly}}{San Francisco, CA}{}{}}
+\vspace{3pt}
+\item{\cventry{\rmfamily 2011}{{\rmfamily Bachelor of Science, Mathematics}}{{\rmfamily University of Pittsburgh}}{Pittsburgh, PA}{}{}}
+\end{itemize}
+
+% ============================================================
+%     PUBLICATIONS & AWARDS
+% ============================================================
+\section{Publications \& Awards}
+\vspace{1pt}
+\begin{itemize}
+\item \textbf{\rmfamily Publication}: Taming the Elephant Herd -- Deep-dives on Gradle build optimization at \href{https://blog.fnc314.dev}{blog.fnc314.dev}.
+\item \textbf{\rmfamily Award}: Founded the CGI I.T. Girl Challenge -- Community partnership for technical education.
+\end{itemize}
+
+\end{document}

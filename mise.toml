@@ -6,3 +6,38 @@ bun = "latest"
 
 [env]
 _ = { file = ".env.local" }
+
+# ── Tasks ──────────────────────────────────────────────────────────────────
+# Shorthand: mise run <name>  (or just `mise <name>` when no conflict)
+
+[tasks.tui]
+description = "Open the terminal job-tracker dashboard"
+run = ".venv/bin/python ui/terminal/tracker_tui.py"
+
+[tasks.tracker]
+description = "Run the tracker CLI (add, update, list, sheet-sync, …)"
+run = ".venv/bin/python scripts/tracker.py"
+
+[tasks.report]
+description = "Generate the HTML applications report"
+run = ".venv/bin/python scripts/generate_report.py"
+
+[tasks.setup]
+description = "Run first-time setup (install deps, init Firestore)"
+run = ".venv/bin/python scripts/setup.py"
+
+[tasks.salary]
+description = "Look up salary data for a role"
+run = ".venv/bin/python scripts/salary_lookup.py"
+
+[tasks.gmail]
+description = "Fetch job-related emails from Gmail"
+run = ".venv/bin/python scripts/gmail_fetch.py"
+
+[tasks.migrate-gcs]
+description = "Upload local artifacts to GCS and backfill Firestore (set TRACKER_ALLOW_WRITES=1)"
+run = ".venv/bin/python scripts/migrate_gcs.py"
+
+[tasks.purge-gcs-legacy]
+description = "Purge old-style GCS artifacts and migrate orphans (set TRACKER_ALLOW_WRITES=1)"
+run = ".venv/bin/python scripts/purge_gcs_legacy.py"

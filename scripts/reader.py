@@ -23,13 +23,51 @@ from __future__ import annotations
 
 import csv
 import datetime as dt
+import enum
 import json
 import os
 import pathlib
-import time
 
 import client
 import contract
+
+
+class LoadingState(enum.IntEnum):
+    """Ordered states reported during a data load so a UI can show real-time progress.
+
+    The integer values provide a natural progression: a UI can compare
+    `new_state > old_state` to detect forward movement.
+    """
+    INITIALIZING = 1
+    CONNECTING = 2
+    FETCHING = 3
+    PROCESSING = 4
+    CHECKING_PROPOSALS = 5
+    COMPLETE = 6
+    ERROR = 100
+
+    def label(self) -> str:
+        """Human-readable label for display."""
+        return {
+            LoadingState.INITIALIZING: "Initializing",
+            LoadingState.CONNECTING: "Connecting to Firestore",
+            LoadingState.FETCHING: "Fetching applications",
+            LoadingState.PROCESSING: "Processing results",
+            LoadingState.CHECKING_PROPOSALS: "Checking for pending proposals",
+            LoadingState.COMPLETE: "Complete",
+            LoadingState.ERROR: "Error",
+        }[self]
+
+
+# Optional callback registered by the TUI to receive loading state changes.
+# Each state change is delivered synchronously on the calling thread.
+_on_state_change: callable | None = None
+
+
+def _emit(state: LoadingState):
+    """Emit a loading state change to the registered callback."""
+    if _on_state_change is not None:
+        _on_state_change(state)
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 LEGACY_CSV = REPO_ROOT / "archive" / "job_search_tracker.csv"
@@ -120,6 +158,7 @@ def _sortRows(rows: list[dict]) -> list[dict]:
 
 def _pendingProposalCount(database) -> int:
     """How many proposals await review. A badge must never break the read."""
+    _emit(LoadingState.CHECKING_PROPOSALS)
     try:
         return sum(
             1
@@ -130,17 +169,52 @@ def _pendingProposalCount(database) -> int:
         return 0
 
 
+def _fetch_companies(database, company_ids: set[str]) -> dict[str, dict]:
+    """Batch-fetch company documents for the given company IDs.
+
+    Returns a dict mapping companyId to company data. Missing companies
+    are silently skipped — the company collection may not yet be populated.
+    """
+    companies = {}
+    try:
+        for company_id in company_ids:
+            snapshot = database.collection(client.COMPANIES).document(company_id).get()
+            if snapshot.exists:
+                companies[company_id] = contract.fromFirestore(snapshot.to_dict())
+    except Exception:  # noqa: BLE001 - missing companies are not a read failure
+        pass
+    return companies
+
+
 def rowsFromStore(db=None) -> tuple[list[dict], dict]:
     """Read every application plus its artifacts from Firestore."""
+    _emit(LoadingState.CONNECTING)
     database = db or client.getDb()
+    _emit(LoadingState.FETCHING)
     rows = []
+    company_ids = set()
+    # Firestore's .stream() blocks on the first iteration until all documents
+    # are returned. The FETCHING state covers this entire network round-trip.
     for snapshot in database.collection(client.APPLICATIONS).stream():
         application = contract.fromFirestore(snapshot.to_dict())
         artifacts = [
             contract.fromFirestore(document.to_dict())
             for document in snapshot.reference.collection(client.ARTIFACTS).stream()
         ]
-        rows.append(rowFromStore(application, artifacts))
+        row = rowFromStore(application, artifacts)
+        rows.append(row)
+        cid = application.get("companyId")
+        if cid:
+            company_ids.add(cid)
+
+    # Batch-fetch company documents and merge into rows
+    companies = _fetch_companies(database, company_ids)
+    for row in rows:
+        cid = row.get("companyId")
+        if cid and cid in companies:
+            row["_company"] = companies[cid]
+
+    _emit(LoadingState.PROCESSING)
     _sortRows(rows)
     return rows, {
         "source": "store",
@@ -229,7 +303,7 @@ def rowsFromStoreWithRetry(db=None, attempts: int = 2):
         except Exception as error:  # noqa: BLE001 - retried, then re-raised
             lastError = error
             if attempt + 1 < attempts:
-                time.sleep(0.3)
+                _emit(LoadingState.CONNECTING)
     raise lastError  # type: ignore[misc]
 
 
@@ -245,27 +319,34 @@ def rows(preferred: str | None = None) -> tuple[list[dict], dict]:
     """
     choice = (preferred or _preferredSource() or "auto").lower()
     attempts: list[str] = []
+    _emit(LoadingState.INITIALIZING)
     if choice in ("store", "auto"):
         try:
             storeRows, storeMeta = rowsFromStoreWithRetry()
             if choice == "store":
+                _emit(LoadingState.COMPLETE)
                 return storeRows, storeMeta
             csvIds = _csvIds()
             if csvIds is None:
+                _emit(LoadingState.COMPLETE)
                 return storeRows, storeMeta
             missing = csvIds - {row["id"] for row in storeRows}
             if not missing:
+                _emit(LoadingState.COMPLETE)
                 return storeRows, storeMeta
             attempts.append(f"store: missing {len(missing)} row(s) present in the CSV")
         except Exception as error:  # noqa: BLE001 - fall through, report why
             attempts.append(f"store: {error}")
     if choice in ("cache", "auto"):
         try:
+            _emit(LoadingState.PROCESSING)
             cacheRows, cacheMeta = rowsFromCache()
             if choice == "cache":
+                _emit(LoadingState.COMPLETE)
                 return cacheRows, cacheMeta
             csvIds = _csvIds()
             if csvIds is None or not (csvIds - {row["id"] for row in cacheRows}):
+                _emit(LoadingState.COMPLETE)
                 return cacheRows, cacheMeta
             attempts.append("cache: missing rows present in the CSV")
         except Exception as error:  # noqa: BLE001
@@ -274,9 +355,11 @@ def rows(preferred: str | None = None) -> tuple[list[dict], dict]:
         try:
             result = rowsFromCsv()
             result[1]["attempts"] = attempts
+            _emit(LoadingState.COMPLETE)
             return result
         except Exception as error:  # noqa: BLE001
             attempts.append(f"csv: {error}")
+    _emit(LoadingState.ERROR)
     raise ReadError("no readable source; " + "; ".join(attempts))
 
 

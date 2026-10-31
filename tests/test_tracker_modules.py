@@ -330,10 +330,16 @@ class TestArtifacts(unittest.TestCase):
         with self.assertRaises(artifacts.ArtifactError):
             artifacts.describe("/no/such/file.pdf")
 
-    def test_blob_path_strips_the_namespace(self):
+    def test_blob_path_uses_canonical_structure(self):
         self.assertEqual(
-            artifacts.blobPath("acme--engineer", "artifact:cv", "main.pdf"),
-            "applications/acme--engineer/cv/main.pdf",
+            artifacts.blobPath("Acme", "Staff Engineer", "2026-10-31", "artifact:cv", "main.pdf"),
+            "applications/Acme/Staff_Engineer/2026-10-31/main.pdf",
+        )
+
+    def test_blob_path_normalizes_names(self):
+        self.assertEqual(
+            artifacts.blobPath("PNC Financial Services", "Sr. Android Engineer", "2026-10-31", "artifact:cv", "main.pdf"),
+            "applications/Pnc_Financial_Services/Senior_Android_Engineer/2026-10-31/main.pdf",
         )
 
 

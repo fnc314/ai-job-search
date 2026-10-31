@@ -2,10 +2,22 @@ import curses
 import datetime
 import json
 import os
+import queue
 import re
 import sys
 import textwrap
+import threading
+import time
 from pathlib import Path
+
+try:
+    from textual.app import App
+    from textual.screen import Screen
+    from textual.widgets import Label
+    from textual.binding import Binding
+    TEXTUAL_AVAILABLE = True
+except ImportError:
+    TEXTUAL_AVAILABLE = False
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 RECALC_QUEUE_PATH = REPO_ROOT / ".recalc_queue"
@@ -89,6 +101,321 @@ def _load_reader():
 
 DATA_META = {"source": "unknown"}
 
+# Reactive refresh state — shared between the background poller and the main loop
+_refresh_lock = threading.Lock()
+_refresh_rows = None
+_refresh_error = None
+_refresh_requested = threading.Event()
+_refresh_thread = None
+_REFRESH_INTERVAL = 60  # seconds between background Firestore polls
+
+# Loading state — pushed by the RxPY stream from reader.py.
+# The animation thread reads this; the data thread never writes it directly.
+_loading_lock = threading.Lock()
+_loading_state: int = 1  # LoadingState.INITIALIZING
+# Queue of state changes — each state emitted by reader.py is enqueued so the
+# animation thread drains them one by one. This guarantees every state is
+# rendered exactly once, even when multiple states fire within microseconds.
+_loading_queue = queue.Queue()
+
+# Callback registered with reader.py to receive loading state changes.
+# Set once at startup, no cleanup needed.
+_state_registered = False
+
+
+# ─── Textual Loading Screen ───────────────────────────────────────────────────
+# A lightweight Textual app that shows animated dots and real-time status text
+# while Firestore data loads. Uses call_from_thread for reliable state delivery
+# from the background data thread. Once loading completes, the app exits and
+# returns the loaded rows so the curses table can take over.
+
+if TEXTUAL_AVAILABLE:
+
+    class LoadingScreen(Screen):
+        """Animated loading screen with two dot rows and status text."""
+
+        # `q` always quits — no confirmation toast, no stacking
+        BINDINGS = [
+            Binding("q", "quit", "Quit", show=True),
+        ]
+
+        # Top dots: 0→1→2→3→3→2→1→0→repeat (period 8)
+        DOTS_CYCLE = ["", "◉", "◉ ◉", "◉ ◉ ◉", "◉ ◉ ◉", "◉ ◉", "◉", ""]
+        HALF_PERIOD = len(DOTS_CYCLE) // 2  # 4
+
+        def __init__(self, status_callback):
+            super().__init__()
+            self._status_callback = status_callback
+            self._frame = 0
+            self._state_label = "Initializing"
+            self._timer_token: object | None = None
+            # Queue for incoming states — each state is rendered individually
+            # with a small delay so rapid successive states are all visible
+            self._state_queue: "queue.Queue[int]" = queue.Queue()
+            # Cancellation flag: set when user quits so the background thread
+            # stops trying to access self.app after the app has shut down.
+            self._cancelled = False
+
+        def compose(self):
+            # Three centered labels: top dots, status, bottom dots
+            yield Label("", id="top_dots")
+            yield Label("", id="status")
+            yield Label("", id="bot_dots")
+
+        def on_mount(self) -> None:
+            # Set initial status text immediately so the label is not blank
+            # before the first state arrives from reader.py
+            self._state_label = "Initializing"
+            try:
+                status_label = self.query_one("#status", Label)
+                status_label.update(f" {self._state_label} ")
+            except Exception:
+                pass
+            # Start animation timer (200ms per frame = 5fps)
+            self._timer_token = self.set_interval(0.2, self._tick)
+            # Register the state callback with reader.py
+            self._register_callback()
+            # Start data loading in background
+            self._start_data_thread()
+
+        def _register_callback(self) -> None:
+            """Register _on_state_change so reader.py delivers states to this screen."""
+            try:
+                reader = _load_reader()
+                reader._on_state_change = self._on_state_change
+            except Exception:
+                pass
+
+        def _on_state_change(self, state) -> None:
+            """Called from reader.py's background thread — enqueue the state.
+
+            States are enqueued so rapid successive states (e.g. PROCESSING →
+            CHECKING_PROPOSALS) are rendered one at a time with a visible delay,
+            instead of being coalesced by call_from_thread.
+
+            If the screen was cancelled (user pressed q/Ctrl+C), silently ignore
+            the state — the app may already be shutting down and self.app access
+            would raise NoActiveAppError.
+            """
+            if self._cancelled:
+                return
+            self._state_queue.put(int(state))
+            try:
+                self.app.call_from_thread(self._drain_state_queue)
+            except Exception:
+                # App is shutting down; NoActiveAppError or similar — ignore
+                pass
+
+        def _drain_state_queue(self) -> None:
+            """Drain one state from the queue and render it.
+
+            If more states are pending, schedules the next drain after a short
+            delay so each state is visible to the user.
+            """
+            try:
+                state_val = self._state_queue.get_nowait()
+            except queue.Empty:
+                return
+
+            try:
+                reader = _load_reader()
+                label = reader.LoadingState(state_val).label()
+            except (ValueError, ImportError, AttributeError):
+                label = "Loading..."
+
+            self._state_label = label
+            try:
+                status_label = self.query_one("#status", Label)
+                status_label.update(f" {label} ")
+                status_label.refresh()
+            except Exception:
+                pass
+
+            # If more states are queued, schedule the next drain
+            if not self._state_queue.empty():
+                self.set_timer(0.25, self._drain_state_queue)
+            # If complete, stop the animation timer
+            elif state_val >= 6:
+                if self._timer_token is not None:
+                    self._timer_token.stop()
+                    self._timer_token = None
+
+        def _start_data_thread(self) -> None:
+            """Start Firestore fetch in a background thread."""
+            def _load():
+                try:
+                    rows, error = load_data()
+                    # If the user quit while loading, self.app is gone — guard it
+                    if self._cancelled:
+                        return
+                    try:
+                        self.app.call_from_thread(self._on_load_complete, rows, error)
+                    except Exception:
+                        # NoActiveAppError: app already shut down — ignore
+                        pass
+                except Exception as e:
+                    if self._cancelled:
+                        return
+                    try:
+                        self.app.call_from_thread(self._on_load_complete, [], str(e))
+                    except Exception:
+                        # NoActiveAppError: app already shut down — ignore
+                        pass
+
+            t = threading.Thread(target=_load, daemon=True)
+            t.start()
+
+        def _on_load_complete(self, rows, error) -> None:
+            """Called on the main event loop thread when data loading finishes."""
+            # Store result for retrieval after app exits
+            self._load_result = (rows, error)
+            # Exit the app to return to curses
+            self.app.exit(result=(rows, error))
+
+        def _tick(self) -> None:
+            """Advance animation frame and redraw dots only.
+
+            The status label is updated by _update_state() via call_from_thread
+            and should NOT be overwritten here — _update_state() sets the correct
+            label from reader.py, and _tick() only animates the dot rows.
+            """
+            self._frame = (self._frame + 1) % len(self.DOTS_CYCLE)
+            top = self.DOTS_CYCLE[self._frame]
+            bot = self.DOTS_CYCLE[(self._frame + self.HALF_PERIOD) % len(self.DOTS_CYCLE)]
+
+            top_label = self.query_one("#top_dots", Label)
+            bot_label = self.query_one("#bot_dots", Label)
+
+            top_label.update(f" {top} ")
+            bot_label.update(f" {bot} ")
+
+        def action_quit(self) -> None:
+            """Handle quit request — cancel the background thread and exit."""
+            self._cancelled = True
+            # Clean up the state callback so the background thread stops calling it
+            try:
+                reader = _load_reader()
+                reader._on_state_change = None
+            except Exception:
+                pass
+            # Stop the animation timer
+            if self._timer_token is not None:
+                self._timer_token.stop()
+                self._timer_token = None
+            # Exit the app — returns empty rows so curses can still start
+            self.app.exit(result=([], "Cancelled by user"))
+
+        def on_unmount(self) -> None:
+            """Clean up the state callback."""
+            self._cancelled = True
+            try:
+                reader = _load_reader()
+                reader._on_state_change = None
+            except Exception:
+                pass
+
+    class LoadingApp(App):
+        """Minimal Textual app that runs the loading screen and exits on complete."""
+
+        CSS = """
+            Screen {
+                align: center middle;
+            }
+            Label {
+                content-align: center middle;
+                width: 100%;
+            }
+            #top_dots {
+                color: $accent;
+                text-style: bold;
+            }
+            #status {
+                color: $text;
+            }
+            #bot_dots {
+                color: $accent;
+                text-style: bold;
+            }
+        """
+
+        # Override default Ctrl+C to exit cleanly without stacking toasts
+        BINDINGS = [
+            Binding("ctrl+c", "quit", "Quit", show=False),
+        ]
+
+        def on_mount(self) -> None:
+            # Push the loading screen — status_callback is a no-op because
+            # the screen registers its own callback via call_from_thread
+            self.push_screen(LoadingScreen(lambda s: None))
+
+        def action_quit(self) -> None:
+            """Handle quit (Ctrl+C) — cancel the loading screen before exiting."""
+            # Cancel the loading screen's background thread so it doesn't
+            # try to access self.app after we shut down.
+            try:
+                screen = self.screen
+                if isinstance(screen, LoadingScreen):
+                    screen._cancelled = True
+                    try:
+                        reader = _load_reader()
+                        reader._on_state_change = None
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+            self.exit(result=([], "Cancelled by user"))
+
+    def run_textual_loading() -> tuple:
+        """Run the Textual loading screen and return (rows, error) when complete.
+
+        This blocks until loading finishes, then returns the loaded data
+        so the curses table can take over. After Textual exits, the terminal
+        is reset so curses can initialize cleanly.
+        """
+        # Save the original terminal attributes before Textual modifies them.
+        # We need to restore these after Textual exits so curses can initialize.
+        # tcgetattr fails with OSError in non-TTY environments (e.g. CI), which
+        # is fine — curses won't work there either.
+        import termios
+        original_tty = None
+        try:
+            original_tty = termios.tcgetattr(sys.stdin.fileno())
+        except Exception:  # noqa: BLE001 - termios.error in non-TTY env
+            pass
+
+        app = LoadingApp()
+        result = app.run()
+
+        # Restore the original terminal attributes so curses can take over.
+        # Textual leaves the tty in raw mode; curses needs cooked mode to
+        # call setraw() itself during initialization.
+        if original_tty is not None:
+            try:
+                termios.tcsetattr(sys.stdin.fileno(), termios.TCSAFLUSH, original_tty)
+            except Exception:  # noqa: BLE001 - termios.error
+                pass
+        sys.stdout.write("\033[2J\033[H")  # Clear screen and home cursor
+        sys.stdout.flush()
+
+        # result is (rows, error) from LoadingScreen._on_load_complete
+        if result is not None:
+            return result
+        # Fallback: try to get result from the screen
+        try:
+            screen = app.screen
+            if hasattr(screen, '_load_result'):
+                return screen._load_result
+        except Exception:
+            pass
+        # Last resort: load synchronously
+        return load_data()
+
+else:
+    def run_textual_loading() -> tuple:
+        """Fallback when Textual is not available — loads data synchronously."""
+        return load_data()
+
+
 def write_recalc_request(row):
     """Ask for a fit recalculation without performing one.
 
@@ -114,22 +441,188 @@ def write_recalc_request(row):
         pass
     return request
 
+def _get_filters() -> dict:
+    """Read filter flags passed from tracker.py --tui."""
+    return {
+        "open": os.environ.get("TRACKER_FILTER_OPEN", "") == "1",
+        "status": os.environ.get("TRACKER_FILTER_STATUS", ""),
+        "tag": os.environ.get("TRACKER_FILTER_TAG", ""),
+        "limit": int(os.environ.get("TRACKER_FILTER_LIMIT", "0") or "0"),
+    }
+
+
+def _apply_filters(rows: list[dict], filters: dict) -> list[dict]:
+    """Apply tracker.py --tui filters to the full row set."""
+    filtered = rows
+
+    # Filter to open applications only (status is not closed/withdrawn/declined)
+    if filters.get("open"):
+        closed_statuses = {"closed", "withdrawn", "declined", "rejected", "hired"}
+        filtered = [
+            row for row in filtered
+            if row.get("status", "").lower() not in closed_statuses
+        ]
+
+    # Filter by specific status
+    if filters.get("status"):
+        target = filters["status"].lower()
+        filtered = [
+            row for row in filtered
+            if row.get("status", "").lower() == target
+        ]
+
+    # Filter by tag (tags are stored in notes or as a separate field)
+    if filters.get("tag"):
+        tag = filters["tag"]
+        filtered = [
+            row for row in filtered
+            if tag in (row.get("notes") or "")
+            or tag in (row.get("sector") or "")
+        ]
+
+    # Apply limit
+    if filters.get("limit", 0) > 0:
+        filtered = filtered[:filters["limit"]]
+
+    return filtered
+
+
+def _filters_label(filters: dict) -> str:
+    """Return a short label for active filters, e.g. 'open' or 'open + limit:50'."""
+    parts = []
+    if filters.get("open"):
+        parts.append("open")
+    if filters.get("status"):
+        parts.append(f"status:{filters['status']}")
+    if filters.get("tag"):
+        parts.append(f"tag:{filters['tag']}")
+    if filters.get("limit", 0) > 0:
+        parts.append(f"limit:{filters['limit']}")
+    return " + ".join(parts) if parts else ""
+
+
+def _set_loading_state(state):
+    """Queue a loading state change for the animation thread.
+
+    Called by reader.py's _on_state_change callback. Accepts a LoadingState enum
+    value (int). Each call enqueues the state so the animation thread drains them
+    one by one — no states are lost, even when multiple fire within microseconds.
+    """
+    global _loading_state
+    state_int = int(state)
+    with _loading_lock:
+        _loading_state = state_int
+    _loading_queue.put(state_int)
+
+
+def _register_state_callback():
+    """Register _set_loading_state with reader.py so state changes are delivered.
+
+    Called once at startup. reader.py calls the registered callback synchronously
+    on the calling thread for each state change.
+    """
+    global _state_registered
+    if _state_registered:
+        return
+    try:
+        module = _load_reader()
+        module._on_state_change = _set_loading_state
+        _state_registered = True
+    except Exception:
+        pass
+
+
+def _fetch_rows():
+    """Core Firestore fetch + filter logic, shared by initial load and background refresh."""
+    module = None
+    try:
+        module = _load_reader()
+    except Exception as error:  # noqa: BLE001 - a read failure must not crash curses
+        error_state = module.LoadingState.ERROR if module and hasattr(module, 'LoadingState') else 100
+        _set_loading_state(error_state)
+        return None, str(error), None
+
+    try:
+        rows, meta = module.rows()
+    except Exception as error:  # noqa: BLE001 - a read failure must not crash curses
+        error_state = module.LoadingState.ERROR if module and hasattr(module, 'LoadingState') else 100
+        _set_loading_state(error_state)
+        return None, str(error), None
+
+    filters = _get_filters()
+    rows = _apply_filters(rows, filters)
+
+    label = module.badge(meta)
+    filter_label = _filters_label(filters)
+    if filter_label:
+        label = f"{label} [{filter_label}]"
+
+    meta = {**meta, "label": label}
+    return rows, None, meta
+
+
 def load_data():
     """Rows come from the tracker store, then the cache, then the CSV.
 
     The legacy row shape is preserved by `scripts/reader.py`, so every renderer
     below is unchanged. `DATA_META` records which source answered, and the
     header shows it: a stale snapshot must never look live.
+
+    If launched via `tracker.py list --tui`, filter flags are read from
+    environment variables and applied after loading.
     """
     global DATA_META
-    try:
-        module = _load_reader()
-        rows, meta = module.rows()
-    except Exception as error:  # noqa: BLE001 - a read failure must not crash curses
-        DATA_META = {"source": "unavailable", "label": "unavailable", "error": str(error)}
-        return []
-    DATA_META = {**meta, "label": module.badge(meta)}
-    return rows
+    rows, error, meta = _fetch_rows()
+    if error is not None:
+        DATA_META = {"source": "unavailable", "label": "unavailable", "error": error}
+        return [], error
+    DATA_META = meta
+    return rows, None
+
+
+def _background_poller():
+    """Periodically poll Firestore in the background and signal the main loop."""
+    global _refresh_rows, _refresh_error
+    while not _refresh_requested.is_set():
+        if _refresh_requested.wait(timeout=_REFRESH_INTERVAL):
+            break  # Shutdown signal
+        rows, error, meta = _fetch_rows()
+        with _refresh_lock:
+            _refresh_rows = rows
+            _refresh_error = error
+            if meta is not None:
+                DATA_META.update(meta)
+        _refresh_requested.set()  # Signal main loop that new data is available
+
+
+def start_background_refresh():
+    """Start the background Firestore poller thread."""
+    global _refresh_thread
+    _refresh_requested.clear()
+    _refresh_thread = threading.Thread(target=_background_poller, daemon=True)
+    _refresh_thread.start()
+
+
+def stop_background_refresh():
+    """Signal the background poller to stop."""
+    global _refresh_thread
+    _refresh_requested.set()
+    if _refresh_thread is not None:
+        _refresh_thread.join(timeout=2)
+        _refresh_thread = None
+
+
+def check_background_refresh() -> tuple:
+    """Check if the background poller has new data. Returns (rows, error) or (None, None)."""
+    global _refresh_rows, _refresh_error
+    with _refresh_lock:
+        if _refresh_rows is not None:
+            rows = _refresh_rows
+            error = _refresh_error
+            _refresh_rows = None
+            _refresh_error = None
+            return rows, error
+    return None, None
 
 def get_column_widths(rows, cols_config):
     widths = {}
@@ -200,46 +693,79 @@ def get_archive_dir(row):
     return f"documents/applications/{company}_{role}"
 
 def load_detail_lines(row, max_width):
-    raw_entries = [] # List of (text, file_path)
+    raw_entries = [] # List of (text, file_path_or_url)
     
+    # Application summary
     raw_entries.append((f"COMPANY: {row.get('company')}", None))
     raw_entries.append((f"ROLE:    {row.get('role')}", None))
     raw_entries.append((f"DATE:    {row.get('date')}", None))
     raw_entries.append((f"STATUS:  {row.get('status')} (Fit: {row.get('fit_rating')})", None))
     raw_entries.append((f"NOTES:   {row.get('notes')}", None))
-    raw_entries.append((f"URL:     {row.get('source')}", None))
+    source_url = row.get('source')
+    if source_url:
+        raw_entries.append((f"URL:     {source_url}", source_url))
     raw_entries.append(("", None))
     
-    # Files section
-    raw_entries.append(("FILES (Enter to View):", None))
-    archive_dir = get_archive_dir(row)
+    # Company profile from Firestore (merged by reader.py as _company)
+    company_data = row.get('_company')
+    if company_data:
+        raw_entries.append(("--- COMPANY PROFILE ---", None))
+        for field, label in [
+            ("name", "Name"), ("sector", "Sector"), ("website", "Website"),
+            ("hqAddress", "HQ"), ("careersEmail", "Careers Email"),
+            ("jobBoardUrl", "Job Board"), ("linkedinUrl", "LinkedIn"),
+            ("careersUrl", "Careers URL"),
+        ]:
+            value = company_data.get(field)
+            if value:
+                raw_entries.append((f"  {label}: {value}", None))
+        raw_entries.append(("", None))
     
-    # Collect all potential files
-    candidate_files = []
-    if os.path.exists(archive_dir):
-        for f in os.listdir(archive_dir):
-            if os.path.isfile(os.path.join(archive_dir, f)):
-                candidate_files.append(os.path.join(archive_dir, f))
+    # Files section — GCS storage from Firestore, local files as fallback
+    raw_entries.append(("FILES (Enter to Open):", None))
+    artifacts = row.get('artifacts', [])
+    has_files = False
+    for artifact in artifacts:
+        filename = artifact.get('filename', 'unknown')
+        kind = artifact.get('kind', '').split(':', 1)[-1] if artifact.get('kind') else 'file'
+        storage = artifact.get('storage')
+        local_path = artifact.get('localPath')
+        external_url = artifact.get('externalUrl')
+        
+        if storage and storage.get('path'):
+            # Show GCS storage path; generate signed URL on demand
+            raw_entries.append((f"  [GCS] {kind}: {filename}", storage.get('path', '')))
+            has_files = True
+        elif external_url:
+            raw_entries.append((f"  [LINK] {kind}: {filename}", external_url))
+            has_files = True
+        elif local_path and os.path.exists(local_path):
+            raw_entries.append((f"  [FILE] {kind}: {filename}", local_path))
+            has_files = True
     
-    cv_file = row.get('cv_file')
-    if cv_file and os.path.exists(cv_file): candidate_files.append(cv_file)
-    cl_file = row.get('cover_letter_file')
-    if cl_file and os.path.exists(cl_file): candidate_files.append(cl_file)
-    
-    # De-duplicate
-    seen = set()
-    unique_files = []
-    for f in candidate_files:
-        if f not in seen:
-            unique_files.append(f)
-            seen.add(f)
-            
-    for fpath in unique_files:
-        raw_entries.append((f"  [FILE] {os.path.basename(fpath)}", fpath))
+    # Legacy fallback: scan local archive dir if no artifacts from Firestore
+    if not has_files:
+        archive_dir = get_archive_dir(row)
+        candidate_files = []
+        if os.path.exists(archive_dir):
+            for f in os.listdir(archive_dir):
+                if os.path.isfile(os.path.join(archive_dir, f)):
+                    candidate_files.append(os.path.join(archive_dir, f))
+        cv_file = row.get('cv_file')
+        if cv_file and os.path.exists(cv_file):
+            candidate_files.append(cv_file)
+        cl_file = row.get('cover_letter_file')
+        if cl_file and os.path.exists(cl_file):
+            candidate_files.append(cl_file)
+        seen = set()
+        for fpath in candidate_files:
+            if fpath not in seen:
+                raw_entries.append((f"  [FILE] {os.path.basename(fpath)}", fpath))
+                seen.add(fpath)
     
     raw_entries.append(("", None))
 
-    # Outreach section
+    # Outreach section (static config, kept from local JSON)
     try:
         import urllib.parse
         proto_path = ".claude/skills/job-application-assistant/outreach_protocols.json"
@@ -277,20 +803,6 @@ def load_detail_lines(row, max_width):
         raw_entries.append((f"--- Could not load outreach protocols: {e} ---", None))
         raw_entries.append(("", None))
 
-    if not os.path.exists(archive_dir):
-        raw_entries.append((f"--- No Archive Folder Found at {archive_dir} ---", None))
-    else:
-        # Also include outcome.md content at the bottom for quick look
-        fpath = os.path.join(archive_dir, 'outcome.md')
-        if os.path.exists(fpath):
-            raw_entries.append((f" {'='*15} outcome.md {'='*15} ", None))
-            try:
-                with open(fpath, 'r') as f:
-                    for line in f:
-                        raw_entries.append((line.rstrip(), None))
-            except Exception as e:
-                raw_entries.append((f"Error: {e}", None))
-                
     wrapped_lines = []
     for text, fpath in raw_entries:
         text = text.replace('\t', '    ')
@@ -328,20 +840,195 @@ def init_colors(is_light_theme, no_color):
             curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)  
             curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_BLACK) 
 
-def main(stdscr):
+def _get_loading_state() -> int:
+    """Read the current loading state as an int value (thread-safe)."""
+    with _loading_lock:
+        return _loading_state
+
+
+def _loading_state_label(state_val: int) -> str:
+    """Convert a LoadingState int value to a display label.
+
+    Lazily imports reader.LoadingState so this works even if the import
+    fails (falls back to a generic message).
+    """
+    try:
+        import reader  # noqa: PLC0415
+        ls = reader.LoadingState(state_val)
+        return ls.label()
+    except (ValueError, ImportError, AttributeError):
+        return "Loading..."
+
+
+def _show_loading(stdscr, message, is_light_theme, no_color, data_thread: threading.Thread, animation_ready: threading.Event):
+    """Show an animated loading message while data loads in the background.
+
+    Two rows of animated dots (above and below) frame a single status text line.
+    Top dots follow 0→1→2→3→3→2→1→0, bottom dots animate half-period offset
+    (3→2→1→0→0→1→2→3). Uses time.sleep() instead of nodelay/getch to avoid
+    leaving the curses buffer in a stale state on Ghostty.
+
+    Signals animation_ready after the first frame so the data thread knows
+    it can start updating _loading_state.
+    """
+    # Colors are already initialized by main() before this is called.
+    stdscr.bkgd(' ', curses.color_pair(4) if curses.has_colors() else 0)
+    curses.curs_set(0)
+
+    h, w = stdscr.getmaxyx()
+    if h < 3 or w < 10:
+        return False
+
+    c_highlight = curses.color_pair(3) | curses.A_BOLD if curses.has_colors() else curses.A_BOLD
+    c_default = curses.color_pair(4) if curses.has_colors() else 0
+
+    # Top dots: 0→1→2→3→3→2→1→0→repeat (period 8)
+    # Bottom dots: half-period offset (shift 4), so 3→2→1→0→0→1→2→3
+    dots_cycle = ["", "◉", "◉ ◉", "◉ ◉ ◉", "◉ ◉ ◉", "◉ ◉", "◉", ""]
+    half_period = len(dots_cycle) // 2  # 4
+
+    def _draw_frame(stdscr, h, w, frame: int, state_val: int):
+        """Draw a single loading frame: top dots, status text, bottom dots."""
+        top_dots = dots_cycle[frame % len(dots_cycle)]
+        bot_dots = dots_cycle[(frame + half_period) % len(dots_cycle)]
+
+        stdscr.erase()
+
+        # Top dots
+        if top_dots:
+            line = f" {top_dots} "
+            x = max(0, (w - len(line)) // 2)
+            safe_addstr(stdscr, h // 2 - 1, x, line, c_highlight)
+
+        # Status text from LoadingState enum label
+        state_label = _loading_state_label(state_val)
+        state_line = f" {state_label} "
+        x = max(0, (w - len(state_line)) // 2)
+        safe_addstr(stdscr, h // 2, x, state_line, c_default)
+
+        # Bottom dots
+        if bot_dots:
+            line = f" {bot_dots} "
+            x = max(0, (w - len(line)) // 2)
+            safe_addstr(stdscr, h // 2 + 1, x, line, c_highlight)
+
+        stdscr.refresh()
+        curses.doupdate()
+
+    # Draw the first frame immediately and signal the data thread to proceed
+    state = _get_loading_state()
+    _draw_frame(stdscr, h, w, 0, state)
+    last_state = state
+    last_frame = 0
+
+    # Signal the data thread that the animation is ready and rendering
+    animation_ready.set()
+
+    # Continue until both the data thread stops AND the queue is fully drained.
+    # This ensures the final COMPLETE state is rendered before transitioning.
+    while data_thread.is_alive() or not _loading_queue.empty():
+        h, w = stdscr.getmaxyx()
+        if h < 3 or w < 10:
+            break
+
+        # Drain all queued state changes. Each state emitted by reader.py is
+        # enqueued, so even rapid sequential states (PROCESSING, CHECKING_PROPOSALS,
+        # COMPLETE) are rendered one by one — none are lost.
+        while True:
+            try:
+                state = _loading_queue.get_nowait()
+            except queue.Empty:
+                break
+            _draw_frame(stdscr, h, w, int(time.time() * 2) % len(dots_cycle), state)
+            last_state = state
+            last_frame = int(time.time() * 2) % len(dots_cycle)
+            # Small delay so each state is visible before the next one
+            time.sleep(0.05)
+
+        # Advance frame animation even when no state change (500ms per tick)
+        frame = int(time.time() * 2) % len(dots_cycle)
+        if frame != last_frame:
+            _draw_frame(stdscr, h, w, frame, last_state)
+            last_frame = frame
+
+        time.sleep(0.1)
+
+    # Thread finished; drain any remaining queued states so the final state
+    # (e.g. COMPLETE) is rendered before transitioning to the data view.
+    h, w = stdscr.getmaxyx()
+    if h >= 3 and w >= 10:
+        while True:
+            try:
+                state = _loading_queue.get_nowait()
+            except queue.Empty:
+                break
+            _draw_frame(stdscr, h, w, int(time.time() * 2) % len(dots_cycle), state)
+
+    # Force a clean screen transition so the main render loop gets a fresh buffer.
+    stdscr.erase()
+    stdscr.refresh()
+    curses.doupdate()
+    return False
+
+
+def main(stdscr, preloaded_rows=None, preloaded_error=None):
+    """Main curses loop.
+
+    If *preloaded_rows* is provided, the Textual loading screen already fetched
+    the data and the curses loading animation is skipped entirely.
+    Otherwise, falls back to the curses loading animation.
+    """
     curses.curs_set(0)
     stdscr.nodelay(False)
-    
+
     no_color = os.environ.get("NO_COLOR", "").strip() != ""
-    if curses.has_colors() and not no_color:
-        curses.start_color()
-    
     config = load_config()
     is_light_theme = config.get("theme") == "light"
-    init_colors(is_light_theme, no_color)
-    stdscr.bkgd(' ', curses.color_pair(4))
-    
-    rows = load_data()
+
+    # Initialize colors early — required whether or not _show_loading() runs.
+    # When Textual preloads data, _show_loading() is skipped, so start_color()
+    # must be called here to avoid a blank screen.
+    if curses.has_colors() and not no_color:
+        curses.start_color()
+        init_colors(is_light_theme, no_color)
+
+    if preloaded_rows is not None:
+        # Data was already loaded by the Textual loading screen — skip animation
+        rows = preloaded_rows
+        load_error = preloaded_error
+    else:
+        # Fallback: curses loading animation (when Textual unavailable)
+        _register_state_callback()
+
+        load_result = [None, None]  # [rows, error]
+        animation_ready = threading.Event()
+
+        def _load_in_thread():
+            animation_ready.wait(timeout=5)
+            rows, error = load_data()
+            load_result[0] = rows
+            load_result[1] = error
+
+        data_thread = threading.Thread(target=_load_in_thread, daemon=True)
+        data_thread.start()
+
+        _show_loading(stdscr, "Loading applications...", is_light_theme, no_color, data_thread, animation_ready)
+        data_thread.join(timeout=30)
+
+        rows, load_error = load_result
+
+    # Start background refresh thread for reactive updates
+    start_background_refresh()
+
+    # After the blocking Firestore fetch, force the curses buffer to flush.
+    # Ghostty's render pipeline can skip the first draw after a long blocking
+    # call — doupdate() flushes the window tree, then erase() + refresh()
+    # gives the main render loop a clean slate so the first frame lands.
+    curses.doupdate()
+    stdscr.erase()
+    stdscr.refresh()
+    curses.doupdate()
+
     cols_config = config["columns"]
     col_widths = get_column_widths(rows, cols_config)
     
@@ -378,6 +1065,10 @@ def main(stdscr):
     detail_scroll = 0
     detail_idx = 0
     
+    # Cache detail lines by row id so they are only loaded once.
+    # Cleared on background refresh in case file paths change.
+    detail_cache: dict[str, list] = {}
+    
     file_view_lines = []
     file_view_scroll = 0
     file_view_title = ""
@@ -385,6 +1076,12 @@ def main(stdscr):
     while True:
         stdscr.clear()
         h, w = stdscr.getmaxyx()
+        
+        # Guard against zero-sized windows (resize edge case)
+        if h < 3 or w < 10:
+            stdscr.refresh()
+            stdscr.getch()
+            continue
         
         c_header = curses.color_pair(1) | curses.A_BOLD if curses.has_colors() else curses.A_REVERSE
         c_selected = curses.color_pair(2) if curses.has_colors() else curses.A_REVERSE
@@ -461,12 +1158,45 @@ def main(stdscr):
             
             visible_cols = [c for c in cols_config if c.get("visible", True)]
             
+            # Show error message if data load failed
+            if load_error is not None:
+                err_lines = textwrap.wrap(f"ERROR: {load_error}", width=min(w - 4, 120))
+                for i, line in enumerate(err_lines):
+                    if i + 2 < h - 1:
+                        safe_addstr(stdscr, 2 + i, 2, line, c_highlight)
+                # Still show footer so quit works
+                footer_text = " [q]: Quit "
+                safe_addstr(stdscr, h - 1, 0, footer_text.ljust(w)[:w - 1], c_footer)
+                stdscr.refresh()
+                key = stdscr.getch()
+                if key in [ord('q'), 27]:
+                    break
+                continue
+            
+            # Check for background refresh data
+            new_rows, new_error = check_background_refresh()
+            if new_rows is not None:
+                if new_error is None:
+                    rows = new_rows
+                    col_widths = get_column_widths(rows, cols_config)
+                    sort_data()
+                    # Reset scroll/selection after refresh
+                    list_scroll = 0
+                    current_row = 0
+                    # Invalidate detail cache — file paths or metadata may have changed
+                    detail_cache.clear()
+                # Don't show error for background refresh failures —
+                # the initial load error (if any) is still the authoritative one
+
             # Header
             header_text = f" AI JOB TRACKER | {len(rows)} Apps "
             if is_split: header_text += f"| Focus: {focused_pane} "
             # Provenance is part of the header, not a hidden status: a stale
             # cache must never be mistaken for the live record.
             header_text += f"| {DATA_META.get('label', 'unknown')} "
+            # Show refresh indicator if background thread is active
+            if _refresh_thread is not None and _refresh_thread.is_alive():
+                header_text += "| (auto-refresh) "
             pending = DATA_META.get("pendingProposals") or 0
             if pending:
                 header_text += f"| {pending} to review "
@@ -491,7 +1221,7 @@ def main(stdscr):
             col_parts = []
             for i, cfg in enumerate(visible_cols):
                 arrow = "v" if sort_dirs.get(cfg["key"]) else "^"
-                label = f"[{i+1}] {cfg['label']} {arrow if (sort_idx % len(visible_cols)) == i else ''}"
+                label = f"[{i+1}] {cfg['label']} {arrow if len(visible_cols) > 0 and (sort_idx % len(visible_cols)) == i else ''}"
                 col_parts.append(f"{label[:calc_widths[i]]:<{calc_widths[i]}}")
             
             header_line = " " + " | ".join(col_parts)
@@ -502,28 +1232,35 @@ def main(stdscr):
             if current_row < list_scroll: list_scroll = current_row
             elif current_row >= list_scroll + max_disp: list_scroll = current_row - max_disp + 1
                 
-            for i in range(max_disp):
-                idx = list_scroll + i
-                if idx >= len(rows): break
-                row = rows[idx]
-                row_parts = []
-                for j, cfg in enumerate(visible_cols):
-                    val = str(row.get(cfg["key"], "") or "")
-                    if cfg["key"] == "fit_rating" and not val:
-                        val = "?? RECALC"
-                    width = calc_widths[j]
-                    row_parts.append(f"{val[:width]:<{width}}")
-                
-                line = " " + " | ".join(row_parts)
-                attr = c_selected if idx == current_row else (c_highlight if idx == active_selection_idx else c_default)
-                safe_addstr(stdscr, 4 + i, 0, line.ljust(list_w)[:list_w], attr)
+            if not rows:
+                safe_addstr(stdscr, 4, 2, "No applications found.", c_highlight)
+                if DATA_META.get("source") == "unavailable":
+                    safe_addstr(stdscr, 5, 2, "Could not connect to data source.", c_highlight)
+            else:
+                for i in range(max_disp):
+                    idx = list_scroll + i
+                    if idx >= len(rows): break
+                    row = rows[idx]
+                    row_parts = []
+                    for j, cfg in enumerate(visible_cols):
+                        val = str(row.get(cfg["key"], "") or "")
+                        if cfg["key"] == "fit_rating" and not val:
+                            val = "?? RECALC"
+                        width = calc_widths[j]
+                        row_parts.append(f"{val[:width]:<{width}}")
+                    
+                    line = " " + " | ".join(row_parts)
+                    attr = c_selected if idx == current_row else (c_highlight if idx == active_selection_idx else c_default)
+                    safe_addstr(stdscr, 4 + i, 0, line.ljust(list_w)[:list_w], attr)
             
             footer_text = " [j/k]: Nav | [Enter]: Detail | [r]: Recalc | [Tab]: Focus | [c]: Config | [t]: Theme | [q]: Quit "
             safe_addstr(stdscr, h - 1, 0, footer_text.ljust(w)[:w-1], c_footer)
             
             if is_split:
                 for i in range(1, h - 1): safe_addstr(stdscr, i, list_w, "|", c_default)
-                det_header = f" DETAILS: {rows[active_selection_idx]['company']} | [Enter]: View File "
+                sel_row = rows[active_selection_idx] if active_selection_idx is not None else {}
+                det_company = sel_row.get("company") or "Unknown"
+                det_header = f" DETAILS: {det_company} | [Enter]: View File "
                 safe_addstr(stdscr, 0, list_w+1, det_header.ljust(det_w)[:det_w], c_header if focused_pane=="DETAILS" else c_highlight)
                 
                 max_det_disp = h - 3
@@ -553,23 +1290,33 @@ def main(stdscr):
             else:
                 break
         if key == 27: # ESC
-            if in_file_view: in_file_view = False
-            elif in_settings: in_settings = False
-            elif in_detail: in_detail = False
-            elif active_selection_idx is not None: active_selection_idx = None
-            continue
+            if in_file_view:
+                in_file_view = False
+            elif in_settings:
+                in_settings = False
+            elif in_detail:
+                in_detail = False
+            elif active_selection_idx is not None:
+                active_selection_idx = None
+                detail_lines = []
+                detail_scroll = 0
+                detail_idx = 0
+                continue
 
         if in_file_view:
             if key in [curses.KEY_DOWN, ord('j')]: file_view_scroll = min(len(file_view_lines)-(h-3), file_view_scroll+1)
             elif key in [curses.KEY_UP, ord('k')]: file_view_scroll = max(0, file_view_scroll-1)
         elif in_settings:
-            if key in [curses.KEY_DOWN, ord('j')]: settings_idx = (settings_idx + 1) % len(cols_config)
-            elif key in [curses.KEY_UP, ord('k')]: settings_idx = (settings_idx - 1) % len(cols_config)
-            elif key == ord(' '): cols_config[settings_idx]["visible"] = not cols_config[settings_idx].get("visible", True)
-            elif key == ord('u') and settings_idx > 0:
+            if key in [curses.KEY_DOWN, ord('j')] and cols_config:
+                settings_idx = (settings_idx + 1) % len(cols_config)
+            elif key in [curses.KEY_UP, ord('k')] and cols_config:
+                settings_idx = (settings_idx - 1) % len(cols_config)
+            elif key == ord(' ') and cols_config:
+                cols_config[settings_idx]["visible"] = not cols_config[settings_idx].get("visible", True)
+            elif key == ord('u') and settings_idx > 0 and cols_config:
                 cols_config[settings_idx], cols_config[settings_idx-1] = cols_config[settings_idx-1], cols_config[settings_idx]
                 settings_idx -= 1
-            elif key == ord('d') and settings_idx < len(cols_config) - 1:
+            elif key == ord('d') and settings_idx < len(cols_config) - 1 and cols_config:
                 cols_config[settings_idx], cols_config[settings_idx+1] = cols_config[settings_idx+1], cols_config[settings_idx]
                 settings_idx += 1
             elif key in [10, 13]:
@@ -577,19 +1324,51 @@ def main(stdscr):
                 save_config(config)
                 in_settings = False
         elif in_detail and not config["split_mode"]:
-            if key == ord('r'):
+            if key == ord('r') and rows:
                 target_idx = active_selection_idx if active_selection_idx is not None else current_row
+                target_idx = max(0, min(target_idx, len(rows) - 1))
                 write_recalc_request(rows[target_idx])
                 break
             if key in [ord('b'), ord('q')]: in_detail = False
             elif key in [curses.KEY_DOWN, ord('j')]:
-                detail_idx = min(len(detail_lines)-1, detail_idx+1)
+                detail_idx = min(max(0, len(detail_lines)-1), detail_idx+1)
             elif key in [curses.KEY_UP, ord('k')]:
                 detail_idx = max(0, detail_idx-1)
-            elif key in [10, 13]:
+            elif key in [10, 13] and detail_lines:
                 _, fpath = detail_lines[detail_idx]
                 if fpath:
-                    if fpath.startswith("http"):
+                    if fpath.startswith('gs://') or '/' in fpath and not os.path.isabs(fpath):
+                        # GCS path — for .md files, download and render inline
+                        detail_text = detail_lines[detail_idx][0]
+                        filename_from_detail = detail_text.split(":")[-1].strip() if ":" in detail_text else "file"
+                        if filename_from_detail.lower().endswith('.md'):
+                            try:
+                                sys.path.insert(0, str(REPO_ROOT / "scripts"))
+                                import client as client_mod  # noqa: PLC0415
+                                import artifacts as artifacts_mod  # noqa: PLC0415
+                                bucket = client_mod.getBucket()
+                                content = artifacts_mod.download_text(bucket, fpath)
+                                file_view_title = filename_from_detail
+                                file_view_lines = content.splitlines()
+                                in_file_view = True
+                                file_view_scroll = 0
+                            except Exception as e:
+                                file_view_lines = [f"Error downloading from GCS: {e}"]
+                                in_file_view = True
+                        else:
+                            # Generate signed URL and open in browser
+                            try:
+                                sys.path.insert(0, str(REPO_ROOT / "scripts"))
+                                import client as client_mod  # noqa: PLC0415
+                                import artifacts as artifacts_mod  # noqa: PLC0415
+                                import webbrowser
+                                bucket = client_mod.getBucket()
+                                url = artifacts_mod.signed_url(bucket, fpath)
+                                webbrowser.open(url)
+                            except Exception as e:
+                                file_view_lines = [f"Error generating GCS URL: {e}"]
+                                in_file_view = True
+                    elif fpath.startswith("http"):
                         import webbrowser
                         webbrowser.open(fpath)
                     else:
@@ -607,8 +1386,9 @@ def main(stdscr):
                             in_file_view = True
         else:
             if key == ord('c'): in_settings = True
-            elif key == ord('r'):
+            elif key == ord('r') and rows:
                 target_idx = active_selection_idx if active_selection_idx is not None else current_row
+                target_idx = max(0, min(target_idx, len(rows) - 1))
                 write_recalc_request(rows[target_idx])
                 break
             elif key == ord('t'):
@@ -620,11 +1400,15 @@ def main(stdscr):
             elif key == ord('\t'):
                 if active_selection_idx is not None: focused_pane = "DETAILS" if focused_pane == "LIST" else "LIST"
             elif key in [curses.KEY_DOWN, ord('j')]:
-                if focused_pane == "LIST": current_row = min(len(rows)-1, current_row+1)
-                else: detail_idx = min(len(detail_lines)-1, detail_idx+1)
+                if focused_pane == "LIST" and rows:
+                    current_row = min(len(rows)-1, current_row+1)
+                elif detail_lines:
+                    detail_idx = min(max(0, len(detail_lines)-1), detail_idx+1)
             elif key in [curses.KEY_UP, ord('k')]:
-                if focused_pane == "LIST": current_row = max(0, current_row-1)
-                else: detail_idx = max(0, detail_idx-1)
+                if focused_pane == "LIST" and rows:
+                    current_row = max(0, current_row-1)
+                elif detail_lines:
+                    detail_idx = max(0, detail_idx-1)
             elif key in [ord('1'), ord('2'), ord('3'), ord('4'), ord('5')]:
                 v_cols = [c for c in cols_config if c.get("visible", True)]
                 idx = (key - ord('1'))
@@ -634,11 +1418,44 @@ def main(stdscr):
                     sort_dirs[k] = not sort_dirs.get(k, False)
                     sort_data()
             elif key in [10, 13]:
+                if not rows:
+                    continue
                 if config["split_mode"]:
-                    if focused_pane == "DETAILS":
+                    if focused_pane == "DETAILS" and detail_lines:
                         _, fpath = detail_lines[detail_idx]
                         if fpath:
-                            if fpath.startswith("http"):
+                            if fpath.startswith('gs://') or '/' in fpath and not os.path.isabs(fpath):
+                                # GCS path — for .md files, download and render inline
+                                detail_text = detail_lines[detail_idx][0]
+                                filename_from_detail = detail_text.split(":")[-1].strip() if ":" in detail_text else "file"
+                                if filename_from_detail.lower().endswith('.md'):
+                                    try:
+                                        sys.path.insert(0, str(REPO_ROOT / "scripts"))
+                                        import client as client_mod  # noqa: PLC0415
+                                        import artifacts as artifacts_mod  # noqa: PLC0415
+                                        bucket = client_mod.getBucket()
+                                        content = artifacts_mod.download_text(bucket, fpath)
+                                        file_view_title = filename_from_detail
+                                        file_view_lines = content.splitlines()
+                                        in_file_view = True
+                                        file_view_scroll = 0
+                                    except Exception as e:
+                                        file_view_lines = [f"Error downloading from GCS: {e}"]
+                                        in_file_view = True
+                                else:
+                                    # Generate signed URL and open in browser
+                                    try:
+                                        sys.path.insert(0, str(REPO_ROOT / "scripts"))
+                                        import client as client_mod  # noqa: PLC0415
+                                        import artifacts as artifacts_mod  # noqa: PLC0415
+                                        import webbrowser
+                                        bucket = client_mod.getBucket()
+                                        url = artifacts_mod.signed_url(bucket, fpath)
+                                        webbrowser.open(url)
+                                    except Exception as e:
+                                        file_view_lines = [f"Error generating GCS URL: {e}"]
+                                        in_file_view = True
+                            elif fpath.startswith("http"):
                                 import webbrowser
                                 webbrowser.open(fpath)
                             else:
@@ -658,17 +1475,59 @@ def main(stdscr):
                         if active_selection_idx == current_row:
                             active_selection_idx = None
                             focused_pane = "LIST"
+                            detail_lines = []
+                            detail_scroll = 0
+                            detail_idx = 0
                         else:
                             active_selection_idx = current_row
-                            detail_lines = load_detail_lines(rows[active_selection_idx], w//2 - 2)
+                            row_id = rows[active_selection_idx].get('id', '')
+                            if row_id in detail_cache:
+                                detail_lines = detail_cache[row_id]
+                            else:
+                                detail_lines = load_detail_lines(rows[active_selection_idx], w//2 - 2)
+                                detail_cache[row_id] = detail_lines
                             detail_scroll = 0
                             detail_idx = 0
                 else:
-                    detail_lines = load_detail_lines(rows[current_row], w-2)
+                    row_id = rows[current_row].get('id', '')
+                    if row_id in detail_cache:
+                        detail_lines = detail_cache[row_id]
+                    else:
+                        detail_lines = load_detail_lines(rows[current_row], w - 2)
+                        detail_cache[row_id] = detail_lines
                     in_detail = True
                     detail_scroll = 0
                     detail_idx = 0
 
 if __name__ == "__main__":
-    try: curses.wrapper(main)
-    except KeyboardInterrupt: pass
+    # Only use the Textual loading screen when we have a real TTY.
+    # Textual and curses cannot share the terminal, and the handoff
+    # requires termios to save/restore the tty attributes — which only
+    # works with a real terminal device. Without a TTY, fall back to
+    # the curses-only path with its own loading animation.
+    use_textual = TEXTUAL_AVAILABLE and os.isatty(sys.stdin.fileno())
+
+    cancelled = False
+    if use_textual:
+        # Textual loading screen → curses table handoff
+        rows, load_error = run_textual_loading()
+        # If the user cancelled the loading screen, exit cleanly
+        if load_error == "Cancelled by user":
+            cancelled = True
+        preloaded = True
+    else:
+        # Curses-only path — main() will show the loading animation
+        rows = None
+        load_error = None
+        preloaded = False
+
+    if not cancelled:
+        try:
+            if preloaded:
+                curses.wrapper(lambda stdscr: main(stdscr, rows, load_error))
+            else:
+                curses.wrapper(main)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            stop_background_refresh()

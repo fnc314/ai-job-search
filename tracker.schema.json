@@ -505,7 +505,6 @@
           "type": ["string", "null"],
           "description": "Repo-relative path, kept so the TUI can open the local file directly."
         },
-        "driveUrl": { "$ref": "#/$defs/nullableString" },
         "externalUrl": { "$ref": "#/$defs/nullableString" },
         "createdAt": { "$ref": "#/$defs/isoTimestamp" },
         "source": { "type": "string", "enum": ["generated", "manual", "imported"] }
@@ -624,6 +623,14 @@
         "name": { "$ref": "#/$defs/nonEmptyString" },
         "aliases": { "type": "array", "items": { "$ref": "#/$defs/nonEmptyString" } },
         "sector": { "$ref": "#/$defs/nullableString" },
+        "website": { "$ref": "#/$defs/nullableString" },
+        "hqAddress": { "$ref": "#/$defs/nullableString" },
+        "careersEmail": { "$ref": "#/$defs/nullableString" },
+        "jobBoardUrl": {
+          "$ref": "#/$defs/nullableString",
+          "description": "Job management site base URL (e.g. Greenhouse, Lever)."
+        },
+        "linkedinUrl": { "$ref": "#/$defs/nullableString" },
         "careersUrl": { "$ref": "#/$defs/nullableString" },
         "notes": { "$ref": "#/$defs/nullableString" },
         "metadata": { "type": "object", "additionalProperties": true }

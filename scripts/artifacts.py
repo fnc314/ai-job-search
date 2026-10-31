@@ -16,6 +16,7 @@ The module never constructs a client. It receives a bucket handle, which keeps
 
 from __future__ import annotations
 
+import datetime as dt
 import hashlib
 import mimetypes
 import pathlib
@@ -56,16 +57,32 @@ def describe(path: str | pathlib.Path) -> dict:
     }
 
 
-def blobPath(applicationId: str, kind: str, filename: str) -> str:
-    """`applications/{id}/{kind}/{filename}` with the enum namespace stripped."""
+def blobPath(
+    company: str, role: str, date: str, kind: str, filename: str
+) -> str:
+    """Build canonical GCS path: `applications/{company}/{role}/{date}/{filename}`.
+
+    Company and role names are normalized using `contract.normalize_dir_name()`
+    for consistent, human-readable directory structure. The `kind` parameter
+    validates the artifact type but is not included in the path.
+    """
     if kind not in contract.enums("artifactKind"):
         raise ArtifactError(f"unknown artifact kind {kind!r}")
-    leaf = kind.split(":", 1)[1]
-    return f"{client.APPLICATIONS}/{applicationId}/{leaf}/{filename}"
+    norm_company = contract.normalize_dir_name(company)
+    norm_role = contract.normalize_dir_name(role)
+    return f"{client.APPLICATIONS}/{norm_company}/{norm_role}/{date}/{filename}"
 
 
-def upload(bucket, *, applicationId: str, kind: str, path: str | pathlib.Path,
-           blobName: str | None = None) -> dict:
+def upload(
+    bucket,
+    *,
+    company: str,
+    role: str,
+    date: str,
+    kind: str,
+    path: str | pathlib.Path,
+    blobName: str | None = None,
+) -> dict:
     """Upload one file and return the `storage` block.
 
     `if_generation_match=0` makes the write create-only, so a re-upload can
@@ -73,15 +90,26 @@ def upload(bucket, *, applicationId: str, kind: str, path: str | pathlib.Path,
     `sha256` before calling.
     """
     filePath = pathlib.Path(path).expanduser()
-    destination = blobPath(applicationId, kind, filePath.name) if blobName is None else blobName
+    destination = (
+        blobPath(company, role, date, kind, filePath.name) if blobName is None else blobName
+    )
     blob = bucket.blob(destination)
     blob.content_type = contentTypeFor(filePath)
     blob.upload_from_filename(str(filePath), if_generation_match=0)
     return {"bucket": bucket.name, "path": destination}
 
 
-def ensureUpload(bucket, *, applicationId: str, kind: str, path: str | pathlib.Path,
-                 sha256: str, size: int) -> tuple[dict, bool]:
+def ensureUpload(
+    bucket,
+    *,
+    company: str,
+    role: str,
+    date: str,
+    kind: str,
+    path: str | pathlib.Path,
+    sha256: str,
+    size: int,
+) -> tuple[dict, bool]:
     """Upload unless the blob already exists; return (storage, uploaded).
 
     Backfill has to be re-runnable. `upload` is create-only, so a second run
@@ -91,7 +119,7 @@ def ensureUpload(bucket, *, applicationId: str, kind: str, path: str | pathlib.P
     silently replaced file, and overwriting it would lose the submitted copy.
     """
     filePath = pathlib.Path(path).expanduser()
-    destination = blobPath(applicationId, kind, filePath.name)
+    destination = blobPath(company, role, date, kind, filePath.name)
     blob = bucket.blob(destination)
     storage = {"bucket": bucket.name, "path": destination}
     if blob.exists():
@@ -124,13 +152,33 @@ def remoteHash(bucket, name: str) -> str | None:
     return (blob.metadata or {}).get("sha256")
 
 
+def signed_url(bucket, name: str, expiration_hours: int = 7) -> str:
+    """Return a time-limited download URL for a GCS object."""
+    blob = bucket.blob(name)
+    if not blob.exists():
+        raise ArtifactError(f"blob not found: {name}")
+    return blob.generate_signed_url(
+        version="v4",
+        expiration=dt.timedelta(hours=expiration_hours),
+        method="GET",
+    )
+
+
+def download_text(bucket, name: str) -> str:
+    """Download a GCS blob and return its content as text for inline rendering."""
+    blob = bucket.blob(name)
+    if not blob.exists():
+        raise ArtifactError(f"blob not found: {name}")
+    return blob.download_as_text()
+
+
 def artifactDocument(entry: dict, *, source: str, now: str) -> dict:
     """Build and validate an artifact document from a resolved payload entry."""
-    locations = [key for key in ("localPath", "externalUrl", "driveUrl") if entry.get(key)]
+    locations = [key for key in ("localPath", "externalUrl") if entry.get(key)]
     if len(locations) != 1:
         raise contract.ContractError(
             f"artifact {entry.get('filename')!r} must set exactly one of "
-            f"localPath, externalUrl, driveUrl (got {locations})"
+            f"localPath, externalUrl (got {locations})"
         )
     document = {
         "artifactId": contract.newUuid(),
@@ -141,7 +189,6 @@ def artifactDocument(entry: dict, *, source: str, now: str) -> dict:
         "sha256": entry.get("sha256"),
         "storage": entry.get("storage"),
         "localPath": entry.get("localPath"),
-        "driveUrl": entry.get("driveUrl"),
         "externalUrl": entry.get("externalUrl"),
         "createdAt": now,
         "source": source,

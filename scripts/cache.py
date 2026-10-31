@@ -24,10 +24,11 @@ class CacheError(RuntimeError):
 
 
 def readAll(db) -> dict:
-    """Read every application, event, and artifact into one JSON-safe payload."""
+    """Read every application, event, artifact, and company into one JSON-safe payload."""
     applications = []
     eventsByApplication = {}
     artifactsByApplication = {}
+    company_ids = set()
     for snapshot in db.collection(client.APPLICATIONS).stream():
         application = contract.fromFirestore(snapshot.to_dict())
         applications.append(application)
@@ -40,7 +41,18 @@ def readAll(db) -> dict:
             contract.fromFirestore(document.to_dict())
             for document in reference.collection(client.ARTIFACTS).stream()
         ]
+        cid = application.get("companyId")
+        if cid:
+            company_ids.add(cid)
     applications.sort(key=lambda item: (item.get("date") or "", item["id"]), reverse=True)
+
+    # Fetch company documents for the companies index
+    companies = {}
+    for company_id in company_ids:
+        snapshot = db.collection(client.COMPANIES).document(company_id).get()
+        if snapshot.exists:
+            companies[company_id] = contract.fromFirestore(snapshot.to_dict())
+
     # The TUI shows a review badge; the cache must carry it too, or an offline
     # reader would claim there is nothing waiting when there is.
     pendingProposals = [
@@ -59,6 +71,7 @@ def readAll(db) -> dict:
         "applications": applications,
         "events": eventsByApplication,
         "artifacts": artifactsByApplication,
+        "companies": companies,
         "pendingProposals": pendingProposals,
     }
 

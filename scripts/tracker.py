@@ -33,6 +33,7 @@ if str(SCRIPT_DIR) not in sys.path:
 import client  # noqa: E402
 import contract  # noqa: E402
 import events as eventsModule  # noqa: E402
+from google.cloud.firestore import FieldFilter  # noqa: E402
 import render  # noqa: E402
 import artifacts as artifactsModule  # noqa: E402
 import cache  # noqa: E402
@@ -54,6 +55,74 @@ def emit(payload) -> None:
 
 def warn(message: str) -> None:
     sys.stderr.write(f"{message}\n")
+
+
+def _strip_namespace(value: str | None) -> str:
+    """Strip enum namespace prefixes like 'status:' or 'channel:'."""
+    if not value:
+        return ""
+    for prefix in ("status:", "channel:", "work-mode:", "event:"):
+        if value.startswith(prefix):
+            return value[len(prefix):]
+    return value
+
+
+def _format_location(doc: dict) -> str:
+    loc = doc.get("location") or {}
+    parts = []
+    if loc.get("city"):
+        parts.append(loc["city"])
+    if loc.get("region"):
+        parts.append(loc["region"])
+    mode = _strip_namespace(loc.get("workMode"))
+    if mode:
+        parts.append(f"({mode})")
+    return ", ".join(parts) if parts else ""
+
+
+def _format_status(doc: dict) -> str:
+    status = _strip_namespace(doc.get("status", ""))
+    fit = doc.get("fitRating")
+    if fit is not None:
+        return f"{status} ({fit})"
+    return status
+
+
+def format_table(documents: list[dict]) -> str:
+    """Render a list of application documents as a formatted table."""
+    headers = ["Company", "Role", "Status", "Location", "Date"]
+    rows = []
+    for doc in documents:
+        row = [
+            doc.get("company") or "",
+            doc.get("role") or "",
+            _format_status(doc),
+            _format_location(doc),
+            (doc.get("date") or "")[:10],
+        ]
+        rows.append(row)
+
+    # Calculate column widths
+    col_widths = [len(h) for h in headers]
+    for row in rows:
+        for i, cell in enumerate(row):
+            col_widths[i] = max(col_widths[i], len(cell))
+
+    # Build format string
+    fmt = "  ".join(f"{{:<{w}}}" for w in col_widths)
+    separator = "  ".join("-" * w for w in col_widths)
+
+    lines = []
+    lines.append(fmt.format(*headers))
+    lines.append(separator)
+    for row in rows:
+        lines.append(fmt.format(*row))
+
+    if rows:
+        lines.append(f"\n{len(rows)} application(s)")
+    else:
+        lines.append("\nNo applications found.")
+    return "\n".join(lines)
 
 
 def commandCheck(args) -> int:
@@ -200,20 +269,61 @@ def commandSeed(args) -> int:
 
 
 def commandList(args) -> int:
+    # If --tui is requested, hand off to the TUI with filters as env vars
+    if args.tui:
+        _launch_tui(args)
+        return EXIT_OK
+
     db = client.getDb()
     query = db.collection(client.APPLICATIONS)
     if args.status:
-        query = query.where("status", "==", contract.normalizeStatus(args.status))
+        query = query.where(filter=FieldFilter("status", "==", contract.normalizeStatus(args.status)))
     if args.open:
-        query = query.where("isOpen", "==", True)
+        query = query.where(filter=FieldFilter("isOpen", "==", True))
     if args.tag:
-        query = query.where("tags", "array_contains", args.tag)
+        query = query.where(filter=FieldFilter("tags", "array_contains", args.tag))
     query = query.order_by("date", direction="DESCENDING")
     if args.limit:
         query = query.limit(args.limit)
     documents = [contract.fromFirestore(doc.to_dict()) for doc in query.stream()]
-    emit({"count": len(documents), "documents": documents})
+    if args.json:
+        emit({"count": len(documents), "documents": documents})
+    else:
+        sys.stdout.write(format_table(documents) + "\n")
     return EXIT_OK
+
+
+def _launch_tui(args) -> int:
+    """Launch the TUI, passing filter flags as environment variables."""
+    import subprocess
+
+    repo_root = pathlib.Path(__file__).resolve().parent.parent
+    tui_script = repo_root / "ui" / "terminal" / "tracker_tui.py"
+
+    if not tui_script.exists():
+        warn(f"TUI script not found: {tui_script}")
+        return EXIT_ERROR
+
+    # Pass filters to the TUI via environment variables
+    env = os.environ.copy()
+    if args.open:
+        env["TRACKER_FILTER_OPEN"] = "1"
+    if args.status:
+        env["TRACKER_FILTER_STATUS"] = args.status
+    if args.tag:
+        env["TRACKER_FILTER_TAG"] = args.tag
+    if args.limit:
+        env["TRACKER_FILTER_LIMIT"] = str(args.limit)
+
+    # Use the same Python interpreter that is running tracker.py
+    python = sys.executable
+    sys.stdout.write(f"Launching TUI...\n")
+    sys.stdout.flush()
+    try:
+        return subprocess.call([python, str(tui_script)], env=env)
+    except FileNotFoundError:
+        warn(f"Python interpreter not found: {python}")
+        return EXIT_ERROR
 
 
 def commandGet(args) -> int:
@@ -316,19 +426,24 @@ def artifactFilename(entry: dict) -> str:
     explicit = entry.get("filename")
     if explicit:
         return str(explicit)
-    for key in ("localPath", "externalUrl", "driveUrl"):
+    for key in ("localPath", "externalUrl"):
         value = entry.get(key)
         if value:
             return pathlib.PurePosixPath(str(value)).name or str(value)
     raise contract.ContractError("artifact needs a filename or a path/URL")
 
 
-def buildArtifacts(entries, *, source: str, now: str) -> list[dict]:
+def buildArtifacts(entries, *, source: str, now: str, company: str | None = None,
+                   role: str | None = None, date: str | None = None) -> list[dict]:
     """Resolve payload artifacts into contract artifact documents.
 
-    Exactly one of localPath / externalUrl / driveUrl should be set. The legacy
+    Exactly one of localPath / externalUrl should be set. The legacy
     import proves why: 2 CVs in the historical record are Google Docs URLs, and
     recording those as local paths would create a reference that never resolves.
+
+    If company, role, and date are provided and an artifact has a localPath,
+    the file is uploaded to GCS and the storage field is set.
+    On upload failure, the localPath is kept as a fallback.
     """
     produced = []
     for entry in entries or []:
@@ -344,13 +459,36 @@ def buildArtifacts(entries, *, source: str, now: str) -> list[dict]:
             )
         filename = artifactFilename(entry)
         locations = [
-            key for key in ("localPath", "externalUrl", "driveUrl") if entry.get(key)
+            key for key in ("localPath", "externalUrl") if entry.get(key)
         ]
         if len(locations) != 1:
             raise contract.ContractError(
                 f"artifact {filename!r} must set exactly one of "
-                f"localPath, externalUrl, driveUrl (got {locations})"
+                f"localPath, externalUrl (got {locations})"
             )
+
+        # Upload local files to GCS so they are machine-independent
+        local_path = entry.get("localPath")
+        storage = entry.get("storage")
+        if local_path and not storage and company and role and date:
+            try:
+                import artifacts as artifactsModule  # noqa: PLC0415
+                bucket = client.getBucket()
+                described = artifactsModule.describe(local_path)
+                storage, _ = artifactsModule.ensureUpload(
+                    bucket,
+                    company=company,
+                    role=role,
+                    date=date,
+                    kind=kind,
+                    path=local_path,
+                    sha256=described["sha256"],
+                    size=described["size"],
+                )
+            except Exception as e:  # noqa: BLE001 - network errors, etc.
+                warn(f"GCS upload skipped for {filename!r}: {e}")
+                storage = None
+
         document = {
             "artifactId": contract.newUuid(),
             "kind": kind,
@@ -358,9 +496,8 @@ def buildArtifacts(entries, *, source: str, now: str) -> list[dict]:
             "contentType": entry.get("contentType"),
             "size": entry.get("size"),
             "sha256": entry.get("sha256"),
-            "storage": entry.get("storage"),
-            "localPath": entry.get("localPath"),
-            "driveUrl": entry.get("driveUrl"),
+            "storage": storage,
+            "localPath": local_path,
             "externalUrl": entry.get("externalUrl"),
             "createdAt": now,
             "source": source,
@@ -543,11 +680,41 @@ def writeApplication(db, document: dict, eventsToWrite: list[dict], artifactsToW
     batch.commit()
 
 
+def ensure_company(db, document: dict) -> None:
+    """Upsert the company document in the companies collection.
+
+    Extracts constant company attributes from the application document and
+    merges them into the companies collection. If the company document doesn't
+    exist, it is created. If it exists, only the provided fields are merged.
+    """
+    company_id = document.get("companyId")
+    if not company_id:
+        return
+
+    company_doc = {
+        "companyId": company_id,
+        "name": document.get("company"),
+        "sector": document.get("sector"),
+        "website": document.get("website"),
+        "hqAddress": document.get("hqAddress"),
+        "careersEmail": document.get("careersEmail"),
+        "jobBoardUrl": document.get("jobBoardUrl"),
+        "linkedinUrl": document.get("linkedinUrl"),
+    }
+    # Remove None values so they don't overwrite existing data
+    company_doc = {k: v for k, v in company_doc.items() if v is not None}
+
+    ref = db.collection(client.COMPANIES).document(company_id)
+    ref.set(contract.toFirestore(company_doc), merge=True)
+
+
 def commandAdd(args) -> int:
     payload = readPayload(args.json)
     document, pendingEvents = buildApplication(payload)
     artifacts = buildArtifacts(
-        payload.get("artifacts"), source="manual", now=eventsModule.nowIso()
+        payload.get("artifacts"), source="manual", now=eventsModule.nowIso(),
+        company=document.get("company"), role=document.get("role"),
+        date=document.get("date"),
     )
 
     if args.dry_run:
@@ -568,6 +735,7 @@ def commandAdd(args) -> int:
             f"{document['id']} already exists; use `upsert` to merge or `event` to append"
         )
     client.assertWritesAllowed("a new application")
+    ensure_company(db, document)
     writeApplication(db, document, pendingEvents, artifacts)
     task = enqueueCollectionQuietly(db, [document["id"]], hours=tasks.DEFAULT_HOURS)
     emit(
@@ -604,7 +772,11 @@ def commandUpsert(args) -> int:
         document, pendingEvents = buildApplication(payload, now=now)
         created = True
 
-    artifacts = buildArtifacts(payload.get("artifacts"), source="manual", now=now)
+    artifacts = buildArtifacts(
+        payload.get("artifacts"), source="manual", now=now,
+        company=document.get("company"), role=document.get("role"),
+        date=document.get("date"),
+    )
 
     if args.dry_run:
         emit(
@@ -620,6 +792,7 @@ def commandUpsert(args) -> int:
         return EXIT_OK
 
     client.assertWritesAllowed("an application")
+    ensure_company(db, document)
     writeApplication(db, document, pendingEvents, artifacts)
     emit(
         {
@@ -857,8 +1030,16 @@ def commandArtifact(args) -> int:
     storage = None
     if not args.no_upload:
         bucket = client.getBucket()
+        company = application.get("company", "")
+        role = application.get("role", "")
+        date = (application.get("date") or "")[:10]
         storage = artifactsModule.upload(
-            bucket, applicationId=args.id, kind=args.kind, path=args.path
+            bucket,
+            company=company,
+            role=role,
+            date=date,
+            kind=args.kind,
+            path=args.path,
         )
 
     entry = {
@@ -922,27 +1103,17 @@ def commandArtifact(args) -> int:
     return EXIT_OK
 
 
-def resolveArtifactPath(artifact: dict, root: pathlib.Path, includeDrive: bool) -> pathlib.Path | None:
+def resolveArtifactPath(artifact: dict, root: pathlib.Path) -> pathlib.Path | None:
     """Find the local file an imported artifact points at, if there is one.
 
-    The import kept three location styles: repo-relative `localPath`, an absolute
-    Drive-mount `driveUrl`, and an `externalUrl` that has no local file at all.
-    Google Docs stubs (`.gdoc`) are pointers, not documents - uploading one would
-    store a shortcut and lose the content - so they are skipped.
+    The import kept two location styles: repo-relative `localPath` and an
+    `externalUrl` that has no local file at all.
     """
     localPath = artifact.get("localPath")
     if localPath:
         candidate = pathlib.Path(localPath)
         return candidate if candidate.is_absolute() else root / candidate
-    if not includeDrive:
-        return None
-    drivePath = artifact.get("driveUrl")
-    if not drivePath:
-        return None
-    candidate = pathlib.Path(drivePath).expanduser()
-    if candidate.suffix.lower() == ".gdoc":
-        return None
-    return candidate
+    return None
 
 
 def commandBackfill(args) -> int:
@@ -956,7 +1127,6 @@ def commandBackfill(args) -> int:
     """
     db = client.getDb()
     root = pathlib.Path(args.root).expanduser().resolve() if args.root else SCRIPT_DIR.parent
-    includeDrive = not args.local_only
     if not args.dry_run:
         client.assertWritesAllowed("an artifact backfill")
         bucket = client.getBucket()
@@ -970,19 +1140,23 @@ def commandBackfill(args) -> int:
 
     for applicationDocument in db.collection(client.APPLICATIONS).stream():
         applicationId = applicationDocument.id
+        application_data = applicationDocument.to_dict()
+        app_company = application_data.get("company", "")
+        app_role = application_data.get("role", "")
+        app_date = (application_data.get("date") or "")[:10]
         for artifactDocument in applicationDocument.reference.collection(
             client.ARTIFACTS
         ).stream():
             if args.limit and processed >= args.limit:
                 break
             artifact = artifactDocument.to_dict()
-            path = resolveArtifactPath(artifact, root, includeDrive)
+            path = resolveArtifactPath(artifact, root)
             if path is None:
                 skipped.append(
                     {
                         "applicationId": applicationId,
                         "filename": artifact.get("filename"),
-                        "reason": "no local file (externalUrl or .gdoc stub)",
+                        "reason": "no local file (externalUrl only)",
                     }
                 )
                 continue
@@ -1002,7 +1176,9 @@ def commandBackfill(args) -> int:
                     continue
                 storage, wasUploaded = artifactsModule.ensureUpload(
                     bucket,
-                    applicationId=applicationId,
+                    company=app_company,
+                    role=app_role,
+                    date=app_date,
                     kind=artifact["kind"],
                     path=path,
                     sha256=described["sha256"],
@@ -1036,7 +1212,6 @@ def commandBackfill(args) -> int:
         {
             "dryRun": bool(args.dry_run),
             "root": str(root),
-            "includeDrive": includeDrive,
             "candidates": processed,
             "updated": updated,
             "uploaded": uploaded,
@@ -1067,7 +1242,11 @@ def commandBulk(args) -> int:
             if not isinstance(payload, dict):
                 raise contract.ContractError("payload is not an object")
             document, pendingEvents = buildApplication(payload, now=now)
-            artifacts = buildArtifacts(payload.get("artifacts"), source="manual", now=now)
+            artifacts = buildArtifacts(
+                payload.get("artifacts"), source="manual", now=now,
+                company=document.get("company"), role=document.get("role"),
+                date=document.get("date"),
+            )
             accepted.append((document, pendingEvents, artifacts))
         except contract.ContractError as error:
             failures.append({"index": index, "company": (payload or {}).get("company"), "error": str(error)})
@@ -1154,7 +1333,11 @@ def commandImport(args) -> int:
     resolved = []
     for payload in importable:
         document, pendingEvents = buildApplication(payload, now=now)
-        artifacts = buildArtifacts(payload.get("artifacts"), source="imported", now=now)
+        artifacts = buildArtifacts(
+            payload.get("artifacts"), source="imported", now=now,
+            company=document.get("company"), role=document.get("role"),
+            date=document.get("date"),
+        )
         resolved.append((document, pendingEvents, artifacts))
 
     reconciliation = importer.reconciliation(payloads, rows, existingIds=alreadyImported)
@@ -1283,7 +1466,6 @@ def legacyArtifact(artifacts: list[dict], kind: str) -> str:
         return (
             artifact.get("localPath")
             or artifact.get("externalUrl")
-            or artifact.get("driveUrl")
             or ""
         )
     return ""
@@ -1636,11 +1818,13 @@ def buildParser() -> argparse.ArgumentParser:
     seed = subparsers.add_parser("seed", help="write meta/schema from the contract")
     seed.set_defaults(handler=commandSeed)
 
-    listing = subparsers.add_parser("list", help="list applications as JSON")
+    listing = subparsers.add_parser("list", help="list applications")
     listing.add_argument("--status", help="filter by status, legacy or namespaced")
     listing.add_argument("--open", action="store_true", help="only open applications")
     listing.add_argument("--tag", help="filter by an exact tag value")
     listing.add_argument("--limit", type=int, default=0)
+    listing.add_argument("--json", action="store_true", help="output as JSON (default: table)")
+    listing.add_argument("--tui", action="store_true", help="launch interactive TUI with these filters")
     listing.set_defaults(handler=commandList)
 
     get = subparsers.add_parser("get", help="show one application and its events")
@@ -1701,8 +1885,6 @@ def buildParser() -> argparse.ArgumentParser:
     )
     backfill.add_argument("--apply", dest="dry_run", action="store_false",
                           help="write the updates (default: report only)")
-    backfill.add_argument("--local-only", action="store_true",
-                          help="skip Drive-mount files and only hash repo files")
     backfill.add_argument("--root", help="repo root for relative localPath values")
     backfill.add_argument("--limit", type=int, help="stop after N files")
     backfill.set_defaults(handler=commandBackfill, dry_run=True)

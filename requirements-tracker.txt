@@ -10,6 +10,6 @@
 
 google-cloud-firestore==2.34.1
 google-cloud-storage==3.17.1
-google-api-python-client==2.201.0
 google-auth==2.62.0
 jsonschema==4.26.0
+textual==8.2.8
