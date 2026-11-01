@@ -8,6 +8,13 @@ usage = { version = "7.1.4", workflow = "publish-cli.yml" }
 [env]
 _ = { file = ".env.local" }
 
+# TUI log cleanup settings (used by the `cd` hook)
+TUI_LOG_RETENTION_DAYS = "7"    # Days to keep TUI log directories (0 = always clean)
+TUI_LOG_COOLDOWN_HOURS = "24"   # Hours between cleanup prompts
+
+[hooks]
+cd = "bash scripts/cleanup-tui-logs.sh"
+
 # ── Tasks ──────────────────────────────────────────────────────────────────
 # Shorthand: mise run <name>  (or just `mise <name>` when no conflict)
 
@@ -23,10 +30,10 @@ cmd "check" help="Validate contract and connection" {
 }
 cmd "seed" help="Write meta/schema from the contract"
 cmd "list" help="List applications" {
-  flag "--status " help="Filter by status"
+  flag "--status <status>" help="Filter by status"
   flag "--open" help="Only open applications"
-  flag "--tag " help="Filter by an exact tag value"
-  flag "--limit " help="Max results to return"
+  flag "--tag <tag>" help="Filter by an exact tag value"
+  flag "--limit <limit>" help="Max results to return"
   flag "--json" help="Output as JSON"
   flag "--tui" help="Launch interactive TUI with these filters"
 }
@@ -34,100 +41,100 @@ cmd "get" help="Show one application and its events" {
   arg "id" help="Application ID"
 }
 cmd "add" help="Create an application from a JSON payload" {
-  flag "--json " help="Payload file, or - for stdin"
+  flag "--json <file>" help="Payload file, or - for stdin"
   flag "--dry-run" help="Resolve and validate only"
 }
 cmd "upsert" help="Create-or-merge from a JSON payload" {
-  flag "--json " help="Payload file, or - for stdin"
+  flag "--json <file>" help="Payload file, or - for stdin"
   flag "--dry-run" help="Resolve and validate only"
 }
 cmd "status" help="Record a funnel status change" {
   arg "id" help="Application ID"
   arg "status" help="Target status"
-  flag "--date " help="ISO date the change happened"
-  flag "--note " help="What happened"
+  flag "--date <date>" help="ISO date the change happened"
+  flag "--note <note>" help="What happened"
   flag "--correction" help="Emit status-corrected event"
   flag "--dry-run" help="Preview without writing"
 }
 cmd "score" help="Record a recalculated fit rating" {
   arg "id" help="Application ID"
-  flag "--fit " help="Integer 0-100"
-  flag "--date " help="ISO date the score was decided"
-  flag "--note " help="What changed in the evaluation"
+  flag "--fit <fit>" help="Integer 0-100"
+  flag "--date <date>" help="ISO date the score was decided"
+  flag "--note <note>" help="What changed in the evaluation"
   flag "--dry-run" help="Preview without writing"
 }
 cmd "event" help="Append a timeline event" {
   arg "id" help="Application ID"
-  flag "--type " help="Event type (e.g. event:interview)"
-  flag "--date " help="ISO date the event happened"
-  flag "--note " help="Event note"
-  flag "--json " help="Extra fields as JSON"
+  flag "--type <type>" help="Event type (e.g. event:interview)"
+  flag "--date <date>" help="ISO date the event happened"
+  flag "--note <note>" help="Event note"
+  flag "--json <json>" help="Extra fields as JSON"
   flag "--dry-run" help="Preview without writing"
 }
 cmd "artifact" help="Register and upload a file" {
   arg "id" help="Application ID"
-  flag "--kind " help="Artifact type (e.g. artifact:cv)"
-  flag "--path " help="Local file path"
-  flag "--filename " help="Override stored filename"
+  flag "--kind <kind>" help="Artifact type (e.g. artifact:cv)"
+  flag "--path <path>" help="Local file path"
+  flag "--filename <filename>" help="Override stored filename"
   flag "--no-upload" help="Record the path only"
   flag "--dry-run" help="Preview without writing"
 }
 cmd "backfill" help="Add hashes and storage to registered artifacts" {
   flag "--apply" help="Write the updates (default: report only)"
-  flag "--root " help="Repo root for relative paths"
-  flag "--limit " help="Stop after N files"
+  flag "--root <root>" help="Repo root for relative paths"
+  flag "--limit <limit>" help="Stop after N files"
 }
 cmd "bulk" help="Add many applications from one JSON file" {
-  flag "--json " help="JSON array or {applications: [...]}"
+  flag "--json <file>" help="JSON array or {applications: [...]}"
   flag "--allow-partial" help="Write the valid rows"
   flag "--dry-run" help="Preview without writing"
 }
 cmd "import" help="One-shot import of the legacy CSV" {
-  flag "--csv " help="Path to legacy tracker CSV"
+  flag "--csv <csv>" help="Path to legacy tracker CSV"
   flag "--dry-run" help="Report only, never write"
   flag "--mock" help="Skip historical profile reconciliation"
-  flag "--report " help="Write the reconciliation report"
+  flag "--report <report>" help="Write the reconciliation report"
 }
 cmd "export" help="Read the record back out" {
   flag "--json" help="Full JSON payload"
   flag "--csv" help="Legacy CSV shape"
   flag "--ndjson" help="One application per line"
-  flag "-o --output " help="Write to a file instead of stdout"
+  flag "-o --output <output>" help="Write to a file instead of stdout"
   flag "--refresh-cache" help="Also refresh tracker-cache.json"
 }
 cmd "sheet" help="Regenerate the Sheets view" {
   flag "--sync" help="Accepted for symmetry"
-  flag "--sheet-id " help="Spreadsheet ID"
+  flag "--sheet-id <sheet_id>" help="Spreadsheet ID"
   flag "--local-only" help="Write CSVs locally"
-  flag "--directory " help="Where --local-only writes"
+  flag "--directory <directory>" help="Where --local-only writes"
 }
 cmd "proposals" help="Review the collector queue" {
   cmd "list" help="List proposals" {
-    flag "--state " help="Filter by state (e.g. proposal:pending)"
+    flag "--state <state>" help="Filter by state (e.g. proposal:pending)"
   }
   cmd "show" help="Show a proposal" {
     arg "id" help="Proposal ID"
   }
   cmd "approve" help="Approve a proposal" {
     arg "id" help="Proposal ID"
-    flag "--note " help="Resolution text"
-    flag "--only " help="Comma-separated change indexes to approve"
+    flag "--note <note>" help="Resolution text"
+    flag "--only <only>" help="Comma-separated change indexes to approve"
   }
   cmd "reject" help="Reject a proposal" {
     arg "id" help="Proposal ID"
-    flag "--reason " help="Why it was rejected"
+    flag "--reason <reason>" help="Why it was rejected"
   }
   cmd "expire" help="Expire stale proposals"
 }
 cmd "collect" help="Stage proposals from fetched messages" {
-  flag "--json " help="Inbox payload path"
-  flag "--labels " help="JSON inventory of Gmail labels"
-  flag "--trigger " help="Trigger source: manual | cron | application-updated"
+  flag "--json <json>" help="Inbox payload path"
+  flag "--labels <labels>" help="JSON inventory of Gmail labels"
+  flag "--trigger <trigger>" help="Trigger source: manual | cron | application-updated"
   flag "--dry-run" help="Preview without writing"
 }
 cmd "labels" help="Show Gmail labels seen at the last sync"
 cmd "sync-due" help="Run due sync-requests" {
-  flag "--json " help="Inbox payload for every request"
+  flag "--json <json>" help="Inbox payload for every request"
   flag "--dry-run" help="List what is due"
 }
 cmd "mock-clear" help="Delete namespaced mock records" {
@@ -145,7 +152,7 @@ description = "Run first-time setup (validate environment, seed schema, inject m
 usage = '''
 flag "--check" help="Show readiness report without writing"
 flag "--sheet" help="Sync the Google Sheet after mock injection"
-flag "--count " help="Number of synthetic applications to create"
+flag "--count <count>" help="Number of synthetic applications to create"
 '''
 run = '''.venv/bin/python scripts/setup.py{% if usage.check %} --check{% endif %}{% if usage.sheet %} --sheet{% endif %}{% if usage.count %} --count {{ usage.count }}{% endif %}'''
 
@@ -153,7 +160,7 @@ run = '''.venv/bin/python scripts/setup.py{% if usage.check %} --check{% endif %
 description = "Look up salary benchmark data"
 usage = '''
 arg "[company]" help="Company name to search for"
-flag "--city " help="Filter by city name"
+flag "--city <city>" help="Filter by city name"
 flag "--json" help="Output as JSON"
 flag "--list-all" help="List all companies"
 flag "--validate" help="Validate salary_data.json and print a report"
@@ -167,9 +174,9 @@ run = '''.venv/bin/python scripts/salary_lookup.py{% if usage.company %} {{ usag
 description = "Fetch and cache Gmail JOB labels (dry-run by default)"
 usage = '''
 flag "-v --verbose" help="Print detailed progress and timing to stderr"
-flag "--label " help="Fetch only this label (validated against Gmail labels)"
-flag "--since " help="Lookback start date, YYYY-MM-DD"
-flag "--timeout " help="Timeout in seconds per Composio API call (default: 60)"
+flag "--label <label>" help="Fetch only this label (validated against Gmail labels)"
+flag "--since <since>" help="Lookback start date, YYYY-MM-DD"
+flag "--timeout <timeout>" help="Timeout in seconds per Composio API call (default: 60)"
 '''
 run = '''.venv/bin/python scripts/gmail_fetch.py --dry-run{% if usage.verbose %} -v{% endif %}{% if usage.label %} --label {{ usage.label }}{% endif %}{% if usage.since %} --since {{ usage.since }}{% endif %}{% if usage.timeout %} --timeout {{ usage.timeout }}{% endif %}'''
 
@@ -177,10 +184,10 @@ run = '''.venv/bin/python scripts/gmail_fetch.py --dry-run{% if usage.verbose %}
 description = "Fetch job-related emails from Gmail and write inbox payload"
 usage = '''
 flag "-v --verbose" help="Print detailed progress and timing to stderr"
-flag "--label " help="Fetch only this label (validated against Gmail labels)"
-flag "--since " help="Lookback start date, YYYY-MM-DD"
-flag "--max " help="Total messages to collect, fetched 50 at a time"
-flag "--timeout " help="Timeout in seconds per Composio API call (default: 60)"
+flag "--label <label>" help="Fetch only this label (validated against Gmail labels)"
+flag "--since <since>" help="Lookback start date, YYYY-MM-DD"
+flag "--max <max>" help="Total messages to collect, fetched 50 at a time"
+flag "--timeout <timeout>" help="Timeout in seconds per Composio API call (default: 60)"
 flag "--dry-run" help="Read Gmail and compare labels, but write nothing"
 '''
 run = '''.venv/bin/python scripts/gmail_fetch.py{% if usage.verbose %} -v{% endif %}{% if usage.label %} --label {{ usage.label }}{% endif %}{% if usage.since %} --since {{ usage.since }}{% endif %}{% if usage.max %} --max {{ usage.max }}{% endif %}{% if usage.timeout %} --timeout {{ usage.timeout }}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}'''
@@ -188,9 +195,9 @@ run = '''.venv/bin/python scripts/gmail_fetch.py{% if usage.verbose %} -v{% endi
 [tasks."gmail:collect"]
 description = "Stage proposals from fetched emails to Firestore (set TRACKER_ALLOW_WRITES=1)"
 usage = '''
-flag "--json " help="Inbox payload path (default: generated/gmail-inbox.json)"
-flag "--labels " help="JSON inventory of Gmail labels discovered by this fetch"
-flag "--trigger " help="Trigger source: manual | cron | application-updated"
+flag "--json <json>" help="Inbox payload path (default: generated/gmail-inbox.json)"
+flag "--labels <labels>" help="JSON inventory of Gmail labels discovered by this fetch"
+flag "--trigger <trigger>" help="Trigger source: manual | cron | application-updated"
 flag "--dry-run" help="Preview without writing to Firestore"
 '''
 run = '''.venv/bin/python scripts/tracker.py collect{% if usage.json %} --json {{ usage.json }}{% endif %}{% if usage.labels %} --labels {{ usage.labels }}{% endif %}{% if usage.trigger %} --trigger {{ usage.trigger }}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}'''
@@ -199,8 +206,8 @@ run = '''.venv/bin/python scripts/tracker.py collect{% if usage.json %} --json {
 description = "Upload local artifacts to GCS and backfill Firestore (set TRACKER_ALLOW_WRITES=1)"
 usage = '''
 flag "--dry-run" help="Show tree view without uploading"
-flag "--company " help="Only process artifacts for this company (case-insensitive)"
-flag "--documents " help="Path to documents/applications/ directory"
+flag "--company <company>" help="Only process artifacts for this company (case-insensitive)"
+flag "--documents <documents>" help="Path to documents/applications/ directory"
 '''
 run = '''.venv/bin/python scripts/migrate_gcs.py{% if usage.dry_run %} --dry-run{% endif %}{% if usage.company %} --company {{ usage.company }}{% endif %}{% if usage.documents %} --documents {{ usage.documents }}{% endif %}'''
 
@@ -211,11 +218,11 @@ run = '''.venv/bin/python scripts/purge_gcs_legacy.py{% if usage.dry_run %} --dr
 
 [tasks."mise:docs:tasks"]
 description = "Regenerates docs/mise (lints Usage specs, generates Markdown, and runs mise task-docs)"
-sources = ["mise.toml", "scripts/*.usage.kdl"]
+sources = ["mise.toml", "scripts/specs/*.usage.kdl"]
 shell = "zsh -c"
 run = '''
   # Lint all Usage specs first
-  for spec in scripts/*.usage.kdl; do
+  for spec in scripts/specs/*.usage.kdl; do
     mise x @usage -- usage lint "$spec" --warnings-as-errors
   done
 
@@ -223,9 +230,27 @@ run = '''
   mise generate task-docs -m -o ./docs/mise
 
   # Overwrite with Usage-generated Markdown for scripts with .usage.kdl specs
-  for spec in scripts/*.usage.kdl; do
+  for spec in scripts/specs/*.usage.kdl; do
     name="${spec%.usage.kdl}"
-    name="${name##scripts/}"
+    name="${name##scripts/specs/}"
     mise x @usage -- usage generate markdown --file "$spec" --out-file "docs/mise/${name}.md"
+  done
+'''
+
+[tasks."completions:generate"]
+description = "Generate Zsh completions from Usage specs and install to ~/.env/zsh/custom/completions/"
+sources = ["scripts/specs/*.usage.kdl"]
+shell = "zsh -c"
+run = '''
+  local completions_dir="$HOME/.env/zsh/custom/completions"
+  mkdir -p "$completions_dir"
+
+  for spec in scripts/specs/*.usage.kdl; do
+    name="${spec%.usage.kdl}"
+    name="${name##scripts/specs/}"
+    out_file="${completions_dir}/completions-for-${name}.zsh"
+    mise x @usage -- usage generate completion zsh --file "$spec" "$name" > "$out_file"
+    chmod +x "$out_file"
+    echo "Generated: $out_file"
   done
 '''

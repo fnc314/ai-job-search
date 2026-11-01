@@ -95,6 +95,9 @@ generated/tracker-cache.json
 firestore-debug.log
 ui-debug.log
 
+# TUI runtime logs (also covered by *.log, but explicit for clarity)
+.logs/
+
 # Gmail sync state (message IDs, subjects - personal data)
 gmail_sync/
 

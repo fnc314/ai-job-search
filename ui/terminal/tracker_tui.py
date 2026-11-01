@@ -1,6 +1,7 @@
 import curses
 import datetime
 import json
+import logging
 import os
 import queue
 import re
@@ -8,6 +9,7 @@ import sys
 import textwrap
 import threading
 import time
+import traceback
 from pathlib import Path
 
 try:
@@ -21,6 +23,87 @@ except ImportError:
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 RECALC_QUEUE_PATH = REPO_ROOT / ".recalc_queue"
+
+# ─── Logging Infrastructure ───────────────────────────────────────────────────
+# Persistent logs live in .logs/tui/YYYYMMDD/ at the repo root. Each invocation
+# gets a timestamped log file within a date-based subdirectory. Crashes and
+# errors are always captured to a separate crash log so they survive even when
+# the TUI exits abruptly.
+
+LOGS_BASE_DIR = REPO_ROOT / ".logs" / "tui"
+_tui_logger: logging.Logger | None = None
+crash_logger: logging.Logger | None = None
+_log_file_path: Path | None = None
+crash_log_file_path: Path | None = None
+_date_log_dir: Path | None = None
+
+
+def _setup_logging() -> None:
+    """Initialize file-based logging for this TUI invocation.
+
+    Creates .logs/tui/YYYYMMDD/ if needed and opens two loggers:
+    - _tui_logger: general operational log (TUI_HHMMSS.log)
+    - crash_logger: crash & error log (CRASH_HHMMSS.log)
+
+    Both loggers write to separate files so crash logs survive even when
+    the general log is truncated or rotated. Logs are organized by date
+    to enable easy cleanup of old logs.
+    """
+    global _tui_logger, crash_logger, _log_file_path, crash_log_file_path, _date_log_dir
+
+    now = datetime.datetime.now()
+    date_str = now.strftime("%Y%m%d")
+    _date_log_dir = LOGS_BASE_DIR / date_str
+    _date_log_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = now.strftime("%H%M%S")
+
+    # General invocation log
+    _log_file_path = _date_log_dir / f"TUI_{timestamp}.log"
+    _tui_logger = logging.getLogger("tui")
+    _tui_logger.setLevel(logging.DEBUG)
+    _tui_logger.handlers.clear()
+    _fh = logging.FileHandler(_log_file_path, mode="a", encoding="utf-8")
+    _fh.setFormatter(logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S"
+    ))
+    _tui_logger.addHandler(_fh)
+
+    # Crash log (separate file so it survives abrupt exits)
+    crash_log_file_path = _date_log_dir / f"CRASH_{timestamp}.log"
+    crash_logger = logging.getLogger("tui.crash")
+    crash_logger.setLevel(logging.ERROR)
+    crash_logger.handlers.clear()
+    _cfh = logging.FileHandler(crash_log_file_path, mode="a", encoding="utf-8")
+    _cfh.setFormatter(logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S"
+    ))
+    crash_logger.addHandler(_cfh)
+
+    _tui_logger.info("TUI invocation started")
+    _tui_logger.info("Log directory: %s", _date_log_dir)
+    _tui_logger.info("Log file: %s", _log_file_path)
+    _tui_logger.info("Crash log: %s", crash_log_file_path)
+
+
+def log(msg: str, *args, **kwargs) -> None:
+    """Convenience wrapper for the TUI logger."""
+    if _tui_logger:
+        _tui_logger.debug(msg, *args, **kwargs)
+
+
+def log_error(msg: str, *args, **kwargs) -> None:
+    """Log an error to both the general and crash loggers."""
+    if _tui_logger:
+        _tui_logger.error(msg, *args, **kwargs)
+    if crash_logger:
+        crash_logger.error(msg, *args, **kwargs)
+
+
+def log_crash(exc: BaseException) -> None:
+    """Record a full crash traceback to the crash log."""
+    if crash_logger:
+        tb = traceback.format_exception(type(exc), exc, exc.__traceback__)
+        crash_logger.error("\n".join(tb))
 
 DEFAULT_CONFIG = {
     "columns": [
@@ -572,11 +655,14 @@ def load_data():
     environment variables and applied after loading.
     """
     global DATA_META
+    log("load_data() called")
     rows, error, meta = _fetch_rows()
     if error is not None:
         DATA_META = {"source": "unavailable", "label": "unavailable", "error": error}
+        log_error("load_data() failed: %s", error)
         return [], error
     DATA_META = meta
+    log("load_data() returned %d rows from %s", len(rows) if rows else 0, meta.get("source", "unknown"))
     return rows, None
 
 
@@ -585,14 +671,22 @@ def _background_poller():
     global _refresh_rows, _refresh_error
     while not _refresh_requested.is_set():
         if _refresh_requested.wait(timeout=_REFRESH_INTERVAL):
+            log("Background poller shutting down")
             break  # Shutdown signal
-        rows, error, meta = _fetch_rows()
-        with _refresh_lock:
-            _refresh_rows = rows
-            _refresh_error = error
-            if meta is not None:
-                DATA_META.update(meta)
-        _refresh_requested.set()  # Signal main loop that new data is available
+        try:
+            rows, error, meta = _fetch_rows()
+            if error is not None:
+                log_error("Background refresh error: %s", error)
+            else:
+                log("Background refresh: %d rows", len(rows) if rows else 0)
+            with _refresh_lock:
+                _refresh_rows = rows
+                _refresh_error = error
+                if meta is not None:
+                    DATA_META.update(meta)
+            _refresh_requested.set()  # Signal main loop that new data is available
+        except Exception as e:
+            log_error("Background poller exception: %s", e)
 
 
 def start_background_refresh():
@@ -978,12 +1072,14 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
     the data and the curses loading animation is skipped entirely.
     Otherwise, falls back to the curses loading animation.
     """
+    log("main() entered, preloaded_rows: %s", "yes" if preloaded_rows is not None else "no")
     curses.curs_set(0)
     stdscr.nodelay(False)
 
     no_color = os.environ.get("NO_COLOR", "").strip() != ""
     config = load_config()
     is_light_theme = config.get("theme") == "light"
+    log("Config loaded, theme: %s, light: %s", config.get("theme"), is_light_theme)
 
     # Initialize colors early — required whether or not _show_loading() runs.
     # When Textual preloads data, _show_loading() is skipped, so start_color()
@@ -996,6 +1092,7 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
         # Data was already loaded by the Textual loading screen — skip animation
         rows = preloaded_rows
         load_error = preloaded_error
+        log("Using preloaded rows: %d rows", len(rows) if rows else 0)
     else:
         # Fallback: curses loading animation (when Textual unavailable)
         _register_state_callback()
@@ -1005,8 +1102,12 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
 
         def _load_in_thread():
             animation_ready.wait(timeout=5)
-            rows, error = load_data()
-            load_result[0] = rows
+            loaded_rows, error = load_data()
+            if error:
+                log_error("Data load error: %s", error)
+            else:
+                log("Data loaded: %d rows", len(loaded_rows) if loaded_rows else 0)
+            load_result[0] = loaded_rows
             load_result[1] = error
 
         data_thread = threading.Thread(target=_load_in_thread, daemon=True)
@@ -1016,9 +1117,12 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
         data_thread.join(timeout=30)
 
         rows, load_error = load_result
+        if load_error:
+            log_error("Load error after animation: %s", load_error)
 
     # Start background refresh thread for reactive updates
     start_background_refresh()
+    log("Background refresh started")
 
     # After the blocking Firestore fetch, force the curses buffer to flush.
     # Ghostty's render pipeline can skip the first draw after a long blocking
@@ -1325,10 +1429,14 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                 in_settings = False
         elif in_detail and not config["split_mode"]:
             if key == ord('r') and rows:
-                target_idx = active_selection_idx if active_selection_idx is not None else current_row
-                target_idx = max(0, min(target_idx, len(rows) - 1))
-                write_recalc_request(rows[target_idx])
-                break
+                try:
+                    target_idx = active_selection_idx if active_selection_idx is not None else current_row
+                    target_idx = max(0, min(target_idx, len(rows) - 1))
+                    write_recalc_request(rows[target_idx])
+                except Exception as e:
+                    log_error("Recalc request failed (detail view): %s", e)
+                log("Recalc request queued (detail view)")
+                continue
             if key in [ord('b'), ord('q')]: in_detail = False
             elif key in [curses.KEY_DOWN, ord('j')]:
                 detail_idx = min(max(0, len(detail_lines)-1), detail_idx+1)
@@ -1387,10 +1495,14 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
         else:
             if key == ord('c'): in_settings = True
             elif key == ord('r') and rows:
-                target_idx = active_selection_idx if active_selection_idx is not None else current_row
-                target_idx = max(0, min(target_idx, len(rows) - 1))
-                write_recalc_request(rows[target_idx])
-                break
+                try:
+                    target_idx = active_selection_idx if active_selection_idx is not None else current_row
+                    target_idx = max(0, min(target_idx, len(rows) - 1))
+                    write_recalc_request(rows[target_idx])
+                except Exception as e:
+                    log_error("Recalc request failed (main view): %s", e)
+                log("Recalc request queued (main view)")
+                continue
             elif key == ord('t'):
                 is_light_theme = not is_light_theme
                 config["theme"] = "light" if is_light_theme else "dark"
@@ -1500,6 +1612,10 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                     detail_idx = 0
 
 if __name__ == "__main__":
+    # Initialize persistent logging before anything else
+    _setup_logging()
+    log("TUI starting, textual available: %s", TEXTUAL_AVAILABLE)
+
     # Only use the Textual loading screen when we have a real TTY.
     # Textual and curses cannot share the terminal, and the handoff
     # requires termios to save/restore the tty attributes — which only
@@ -1514,12 +1630,19 @@ if __name__ == "__main__":
         # If the user cancelled the loading screen, exit cleanly
         if load_error == "Cancelled by user":
             cancelled = True
-        preloaded = True
+            log("Loading cancelled by user")
+        else:
+            preloaded = True
+            if load_error:
+                log_error("Load error from textual: %s", load_error)
+            else:
+                log("Textual loading completed, rows loaded")
     else:
         # Curses-only path — main() will show the loading animation
         rows = None
         load_error = None
         preloaded = False
+        log("Textual not available, using curses-only path")
 
     if not cancelled:
         try:
@@ -1528,6 +1651,12 @@ if __name__ == "__main__":
             else:
                 curses.wrapper(main)
         except KeyboardInterrupt:
-            pass
+            log("TUI interrupted by user (Ctrl+C)")
+        except Exception as e:
+            log_crash(e)
+            error_msg = f"\nTUI crashed with an error.\nCrash log: {crash_log_file_path}"
+            print(error_msg, file=sys.stderr)
+            traceback.print_exc()
         finally:
             stop_background_refresh()
+            log("TUI shutdown complete")
