@@ -3,6 +3,7 @@
 # copy of the application record, so the interpreter is not allowed to drift.
 python = "3.15.2"
 bun = "latest"
+usage = { version = "7.1.4", workflow = "publish-cli.yml" }
 
 [env]
 _ = { file = ".env.local" }
@@ -11,33 +12,89 @@ _ = { file = ".env.local" }
 # Shorthand: mise run <name>  (or just `mise <name>` when no conflict)
 
 [tasks.tui]
-description = "Open the terminal job-tracker dashboard"
+description = "Open the terminal job-tracker dashboard (use keyboard shortcuts)"
 run = ".venv/bin/python ui/terminal/tracker_tui.py"
 
 [tasks.tracker]
-description = "Run the tracker CLI (add, update, list, sheet-sync, …)"
-run = ".venv/bin/python scripts/tracker.py"
+description = "Run the tracker CLI (subcommands: add, update, list, get, score, collect, …)"
+usage = '''arg "[args]…" var=#true help="Subcommand and arguments to forward to tracker.py"'''
+run = '''.venv/bin/python scripts/tracker.py ${usage_args:-}'''
 
 [tasks.report]
 description = "Generate the HTML applications report"
 run = ".venv/bin/python scripts/generate_report.py"
 
 [tasks.setup]
-description = "Run first-time setup (install deps, init Firestore)"
-run = ".venv/bin/python scripts/setup.py"
+description = "Run first-time setup (validate environment, seed schema, inject mock records)"
+usage = '''
+flag "--check" help="Show readiness report without writing"
+flag "--sheet" help="Sync the Google Sheet after mock injection"
+flag "--count " help="Number of synthetic applications to create"
+'''
+run = '''.venv/bin/python scripts/setup.py{% if usage.check %} --check{% endif %}{% if usage.sheet %} --sheet{% endif %}{% if usage.count %} --count {{ usage.count }}{% endif %}'''
 
 [tasks.salary]
-description = "Look up salary data for a role"
-run = ".venv/bin/python scripts/salary_lookup.py"
+description = "Look up salary benchmark data"
+usage = '''
+arg "[company]" help="Company name to search for"
+flag "--city " help="Filter by city name"
+flag "--json" help="Output as JSON"
+flag "--list-all" help="List all companies"
+flag "--validate" help="Validate salary_data.json and print a report"
+'''
+run = '''.venv/bin/python scripts/salary_lookup.py{% if usage.company %} {{ usage.company }}{% endif %}{% if usage.city %} --city {{ usage.city }}{% endif %}{% if usage.json %} --json{% endif %}{% if usage.list_all %} --list-all{% endif %}{% if usage.validate %} --validate{% endif %}'''
 
-[tasks.gmail]
-description = "Fetch job-related emails from Gmail"
-run = ".venv/bin/python scripts/gmail_fetch.py"
+# ── Gmail sync ─────────────────────────────────────────────────────────────
+# Each step is independent so a scheduler or agent can run only what it needs.
+
+[tasks."gmail:sync:labels"]
+description = "Fetch and cache Gmail JOB labels (dry-run by default)"
+usage = '''
+flag "-v --verbose" help="Print detailed progress and timing to stderr"
+flag "--label " help="Fetch only this label (validated against Gmail labels)"
+flag "--since " help="Lookback start date, YYYY-MM-DD"
+flag "--timeout " help="Timeout in seconds per Composio API call (default: 60)"
+'''
+run = '''.venv/bin/python scripts/gmail_fetch.py --dry-run{% if usage.verbose %} -v{% endif %}{% if usage.label %} --label {{ usage.label }}{% endif %}{% if usage.since %} --since {{ usage.since }}{% endif %}{% if usage.timeout %} --timeout {{ usage.timeout }}{% endif %}'''
+
+[tasks."gmail:read:inbox"]
+description = "Fetch job-related emails from Gmail and write inbox payload"
+usage = '''
+flag "-v --verbose" help="Print detailed progress and timing to stderr"
+flag "--label " help="Fetch only this label (validated against Gmail labels)"
+flag "--since " help="Lookback start date, YYYY-MM-DD"
+flag "--max " help="Total messages to collect, fetched 50 at a time"
+flag "--timeout " help="Timeout in seconds per Composio API call (default: 60)"
+flag "--dry-run" help="Read Gmail and compare labels, but write nothing"
+'''
+run = '''.venv/bin/python scripts/gmail_fetch.py{% if usage.verbose %} -v{% endif %}{% if usage.label %} --label {{ usage.label }}{% endif %}{% if usage.since %} --since {{ usage.since }}{% endif %}{% if usage.max %} --max {{ usage.max }}{% endif %}{% if usage.timeout %} --timeout {{ usage.timeout }}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}'''
+
+[tasks."gmail:collect"]
+description = "Stage proposals from fetched emails to Firestore (set TRACKER_ALLOW_WRITES=1)"
+usage = '''
+flag "--json " help="Inbox payload path (default: generated/gmail-inbox.json)"
+flag "--labels " help="JSON inventory of Gmail labels discovered by this fetch"
+flag "--trigger " help="Trigger source: manual | cron | application-updated"
+flag "--dry-run" help="Preview without writing to Firestore"
+'''
+run = '''.venv/bin/python scripts/tracker.py collect{% if usage.json %} --json {{ usage.json }}{% endif %}{% if usage.labels %} --labels {{ usage.labels }}{% endif %}{% if usage.trigger %} --trigger {{ usage.trigger }}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}'''
 
 [tasks.migrate-gcs]
 description = "Upload local artifacts to GCS and backfill Firestore (set TRACKER_ALLOW_WRITES=1)"
-run = ".venv/bin/python scripts/migrate_gcs.py"
+usage = '''
+flag "--dry-run" help="Show tree view without uploading"
+flag "--company " help="Only process artifacts for this company (case-insensitive)"
+flag "--documents " help="Path to documents/applications/ directory"
+'''
+run = '''.venv/bin/python scripts/migrate_gcs.py{% if usage.dry_run %} --dry-run{% endif %}{% if usage.company %} --company {{ usage.company }}{% endif %}{% if usage.documents %} --documents {{ usage.documents }}{% endif %}'''
 
 [tasks.purge-gcs-legacy]
 description = "Purge old-style GCS artifacts and migrate orphans (set TRACKER_ALLOW_WRITES=1)"
-run = ".venv/bin/python scripts/purge_gcs_legacy.py"
+usage = '''flag "--dry-run" help="Preview what would be done without making changes"'''
+run = '''.venv/bin/python scripts/purge_gcs_legacy.py{% if usage.dry_run %} --dry-run{% endif %}'''
+
+[tasks."mise:docs:tasks"]
+description = "Regenerates docs/mise"
+sources = ["mise.toml"]
+shell = "zsh -c"
+run = "mise generate task-docs -m -o ./docs/mise"
