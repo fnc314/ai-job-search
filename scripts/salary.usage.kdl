@@ -1,0 +1,10 @@
+name "salary"
+bin "salary"
+about "Salary Benchmark Lookup"
+version "1.0.0"
+
+arg "[company]" help="Company name to search for"
+flag "--city <city>" help="Filter by city name"
+flag "--json" help="Output as JSON"
+flag "--list-all" help="List all companies"
+flag "--validate" help="Validate salary_data.json and print a report, then exit"

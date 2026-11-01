@@ -1,0 +1,8 @@
+name "setup"
+bin "setup"
+about "Interactive minimum setup for the Firestore-backed job tracker."
+version "1.0.0"
+
+flag "--check" help="Show readiness; never write"
+flag "--sheet" help="Sync the generated Sheet after mock injection"
+flag "--count <count>" help="Number of synthetic applications"

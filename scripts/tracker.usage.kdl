@@ -1,0 +1,139 @@
+name "tracker"
+bin "tracker"
+about "Single write path for the job search tracker store."
+version "1.0.0"
+
+cmd "check" help="Validate contract and connection" {
+  flag "--offline" help="Skip the Firestore reachability probe"
+}
+
+cmd "seed" help="Write meta/schema from the contract"
+
+cmd "list" help="List applications" {
+  flag "--status <status>" help="Filter by status, legacy or namespaced"
+  flag "--open" help="Only open applications"
+  flag "--tag <tag>" help="Filter by an exact tag value"
+  flag "--limit <limit>" help="Max results to return"
+  flag "--json" help="Output as JSON (default: table)"
+  flag "--tui" help="Launch interactive TUI with these filters"
+}
+
+cmd "get" help="Show one application and its events" {
+  arg "<id>" help="Application ID"
+}
+
+cmd "add" help="Create an application from a JSON payload" {
+  flag "--json <file>" help="Payload file, or - for stdin"
+  flag "--dry-run" help="Resolve and validate only"
+}
+
+cmd "upsert" help="Create-or-merge from a JSON payload" {
+  flag "--json <file>" help="Payload file, or - for stdin"
+  flag "--dry-run" help="Resolve and validate only"
+}
+
+cmd "status" help="Record a funnel status change" {
+  arg "<id>" help="Application ID"
+  arg "<status>" help="Target status, legacy or namespaced"
+  flag "--date <date>" help="ISO date the change happened (default: now)"
+  flag "--note <note>" help="What happened"
+  flag "--correction" help="Emit event:status-corrected instead of a progress event"
+  flag "--dry-run" help="Preview without writing"
+}
+
+cmd "score" help="Record a recalculated fit rating" {
+  arg "<id>" help="Application ID"
+  flag "--fit <fit>" help="Integer 0-100"
+  flag "--date <date>" help="ISO date the score was decided (default: now)"
+  flag "--note <note>" help="What changed in the evaluation"
+  flag "--dry-run" help="Preview without writing"
+}
+
+cmd "event" help="Append a timeline event" {
+  arg "<id>" help="Application ID"
+  flag "--type <type>" help="An event:* value"
+  flag "--date <date>" help="ISO date the event happened (default: now)"
+  flag "--note <note>" help="Event note"
+  flag "--json <json>" help="Extra fields: actor, derivedFrom, confidence, ..."
+  flag "--dry-run" help="Preview without writing"
+}
+
+cmd "artifact" help="Register and upload a file" {
+  arg "<id>" help="Application ID"
+  flag "--kind <kind>" help="An artifact:* value"
+  flag "--path <path>" help="The local file"
+  flag "--filename <filename>" help="Override the stored filename"
+  flag "--no-upload" help="Record the path only"
+  flag "--dry-run" help="Preview without writing"
+}
+
+cmd "backfill" help="Add hashes and storage to already-registered artifacts" {
+  flag "--apply" help="Write the updates (default: report only)"
+  flag "--root <root>" help="Repo root for relative localPath values"
+  flag "--limit <limit>" help="Stop after N files"
+}
+
+cmd "bulk" help="Add many applications from one JSON file" {
+  flag "--json <file>" help="A JSON array, or {applications: [...]}"
+  flag "--allow-partial" help="Write the valid rows"
+  flag "--dry-run" help="Preview without writing"
+}
+
+cmd "import" help="One-shot import of the legacy CSV" {
+  flag "--csv <file>" help="Path to a legacy tracker CSV"
+  flag "--dry-run" help="Report only, never write"
+  flag "--mock" help="Skip historical profile reconciliation (for mock fixtures)"
+  flag "--report [report]" help="Write the markdown reconciliation report"
+}
+
+cmd "export" help="Read the record back out" {
+  flag "--json" help="The full JSON payload (default)"
+  flag "--csv" help="The legacy CSV shape (rollback)"
+  flag "--ndjson" help="One application per line"
+  flag "-o --output <file>" help="Write to a file instead of stdout"
+  flag "--refresh-cache" help="Also refresh generated/tracker-cache.json"
+}
+
+cmd "sheet" help="Regenerate the Sheets view" {
+  flag "--sync" help="Accepted for symmetry"
+  flag "--sheet-id <id>" help="Spreadsheet ID (default: TRACKER_SHEET_ID)"
+  flag "--local-only" help="Write CSVs under generated/sheets-view"
+  flag "--directory <dir>" help="Where --local-only writes"
+}
+
+cmd "proposals" help="Review the collector queue" {
+  cmd "list" help="List proposals" {
+    flag "--state <state>" help="Filter by state (e.g. proposal:pending)"
+  }
+  cmd "show" help="Show a proposal" {
+    arg "<id>" help="Proposal ID"
+  }
+  cmd "approve" help="Approve a proposal" {
+    arg "<id>" help="Proposal ID"
+    flag "--note <note>" help="Resolution text"
+    flag "--only <indexes>" help="Comma-separated 1-based change indexes to approve (default: all)"
+  }
+  cmd "reject" help="Reject a proposal" {
+    arg "<id>" help="Proposal ID"
+    flag "--reason <reason>" help="Why it was rejected"
+  }
+  cmd "expire" help="Expire stale proposals"
+}
+
+cmd "collect" help="Stage proposals from fetched messages" {
+  flag "--json <file>" help="Inbox payload (default: generated/gmail-inbox.json)"
+  flag "--labels <file>" help="JSON inventory of Gmail labels discovered by this fetch"
+  flag "--trigger <trigger>" help="Trigger source: manual | cron | application-updated"
+  flag "--dry-run" help="Preview without writing"
+}
+
+cmd "labels" help="Show the Gmail labels seen at the last sync"
+
+cmd "sync-due" help="Run due sync-requests" {
+  flag "--json <file>" help="Inbox payload for every request"
+  flag "--dry-run" help="List what is due"
+}
+
+cmd "mock-clear" help="Delete namespaced mock records" {
+  flag "--apply" help="Actually delete (default: dry run)"
+}

@@ -210,7 +210,22 @@ usage = '''flag "--dry-run" help="Preview what would be done without making chan
 run = '''.venv/bin/python scripts/purge_gcs_legacy.py{% if usage.dry_run %} --dry-run{% endif %}'''
 
 [tasks."mise:docs:tasks"]
-description = "Regenerates docs/mise"
-sources = ["mise.toml"]
+description = "Regenerates docs/mise (lints Usage specs, generates Markdown, and runs mise task-docs)"
+sources = ["mise.toml", "scripts/*.usage.kdl"]
 shell = "zsh -c"
-run = "mise generate task-docs -m -o ./docs/mise"
+run = '''
+  # Lint all Usage specs first
+  for spec in scripts/*.usage.kdl; do
+    mise x @usage -- usage lint "$spec" --warnings-as-errors
+  done
+
+  # Generate base docs for all tasks (tui, report, mise:docs:tasks, etc.)
+  mise generate task-docs -m -o ./docs/mise
+
+  # Overwrite with Usage-generated Markdown for scripts with .usage.kdl specs
+  for spec in scripts/*.usage.kdl; do
+    name="${spec%.usage.kdl}"
+    name="${name##scripts/}"
+    mise x @usage -- usage generate markdown --file "$spec" --out-file "docs/mise/${name}.md"
+  done
+'''

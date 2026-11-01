@@ -1,0 +1,8 @@
+name "migrate-gcs"
+bin "migrate-gcs"
+about "Migrate local artifacts to GCS"
+version "1.0.0"
+
+flag "--dry-run" help="Show tree view without uploading"
+flag "--company <company>" help="Only process artifacts for this company (case-insensitive)"
+flag "--documents <dir>" help="Path to documents/applications/ directory"

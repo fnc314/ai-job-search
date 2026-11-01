@@ -1,0 +1,6 @@
+name "purge-gcs-legacy"
+bin "purge-gcs-legacy"
+about "Purge legacy GCS artifacts and migrate orphans"
+version "1.0.0"
+
+flag "--dry-run" help="Preview what would be done without making changes"
