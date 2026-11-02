@@ -145,6 +145,10 @@ tekgence_detail.txt
 **/job-scraper/notion_sync.json
 **/job-scraper/*.md
 
+# Gradle build output
+records/**/build/
+records/.gradle/
+
 # Scratch, ad-hoc, and local helper scripts containing personal paths/data
 cross_reference.py
 fetch_disney.py
