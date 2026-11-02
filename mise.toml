@@ -1,30 +1,26 @@
 [tools]
-# Pinned to match .github/workflows/ci.yml. The tracker scripts own the only
-# copy of the application record, so the interpreter is not allowed to drift.
-python = "3.15.2"
-bun = "1.4.4"
-usage = { version = "7.1.5", workflow = "publish-cli.yml" }
+  # Pinned to match .github/workflows/ci.yml. The tracker scripts own the only
+  # copy of the application record, so the interpreter is not allowed to drift.
+  python = "3.15.2"
+  bun = "1.4.4"
+  usage = { version = "7.1.5", workflow = "publish-cli.yml" }
+  gradle = "9.8.2"
 
 [env]
-_ = { file = ".env.local" }
+  _ = { file = ".env.local" }
+  # TUI log cleanup settings (used by the `cd` hook)
+  TUI_LOG_RETENTION_DAYS = "7"      # Days to keep TUI log directories (0 = always clean)
+  TUI_LOG_COOLDOWN_HOURS = "24"     # Hours between cleanup prompts
+  ANDROID_USER_HOME = "~/.android"
+  ANDROID_HOME = "~/.android/sdk"
 
-# TUI log cleanup settings (used by the `cd` hook)
-TUI_LOG_RETENTION_DAYS = "7"    # Days to keep TUI log directories (0 = always clean)
-TUI_LOG_COOLDOWN_HOURS = "24"   # Hours between cleanup prompts
-
-[hooks]
-cd = "bash scripts/cleanup-tui-logs.sh"
-
-# ── Tasks ──────────────────────────────────────────────────────────────────
-# Shorthand: mise run <name>  (or just `mise <name>` when no conflict)
-
-[tasks.tui]
-description = "Open the terminal job-tracker dashboard (use keyboard shortcuts)"
-run = ".venv/bin/python ui/terminal/tracker_tui.py"
-
-[tasks.tracker]
-description = "Run the tracker CLI (subcommands: check, seed, list, get, add, upsert, status, score, event, artifact, backfill, bulk, import, export, sheet, proposals, collect, labels, sync-due, mock-clear)"
-usage = '''
+[tasks]
+  # ── Tasks ──────────────────────────────────────────────────────────────────
+  # Shorthand: mise run <name>  (or just `mise <name>` when no conflict)
+  tui = { description = "Open the terminal job-tracker dashboard (use keyboard shortcuts)", run = ".venv/bin/python ui/terminal/tracker_tui.py" }
+  tracker = {
+    description = "Run the tracker CLI (subcommands: check, seed, list, get, add, upsert, status, score, event, artifact, backfill, bulk, import, export, sheet, proposals, collect, labels, sync-due, mock-clear)",
+    usage = """
 cmd "check" help="Validate contract and connection" {
   flag "--offline" help="Skip the Firestore reachability probe"
 }
@@ -140,90 +136,82 @@ cmd "sync-due" help="Run due sync-requests" {
 cmd "mock-clear" help="Delete namespaced mock records" {
   flag "--apply" help="Actually delete (default: dry run)"
 }
-'''
-run = '''.venv/bin/python scripts/tracker.py {{ usage.cmd }}{% if usage.offline %} --offline{% endif %}{% if usage.status %} --status {{ usage.status }}{% endif %}{% if usage.open %} --open{% endif %}{% if usage.tag %} --tag {{ usage.tag }}{% endif %}{% if usage.limit %} --limit {{ usage.limit }}{% endif %}{% if usage.json %} --json{% if usage.cmd == "add" or usage.cmd == "upsert" or usage.cmd == "bulk" or usage.cmd == "event" %} {{ usage.json }}{% endif %}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}{% if usage.tui %} --tui{% endif %}{% if usage.id %} {{ usage.id }}{% endif %}{% if usage.fit %} --fit {{ usage.fit }}{% endif %}{% if usage.date %} --date {{ usage.date }}{% endif %}{% if usage.note %} --note {{ usage.note }}{% endif %}{% if usage.correction %} --correction{% endif %}{% if usage.type %} --type {{ usage.type }}{% endif %}{% if usage.kind %} --kind {{ usage.kind }}{% endif %}{% if usage.path %} --path {{ usage.path }}{% endif %}{% if usage.filename %} --filename {{ usage.filename }}{% endif %}{% if usage.no_upload %} --no-upload{% endif %}{% if usage.apply %} --apply{% endif %}{% if usage.root %} --root {{ usage.root }}{% endif %}{% if usage.allow_partial %} --allow-partial{% endif %}{% if usage.csv %} --csv{% if usage.cmd == "import" %} {{ usage.csv }}{% endif %}{% endif %}{% if usage.mock %} --mock{% endif %}{% if usage.report %} --report {{ usage.report }}{% endif %}{% if usage.ndjson %} --ndjson{% endif %}{% if usage.output %} -o {{ usage.output }}{% endif %}{% if usage.refresh_cache %} --refresh-cache{% endif %}{% if usage.sheet_id %} --sheet-id {{ usage.sheet_id }}{% endif %}{% if usage.local_only %} --local-only{% endif %}{% if usage.directory %} --directory {{ usage.directory }}{% endif %}{% if usage.sync %} --sync{% endif %}{% if usage.labels %} --labels {{ usage.labels }}{% endif %}{% if usage.trigger %} --trigger {{ usage.trigger }}{% endif %}{% if usage.state %} --state {{ usage.state }}{% endif %}{% if usage.reason %} --reason {{ usage.reason }}{% endif %}{% if usage.only %} --only {{ usage.only }}{% endif %}'''
-
-[tasks.report]
-description = "Generate the HTML applications report"
-run = ".venv/bin/python scripts/generate_report.py"
-
-[tasks.setup]
-description = "Run first-time setup (validate environment, seed schema, inject mock records)"
-usage = '''
+""",
+    run = '.venv/bin/python scripts/tracker.py {{ usage.cmd }}{% if usage.offline %} --offline{% endif %}{% if usage.status %} --status {{ usage.status }}{% endif %}{% if usage.open %} --open{% endif %}{% if usage.tag %} --tag {{ usage.tag }}{% endif %}{% if usage.limit %} --limit {{ usage.limit }}{% endif %}{% if usage.json %} --json{% if usage.cmd == "add" or usage.cmd == "upsert" or usage.cmd == "bulk" or usage.cmd == "event" %} {{ usage.json }}{% endif %}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}{% if usage.tui %} --tui{% endif %}{% if usage.id %} {{ usage.id }}{% endif %}{% if usage.fit %} --fit {{ usage.fit }}{% endif %}{% if usage.date %} --date {{ usage.date }}{% endif %}{% if usage.note %} --note {{ usage.note }}{% endif %}{% if usage.correction %} --correction{% endif %}{% if usage.type %} --type {{ usage.type }}{% endif %}{% if usage.kind %} --kind {{ usage.kind }}{% endif %}{% if usage.path %} --path {{ usage.path }}{% endif %}{% if usage.filename %} --filename {{ usage.filename }}{% endif %}{% if usage.no_upload %} --no-upload{% endif %}{% if usage.apply %} --apply{% endif %}{% if usage.root %} --root {{ usage.root }}{% endif %}{% if usage.allow_partial %} --allow-partial{% endif %}{% if usage.csv %} --csv{% if usage.cmd == "import" %} {{ usage.csv }}{% endif %}{% endif %}{% if usage.mock %} --mock{% endif %}{% if usage.report %} --report {{ usage.report }}{% endif %}{% if usage.ndjson %} --ndjson{% endif %}{% if usage.output %} -o {{ usage.output }}{% endif %}{% if usage.refresh_cache %} --refresh-cache{% endif %}{% if usage.sheet_id %} --sheet-id {{ usage.sheet_id }}{% endif %}{% if usage.local_only %} --local-only{% endif %}{% if usage.directory %} --directory {{ usage.directory }}{% endif %}{% if usage.sync %} --sync{% endif %}{% if usage.labels %} --labels {{ usage.labels }}{% endif %}{% if usage.trigger %} --trigger {{ usage.trigger }}{% endif %}{% if usage.state %} --state {{ usage.state }}{% endif %}{% if usage.reason %} --reason {{ usage.reason }}{% endif %}{% if usage.only %} --only {{ usage.only }}{% endif %}'
+  }
+  report = { description = "Generate the HTML applications report", run = ".venv/bin/python scripts/generate_report.py" }
+  setup = {
+    description = "Run first-time setup (validate environment, seed schema, inject mock records)",
+    usage = """
 flag "--check" help="Show readiness report without writing"
 flag "--sheet" help="Sync the Google Sheet after mock injection"
 flag "--count <count>" help="Number of synthetic applications to create"
-'''
-run = '''.venv/bin/python scripts/setup.py{% if usage.check %} --check{% endif %}{% if usage.sheet %} --sheet{% endif %}{% if usage.count %} --count {{ usage.count }}{% endif %}'''
-
-[tasks.salary]
-description = "Look up salary benchmark data"
-usage = '''
+""",
+    run = ".venv/bin/python scripts/setup.py{% if usage.check %} --check{% endif %}{% if usage.sheet %} --sheet{% endif %}{% if usage.count %} --count {{ usage.count }}{% endif %}"
+  }
+  salary = {
+    description = "Look up salary benchmark data",
+    usage = """
 arg "[company]" help="Company name to search for"
 flag "--city <city>" help="Filter by city name"
 flag "--json" help="Output as JSON"
 flag "--list-all" help="List all companies"
 flag "--validate" help="Validate salary_data.json and print a report"
-'''
-run = '''.venv/bin/python scripts/salary_lookup.py{% if usage.company %} {{ usage.company }}{% endif %}{% if usage.city %} --city {{ usage.city }}{% endif %}{% if usage.json %} --json{% endif %}{% if usage.list_all %} --list-all{% endif %}{% if usage.validate %} --validate{% endif %}'''
-
-# ── Gmail sync ─────────────────────────────────────────────────────────────
-# Each step is independent so a scheduler or agent can run only what it needs.
-
-[tasks."gmail:sync:labels"]
-description = "Fetch and cache Gmail JOB labels (dry-run by default)"
-usage = '''
+""",
+    run = ".venv/bin/python scripts/salary_lookup.py{% if usage.company %} {{ usage.company }}{% endif %}{% if usage.city %} --city {{ usage.city }}{% endif %}{% if usage.json %} --json{% endif %}{% if usage.list_all %} --list-all{% endif %}{% if usage.validate %} --validate{% endif %}"
+  }
+  # ── Gmail sync ─────────────────────────────────────────────────────────────
+  # Each step is independent so a scheduler or agent can run only what it needs.
+  "gmail:sync:labels" = {
+    description = "Fetch and cache Gmail JOB labels (dry-run by default)",
+    usage = """
 flag "-v --verbose" help="Print detailed progress and timing to stderr"
 flag "--label <label>" help="Fetch only this label (validated against Gmail labels)"
 flag "--since <since>" help="Lookback start date, YYYY-MM-DD"
 flag "--timeout <timeout>" help="Timeout in seconds per Composio API call (default: 60)"
-'''
-run = '''.venv/bin/python scripts/gmail_fetch.py --dry-run{% if usage.verbose %} -v{% endif %}{% if usage.label %} --label {{ usage.label }}{% endif %}{% if usage.since %} --since {{ usage.since }}{% endif %}{% if usage.timeout %} --timeout {{ usage.timeout }}{% endif %}'''
-
-[tasks."gmail:read:inbox"]
-description = "Fetch job-related emails from Gmail and write inbox payload"
-usage = '''
+""",
+    run = ".venv/bin/python scripts/gmail_fetch.py --dry-run{% if usage.verbose %} -v{% endif %}{% if usage.label %} --label {{ usage.label }}{% endif %}{% if usage.since %} --since {{ usage.since }}{% endif %}{% if usage.timeout %} --timeout {{ usage.timeout }}{% endif %}"
+  }
+  "gmail:read:inbox" = {
+    description = "Fetch job-related emails from Gmail and write inbox payload",
+    usage = """
 flag "-v --verbose" help="Print detailed progress and timing to stderr"
 flag "--label <label>" help="Fetch only this label (validated against Gmail labels)"
 flag "--since <since>" help="Lookback start date, YYYY-MM-DD"
 flag "--max <max>" help="Total messages to collect, fetched 50 at a time"
 flag "--timeout <timeout>" help="Timeout in seconds per Composio API call (default: 60)"
 flag "--dry-run" help="Read Gmail and compare labels, but write nothing"
-'''
-run = '''.venv/bin/python scripts/gmail_fetch.py{% if usage.verbose %} -v{% endif %}{% if usage.label %} --label {{ usage.label }}{% endif %}{% if usage.since %} --since {{ usage.since }}{% endif %}{% if usage.max %} --max {{ usage.max }}{% endif %}{% if usage.timeout %} --timeout {{ usage.timeout }}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}'''
-
-[tasks."gmail:collect"]
-description = "Stage proposals from fetched emails to Firestore (set TRACKER_ALLOW_WRITES=1)"
-usage = '''
+""",
+    run = ".venv/bin/python scripts/gmail_fetch.py{% if usage.verbose %} -v{% endif %}{% if usage.label %} --label {{ usage.label }}{% endif %}{% if usage.since %} --since {{ usage.since }}{% endif %}{% if usage.max %} --max {{ usage.max }}{% endif %}{% if usage.timeout %} --timeout {{ usage.timeout }}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}"
+  }
+  "gmail:collect" = {
+    description = "Stage proposals from fetched emails to Firestore (set TRACKER_ALLOW_WRITES=1)",
+    usage = """
 flag "--json <json>" help="Inbox payload path (default: generated/gmail-inbox.json)"
 flag "--labels <labels>" help="JSON inventory of Gmail labels discovered by this fetch"
 flag "--trigger <trigger>" help="Trigger source: manual | cron | application-updated"
 flag "--dry-run" help="Preview without writing to Firestore"
-'''
-run = '''.venv/bin/python scripts/tracker.py collect{% if usage.json %} --json {{ usage.json }}{% endif %}{% if usage.labels %} --labels {{ usage.labels }}{% endif %}{% if usage.trigger %} --trigger {{ usage.trigger }}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}'''
-
-[tasks.migrate-gcs]
-description = "Upload local artifacts to GCS and backfill Firestore (set TRACKER_ALLOW_WRITES=1)"
-usage = '''
+""",
+    run = ".venv/bin/python scripts/tracker.py collect{% if usage.json %} --json {{ usage.json }}{% endif %}{% if usage.labels %} --labels {{ usage.labels }}{% endif %}{% if usage.trigger %} --trigger {{ usage.trigger }}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}"
+  }
+  migrate-gcs = {
+    description = "Upload local artifacts to GCS and backfill Firestore (set TRACKER_ALLOW_WRITES=1)",
+    usage = """
 flag "--dry-run" help="Show tree view without uploading"
 flag "--company <company>" help="Only process artifacts for this company (case-insensitive)"
 flag "--documents <documents>" help="Path to job-applications/ directory"
-'''
-run = '''.venv/bin/python scripts/migrate_gcs.py{% if usage.dry_run %} --dry-run{% endif %}{% if usage.company %} --company {{ usage.company }}{% endif %}{% if usage.documents %} --documents {{ usage.documents }}{% endif %}'''
-
-[tasks.purge-gcs-legacy]
-description = "Purge old-style GCS artifacts and migrate orphans (set TRACKER_ALLOW_WRITES=1)"
-usage = '''flag "--dry-run" help="Preview what would be done without making changes"'''
-run = '''.venv/bin/python scripts/purge_gcs_legacy.py{% if usage.dry_run %} --dry-run{% endif %}'''
-
-[tasks."mise:docs:tasks"]
-description = "Regenerates docs/mise (lints Usage specs, generates Markdown, and runs mise task-docs)"
-sources = ["mise.toml", "scripts/specs/*.usage.kdl"]
-shell = "zsh -c"
-run = '''
+""",
+    run = ".venv/bin/python scripts/migrate_gcs.py{% if usage.dry_run %} --dry-run{% endif %}{% if usage.company %} --company {{ usage.company }}{% endif %}{% if usage.documents %} --documents {{ usage.documents }}{% endif %}"
+  }
+  purge-gcs-legacy = { description = "Purge old-style GCS artifacts and migrate orphans (set TRACKER_ALLOW_WRITES=1)", usage = 'flag "--dry-run" help="Preview what would be done without making changes"', run = ".venv/bin/python scripts/purge_gcs_legacy.py{% if usage.dry_run %} --dry-run{% endif %}" }
+  "mise:docs:tasks" = {
+    description = "Regenerates docs/mise (lints Usage specs, generates Markdown, and runs mise task-docs)",
+    sources = ["mise.toml", "scripts/specs/*.usage.kdl"],
+    shell = "zsh -c",
+    run = """
   # Lint all Usage specs first
   for spec in scripts/specs/*.usage.kdl; do
-    mise x @usage -- usage lint "$spec" --warnings-as-errors
+    mise x usage -- usage lint "$spec" --warnings-as-errors
   done
 
   # Generate base docs for all tasks (tui, report, mise:docs:tasks, etc.)
@@ -233,15 +221,15 @@ run = '''
   for spec in scripts/specs/*.usage.kdl; do
     name="${spec%.usage.kdl}"
     name="${name##scripts/specs/}"
-    mise x @usage -- usage generate markdown --file "$spec" --out-file "docs/mise/${name}.md"
+    mise x usage -- usage generate markdown --file "$spec" --out-file "docs/mise/${name}.md"
   done
-'''
-
-[tasks."completions:generate"]
-description = "Generate Zsh completions from Usage specs and install to ~/.env/zsh/custom/completions/"
-sources = ["scripts/specs/*.usage.kdl"]
-shell = "zsh -c"
-run = '''
+"""
+  }
+  "completions:generate" = {
+    description = "Generate Zsh completions from Usage specs and install to ~/.env/zsh/custom/completions/",
+    sources = ["scripts/specs/*.usage.kdl"],
+    shell = "zsh -c",
+    run = """
   local completions_dir="$HOME/.env/zsh/custom/completions"
   mkdir -p "$completions_dir"
 
@@ -249,8 +237,12 @@ run = '''
     name="${spec%.usage.kdl}"
     name="${name##scripts/specs/}"
     out_file="${completions_dir}/completions-for-${name}.zsh"
-    mise x @usage -- usage generate completion zsh --file "$spec" "$name" > "$out_file"
+    mise x usage -- usage generate completion zsh --file "$spec" "$name" > "$out_file"
     chmod +x "$out_file"
     echo "Generated: $out_file"
   done
-'''
+"""
+  }
+
+[hooks]
+  cd = "bash scripts/cleanup-tui-logs.sh"

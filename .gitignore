@@ -174,3 +174,4 @@ cover_*.log
 .claude/skills/job-scraper/search-queries.md
 
 bin
+ui/kmp/build/

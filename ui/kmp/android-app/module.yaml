@@ -1,0 +1,28 @@
+apply:
+  - ../templates/app.module-template.yaml
+
+product:
+  type: android/app
+
+dependencies:
+  - ../shared
+  - androidx.activity:activity-compose:1.13.0
+
+settings:
+  junit: junit-4
+  jvm:
+    jdk:
+      version: 17
+  android:
+    applicationId: "dev.fnc314.tools.job-tracker"
+    minSdk: 24
+    targetSdk: 37
+    namespace: "dev.fnc314.tools.job-tracker"
+    parcelize:
+      enabled: true
+    versionCode: 1
+    versionName: "1.0.0"
+    buildToolsVersion: 37.0.0
+    compileSdk:
+      apiLevel: 37
+      minorApiLevel: 1

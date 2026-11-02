@@ -1,0 +1,11 @@
+apply:
+  - ../templates/app.module-template.yaml
+
+product:
+  type: ios/app
+
+dependencies:
+  - ../shared
+
+settings:
+  compose: enabled

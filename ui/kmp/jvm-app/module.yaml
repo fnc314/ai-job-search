@@ -1,0 +1,13 @@
+apply:
+  - ../templates/app.module-template.yaml
+
+product:
+  type: jvm/app
+
+dependencies:
+  - ../shared
+  - $compose.desktop.currentOs
+
+
+settings:
+  compose: enabled
