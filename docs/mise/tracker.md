@@ -286,9 +286,9 @@ Delete namespaced mock records
 Record a recruiter outreach lead
 
 ### Flags
-- **`--company <company>`** — Company name (required)
+- **`-c --company <company>`** — Company name (required)
 - **`--channel <channel>`** — Channel value (default: outreach:linkedin)
-- **`--contact <contact>`** — Recruiter or contact name
-- **`--note <note>`** — Context about the outreach
-- **`--tags`** — Additional tags (repeatable)
+- **`-r --contact <contact>`** — Recruiter or contact name
+- **`-n --note <note>`** — Context about the outreach (repeatable)
+- **`-t --tag <tag>`** — Additional tags (repeatable)
 - **`--dry-run`** — Resolve and validate only

@@ -139,10 +139,10 @@ cmd "mock-clear" help="Delete namespaced mock records" {
 }
 
 cmd "lead" help="Record a recruiter outreach lead" {
-  flag "--company <company>" help="Company name (required)"
+  flag "-c --company <company>" help="Company name (required)"
   flag "--channel <channel>" help="Channel value (default: outreach:linkedin)"
-  flag "--contact <contact>" help="Recruiter or contact name"
-  flag "--note <note>" help="Context about the outreach"
-  flag "--tags" help="Additional tags (repeatable)"
+  flag "-r --contact <contact>" help="Recruiter or contact name"
+  flag "-n --note <note>" var=#true help="Context about the outreach (repeatable)"
+  flag "-t --tag <tag>" var=#true help="Additional tags (repeatable)"
   flag "--dry-run" help="Resolve and validate only"
 }

@@ -97,6 +97,26 @@ produced a change — so a scheduled run over the same mail stages nothing twice
 Inspect with `launchctl print gui/$(id -u)/<label>` and
 `~/Library/Logs/job-tracker-*.log`; install from `deploy/launchd/`.
 
+## Keeping mise.toml in sync
+
+Every new `tracker.py` subcommand **must** be reflected in `mise.toml` so that
+`mise tracker <subcommand>` works. The tracker task uses the Usage DSL:
+
+1. **Add the subcommand to the `usage` block** — a `cmd "name"` entry with
+   flags and arguments, placed alphabetically among the other commands.
+2. **Add the arguments to the `run` template** — any new flags or arguments
+   need corresponding `{% if usage.xxx %}` clauses so mise passes them through
+   to `scripts/tracker.py`.
+3. **Update the `description` string** — include the new subcommand name in
+   the parenthetical list.
+4. **Update `scripts/specs/tracker.usage.kdl`** — add a matching command spec
+   so zsh completions include the new subcommand.
+5. **Regenerate** — run `mise run mise:docs:tasks` and `mise run completions:generate`.
+
+Without these steps, `mise tracker <new_command>` will fail with
+`unexpected word: <new_command>`. The pre-commit hook will regenerate docs
+and completions, but it cannot add missing Usage DSL entries.
+
 ## Before finishing a tracker task
 
 - `TRACKER_ALLOW_WRITES=1` was set deliberately for the write, not exported
@@ -104,3 +124,5 @@ Inspect with `launchctl print gui/$(id -u)/<label>` and
 - The change is an event, and `tracker.py get <id>` shows it.
 - If the Sheet matters, regenerate it; do not describe it as current otherwise.
 - Never commit personal data (`documents/`, `generated/`, `.env.local`).
+- If you added a new CLI subcommand, verify `mise tracker <subcommand> --help`
+  works and that `scripts/specs/tracker.usage.kdl` includes it.

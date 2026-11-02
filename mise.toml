@@ -19,7 +19,7 @@
   # Shorthand: mise run <name>  (or just `mise <name>` when no conflict)
   tui = { description = "Open the terminal job-tracker dashboard (use keyboard shortcuts)", run = ".venv/bin/python ui/terminal/tracker_tui.py" }
   tracker = {
-    description = "Run the tracker CLI (subcommands: check, seed, list, get, add, upsert, status, score, event, artifact, backfill, bulk, import, export, sheet, proposals, collect, labels, sync-due, mock-clear)",
+    description = "Run the tracker CLI (subcommands: check, seed, list, get, add, upsert, lead, status, score, event, artifact, backfill, bulk, import, export, sheet, proposals, collect, labels, sync-due, mock-clear)",
     usage = """
 cmd "check" help="Validate contract and connection" {
   flag "--offline" help="Skip the Firestore reachability probe"
@@ -42,6 +42,14 @@ cmd "add" help="Create an application from a JSON payload" {
 }
 cmd "upsert" help="Create-or-merge from a JSON payload" {
   flag "--json <file>" help="Payload file, or - for stdin"
+  flag "--dry-run" help="Resolve and validate only"
+}
+cmd "lead" help="Record a recruiter outreach lead" {
+  flag "-c --company <company>" help="Company name (required)"
+  flag "--channel <channel>" help="Channel value (default: outreach:linkedin)"
+  flag "-r --contact <contact>" help="Recruiter or contact name"
+  flag "-n --note <note>" var=#true help="Context about the outreach (repeatable)"
+  flag "-t --tag <tag>" var=#true help="Additional tags (repeatable)"
   flag "--dry-run" help="Resolve and validate only"
 }
 cmd "status" help="Record a funnel status change" {
@@ -137,7 +145,7 @@ cmd "mock-clear" help="Delete namespaced mock records" {
   flag "--apply" help="Actually delete (default: dry run)"
 }
 """,
-    run = '.venv/bin/python scripts/tracker.py {{ usage.cmd }}{% if usage.offline %} --offline{% endif %}{% if usage.status %} --status {{ usage.status }}{% endif %}{% if usage.open %} --open{% endif %}{% if usage.tag %} --tag {{ usage.tag }}{% endif %}{% if usage.limit %} --limit {{ usage.limit }}{% endif %}{% if usage.json %} --json{% if usage.cmd == "add" or usage.cmd == "upsert" or usage.cmd == "bulk" or usage.cmd == "event" %} {{ usage.json }}{% endif %}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}{% if usage.tui %} --tui{% endif %}{% if usage.id %} {{ usage.id }}{% endif %}{% if usage.fit %} --fit {{ usage.fit }}{% endif %}{% if usage.date %} --date {{ usage.date }}{% endif %}{% if usage.note %} --note {{ usage.note }}{% endif %}{% if usage.correction %} --correction{% endif %}{% if usage.type %} --type {{ usage.type }}{% endif %}{% if usage.kind %} --kind {{ usage.kind }}{% endif %}{% if usage.path %} --path {{ usage.path }}{% endif %}{% if usage.filename %} --filename {{ usage.filename }}{% endif %}{% if usage.no_upload %} --no-upload{% endif %}{% if usage.apply %} --apply{% endif %}{% if usage.root %} --root {{ usage.root }}{% endif %}{% if usage.allow_partial %} --allow-partial{% endif %}{% if usage.csv %} --csv{% if usage.cmd == "import" %} {{ usage.csv }}{% endif %}{% endif %}{% if usage.mock %} --mock{% endif %}{% if usage.report %} --report {{ usage.report }}{% endif %}{% if usage.ndjson %} --ndjson{% endif %}{% if usage.output %} -o {{ usage.output }}{% endif %}{% if usage.refresh_cache %} --refresh-cache{% endif %}{% if usage.sheet_id %} --sheet-id {{ usage.sheet_id }}{% endif %}{% if usage.local_only %} --local-only{% endif %}{% if usage.directory %} --directory {{ usage.directory }}{% endif %}{% if usage.sync %} --sync{% endif %}{% if usage.labels %} --labels {{ usage.labels }}{% endif %}{% if usage.trigger %} --trigger {{ usage.trigger }}{% endif %}{% if usage.state %} --state {{ usage.state }}{% endif %}{% if usage.reason %} --reason {{ usage.reason }}{% endif %}{% if usage.only %} --only {{ usage.only }}{% endif %}'
+    run = '.venv/bin/python scripts/tracker.py {{ usage.cmd }}{% if usage.offline %} --offline{% endif %}{% if usage.status %} --status "{{ usage.status }}"{% endif %}{% if usage.open %} --open{% endif %}{% if usage.tag %}{% if usage.tag is string %} --tag "{{ usage.tag }}"{% else %}{% for t in usage.tag %} --tag "{{ t }}"{% endfor %}{% endif %}{% endif %}{% if usage.limit %} --limit "{{ usage.limit }}"{% endif %}{% if usage.json %} --json{% if usage.cmd == "add" or usage.cmd == "upsert" or usage.cmd == "bulk" or usage.cmd == "event" %} "{{ usage.json }}"{% endif %}{% endif %}{% if usage.dry_run %} --dry-run{% endif %}{% if usage.tui %} --tui{% endif %}{% if usage.id %} "{{ usage.id }}"{% endif %}{% if usage.fit %} --fit "{{ usage.fit }}"{% endif %}{% if usage.date %} --date "{{ usage.date }}"{% endif %}{% if usage.note %}{% if usage.note is string %} --note "{{ usage.note }}"{% else %}{% for n in usage.note %} --note "{{ n }}"{% endfor %}{% endif %}{% endif %}{% if usage.correction %} --correction{% endif %}{% if usage.type %} --type "{{ usage.type }}"{% endif %}{% if usage.kind %} --kind "{{ usage.kind }}"{% endif %}{% if usage.path %} --path "{{ usage.path }}"{% endif %}{% if usage.filename %} --filename "{{ usage.filename }}"{% endif %}{% if usage.no_upload %} --no-upload{% endif %}{% if usage.apply %} --apply{% endif %}{% if usage.root %} --root "{{ usage.root }}"{% endif %}{% if usage.allow_partial %} --allow-partial{% endif %}{% if usage.csv %} --csv{% if usage.cmd == "import" %} "{{ usage.csv }}"{% endif %}{% endif %}{% if usage.mock %} --mock{% endif %}{% if usage.report %} --report "{{ usage.report }}"{% endif %}{% if usage.ndjson %} --ndjson{% endif %}{% if usage.output %} -o "{{ usage.output }}"{% endif %}{% if usage.refresh_cache %} --refresh-cache{% endif %}{% if usage.sheet_id %} --sheet-id "{{ usage.sheet_id }}"{% endif %}{% if usage.local_only %} --local-only{% endif %}{% if usage.directory %} --directory "{{ usage.directory }}"{% endif %}{% if usage.sync %} --sync{% endif %}{% if usage.labels %} --labels "{{ usage.labels }}"{% endif %}{% if usage.trigger %} --trigger "{{ usage.trigger }}"{% endif %}{% if usage.state %} --state "{{ usage.state }}"{% endif %}{% if usage.reason %} --reason "{{ usage.reason }}"{% endif %}{% if usage.only %} --only "{{ usage.only }}"{% endif %}{% if usage.company %} --company "{{ usage.company }}"{% endif %}{% if usage.channel %} --channel "{{ usage.channel }}"{% endif %}{% if usage.contact %} --contact "{{ usage.contact }}"{% endif %}'
   }
   report = { description = "Generate the HTML applications report", run = ".venv/bin/python scripts/generate_report.py" }
   setup = {

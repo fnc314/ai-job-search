@@ -719,8 +719,8 @@ def commandLead(args) -> int:
     """Create a minimal lead record from recruiter outreach."""
     channel = normalizeChannel(args.channel) if args.channel else None
     tags = ["process:recruiter:outreach"]
-    if args.tags:
-        for raw in args.tags:
+    if args.tag:
+        for raw in args.tag:
             tag = normalizeTag(raw)
             if tag not in tags:
                 tags.append(tag)
@@ -739,17 +739,18 @@ def commandLead(args) -> int:
     document, pendingEvents = buildApplication(payload)
 
     if args.note:
-        # Append a note event with the outreach context
-        pendingEvents.append(
-            eventsModule.buildEvent(
-                "event:note-added",
-                note=args.note,
-                actor="actor:user",
-                derivedFrom="manual",
-                confidence="high",
+        # Append note events for each --note provided
+        for note_text in args.note:
+            pendingEvents.append(
+                eventsModule.buildEvent(
+                    "event:note-added",
+                    note=note_text,
+                    actor="actor:user",
+                    derivedFrom="manual",
+                    confidence="high",
+                )
             )
-        )
-        # Re-project with the note event so notesRendered includes it
+        # Re-project with the note events so notesRendered includes them
         document.update(render.project(document, pendingEvents))
 
     if args.dry_run:
@@ -2045,15 +2046,15 @@ def buildParser() -> argparse.ArgumentParser:
     mockClear.set_defaults(handler=commandMockClear)
 
     lead = subparsers.add_parser("lead", help="record a recruiter outreach lead")
-    lead.add_argument("--company", required=True, help="company name")
+    lead.add_argument("-c", "--company", required=True, help="company name")
     lead.add_argument(
         "--channel",
         default="outreach:linkedin",
         help="channel value (default: outreach:linkedin)",
     )
-    lead.add_argument("--contact", help="recruiter or contact name")
-    lead.add_argument("--note", help="context about the outreach")
-    lead.add_argument("--tags", nargs="*", help="additional tags")
+    lead.add_argument("-r", "--contact", help="recruiter or contact name")
+    lead.add_argument("-n", "--note", action="append", help="context about the outreach (repeatable)")
+    lead.add_argument("-t", "--tag", action="append", help="additional tags (repeatable)")
     lead.add_argument("--dry-run", action="store_true", help="resolve and validate only")
     lead.set_defaults(handler=commandLead)
 
