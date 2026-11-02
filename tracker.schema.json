@@ -4,7 +4,7 @@
   "title": "Job Search Tracker",
   "description": "Single contract for every document in the tracker store. Validates the JSON boundary (what scripts/tracker.py reads and writes); Firestore Timestamps are produced from these ISO strings on write. The enum registry lives ONLY in $defs so it cannot drift from the fields it constrains.",
 
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "x-supersedes": "job_search_tracker.schema.json v1 (CSV row contract)",
 
   "x-revision-log": [
@@ -15,6 +15,10 @@
     {
       "version": 4,
       "note": "Generated identifiers are UUIDv7 instead of ULID. Application, company, and contact IDs stay derived kebab slugs, so the CSV import map and every existing ID are unchanged. No documents existed under v3, so this required no data migration."
+    },
+    {
+      "version": 5,
+      "note": "Added status:lead (rank 0, pre-funnel), namespaced outreach channels (channel:outreach:linkedin, channel:outreach:email, channel:outreach:referral), process:recruiter:outreach tag, event:recruiter-outreach event type, and proposal:lead kind. Existing status ranks shifted up by 1. Existing flat channels remain for backward compatibility."
     }
   ],
 
@@ -153,6 +157,7 @@
       "type": "string",
       "description": "Closed funnel vocabulary. Rank and terminality are declared alongside the enum so they cannot drift from it.",
       "enum": [
+        "status:lead",
         "status:drafting",
         "status:applied",
         "status:interview",
@@ -164,15 +169,16 @@
         "status:withdrawn"
       ],
       "x-status-rank": {
-        "status:drafting": 0,
-        "status:applied": 1,
-        "status:interview": 2,
-        "status:offer": 3,
-        "status:hired": 4,
-        "status:rejected": 5,
-        "status:no-response": 6,
-        "status:offer-declined": 7,
-        "status:withdrawn": 8
+        "status:lead": 0,
+        "status:drafting": 1,
+        "status:applied": 2,
+        "status:interview": 3,
+        "status:offer": 4,
+        "status:hired": 5,
+        "status:rejected": 6,
+        "status:no-response": 7,
+        "status:offer-declined": 8,
+        "status:withdrawn": 9
       },
       "x-terminal": [
         "status:hired",
@@ -205,7 +211,8 @@
         "event:artifact-added",
         "event:note-added",
         "event:imported",
-        "event:status-corrected"
+        "event:status-corrected",
+        "event:recruiter-outreach"
       ]
     },
 
@@ -220,7 +227,10 @@
         "channel:linkedin",
         "channel:referral",
         "channel:direct",
-        "channel:other"
+        "channel:other",
+        "channel:outreach:linkedin",
+        "channel:outreach:email",
+        "channel:outreach:referral"
       ]
     },
 
@@ -252,7 +262,7 @@
 
     "proposalKindValue": {
       "type": "string",
-      "enum": ["proposal:gmail-sync", "proposal:sheet-sync"]
+      "enum": ["proposal:gmail-sync", "proposal:sheet-sync", "proposal:lead"]
     },
 
     "triggerValue": {
@@ -313,7 +323,8 @@
         "process:take-home",
         "process:referral",
         "process:internal-contact",
-        "process:no-response-30d"
+        "process:no-response-30d",
+        "process:recruiter:outreach"
       ]
     },
 
@@ -405,7 +416,7 @@
           "oneOf": [{ "$ref": "#/$defs/channelValue" }, { "type": "null" }]
         },
         "status": { "$ref": "#/$defs/statusValue" },
-        "statusRank": { "type": "integer", "minimum": 0, "maximum": 8 },
+        "statusRank": { "type": "integer", "minimum": 0, "maximum": 9 },
         "isOpen": { "type": "boolean" },
         "contactPerson": { "$ref": "#/$defs/nullableString" },
         "fitRating": {
@@ -445,7 +456,7 @@
         },
         "createdAt": { "$ref": "#/$defs/isoTimestamp" },
         "updatedAt": { "$ref": "#/$defs/isoTimestamp" },
-        "schemaVersion": { "type": "integer", "const": 4 }
+        "schemaVersion": { "type": "integer", "const": 5 }
       }
     },
 

@@ -374,7 +374,7 @@ def readPayload(path: str) -> dict:
 
 
 def normalizeChannel(raw: str | None) -> str | None:
-    """Accept 'greenhouse', 'LinkedIn', or 'channel:greenhouse'."""
+    """Accept 'greenhouse', 'LinkedIn', 'channel:greenhouse', or 'outreach:linkedin'."""
     if raw is None:
         return None
     value = str(raw).strip()
@@ -383,6 +383,13 @@ def normalizeChannel(raw: str | None) -> str | None:
     known = contract.enums("channel")
     if value in known:
         return value
+    # Namespaced values like 'outreach:linkedin' need the channel: prefix preserved
+    # without slug() converting the colon to a hyphen
+    if ":" in value and not value.startswith("channel:"):
+        candidate = "channel:" + value
+        if candidate in known:
+            return candidate
+    # Fallback: slug the value for simple names like 'LinkedIn' → 'channel:linkedin'
     candidate = "channel:" + contract.slug(value)
     if candidate in known:
         return candidate
@@ -706,6 +713,72 @@ def ensure_company(db, document: dict) -> None:
 
     ref = db.collection(client.COMPANIES).document(company_id)
     ref.set(contract.toFirestore(company_doc), merge=True)
+
+
+def commandLead(args) -> int:
+    """Create a minimal lead record from recruiter outreach."""
+    channel = normalizeChannel(args.channel) if args.channel else None
+    tags = ["process:recruiter:outreach"]
+    if args.tags:
+        for raw in args.tags:
+            tag = normalizeTag(raw)
+            if tag not in tags:
+                tags.append(tag)
+
+    payload = {
+        "company": args.company,
+        "status": "status:lead",
+    }
+    if channel:
+        payload["channel"] = channel
+    if args.contact:
+        payload["contactPerson"] = args.contact
+    if tags:
+        payload["tags"] = tags
+
+    document, pendingEvents = buildApplication(payload)
+
+    if args.note:
+        # Append a note event with the outreach context
+        pendingEvents.append(
+            eventsModule.buildEvent(
+                "event:note-added",
+                note=args.note,
+                actor="actor:user",
+                derivedFrom="manual",
+                confidence="high",
+            )
+        )
+        # Re-project with the note event so notesRendered includes it
+        document.update(render.project(document, pendingEvents))
+
+    if args.dry_run:
+        emit(
+            {
+                "dryRun": True,
+                "wouldWrite": document["id"],
+                "application": document,
+                "events": pendingEvents,
+            }
+        )
+        return EXIT_OK
+
+    db = client.getDb()
+    if db.collection(client.APPLICATIONS).document(document["id"]).get().exists:
+        raise contract.ContractError(
+            f"{document['id']} already exists; use `upsert` to merge or `event` to append"
+        )
+    client.assertWritesAllowed("a new lead")
+    ensure_company(db, document)
+    writeApplication(db, document, pendingEvents, [])
+    emit(
+        {
+            "ok": True,
+            "wrote": document["id"],
+            "events": [event["eventId"] for event in pendingEvents],
+        }
+    )
+    return EXIT_OK
 
 
 def commandAdd(args) -> int:
@@ -1970,6 +2043,19 @@ def buildParser() -> argparse.ArgumentParser:
     mockClear = subparsers.add_parser("mock-clear", help="delete namespaced mock records")
     mockClear.add_argument("--apply", action="store_true", help="actually delete (default: dry run)")
     mockClear.set_defaults(handler=commandMockClear)
+
+    lead = subparsers.add_parser("lead", help="record a recruiter outreach lead")
+    lead.add_argument("--company", required=True, help="company name")
+    lead.add_argument(
+        "--channel",
+        default="outreach:linkedin",
+        help="channel value (default: outreach:linkedin)",
+    )
+    lead.add_argument("--contact", help="recruiter or contact name")
+    lead.add_argument("--note", help="context about the outreach")
+    lead.add_argument("--tags", nargs="*", help="additional tags")
+    lead.add_argument("--dry-run", action="store_true", help="resolve and validate only")
+    lead.set_defaults(handler=commandLead)
 
     return parser
 

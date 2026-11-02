@@ -278,3 +278,17 @@ Delete namespaced mock records
 
 ### Flags
 - **`--apply`** — Actually delete (default: dry run)
+
+## `tracker lead`
+
+- **Usage:** `tracker lead [FLAGS]`
+
+Record a recruiter outreach lead
+
+### Flags
+- **`--company <company>`** — Company name (required)
+- **`--channel <channel>`** — Channel value (default: outreach:linkedin)
+- **`--contact <contact>`** — Recruiter or contact name
+- **`--note <note>`** — Context about the outreach
+- **`--tags`** — Additional tags (repeatable)
+- **`--dry-run`** — Resolve and validate only

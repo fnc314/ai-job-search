@@ -85,6 +85,23 @@ CLASSIFIERS = [
             r"thank you for your interest",
         ],
     ),
+    (
+        "event:recruiter-outreach",
+        None,
+        "medium",
+        [
+            r"came across your profile",
+            r"we have opportunities",
+            r"would you be interested",
+            r"exciting role",
+            r"reaching out because",
+            r"your background caught our attention",
+            r"impressed by your work",
+            r"saw your experience with",
+            r"we are looking for someone with your skills",
+            r"i'd like to discuss a potential opportunity",
+        ],
+    ),
 ]
 
 PENDING = "proposal:pending"
@@ -140,6 +157,30 @@ def match(message: dict, applications: dict[str, dict]) -> tuple[str | None, str
     return None, f"ambiguous: matched {len(matches)} applications ({', '.join(sorted(matches)[:4])})"
 
 
+def _extractCompany(message: dict) -> str | None:
+    """Try to extract a company name from an outreach email's sender or subject.
+
+    Looks for common patterns like "Company Recruiting", "Company Talent Acquisition",
+    or the company name in the subject line.
+    """
+    sender = (message.get("sender") or "").lower()
+    subject = (message.get("subject") or "").lower()
+    combined = f"{sender} {subject}"
+
+    # Patterns that indicate the company name precedes a recruiting keyword
+    recruiting_patterns = [
+        r"([a-z][a-z ]+?)\s+(?:recruiting|recruitment|talent|hr|hiring|recruiter)",
+        r"([a-z][a-z ]+?)\s+(?:careers|jobs|opportunities)",
+    ]
+    for pattern in recruiting_patterns:
+        m = re.search(pattern, combined)
+        if m:
+            company = m.group(1).strip().title()
+            if len(company) >= 2:
+                return company
+    return None
+
+
 def buildProposal(
     messages: list[dict],
     applications: dict[str, dict],
@@ -166,6 +207,43 @@ def buildProposal(
 
         applicationId, reason = match(message, applications)
         classification = classify(message.get("subject"), message.get("snippet"))
+
+        # Outreach detection: if classified as outreach and no application matches,
+        # stage as a lead change instead of unmatched
+        if classification is not None and classification[0] == "event:recruiter-outreach":
+            if applicationId is None:
+                # Try to extract company for lead creation
+                company = _extractCompany(message)
+                if company:
+                    changes.append(
+                        {
+                            "applicationId": None,
+                            "eventType": "event:recruiter-outreach",
+                            "statusFrom": None,
+                            "statusTo": None,
+                            "confidence": classification[2],
+                            "leadCompany": company,
+                            "leadChannel": "channel:outreach:email",
+                            "sourceEmail": {
+                                "messageId": messageId,
+                                "subject": message.get("subject"),
+                                "sender": message.get("sender"),
+                                "receivedAt": message.get("receivedAt"),
+                            },
+                        }
+                    )
+                    continue
+                else:
+                    unmatched.append(
+                        {
+                            "sender": message.get("sender"),
+                            "subject": message.get("subject"),
+                            "receivedAt": message.get("receivedAt"),
+                            "reason": "outreach detected but no company identified",
+                        }
+                    )
+                    continue
+
         if applicationId is None or classification is None:
             unmatched.append(
                 {
@@ -197,7 +275,7 @@ def buildProposal(
             }
         )
 
-    scopeIds = sorted({change["applicationId"] for change in changes})
+    scopeIds = sorted({change["applicationId"] for change in changes if change.get("applicationId")})
     proposal = {
         "proposalId": contract.newUuid(),
         "createdAt": timestamp,
@@ -258,6 +336,9 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
     duplicate a transition. Skips are reported, never silent. `only` holds
     1-based change indexes: review is allowed to be selective, and a change the
     reviewer left out is reported as skipped rather than silently applied.
+
+    Lead changes (no applicationId) create a new lead record instead of emitting
+    an event on an existing application.
     """
     proposal = load(db, proposalId)
     if proposal["state"] != PENDING:
@@ -268,13 +349,68 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
     applications: dict[str, dict] = {}
     storedEvents: dict[str, list[dict]] = {}
     prepared: list[tuple[str, dict]] = []
+    leadRecords: list[dict] = []
     skipped = []
 
     for index, change in enumerate(proposal["changes"], start=1):
-        applicationId = change["applicationId"]
         if only is not None and index not in only:
-            skipped.append({"index": index, "applicationId": applicationId, "reason": "not selected"})
+            skipped.append({"index": index, "reason": "not selected"})
             continue
+
+        # Lead changes create a new record instead of modifying an existing one
+        if change.get("leadCompany"):
+            company = change["leadCompany"]
+            applicationId = contract.slug(company)
+
+            # Check if a lead for this company already exists
+            snapshot = db.collection(client.APPLICATIONS).document(applicationId).get()
+            if snapshot.exists:
+                existing = contract.fromFirestore(snapshot.to_dict())
+                if existing.get("status") == "status:lead":
+                    skipped.append(
+                        {
+                            "applicationId": applicationId,
+                            "reason": f"lead for {company} already exists",
+                        }
+                    )
+                    continue
+
+            # Build the lead record
+            timestamp = nowIso()
+            leadDoc = {
+                "id": applicationId,
+                "date": timestamp[:10],
+                "company": company,
+                "companyId": applicationId,
+                "channel": change.get("leadChannel") or "channel:outreach:email",
+                "status": "status:lead",
+                "statusRank": 0,
+                "isOpen": True,
+                "tags": ["process:recruiter:outreach"],
+                "metadata": {},
+                "contactIds": [],
+                "createdAt": timestamp,
+                "updatedAt": timestamp,
+                "schemaVersion": contract.schemaVersion(),
+            }
+
+            # Build the outreach event
+            sourceEmail = change.get("sourceEmail") or {}
+            event = eventsModule.buildEvent(
+                "event:recruiter-outreach",
+                date=sourceEmail.get("receivedAt"),
+                note=sourceEmail.get("subject"),
+                actor="actor:gmail-sync",
+                derivedFrom="gmail",
+                confidence=change.get("confidence") or "medium",
+                emailMessageId=sourceEmail.get("messageId"),
+            )
+            leadDoc.update(render.project(leadDoc, [event]))
+            leadRecords.append((leadDoc, [event]))
+            continue
+
+        # Standard changes on existing applications
+        applicationId = change["applicationId"]
         if applicationId not in applications:
             snapshot = db.collection(client.APPLICATIONS).document(applicationId).get()
             if not snapshot.exists:
@@ -314,6 +450,27 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
     batch = db.batch()
     operations = 0
     written = []
+
+    # Write new lead records
+    for leadDoc, leadEvents in leadRecords:
+        applicationId = leadDoc["id"]
+        reference = db.collection(client.APPLICATIONS).document(applicationId)
+        batch.set(reference, contract.toFirestore(leadDoc), merge=True)
+        for event in leadEvents:
+            batch.set(
+                reference.collection(client.EVENTS).document(event["eventId"]),
+                contract.toFirestore(event),
+            )
+        operations += 1 + len(leadEvents)
+        written.append(
+            {
+                "applicationId": applicationId,
+                "eventId": leadEvents[0]["eventId"],
+                "type": "lead:created",
+            }
+        )
+
+    # Write events on existing applications
     for applicationId, event in prepared:
         reference = db.collection(client.APPLICATIONS).document(applicationId)
         storedEvents[applicationId].append(event)

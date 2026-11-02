@@ -1138,7 +1138,23 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
     
     sort_idx = 0
     sort_dirs = {c["key"]: (c["key"] == 'date' or c["key"] == 'fit_rating') for c in cols_config}
-    
+
+    # Quick-filter state: None = all, 'lead' = leads only, 'open' = open apps, 'rejected' = rejected
+    active_filter = None
+
+    def apply_quick_filter(rows):
+        if active_filter is None:
+            return rows
+        if active_filter == 'lead':
+            return [r for r in rows if r.get("status", "").lower() == "lead"]
+        if active_filter == 'open':
+            closed = {"closed", "withdrawn", "declined", "rejected", "hired"}
+            return [r for r in rows if r.get("status", "").lower() not in closed]
+        if active_filter == 'rejected':
+            terminal = {"rejected", "withdrawn", "declined", "no-response"}
+            return [r for r in rows if r.get("status", "").lower() in terminal]
+        return rows
+
     def sort_data():
         visible_cols = [c for c in cols_config if c.get("visible", True)]
         if not visible_cols: return
@@ -1152,7 +1168,7 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
             if not val: return "" if not desc else "zzzzzz"
             return val.lower()
         rows.sort(key=sort_key, reverse=desc)
-    
+
     sort_data()
     
     current_row = 0
@@ -1227,7 +1243,7 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
 
         elif in_detail and not config["split_mode"]:
             # --- FULL-SCREEN DETAIL VIEW ---
-            header_text = f" DETAILS | {rows[current_row].get('company')} - {rows[current_row].get('role')} "
+            header_text = f" DETAILS | {display_rows[current_row].get('company')} - {display_rows[current_row].get('role')} "
             safe_addstr(stdscr, 0, 0, header_text.ljust(w)[:w-1], c_header)
             
             max_disp = h - 3
@@ -1292,8 +1308,13 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                 # Don't show error for background refresh failures —
                 # the initial load error (if any) is still the authoritative one
 
+            # Apply quick-filter for display
+            display_rows = apply_quick_filter(rows)
+
             # Header
-            header_text = f" AI JOB TRACKER | {len(rows)} Apps "
+            header_text = f" AI JOB TRACKER | {len(rows)} Entries "
+            if active_filter:
+                header_text += f"| Filter: {active_filter} "
             if is_split: header_text += f"| Focus: {focused_pane} "
             # Provenance is part of the header, not a hidden status: a stale
             # cache must never be mistaken for the live record.
@@ -1336,15 +1357,17 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
             if current_row < list_scroll: list_scroll = current_row
             elif current_row >= list_scroll + max_disp: list_scroll = current_row - max_disp + 1
                 
-            if not rows:
-                safe_addstr(stdscr, 4, 2, "No applications found.", c_highlight)
-                if DATA_META.get("source") == "unavailable":
+            if not display_rows:
+                safe_addstr(stdscr, 4, 2, "No entries found.", c_highlight)
+                if active_filter:
+                    safe_addstr(stdscr, 5, 2, f"Filter: {active_filter}. Press 'a' to show all.", c_highlight)
+                elif DATA_META.get("source") == "unavailable":
                     safe_addstr(stdscr, 5, 2, "Could not connect to data source.", c_highlight)
             else:
                 for i in range(max_disp):
                     idx = list_scroll + i
-                    if idx >= len(rows): break
-                    row = rows[idx]
+                    if idx >= len(display_rows): break
+                    row = display_rows[idx]
                     row_parts = []
                     for j, cfg in enumerate(visible_cols):
                         val = str(row.get(cfg["key"], "") or "")
@@ -1357,12 +1380,17 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                     attr = c_selected if idx == current_row else (c_highlight if idx == active_selection_idx else c_default)
                     safe_addstr(stdscr, 4 + i, 0, line.ljust(list_w)[:list_w], attr)
             
-            footer_text = " [j/k]: Nav | [Enter]: Detail | [r]: Recalc | [Tab]: Focus | [c]: Config | [t]: Theme | [q]: Quit "
+            filter_hint = ""
+            if active_filter:
+                filter_hint = " [a]: All "
+            else:
+                filter_hint = " [l]: Leads | [o]: Open | [r]: Rejected | [a]: All "
+            footer_text = f"{filter_hint}[j/k]: Nav | [Enter]: Detail | [c]: Config | [t]: Theme | [q]: Quit "
             safe_addstr(stdscr, h - 1, 0, footer_text.ljust(w)[:w-1], c_footer)
             
             if is_split:
                 for i in range(1, h - 1): safe_addstr(stdscr, i, list_w, "|", c_default)
-                sel_row = rows[active_selection_idx] if active_selection_idx is not None else {}
+                sel_row = display_rows[active_selection_idx] if active_selection_idx is not None and active_selection_idx < len(display_rows) else {}
                 det_company = sel_row.get("company") or "Unknown"
                 det_header = f" DETAILS: {det_company} | [Enter]: View File "
                 safe_addstr(stdscr, 0, list_w+1, det_header.ljust(det_w)[:det_w], c_header if focused_pane=="DETAILS" else c_highlight)
@@ -1494,6 +1522,18 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                             in_file_view = True
         else:
             if key == ord('c'): in_settings = True
+            elif key == ord('l'):
+                active_filter = 'lead'
+                current_row = 0
+                list_scroll = 0
+            elif key == ord('o'):
+                active_filter = 'open'
+                current_row = 0
+                list_scroll = 0
+            elif key == ord('a'):
+                active_filter = None
+                current_row = 0
+                list_scroll = 0
             elif key == ord('r') and rows:
                 try:
                     target_idx = active_selection_idx if active_selection_idx is not None else current_row
@@ -1512,12 +1552,12 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
             elif key == ord('\t'):
                 if active_selection_idx is not None: focused_pane = "DETAILS" if focused_pane == "LIST" else "LIST"
             elif key in [curses.KEY_DOWN, ord('j')]:
-                if focused_pane == "LIST" and rows:
-                    current_row = min(len(rows)-1, current_row+1)
+                if focused_pane == "LIST" and display_rows:
+                    current_row = min(len(display_rows)-1, current_row+1)
                 elif detail_lines:
                     detail_idx = min(max(0, len(detail_lines)-1), detail_idx+1)
             elif key in [curses.KEY_UP, ord('k')]:
-                if focused_pane == "LIST" and rows:
+                if focused_pane == "LIST" and display_rows:
                     current_row = max(0, current_row-1)
                 elif detail_lines:
                     detail_idx = max(0, detail_idx-1)
@@ -1530,7 +1570,7 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                     sort_dirs[k] = not sort_dirs.get(k, False)
                     sort_data()
             elif key in [10, 13]:
-                if not rows:
+                if not display_rows:
                     continue
                 if config["split_mode"]:
                     if focused_pane == "DETAILS" and detail_lines:
@@ -1592,20 +1632,20 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                             detail_idx = 0
                         else:
                             active_selection_idx = current_row
-                            row_id = rows[active_selection_idx].get('id', '')
+                            row_id = display_rows[active_selection_idx].get('id', '')
                             if row_id in detail_cache:
                                 detail_lines = detail_cache[row_id]
                             else:
-                                detail_lines = load_detail_lines(rows[active_selection_idx], w//2 - 2)
+                                detail_lines = load_detail_lines(display_rows[active_selection_idx], w//2 - 2)
                                 detail_cache[row_id] = detail_lines
                             detail_scroll = 0
                             detail_idx = 0
                 else:
-                    row_id = rows[current_row].get('id', '')
+                    row_id = display_rows[current_row].get('id', '')
                     if row_id in detail_cache:
                         detail_lines = detail_cache[row_id]
                     else:
-                        detail_lines = load_detail_lines(rows[current_row], w - 2)
+                        detail_lines = load_detail_lines(display_rows[current_row], w - 2)
                         detail_cache[row_id] = detail_lines
                     in_detail = True
                     detail_scroll = 0
