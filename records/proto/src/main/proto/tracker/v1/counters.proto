@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// TrackerCounts — events/followUpsSent/interviews/rejections counts
+message TrackerCounts {
+  int32 events = 1;
+  int32 followUpsSent = 2;
+  int32 interviews = 3;
+  int32 rejections = 4;
+}

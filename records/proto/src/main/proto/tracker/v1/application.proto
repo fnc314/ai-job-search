@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "tracker/v1/enums.proto";
+import "tracker/v1/compensation.proto";
+import "tracker/v1/location.proto";
+import "tracker/v1/fit_evaluation.proto";
+import "tracker/v1/counters.proto";
+import "tracker/v1/timeline.proto";
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// JobApplication — one per job application (the core record)
+message JobApplication {
+  string id = 1;
+  string company = 2;
+  string role = 3;
+  string location = 4;
+  TrackerStatus status = 5;
+  ApplicationChannel channel = 6;
+  string jobId = 7;
+  string jobUrl = 8;
+  string description = 9;
+  repeated string tags = 10;
+  repeated string contactIds = 11;
+  Compensation compensation = 12;
+  Location locationDetail = 13;
+  TrackerFit fitEvaluation = 14;
+  TrackerCounts counters = 15;
+  Timeline timeline = 16;
+  string notesRendered = 17;
+  google.protobuf.Timestamp createdAt = 18;
+  google.protobuf.Timestamp updatedAt = 19;
+  google.protobuf.Struct metadata = 20;
+}

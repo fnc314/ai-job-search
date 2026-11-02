@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+import "google/protobuf/timestamp.proto";
+import "tracker/v1/enums.proto";
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// TrackerSyncRequest — deferred sync tasks
+message TrackerSyncRequest {
+  string id = 1;
+  SyncKind kind = 2;
+  SyncState state = 3;
+  repeated string applicationIds = 4;
+  google.protobuf.Timestamp createdAt = 5;
+  google.protobuf.Timestamp scheduledAt = 6;
+  google.protobuf.Timestamp completedAt = 7;
+  string errorMessage = 8;
+}

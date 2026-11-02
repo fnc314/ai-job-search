@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+import "tracker/v1/enums.proto";
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// Location — city/region/country + workMode/relocation flags
+message Location {
+  string city = 1;
+  string region = 2;
+  string country = 3;
+  WorkMode workMode = 4;
+  bool relocation = 5;
+  bool superCommuter = 6;
+}

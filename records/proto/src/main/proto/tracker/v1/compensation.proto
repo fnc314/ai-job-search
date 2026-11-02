@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// Compensation — salary range with min/max/currency/period
+message Compensation {
+  double min = 1;
+  double max = 2;
+  string currency = 3;
+  string period = 4;       // "yearly", "hourly", etc.
+  string bandSource = 5;   // e.g. "levels.fyi", "self-reported"
+  string vsTarget = 6;     // "above-band", "at-band", "below-band"
+}

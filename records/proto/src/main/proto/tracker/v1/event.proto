@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "tracker/v1/enums.proto";
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// TrackerEvent — append-only timeline entries
+message TrackerEvent {
+  string id = 1;
+  string applicationId = 2;
+  TrackerEventType type = 3;
+  TrackerStatus statusFrom = 4;
+  TrackerStatus statusTo = 5;
+  string note = 6;
+  string emailMessageId = 7;
+  EventActor actor = 8;
+  DerivedFrom derivedFrom = 9;
+  Confidence confidence = 10;
+  google.protobuf.Timestamp createdAt = 11;
+  google.protobuf.Struct metadata = 12;
+}

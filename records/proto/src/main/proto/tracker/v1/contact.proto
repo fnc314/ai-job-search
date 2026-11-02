@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// Contact — recruiters and hiring contacts
+message Contact {
+  string id = 1;
+  string name = 2;
+  string title = 3;
+  string company = 4;
+  string email = 5;
+  string phone = 6;
+  string linkedinUrl = 7;
+  repeated string applicationIds = 8;
+  google.protobuf.Timestamp createdAt = 9;
+  google.protobuf.Timestamp updatedAt = 10;
+  google.protobuf.Struct metadata = 11;
+}

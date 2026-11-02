@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// Timeline — firstActivityAt/lastActivityAt/nextFollowUpAt + daysSinceActivity
+message Timeline {
+  google.protobuf.Timestamp firstActivityAt = 1;
+  google.protobuf.Timestamp lastActivityAt = 2;
+  int32 daysSinceActivity = 3;
+  google.protobuf.Timestamp nextFollowUpAt = 4;
+}

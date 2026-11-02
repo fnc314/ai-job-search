@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+import "google/protobuf/timestamp.proto";
+import "tracker/v1/enums.proto";
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// TrackerArtifact — file metadata in GCS
+message TrackerArtifact {
+  string id = 1;
+  string applicationId = 2;
+  TrackerArtifactKind kind = 3;
+  string filename = 4;
+  string contentType = 5;
+  int64 size = 6;
+  string sha256 = 7;
+  Storage storage = 8;
+  string localPath = 9;
+  string externalUrl = 10;
+  google.protobuf.Timestamp createdAt = 11;
+
+  // Storage — bucket/path pair for GCS
+  message Storage {
+    string bucket = 1;
+    string path = 2;
+  }
+}

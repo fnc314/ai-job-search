@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+import "google/protobuf/timestamp.proto";
+import "tracker/v1/enums.proto";
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// TrackerEdit — collector output awaiting human review (was proposal)
+message TrackerEdit {
+  string id = 1;
+  string applicationId = 2;
+  TrackerEditKind kind = 3;
+  TrackerEditState state = 4;
+  Trigger trigger = 5;
+  repeated Change changes = 6;
+  repeated Unmatched unmatched = 7;
+  SourceEmail sourceEmail = 8;
+  Scope scope = 9;
+  Confidence confidence = 10;
+  google.protobuf.Timestamp createdAt = 11;
+  google.protobuf.Timestamp expiresAt = 12;
+
+  // Change — a single proposed field change
+  message Change {
+    string field = 1;
+    string oldValue = 2;
+    string newValue = 3;
+    string reason = 4;
+  }
+
+  // Unmatched — a field that couldn't be matched
+  message Unmatched {
+    string field = 1;
+    string value = 2;
+  }
+
+  // SourceEmail — email metadata for the edit
+  message SourceEmail {
+    string messageId = 1;
+    string from = 2;
+    string subject = 3;
+    google.protobuf.Timestamp receivedAt = 4;
+  }
+
+  // Scope — what the edit applies to
+  message Scope {
+    TrackerEventType eventType = 1;
+    TrackerStatus statusTo = 2;
+  }
+}
