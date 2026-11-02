@@ -1,0 +1,320 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// ============================================================================
+// TrackerStatus
+// Application funnel status (drafting → hired/rejected)
+// Original namespaced values: status:drafting, status:applied, etc.
+// ============================================================================
+enum TrackerStatus {
+  TRACKER_STATUS_UNSPECIFIED = 0;
+  // status:drafting
+  DRAFTING = 1;
+  // status:applied
+  APPLIED = 2;
+  // status:interview
+  INTERVIEW = 3;
+  // status:offer
+  OFFER_EXPECTED = 4;
+  // status:hired
+  HIRED = 5;
+  // status:rejected
+  REJECTED = 6;
+  // status:no-response
+  NO_RESPONSE = 7;
+  // status:offer-declined
+  OFFER_DECLINED = 8;
+  // status:withdrawn
+  APPLICATION_WITHDRAWN = 9;
+}
+
+// ============================================================================
+// TrackerEventType
+// Event types for append-only timeline entries
+// Original namespaced values: event:applied, event:acknowledged, etc.
+// ============================================================================
+enum TrackerEventType {
+  TRACKER_EVENT_TYPE_UNSPECIFIED = 0;
+  // event:applied
+  APPLY = 1;
+  // event:acknowledged
+  ACKNOWLEDGE = 2;
+  // event:recruiter-screen
+  RECRUITER_SCREEN = 3;
+  // event:interview-scheduled
+  SCHEDULE_INTERVIEW = 4;
+  // event:interview-completed
+  COMPLETE_INTERVIEW = 5;
+  // event:assessment
+  ASSESS = 6;
+  // event:onsite
+  VISIT_ONSITE = 7;
+  // event:offer
+  OFFER = 8;
+  // event:offer-accepted
+  ACCEPT_OFFER = 9;
+  // event:offer-declined
+  DECLINE_OFFER = 10;
+  // event:rejection
+  REJECT = 11;
+  // event:no-response
+  GHOST = 12;
+  // event:withdrawn
+  WITHDRAW = 13;
+  // event:follow-up-sent
+  SEND_FOLLOW_UP = 14;
+  // event:document-tailored
+  TAILOR_DOCUMENT = 15;
+  // event:fit-recalculated
+  RECALCULATE_FIT = 16;
+  // event:artifact-added
+  ADD_ARTIFACT = 17;
+  // event:note-added
+  ADD_NOTE = 18;
+  // event:imported
+  IMPORT = 19;
+  // event:status-corrected
+  CORRECT_STATUS = 20;
+}
+
+// ============================================================================
+// ApplicationChannel
+// Source channel of a job application
+// Original namespaced values: channel:greenhouse, channel:workday, etc.
+// ============================================================================
+enum ApplicationChannel {
+  APPLICATION_CHANNEL_UNSPECIFIED = 0;
+  // channel:greenhouse
+  GREENHOUSE = 1;
+  // channel:workday
+  WORKDAY = 2;
+  // channel:lever
+  LEVER = 3;
+  // channel:ashby
+  ASHBY = 4;
+  // channel:smartrecruiters
+  SMARTRECRUITERS = 5;
+  // channel:linkedin
+  LINKEDIN = 6;
+  // channel:referral
+  REFERRAL = 7;
+  // channel:direct
+  DIRECT = 8;
+  // channel:other
+  OTHER = 9;
+}
+
+// ============================================================================
+// TrackerArtifactKind
+// Artifact types stored in GCS
+// Original namespaced values: artifact:cv, artifact:cover-letter, etc.
+// ============================================================================
+enum TrackerArtifactKind {
+  TRACKER_ARTIFACT_KIND_UNSPECIFIED = 0;
+  // artifact:cv
+  ARTIFACT_CV = 1;
+  // artifact:cover-letter
+  ARTIFACT_COVER_LETTER = 2;
+  // artifact:outcome
+  ARTIFACT_OUTCOME = 3;
+  // artifact:posting
+  ARTIFACT_POSTING = 4;
+  // artifact:assessment
+  ARTIFACT_ASSESSMENT = 5;
+}
+
+// ============================================================================
+// WorkMode
+// Work arrangement (onsite, hybrid, remote)
+// Original namespaced values: work-mode:onsite, work-mode:hybrid, work-mode:remote
+// ============================================================================
+enum WorkMode {
+  WORK_MODE_UNSPECIFIED = 0;
+  // work-mode:onsite
+  WORK_MODE_ONSITE = 1;
+  // work-mode:hybrid
+  WORK_MODE_HYBRID = 2;
+  // work-mode:remote
+  WORK_MODE_REMOTE = 3;
+}
+
+// ============================================================================
+// EventActor
+// Who created an event
+// Original namespaced values: actor:user, actor:agent, etc.
+// ============================================================================
+enum EventActor {
+  EVENT_ACTOR_UNSPECIFIED = 0;
+  // actor:user
+  ACTOR_USER = 1;
+  // actor:agent
+  ACTOR_AGENT = 2;
+  // actor:email-sync
+  ACTOR_EMAIL_SYNC = 3;
+  // actor:import
+  ACTOR_IMPORT = 4;
+  // actor:scheduler
+  ACTOR_SCHEDULER = 5;
+}
+
+// ============================================================================
+// TrackerEditState
+// Edit lifecycle (pending → approved/rejected/expired)
+// Original namespaced values: proposal:pending, proposal:approved, etc.
+// ============================================================================
+enum TrackerEditState {
+  TRACKER_EDIT_STATE_UNSPECIFIED = 0;
+  // proposal:pending
+  EDIT_STATE_PENDING = 1;
+  // proposal:approved
+  EDIT_STATE_APPROVED = 2;
+  // proposal:rejected
+  EDIT_STATE_REJECTED = 3;
+  // proposal:expired
+  EDIT_STATE_EXPIRED = 4;
+}
+
+// ============================================================================
+// TrackerEditKind
+// Edit source (email-sync, sheet-sync)
+// Original namespaced values: proposal:email-sync, proposal:sheet-sync
+// ============================================================================
+enum TrackerEditKind {
+  TRACKER_EDIT_KIND_UNSPECIFIED = 0;
+  // proposal:email-sync
+  EDIT_KIND_EMAIL_SYNC = 1;
+  // proposal:sheet-sync
+  EDIT_KIND_SHEET_SYNC = 2;
+}
+
+// ============================================================================
+// Trigger
+// What triggered a TrackerEdit (cron, application-created, etc.)
+// Original namespaced values: trigger:cron, trigger:application-created, etc.
+// ============================================================================
+enum Trigger {
+  TRIGGER_UNSPECIFIED = 0;
+  // trigger:cron
+  TRIGGER_CRON = 1;
+  // trigger:application-created
+  TRIGGER_APPLICATION_CREATED = 2;
+  // trigger:application-updated
+  TRIGGER_APPLICATION_UPDATED = 3;
+  // trigger:manual
+  TRIGGER_MANUAL = 4;
+}
+
+// ============================================================================
+// SyncKind
+// Sync operation type (email-collect)
+// Original namespaced values: sync:email-collect
+// ============================================================================
+enum SyncKind {
+  SYNC_KIND_UNSPECIFIED = 0;
+  // sync:email-collect
+  SYNC_KIND_EMAIL_COLLECT = 1;
+}
+
+// ============================================================================
+// SyncState
+// Sync request lifecycle (pending → claimed → done/failed)
+// Original namespaced values: sync:pending, sync:claimed, etc.
+// ============================================================================
+enum SyncState {
+  SYNC_STATE_UNSPECIFIED = 0;
+  // sync:pending
+  SYNC_STATE_PENDING = 1;
+  // sync:claimed
+  SYNC_STATE_CLAIMED = 2;
+  // sync:done
+  SYNC_STATE_DONE = 3;
+  // sync:failed
+  SYNC_STATE_FAILED = 4;
+}
+
+// ============================================================================
+// Confidence
+// Provenance confidence level
+// ============================================================================
+enum Confidence {
+  CONFIDENCE_UNSPECIFIED = 0;
+  CONFIDENCE_HIGH = 1;
+  CONFIDENCE_MEDIUM = 2;
+  CONFIDENCE_LOW = 3;
+}
+
+// ============================================================================
+// DerivedFrom
+// How a TrackerEvent was created (manual, notes-regex, email, csv-import)
+// Used only on TrackerEvent.
+// ============================================================================
+enum DerivedFrom {
+  DERIVED_FROM_UNSPECIFIED = 0;
+  DERIVED_MANUAL = 1;
+  DERIVED_NOTES_REGEX = 2;
+  DERIVED_EMAIL = 3;
+  DERIVED_CSV_IMPORT = 4;
+}
+
+// ============================================================================
+// Region
+// Geographic regions for compensation tags
+// ============================================================================
+enum Region {
+  REGION_UNSPECIFIED = 0;
+  REGION_PIT = 1;
+  REGION_NYC = 2;
+  REGION_SF = 3;
+  REGION_LA = 4;
+  REGION_DC = 5;
+  REGION_REMOTE_US = 6;
+}
+
+// ============================================================================
+// Tag
+// Controlled vocabulary tags (relocation, compensation, fit, process)
+// Original namespaced values: relocation:required, compensation:above-band, etc.
+// ============================================================================
+enum Tag {
+  TAG_UNSPECIFIED = 0;
+  // relocation:required
+  RELOCATION_REQUIRED = 1;
+  // relocation:accepted
+  RELOCATION_ACCEPTED = 2;
+  // relocation:declined
+  RELOCATION_DECLINED = 3;
+  // compensation:above-super-commuter:NYC
+  COMPENSATION_ABOVE_SUPER_COMMUTER_NYC = 4;
+  // compensation:above-super-commuter:SF
+  COMPENSATION_ABOVE_SUPER_COMMUTER_SF = 5;
+  // compensation:below-nyc-floor
+  COMPENSATION_BELOW_NYC_FLOOR = 6;
+  // compensation:below-band
+  COMPENSATION_BELOW_BAND = 7;
+  // compensation:at-band
+  COMPENSATION_AT_BAND = 8;
+  // compensation:above-band
+  COMPENSATION_ABOVE_BAND = 9;
+  // compensation:equity-heavy
+  COMPENSATION_EQUITY_HEAVY = 10;
+  // fit:strong
+  FIT_STRONG = 11;
+  // fit:stretch
+  FIT_STRETCH = 12;
+  // fit:gap-ios
+  FIT_GAP_IOS = 13;
+  // fit:gap-cross-platform
+  FIT_GAP_CROSS_PLATFORM = 14;
+  // process:take-home
+  PROCESS_TAKE_HOME = 15;
+  // process:referral
+  PROCESS_REFERRAL = 16;
+  // process:internal-contact
+  PROCESS_INTERNAL_CONTACT = 17;
+  // process:no-response-30d
+  PROCESS_NO_RESPONSE_30D = 18;
+}

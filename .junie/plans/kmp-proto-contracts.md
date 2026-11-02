@@ -91,14 +91,14 @@ All enums follow the `Tracker` prefix pattern for tracker-specific concepts, and
 | `sourceValue` | `ApplicationChannel` | Source channel of Job Application (Greenhouse, Workday, Lever, LinkedIn, referral, direct, other) |
 | `artifactKindValue` | `TrackerArtifactKind` | Artifact types (cv, cover-letter, outcome, posting, assessment) |
 | `workModeValue` | `WorkMode` | Work arrangement (onsite, hybrid, remote) |
-| `actorValue` | `EventActor` | Who created an event (user, agent, gmail-sync, import, scheduler) |
+| `actorValue` | `EventActor` | Who created an event (user, agent, email-sync, import, scheduler) |
 | `proposalStateValue` | `TrackerEditState` | Edit lifecycle (pending, approved, rejected, expired) |
-| `proposalKindValue` | `TrackerEditKind` | Edit source (gmail-sync, sheet-sync) |
+| `proposalKindValue` | `TrackerEditKind` | Edit source (email-sync, sheet-sync) |
 | `triggerValue` | `Trigger` | What triggered a TrackerEdit (cron, application-created, application-updated, manual) |
-| `syncKindValue` | `SyncKind` | Sync operation type (gmail-collect). Distinct from Trigger: Trigger answers "what triggered this edit?" while SyncKind answers "what operation does this sync request perform?" |
+| `syncKindValue` | `SyncKind` | Sync operation type (email-collect). Distinct from Trigger: Trigger answers "what triggered this edit?" while SyncKind answers "what operation does this sync request perform?" |
 | `syncStateValue` | `SyncState` | Sync request lifecycle (pending, claimed, done, failed) |
 | `confidenceValue` | `Confidence` | Provenance confidence (high, medium, low) |
-| `derivedFromValue` | `DerivedFrom` | How a TrackerEvent was created (manual, notes-regex, gmail, csv-import). Answers "how was this event created?" — used only on TrackerEvent. |
+| `derivedFromValue` | `DerivedFrom` | How a TrackerEvent was created (manual, notes-regex, email, csv-import). Answers "how was this event created?" — used only on TrackerEvent. |
 | `regionValue` | `Region` | Geographic regions for compensation tags (PIT, NYC, SF, LA, DC, REMOTE-US) |
 | `tagValue` | `Tag` | Controlled vocabulary tags (relocation, compensation, fit, process) |
 
@@ -107,8 +107,7 @@ All enums follow the `Tracker` prefix pattern for tracker-specific concepts, and
 - **PACKAGING:** Use `dev.fnc314.tools.job-search`.
 - **One proto per type + shared enums:** 13 files total. Each document type gets its own `.proto`, all enums live in `enums.proto`, and nested objects are standalone messages.
 - **`google.protobuf.Timestamp`** for all timestamp fields instead of strings. This gives native time handling in KMP via `kotlin.time.Instant`.
-- **Namespaced enum values preserved:** `status:applied` becomes `STATUS_APPLIED` in proto (the namespace prefix is dropped as it's redundant in proto enum scoping). The string value mapping is preserved via comments.
-  - **NOTE:** The `enum` should be `JobApplicationStatus.APPLIED`, do not repeat `STATUS_` or other "should be in the `enum` name" words, I *HATE* repetition like `STATUS_`
+- **Namespaced enum values preserved:** `status:applied` becomes `TrackerStatus.APPLIED` in proto (no repetitive prefixes). Event types use present-tense verbs (e.g., `TrackerEventType.SCHEDULE_INTERVIEW`). The string value mapping is preserved via comments.
 - **`google.protobuf.Struct`** for `metadata` fields (the escape-hatch objects in `JobApplication`, `TrackerEvent`, `Company`, `Contact`).
 - **Package name:** `tracker.v1` — versioned from the start for future schema evolution.
 - **Two-module KMP structure:** `records-proto` contains only proto definitions and generated code. `records-parser` contains the parsing/conversion logic migrated from Python (`contract.py` and `reader.py`). The parser depends on the proto module.
@@ -195,7 +194,7 @@ ui/
 
 ### Proto Design Details
 
-**enums.proto** — All enums use PascalCase names with values that don't repeat the enum name (e.g., `TrackerStatus.APPLIED`, not `TrackerStatus.STATUS_APPLIED`). The namespace prefix (e.g., `status:`) is dropped since proto enum scoping provides the namespace. Includes: `TrackerStatus`, `TrackerEventType`, `ApplicationChannel`, `TrackerArtifactKind`, `WorkMode`, `EventActor`, `TrackerEditState`, `TrackerEditKind`, `Trigger`, `SyncKind`, `SyncState`, `Confidence`, `DerivedFrom`, `Region`, `Tag`.
+**enums.proto** — All enums use PascalCase names with values that don't repeat the enum name (e.g., `TrackerStatus.APPLIED`, `TrackerEventType.SCHEDULE_INTERVIEW`). Statuses use canonical state names; events use present-tense action verbs. The namespace prefix (e.g., `status:`) is dropped since proto enum scoping provides the namespace. Includes: `TrackerStatus`, `TrackerEventType`, `ApplicationChannel`, `TrackerArtifactKind`, `WorkMode`, `EventActor`, `TrackerEditState`, `TrackerEditKind`, `Trigger`, `SyncKind`, `SyncState`, `Confidence`, `DerivedFrom`, `Region`, `Tag`.
 
 **application.proto** — The largest message. Defines `JobApplication`. References `Compensation`, `Location`, `TrackerFit`, `TrackerCounts`, `Timeline`, and enums for `TrackerStatus`, `ApplicationChannel`, `Tag`. Uses `repeated` for `tags` and `contactIds`. Uses `Struct` for `metadata`.
 
@@ -301,7 +300,7 @@ Restructure the top-level project directories and update all references so the r
   - Python imports in `scripts/` and `scripts/tests/` (e.g., `from tools import mock_data` → `from scripts.tools import mock_data` or similar)
 - Verify `mise run tui` and `mise run tracker` still work after the restructuring.
 
-### * Step 1: Scaffold KMP project and create shared enums.proto
+### ✓ Step 1: Scaffold KMP project and create shared enums.proto
 
 Initialize the KMP project structure using the `kotlin` CLI and generate the shared enums proto.
 
@@ -318,7 +317,7 @@ Initialize the KMP project structure using the `kotlin` CLI and generate the sha
 - Verify `./gradlew :records-proto:compileKotlinJvm` succeeds with generated enum classes.
 - When ready for UI work, `ui/kmp/` will be scaffolded separately via the `kotlin` CLI interactive flow (selecting "Compose Multiplatform application").
 
-### Step 2: Generate nested object protos
+### ✓ Step 2: Generate nested object protos
 
 Create the 5 leaf-level message protos (no cross-references to other custom protos).
 
@@ -332,7 +331,7 @@ Create the 5 leaf-level message protos (no cross-references to other custom prot
 - Verify proto compilation produces Kotlin data classes for each nested type.
 - Package all protos under `dev.fnc314.tools.jobsearch`.
 
-### Step 3: Generate document type protos
+### ✓ Step 3: Generate document type protos
 
 Create the 6 document-type protos, each importing `enums.proto` and relevant nested object protos.
 
@@ -346,7 +345,7 @@ Create the 6 document-type protos, each importing `enums.proto` and relevant nes
 - Verify all protos compile cleanly with no circular imports.
 - Confirm `JobApplication` is the largest message with ~40+ fields referencing nested types and enums.
 
-### Step 4: Implement records-parser — timestamp and status logic
+### ✓ Step 4: Implement records-parser — timestamp and status logic
 
 Migrate the core parsing/conversion functions from Python to Kotlin.
 
@@ -355,7 +354,7 @@ Migrate the core parsing/conversion functions from Python to Kotlin.
 - **EnumMapping.kt**: Bidirectional conversions between namespaced strings (e.g., `status:applied`) and proto enum values (e.g., `TrackerStatus.APPLIED`) for all 15 enums.
 - Verify parser compiles against the generated proto classes from `records-proto`.
 
-### Step 5: Implement records-parser — legacy row projection and JPype bridge
+### ✓ Step 5: Implement records-parser — legacy row projection and JPype bridge
 
 Complete the parser module with TUI-facing functionality and documentation.
 
