@@ -2,7 +2,7 @@
 
 Nothing else in the repo instantiates a Firestore or Storage client. Keeping
 that in one module is what makes the "single write path" invariant enforceable:
-`tools/security_guards.py` can grep for stray client construction, and a future
+`scripts/security_guards.py` can grep for stray client construction, and a future
 reader has exactly one place to look for credential handling.
 
 Credentials resolve in this order, and never from the repository:

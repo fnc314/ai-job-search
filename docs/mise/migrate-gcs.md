@@ -10,4 +10,4 @@ Migrate local artifacts to GCS
 ## Flags
 - **`--dry-run`** — Show tree view without uploading
 - **`--company <company>`** — Only process artifacts for this company (case-insensitive)
-- **`--documents <dir>`** — Path to documents/applications/ directory
+- **`--documents <dir>`** — Path to job-applications/ directory

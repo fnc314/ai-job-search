@@ -66,11 +66,11 @@ class TestRowProjection(unittest.TestCase):
 
     def test_artifact_columns_prefer_the_local_path(self):
         artifacts = [
-            {"kind": "artifact:cv", "localPath": "documents/cv.pdf"},
+            {"kind": "artifact:cv", "localPath": "templates/cv.pdf"},
             {"kind": "artifact:cover-letter", "externalUrl": "https://docs.test/1"},
         ]
         row = reader.rowFromStore(application(), artifacts)
-        self.assertEqual(row["cv_file"], "documents/cv.pdf")
+        self.assertEqual(row["cv_file"], "templates/cv.pdf")
         self.assertEqual(row["cover_letter_file"], "https://docs.test/1")
 
     def test_notes_render_then_fall_back_to_the_legacy_blob(self):
@@ -115,7 +115,7 @@ class TestCacheSource(unittest.TestCase):
                 timespec="seconds"
             ),
             "applications": [application()],
-            "artifacts": {"acme--staff-android-engineer": [{"kind": "artifact:cv", "localPath": "documents/cv.pdf"}]},
+            "artifacts": {"acme--staff-android-engineer": [{"kind": "artifact:cv", "localPath": "templates/cv.pdf"}]},
         }
         with tempfile.TemporaryDirectory() as directory:
             path = pathlib.Path(directory) / "cache.json"
@@ -124,7 +124,7 @@ class TestCacheSource(unittest.TestCase):
         self.assertEqual(meta["source"], "cache")
         self.assertFalse(meta["stale"])
         self.assertGreaterEqual(meta["ageSeconds"], 300)
-        self.assertEqual(rows[0]["cv_file"], "documents/cv.pdf")
+        self.assertEqual(rows[0]["cv_file"], "templates/cv.pdf")
 
     def test_cache_reports_how_many_proposals_await_review(self):
         payload = {

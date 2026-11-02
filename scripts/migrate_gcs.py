@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One-shot migration: upload local artifacts to GCS and backfill Firestore.
 
-Scans documents/applications/ for existing artifact files, uploads them to
+Scans job-applications/ for existing artifact files, uploads them to
 GCS at applications/{company}/{role}/{YYYY-MM-DD}/{filename}, and backfills
 the storage field on existing artifact documents in Firestore.
 
@@ -28,7 +28,7 @@ import artifacts as artifactsModule
 
 
 def find_local_artifacts(documents_dir: pathlib.Path) -> list[dict]:
-    """Scan documents/applications/ for artifact files.
+    """Scan job-applications/ for artifact files.
 
     Returns a list of dicts with keys: company, role, date, filename, path.
     """
@@ -162,7 +162,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Migrate local artifacts to GCS")
     parser.add_argument("--dry-run", action="store_true", help="Show tree view without uploading")
     parser.add_argument("--company", help="Only process artifacts for this company (case-insensitive)")
-    parser.add_argument("--documents", default=None, help="Path to documents/applications/ directory")
+    parser.add_argument("--documents", default=None, help="Path to job-applications/ directory")
     args = parser.parse_args()
 
     documents_dir = (

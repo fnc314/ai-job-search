@@ -17,7 +17,7 @@ try:
 except ImportError:
     _HAVE_YAML = False
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = Path(__file__).resolve().parent.parent.parent
 COMMAND = REPO / ".claude" / "commands" / "notion-sync.md"
 GITIGNORE = REPO / ".gitignore"
 
@@ -38,7 +38,7 @@ class NotionSyncCommandSpec(unittest.TestCase):
 
     def test_personal_sync_state_is_gitignored(self):
         self.assertIn(
-            "job_scraper/notion_sync.json",
+            "job-scraper/notion_sync.json",
             GITIGNORE.read_text(encoding="utf-8"),
             "notion_sync.json is personal state and must never be committable",
         )
@@ -57,7 +57,7 @@ class NotionSyncCommandSpec(unittest.TestCase):
     )
     def test_lint_skills_passes(self):
         result = subprocess.run(
-            [sys.executable, str(REPO / "tools" / "lint_skills.py")],
+            [sys.executable, str(REPO / "scripts" / "lint_skills.py")],
             cwd=REPO,
             capture_output=True,
             text=True,

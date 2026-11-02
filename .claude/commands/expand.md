@@ -21,8 +21,8 @@ Hold this content in context throughout the command. Do not re-read these files 
 
 Scan every available source for "experience items" — anything that implies skill, knowledge, or competency. Process sources in this order.
 
-### 1a. documents/cv/
-Read all files in `documents/cv/`. Extract:
+### 1a. templates/cv/
+Read all files in `templates/cv/`. Extract:
 - Every course or module listed (including university coursework and online courses)
 - Every certification mentioned, with issuer and date
 - Every job responsibility bullet point (tools, methods, outcomes)

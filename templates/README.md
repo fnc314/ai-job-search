@@ -12,7 +12,7 @@ templates/
 │       ├── TEMPLATE.md      # Manifest: source extension, compile command, fonts, page limit, style rules, pitfalls
 │       ├── *.cls / *.sty    # Custom class/style files, or Typst packages (if the template needs them)
 │       └── fonts/           # Bundled font files (if not using system fonts)
-└── cover_letters/
+└── cover-letters/
     └── <template-name>/
         └── (same layout)
 ```

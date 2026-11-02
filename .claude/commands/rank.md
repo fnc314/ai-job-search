@@ -12,7 +12,7 @@ Follow these steps **in order**.
 
 `$ARGUMENTS` may contain:
 
-- Nothing → rank all jobs with status `new` in `job_scraper/seen_jobs.json`
+- Nothing → rank all jobs with status `new` in `job-scraper/seen_jobs.json`
 - A focus area (e.g. `/rank data science`) → rank only jobs whose title or stored fit-notes match the focus
 - `--all` → re-rank every job that has not been applied to, including previously ranked ones (useful after the profile changes)
 - `--top <N>` → shortlist size (default 5)
@@ -21,7 +21,7 @@ Follow these steps **in order**.
 
 ## Step 1: Load State
 
-1. Read `job_scraper/seen_jobs.json`. If the file is missing or has no entries, tell the user to run `/scrape` first and stop.
+1. Read `job-scraper/seen_jobs.json`. If the file is missing or has no entries, tell the user to run `/scrape` first and stop.
 2. Read the tracker with `.venv/bin/python scripts/tracker.py list` (JSON). Build the exclusion set: any company+role already in the tracker is out of scope regardless of flags - it has been applied to or consciously tracked.
 3. Select candidates: entries with status `new` (or all non-applied entries with `--all`), minus the exclusion set, filtered by the focus area if one was given.
 4. If no candidates remain, say so ("Nothing new to rank - run /scrape to find fresh postings") and stop.
@@ -75,7 +75,7 @@ Sort by overall score (descending), urgency as tiebreaker.
 
 ## Step 4: Update State
 
-Update `job_scraper/seen_jobs.json` in place - these fields are additive to the scraper's schema:
+Update `job-scraper/seen_jobs.json` in place - these fields are additive to the scraper's schema:
 
 - Ranked jobs: set `"status": "ranked"` and add `"rank_score": <overall>`, `"rank_verdict": "<band>"`, `"rank_date": "YYYY-MM-DD"`
 - Dead or past-deadline jobs: set `"status": "expired"`

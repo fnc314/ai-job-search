@@ -47,7 +47,7 @@ If `$ARGUMENTS` contains `--use <name>`:
 6. Derive the template folder from the manifest path and verify `template<source-extension>` exists in the same folder. If it is missing, stop with an error; the template registration is incomplete.
 7. Derive `<type>` for Step 5 from the manifest path:
    - `templates/cv/<name>/TEMPLATE.md` -> `cv`
-   - `templates/cover_letters/<name>/TEMPLATE.md` -> `cover_letters`
+   - `templates/cover-letters/<name>/TEMPLATE.md` -> `cover_letters`
 8. Continue to Step 5 using the resolved `<name>`, `<type>`, `<source-extension>`, `<compile-command>`, engine/toolchain label, font summary, page limit, template skeleton path, and manifest path. Do not re-run Steps 1-4; `--use` switches an already-registered template.
 
 ---
@@ -92,7 +92,7 @@ Collect:
 Create the template folder:
 
 - CV: `templates/cv/<name>/`
-- Cover letter: `templates/cover_letters/<name>/`
+- Cover letter: `templates/cover-letters/<name>/`
 
 Write into it:
 
@@ -164,7 +164,7 @@ Insert (or replace, if one exists) this block immediately after the file's H1 ti
 > - **Compile command:** `<the full declared command>` (not the command named in the stock guidance below — `/apply`'s compile step must use this instead)
 > - **Fonts:** <font summary, including any path note for bundled fonts>
 > - **Page limit:** exactly <N> page(s)
-> - **Output file:** `cv/main_<company>_<role><source-extension>` / `cover_letters/cover_<company>_<role><source-extension>`; copy any class/package/font files the template needs into the output directory, or reference them by relative path
+> - **Output file:** `templates/cv/main_<company>_<role><source-extension>` / `templates/cover-letters/cover_<company>_<role><source-extension>`; copy any class/package/font files the template needs into the output directory, or reference them by relative path
 <!-- END ACTIVE-TEMPLATE -->
 ```
 

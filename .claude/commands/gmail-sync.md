@@ -237,7 +237,7 @@ Rejecting writes nothing to `applications`. The message ids stay processed, so t
 
 ### Step 6a: Update the per-application archive
 
-The tracker is updated by `approve`; `documents/applications/<Company>/<Role>/<YYYY-MM-DD>/outcome.md` is not. For each **approved** change, update the archive:
+The tracker is updated by `approve`; `job-applications/<Company>/<Role>/<YYYY-MM-DD>/outcome.md` is not. For each **approved** change, update the archive:
 
 | Signal | `outcome.md` action |
 |---|---|
@@ -296,5 +296,5 @@ If nothing was proposed or approved, a short note is enough. If this run pushed 
 5. **A conflict is a manual-review flag, not an overwrite.** When in doubt, don't propose it — surface it and point at `/outcome`.
 6. **Idempotent by message id.** Processed ids live in `meta/sync`; re-fetching the same window must not re-propose it.
 7. **Read-only against Gmail.** No applying labels, archiving, or deleting in the user's mailbox. The only label writes are the local inventory in `meta/sync`.
-8. **All state is personal data.** `generated/gmail-inbox.json`, the local `generated/` cache, and `documents/applications/**` are gitignored. Tracker data lives in Firestore, not in the repo.
+8. **All state is personal data.** `generated/gmail-inbox.json`, the local `generated/` cache, and `job-applications/**` are gitignored. Tracker data lives in Firestore, not in the repo.
 9. **The Sheet is a view.** Never hand-edit it; regenerate it with `tracker.py sheet --sync`.

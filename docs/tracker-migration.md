@@ -147,7 +147,7 @@ the 89 populated cells are Google Docs URLs rather than paths.
 
 | observed form | maps to | CV | cover letter |
 |---|---|---:|---:|
-| `documents/applications/…/main_*.pdf` | `artifacts[].localPath` | 20 | 20 |
+| `job-applications/…/main_*.pdf` | `artifacts[].localPath` | 20 | 20 |
 | `https://docs.google.com/document/…` | `artifacts[].externalUrl` | **2** | **2** |
 | absolute path under a Google Drive mount (`/Users/…/CloudStorage/GoogleDrive-…`) | `artifacts[].driveUrl` | **25** | **20** |
 | empty | no artifact record | 37 | 42 |

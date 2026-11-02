@@ -36,4 +36,4 @@ To make the `.claude/commands/` accessible to native agent frameworks, we use Ro
 2. **AI Agent** reads ➔ **Router Skill (`SKILL.md`)**
 3. **Router Skill** triggers ➔ **Mode Script (`.claude/commands/apply.md`)**
 4. **Mode Script** pulls data from ➔ **`AGENTS.md` & `.claude/skills/job-application-assistant/*.md`**
-5. **AI Agent** executes logic ➔ **Outputs PDFs in `cv/` and `cover_letters/`**
+5. **AI Agent** executes logic ➔ **Outputs PDFs in `templates/cv/` and `templates/cover-letters/`**

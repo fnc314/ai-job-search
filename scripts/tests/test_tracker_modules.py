@@ -273,12 +273,12 @@ class TestSheets(unittest.TestCase):
     def test_artifact_columns_prefer_the_local_path(self):
         artifactsForId = {
             "acme--engineer": [
-                {"kind": "artifact:cv", "localPath": "documents/cv.pdf"},
+                {"kind": "artifact:cv", "localPath": "templates/cv.pdf"},
                 {"kind": "artifact:cover-letter", "externalUrl": "https://docs.example/1"},
             ]
         }
         rows = sheets.applicationRows([self.application()], artifactsForId)
-        self.assertEqual(rows[1][-2], "documents/cv.pdf")
+        self.assertEqual(rows[1][-2], "templates/cv.pdf")
         self.assertEqual(rows[1][-1], "https://docs.example/1")
 
     def test_event_rows_are_flattened_and_newline_free(self):

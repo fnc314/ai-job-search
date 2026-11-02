@@ -737,9 +737,9 @@ def get_column_widths(rows, cols_config):
     return widths
 
 def get_archive_dir(row):
-    base = "documents/applications"
+    base = "job-applications"
     if not os.path.exists(base):
-        candidate = REPO_ROOT / "documents" / "applications"
+        candidate = REPO_ROOT / "job-applications"
         if candidate.exists():
             base = str(candidate)
     if os.path.exists(base):
@@ -784,7 +784,7 @@ def get_archive_dir(row):
         company = company.replace(f' {drop}', '')
     company = company.replace(' ', '_').replace('.', '').replace(',', '')
     role = row.get('role', '').lower().replace(' ', '_').replace('.', '').replace(',', '').replace('(', '').replace(')', '')
-    return f"documents/applications/{company}_{role}"
+    return f"job-applications/{company}_{role}"
 
 def load_detail_lines(row, max_width):
     raw_entries = [] # List of (text, file_path_or_url)

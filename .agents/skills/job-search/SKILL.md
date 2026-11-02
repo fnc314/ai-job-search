@@ -34,7 +34,7 @@ Read `AGENTS.md` for candidate profile and shared workflow rules, then read and 
 All application artifacts (CV, cover letter, outcome.md) are stored under:
 
 ```
-documents/applications/<Company>/<Role>/<YYYY-MM-DD>/
+job-applications/<Company>/<Role>/<YYYY-MM-DD>/
 ```
 
 - **Company and role** use Title-Case with underscores for spaces (e.g., `Snap_Inc/Software_Engineer_Android_Level_5/2026-10-30/`)

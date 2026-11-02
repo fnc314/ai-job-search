@@ -1,7 +1,7 @@
 import unittest
 from types import SimpleNamespace
 
-from tools.convert_salary_excel import (
+from scripts.convert_salary_excel import (
     INDEX_PATTERNS,
     detect_column_type,
     header_matches,

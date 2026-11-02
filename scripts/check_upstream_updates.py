@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check for framework updates in the upstream repository.
 
-Usage: python tools/check_upstream_updates.py [--remote <remote-name>] [--branch <branch-name>]
+Usage: python scripts/check_upstream_updates.py [--remote <remote-name>] [--branch <branch-name>]
 
 This script:
 1. Identifies the upstream remote (defaults to 'upstream', falls back to 'origin').

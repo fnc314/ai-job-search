@@ -192,7 +192,7 @@ Quick smoke tests after setup:
 cd cv && lualatex -interaction=nonstopmode -halt-on-error main_example.tex && cd ..
 
 SMOKE_DIR="$(mktemp -d /tmp/ai-job-cover-smoke.XXXXXX)"
-cp -R cover_letters/cover.cls cover_letters/OpenFonts "$SMOKE_DIR/"
+cp -R templates/cover-letters/cover.cls templates/cover-letters/OpenFonts "$SMOKE_DIR/"
 cat >"$SMOKE_DIR/cover_smoke.tex" <<'EOF'
 \documentclass[]{cover}
 \begin{document}
@@ -329,7 +329,7 @@ All three paths produce the same result: fully populated profile files.
 | `04-job-evaluation.md` | Personalized skill match areas and career goals |
 | `05-cv-templates.md` | Profile statement templates for your background |
 | `07-interview-prep.md` | STAR examples from your experience |
-| `cv/main_example.tex` | Your LaTeX CV with actual details |
+| `templates/cv/main_example.tex` | Your LaTeX CV with actual details |
 | `search-queries.md` | Job search queries for `/scrape` |
 
 ### Re-running setup
@@ -522,7 +522,7 @@ Make sure Bun is installed and you ran `bun install` in each CLI directory. The 
 - Make sure your LaTeX distribution includes the `moderncv` package
 
 ### Fonts not found in cover letter
-The cover letter template expects fonts in `cover_letters/OpenFonts/fonts/`. Make sure this directory exists and contains the Lato and Raleway font files.
+The cover letter template expects fonts in `templates/cover-letters/OpenFonts/fonts/`. Make sure this directory exists and contains the Lato and Raleway font files.
 
 ### Stale `.claude/settings.local.json` from an older clone
 Shared Claude Code permissions now live in `.claude/settings.json` (scoped to `bun run`, `python salary_lookup.py`, and `python3 salary_lookup.py`). Earlier versions of this repo committed a broader `.claude/settings.local.json` that pre-approved `Bash(curl:*)`, `Bash(python:*)` and `Bash(bun:*)`. If you cloned before that change, git leaves the old file behind in your working copy, and its permissions still apply on top of `settings.json`. Delete it (or trim it to your own personal overrides):

@@ -68,24 +68,24 @@ The following files are NOT touched (they contain framework rules, not candidate
 
 ### If scope includes `documents`:
 
-Use Glob to list all files present in `documents/cv/`, `documents/linkedin/`, `documents/diplomas/`, `documents/references/`, and `documents/applications/`. Present as:
+Use Glob to list all files present in `templates/cv/`, `job-applications/`, ``, ``, and `job-applications/`. Present as:
 
 ```
 ## Documents reset will delete:
 
-documents/cv/
+templates/cv/
   - [filename] or "(empty)"
 
-documents/linkedin/
+job-applications/
   - [filename] or "(empty)"
 
-documents/diplomas/
+
   - [filename] or "(empty)"
 
-documents/references/
+
   - [filename] or "(empty)"
 
-documents/applications/
+job-applications/
   - [subfolder/filename] or "(empty)"
 
 documents/README.md — NOT deleted (instructions file)
@@ -189,11 +189,11 @@ Leave all other content in `07-interview-prep.md` intact (STAR format explanatio
 For each non-empty document subfolder, delete all files within it using Bash `rm`. Do not delete the folder itself, and do not delete `documents/README.md`.
 
 ```bash
-rm -f documents/cv/*
-rm -f documents/linkedin/*
-rm -f documents/diplomas/*
-rm -f documents/references/*
-rm -rf documents/applications/*/
+rm -f templates/cv/*
+rm -f job-applications/*
+rm -f *
+rm -f *
+rm -rf job-applications/*/
 ```
 
 ---

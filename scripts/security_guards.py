@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Supply-chain guards for the template's riskiest surfaces.
 
-Run from anywhere: python tools/security_guards.py
+Run from anywhere: python scripts/security_guards.py
 
 This repo ships pre-approved Claude Code permissions and CLI code that every
 fork user executes. These guards make the dangerous changes LOUD, not
@@ -44,19 +44,16 @@ ALLOWED_PERMISSIONS = {
 # Personal-data ignore rules that must never disappear from .gitignore.
 REQUIRED_IGNORE_RULES = [
     "salary_data.json",
-    # Depth-independent: the job-scraper skill resolves `job_scraper/` relative
+    # Depth-independent: the job-scraper skill resolves `job-scraper/` relative
     # to its own directory, so the state file lands under .claude/skills/... and
     # a repo-rooted rule silently fails to match it.
-    "**/job_scraper/seen_jobs.json",
-    "cv/main_*.*",
-    "!cv/main_example.tex",
-    "cover_letters/cover_*.*",
-    "documents/cv/**",
-    "documents/linkedin/**",
-    "documents/diplomas/**",
-    "documents/references/**",
-    "documents/applications/**",
-    "documents/interview/**",
+    "**/job-scraper/seen_jobs.json",
+    "templates/cv/main_*.*",
+    "!templates/cv/main_example.tex",
+    "templates/cover-letters/cover_*.*",
+    "templates/cover-letters/Cover_*.*",
+    "!templates/cover-letters/cover_example.tex",
+    "job-applications/**",
     "archive/*.csv",
     # Service-account credentials for the tracker store. A committed key grants
     # read/write to the only authoritative copy of the application record.
@@ -74,10 +71,9 @@ REQUIRED_IGNORE_RULES = [
 # failure - add an intentional one here in the same PR, exactly as with
 # ALLOWED_PERMISSIONS, so the widening is explicit and reviewable.
 ALLOWED_IGNORE_NEGATIONS = {
-    "!cover_letters/OpenFonts/fonts/**",
-    "!cv/main_example.tex",
-    "!cover_letters/cover_example.tex",
-    "!documents/**/.gitkeep",
+    "!templates/cover-letters/OpenFonts/fonts/**",
+    "!templates/cv/main_example.tex",
+    "!templates/cover-letters/cover_example.tex",
     "!.env.example",
     # Instruction pointers only. The rest of each runner directory stays local.
     "!.gemini/GEMINI.md",
@@ -110,7 +106,7 @@ def check_permissions() -> None:
             errors.append(
                 f".claude/settings.json: permission not in the reviewed allowlist: {entry!r}. "
                 "Pre-approved permissions run without prompting on every fork. If this entry is "
-                "intentional, add it to ALLOWED_PERMISSIONS in tools/security_guards.py in the "
+                "intentional, add it to ALLOWED_PERMISSIONS in scripts/security_guards.py in the "
                 "same PR so the widening is explicit and reviewable."
             )
     for entry in ALLOWED_PERMISSIONS - set(allow):
@@ -133,7 +129,7 @@ def check_gitignore() -> None:
                 f".gitignore: required personal-data rule missing: {rule!r}. "
                 "These rules keep fork users from committing personal data. If the rule moved "
                 "or was renamed intentionally, update REQUIRED_IGNORE_RULES in "
-                "tools/security_guards.py in the same PR."
+                "scripts/security_guards.py in the same PR."
             )
     for line in lines:
         if line.startswith("!") and line not in ALLOWED_IGNORE_NEGATIONS:
@@ -142,7 +138,7 @@ def check_gitignore() -> None:
                 "A negation re-includes a path an earlier rule excluded and can silently "
                 "re-expose personal data (a required ignore rule stays present but stops "
                 "taking effect). If this negation is intentional, add it to "
-                "ALLOWED_IGNORE_NEGATIONS in tools/security_guards.py in the same PR."
+                "ALLOWED_IGNORE_NEGATIONS in scripts/security_guards.py in the same PR."
             )
 
 

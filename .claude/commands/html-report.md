@@ -1,6 +1,6 @@
 # /html-report - Generate Application Tracker Dashboard
 
-Generate a self-contained HTML dashboard from the tracker store and the application archives under `documents/applications/`. The output is a single `.html` file — no server, no dependencies — that can be opened directly in a browser.
+Generate a self-contained HTML dashboard from the tracker store and the application archives under `job-applications/`. The output is a single `.html` file — no server, no dependencies — that can be opened directly in a browser.
 
 ## Step 0: Parse Arguments
 
@@ -18,7 +18,7 @@ Read in parallel:
 
 1. **The tracker store** — the primary source. Read it with `.venv/bin/python scripts/tracker.py list`, which returns one JSON document per application with `date`, `company`, `sector`, `role`, `roleType`, `channel`, `status`, `contactPerson`, `fitRating`, `notesRendered`, `source`, plus `artifacts` via `tracker.py get <id>` for the CV and cover-letter paths. `scripts/generate_report.py` already does this and is what `/html-report` should regenerate from.
 
-2. **`documents/applications/*/*/outcome.md`** — for each resolved application, read the outcome file to get the exact interview stages reached (the checkboxes) and any notes. Merge this into the matching tracker document by company+role fuzzy match (lowercase, ignore punctuation). If an archive exists for a row but there is no match, attach it as extra context anyway.
+2. **`job-applications/*/*/outcome.md`** — for each resolved application, read the outcome file to get the exact interview stages reached (the checkboxes) and any notes. Merge this into the matching tracker document by company+role fuzzy match (lowercase, ignore punctuation). If an archive exists for a row but there is no match, attach it as extra context anyway.
 
 Status normalisation — map tracker values to five canonical buckets before computing stats:
 - `applied` → **Active** (resume submitted, no further signal)

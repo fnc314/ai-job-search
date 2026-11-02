@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.verify_pdf import VerificationError, parse_page_count, run_tool, verify_pdf
+from scripts.verify_pdf import VerificationError, parse_page_count, run_tool, verify_pdf
 
 
 class ParsePageCountTests(unittest.TestCase):
@@ -25,7 +25,7 @@ class VerifyPdfTests(unittest.TestCase):
     def tearDown(self):
         self.temp_dir.cleanup()
 
-    @patch("tools.verify_pdf.run_tool")
+    @patch("scripts.verify_pdf.run_tool")
     def test_accepts_expected_pages_and_text(self, mock_run_tool):
         mock_run_tool.side_effect = [
             "Pages:          2\n",
@@ -39,21 +39,21 @@ class VerifyPdfTests(unittest.TestCase):
             required_text=("Professional Experience", "[your.email@example.com]"),
         )
 
-    @patch("tools.verify_pdf.run_tool")
+    @patch("scripts.verify_pdf.run_tool")
     def test_rejects_wrong_page_count(self, mock_run_tool):
         mock_run_tool.return_value = "Pages:          3\n"
 
         with self.assertRaisesRegex(VerificationError, "expected 2 page.*found 3"):
             verify_pdf(self.pdf, expected_pages=2)
 
-    @patch("tools.verify_pdf.run_tool")
+    @patch("scripts.verify_pdf.run_tool")
     def test_rejects_too_little_extractable_text(self, mock_run_tool):
         mock_run_tool.return_value = "short"
 
         with self.assertRaisesRegex(VerificationError, "expected at least 20"):
             verify_pdf(self.pdf, min_chars=20)
 
-    @patch("tools.verify_pdf.run_tool")
+    @patch("scripts.verify_pdf.run_tool")
     def test_rejects_missing_required_text(self, mock_run_tool):
         mock_run_tool.return_value = "Readable text, but not the expected section."
 
@@ -66,12 +66,12 @@ class VerifyPdfTests(unittest.TestCase):
 
 
 class RunToolTests(unittest.TestCase):
-    @patch("tools.verify_pdf.subprocess.run", side_effect=FileNotFoundError)
+    @patch("scripts.verify_pdf.subprocess.run", side_effect=FileNotFoundError)
     def test_reports_missing_poppler_command(self, _mock_run):
         with self.assertRaisesRegex(VerificationError, "install poppler-utils"):
             run_tool(["pdftotext", "example.pdf", "-"])
 
-    @patch("tools.verify_pdf.subprocess.run")
+    @patch("scripts.verify_pdf.subprocess.run")
     def test_reports_unreadable_pdf(self, mock_run):
         mock_run.side_effect = subprocess.CalledProcessError(
             1, ["pdfinfo", "example.pdf"], stderr="invalid PDF"

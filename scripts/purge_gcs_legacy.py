@@ -8,7 +8,7 @@ The GCS bucket contains 62 objects using the old flat path format
    counterpart with the same filename. Just delete the old one.
 
 2. **Local re-upload** (4 objects): Orphaned old-style objects whose source
-   file exists locally in `documents/applications/`. Re-upload to the new
+   file exists locally in `job-applications/`. Re-upload to the new
    canonical path, then delete the old one.
 
 3. **GCS-to-GCS migrate** (18 objects): Orphaned old-style objects that only
@@ -76,7 +76,7 @@ def classify_blobs(bucket) -> dict:
             orphans.append(b)
 
     # Check orphans against local files
-    docs_dir = pathlib.Path("documents/applications")
+    docs_dir = pathlib.Path("job-applications")
     orphan_local = []
     orphan_gcs_only = []
 

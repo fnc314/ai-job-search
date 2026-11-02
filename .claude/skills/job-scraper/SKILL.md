@@ -38,7 +38,7 @@ Optional arguments:
 
 ### Step 0: Load State
 
-1. Read `job_scraper/seen_jobs.json` (create if missing - start with `{"seen": {}}`)
+1. Read `job-scraper/seen_jobs.json` (create if missing - start with `{"seen": {}}`)
 2. Read the tracker with `.venv/bin/python scripts/tracker.py list` to extract already-applied companies+roles
 3. Read `search-queries.md` (this directory) for the search strategy
 

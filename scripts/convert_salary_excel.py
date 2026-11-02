@@ -9,9 +9,9 @@ Prerequisites:
     pip install openpyxl
 
 Usage:
-    python tools/convert_salary_excel.py <path-to-excel-file>
-    python tools/convert_salary_excel.py <path-to-excel-file> --source "My Union Stats 2025"
-    python tools/convert_salary_excel.py <path-to-excel-file> --baseline 100 --baseline-desc "Index 100 = median salary"
+    python scripts/convert_salary_excel.py <path-to-excel-file>
+    python scripts/convert_salary_excel.py <path-to-excel-file> --source "My Union Stats 2025"
+    python scripts/convert_salary_excel.py <path-to-excel-file> --baseline 100 --baseline-desc "Index 100 = median salary"
 
 The output file (salary_data.json) will be written to the repository root.
 

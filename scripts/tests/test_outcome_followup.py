@@ -19,7 +19,7 @@ try:
 except ImportError:
     _HAVE_YAML = False
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = Path(__file__).resolve().parent.parent.parent
 COMMAND = REPO / ".claude" / "commands" / "outcome.md"
 
 
@@ -78,7 +78,7 @@ class OutcomeFollowupBranchSpec(unittest.TestCase):
     )
     def test_lint_skills_passes(self):
         result = subprocess.run(
-            [sys.executable, str(REPO / "tools" / "lint_skills.py")],
+            [sys.executable, str(REPO / "scripts" / "lint_skills.py")],
             cwd=REPO,
             capture_output=True,
             text=True,

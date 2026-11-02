@@ -8,12 +8,12 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-LINTER_SCRIPT = REPO_ROOT / "tools" / "lint_skills.py"
+LINTER_SCRIPT = REPO_ROOT / "lint_skills.py"
 
 
 def run_linter(root: Path) -> subprocess.CompletedProcess:
     return subprocess.run(
-        [sys.executable, str(root / "tools" / "lint_skills.py")],
+        [sys.executable, str(root / "scripts" / "lint_skills.py")],
         capture_output=True,
         text=True,
     )
@@ -24,12 +24,12 @@ class LinterRepoFixture(unittest.TestCase):
         self.root = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
 
-        tools = self.root / "tools"
-        tools.mkdir()
-        shutil.copy(LINTER_SCRIPT, tools / "lint_skills.py")
+        scripts = self.root / "scripts"
+        scripts.mkdir()
+        shutil.copy(LINTER_SCRIPT, scripts / "lint_skills.py")
         # The Python-test CI job does not install PyYAML; the separate lint job
         # does. These settings-focused tests only need a valid frontmatter map.
-        (tools / "yaml.py").write_text(
+        (scripts / "yaml.py").write_text(
             "class YAMLError(Exception):\n"
             "    pass\n\n"
             "def safe_load(_text):\n"

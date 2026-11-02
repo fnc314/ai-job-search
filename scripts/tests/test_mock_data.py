@@ -12,7 +12,7 @@ import unittest
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-GENERATOR = ROOT / "tools" / "mock_data.py"
+GENERATOR = ROOT / "mock_data.py"
 
 
 class TestMockDataGenerator(unittest.TestCase):

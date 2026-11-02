@@ -7,15 +7,18 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-GUARD_SCRIPT = REPO_ROOT / "tools" / "security_guards.py"
+GUARD_SCRIPT = REPO_ROOT / "security_guards.py"
 
-sys.path.insert(0, str(REPO_ROOT / "tools"))
+sys.path.insert(0, str(REPO_ROOT))
 import security_guards  # noqa: E402  (imported for its allowlist constants)
 
 
 def run_guards(root: Path) -> subprocess.CompletedProcess:
+    guard = root / "scripts" / "security_guards.py"
+    if not guard.exists():
+        guard = root / "security_guards.py"
     return subprocess.run(
-        [sys.executable, str(root / "tools" / "security_guards.py")],
+        [sys.executable, str(guard)],
         capture_output=True,
         text=True,
     )
@@ -33,8 +36,8 @@ class GuardRepoFixture(unittest.TestCase):
         self.root = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
 
-        (self.root / "tools").mkdir()
-        shutil.copy(GUARD_SCRIPT, self.root / "tools" / "security_guards.py")
+        (self.root / "scripts").mkdir()
+        shutil.copy(GUARD_SCRIPT, self.root / "scripts" / "security_guards.py")
 
         self.settings = self.root / ".claude" / "settings.json"
         self.settings.parent.mkdir()

@@ -3,7 +3,7 @@
 You are recording what happened to a job application: progress updates (interview invitations, stages completed, offers) and final resolutions (hired, rejected, no response). The data lands in two places the framework already reads but nothing systematically writes:
 
 - the tracker store (Firestore, written through `scripts/tracker.py`) - the status and event history that `/scrape` and `/rank` use for dedup and exclusion
-- `documents/applications/<Company>/<Role>/<YYYY-MM-DD>/` - the per-application archive (posting, submitted drafts, `outcome.md`) that `/setup` Path A mines to calibrate `04-job-evaluation.md` and surface STAR candidates
+- `job-applications/<Company>/<Role>/<YYYY-MM-DD>/` - the per-application archive (posting, submitted drafts, `outcome.md`) that `/setup` Path A mines to calibrate `04-job-evaluation.md` and surface STAR candidates
 
 `/outcome` writes the data; `/setup` interprets it. This command never edits the evaluation framework or profile files itself.
 
@@ -48,7 +48,7 @@ Follow these steps **in order**.
    - `channel` must be a `channel:*` value from `tracker.schema.json`. If the source is not a recognised ATS, use `channel:other` and keep the human label in `metadata.legacyChannel`.
    - `status` accepts the legacy labels below; the CLI namespaces them.
 3. **Without an argument:** list every open application (`--open`) as a numbered table (company, role, date applied, current status, days quiet, follow-ups sent) and ask which to update. **Days quiet** is `timeline.daysSinceActivity`; **follow-ups sent** is `counters.followUpsSent`. Both are computed from the event log — never re-parse prose to derive them. If any open record is 10+ days quiet with fewer than two follow-ups, add one line under the table: "Some of these have gone quiet - want a follow-up draft? (Step 2b)". If every record is resolved, say so and stop.
-4. Derive the archive folder path: `documents/applications/<Company>/<Role>/<YYYY-MM-DD>/` (Title-Case with underscores for spaces, dated subdirectory — the convention documented in `documents/README.md`). Check whether the folder and an `outcome.md` already exist - if so, you are updating, not creating.
+4. Derive the archive folder path: `job-applications/<Company>/<Role>/<YYYY-MM-DD>/` (Title-Case with underscores for spaces, dated subdirectory — the convention documented in `documents/README.md`). Check whether the folder and an `outcome.md` already exist - if so, you are updating, not creating.
 
 ---
 
@@ -97,7 +97,7 @@ Enter this branch from the `followup` argument (Step 0) or from the offer under 
   TRACKER_ALLOW_WRITES=1 .venv/bin/python scripts/tracker.py event <applicationId> --type event:follow-up-sent --date YYYY-MM-DD --note "followed up via <channel>"
   ```
   The event increments `counters.followUpsSent` and resets `timeline.daysSinceActivity`; nothing needs to parse a note to recount.
-- Save the final note as `followup_YYYY-MM-DD.md` in the application's archive folder. Safe by documented convention: `/setup` reads only the four named archive files and ignores extras (the same rule that covers `/interview`'s prep files), and `documents/applications/**` is gitignored personal data.
+- Save the final note as `followup_YYYY-MM-DD.md` in the application's archive folder. Safe by documented convention: `/setup` reads only the four named archive files and ignores extras (the same rule that covers `/interview`'s prep files), and `job-applications/**` is gitignored personal data.
 
 If the user decides not to send, log nothing.
 
@@ -107,7 +107,7 @@ If the user decides not to send, log nothing.
 
 ## Step 3: Archive the Application Materials
 
-Create or update `documents/applications/<Company>/<Role>/<YYYY-MM-DD>/`. All content here is personal data - the folder is already gitignored (`documents/applications/**`), so nothing needs redacting.
+Create or update `job-applications/<Company>/<Role>/<YYYY-MM-DD>/`. All content here is personal data - the folder is already gitignored (`job-applications/**`), so nothing needs redacting.
 
 1. **`main_<company>_<role>.tex` and `cover_<company>_<role>.tex`** - copy (never move) the submitted files. Locate them via `.venv/bin/python scripts/tracker.py get <applicationId>` → `artifacts[]` with `kind: artifact:cv` / `artifact:cover-letter` (each carries `localPath`, `driveUrl`, or `externalUrl`); if those are empty, look in the application's dated folder. If a file already exists in the archive, leave it - the archived version is what was actually submitted. If no draft files exist (application made outside `/apply`), skip with a note.
 2. **`job_posting.md`** - if it already exists, leave it. Otherwise try WebFetch on the tracker row's `source` URL and save the posting text. If the URL is dead (postings expire fast - this is exactly why the archive matters), ask the user to paste the posting, or write a stub noting the posting is unavailable. **Never reconstruct a posting from memory.**
@@ -171,7 +171,7 @@ The full contract lives in `tracker.schema.json`.
 
 ## Step 5: Calibration Handoff
 
-Count the `outcome.md` files under `documents/applications/` with a **final** status (not `in_progress`).
+Count the `outcome.md` files under `job-applications/` with a **final** status (not `in_progress`).
 
 - If 3 or more are resolved (or 2+ share a pattern - same role type rejected twice, same sector going silent), suggest:
   > "You now have <N> resolved applications on record. Run `/setup` (Path A) to fold them into your evaluation framework - it calibrates fit scoring from what actually got interviews, and mines your interview feedback for STAR examples."
@@ -185,7 +185,7 @@ Summarize what was recorded:
 
 > **Outcome recorded for <Role> at <Company>.**
 >
-> - `documents/applications/<Company>/<Role>/<YYYY-MM-DD>/outcome.md` - status: <status>, <what changed>
+> - `job-applications/<Company>/<Role>/<YYYY-MM-DD>/outcome.md` - status: <status>, <what changed>
 > - Archived: <which of cv_draft.tex / cover_letter.tex / job_posting.md were copied or fetched, and which were skipped and why>
 > - Tracker: status → <new status>
 >

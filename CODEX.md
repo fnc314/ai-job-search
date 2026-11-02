@@ -28,7 +28,7 @@ To automatically search for live job postings that match your newly created prof
 When you have a link to a job you want to apply for, use this command to evaluate the fit and generate a tailored CV and Cover Letter:
 > *"Use the `job-search` skill to run the `apply` mode for this link: [insert_job_url_here]"*
 
-If you installed LaTeX in Step 1, you will instantly find ready-to-send PDF files in your `cv/` and `cover_letters/` folders!
+If you installed LaTeX in Step 1, you will instantly find ready-to-send PDF files in your `templates/cv/` and `templates/cover-letters/` folders!
 
 ### 5. Track Applications (TUI & Web Dashboard)
 - **Terminal UI Tracker:** Launch the interactive keyboard tracker via `python3 ui/terminal/tracker_tui.py` (configured via `ui/terminal/tui_config.json`).

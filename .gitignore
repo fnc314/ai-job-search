@@ -20,12 +20,6 @@ venv/
 
 # Personal data (never commit these)
 salary_data.json
-# Match at any depth: the job-scraper skill resolves `job_scraper/` relative to
-# its own directory, so these land at .claude/skills/job-scraper/job_scraper/*.
-# A rooted `job_scraper/...` pattern silently fails to match them.
-**/job_scraper/seen_jobs.json
-**/job_scraper/notion_sync.json
-**/job_scraper/*.md
 *_BehavioralReport.pdf
 linkedin_Profile.pdf
 
@@ -33,7 +27,7 @@ linkedin_Profile.pdf
 *.jpg
 *.jpeg
 *.png
-!cover_letters/OpenFonts/fonts/**
+!templates/cover-letters/OpenFonts/fonts/**
 
 # OS files
 .DS_Store
@@ -56,24 +50,15 @@ skills-lock.json
 # The negations stay .tex-only - the stock example files are always LaTeX,
 # and a wildcard negation (!cv/main_example.*) would also re-include build
 # artifacts like main_example.pdf/.aux.
-cv/main_*.*
-!cv/main_example.tex
-cv/*.txt
-cover_letters/cover_*.*
-cover_letters/Cover_*.*
-!cover_letters/cover_example.tex
+templates/cv/main_*.*
+!templates/cv/main_example.tex
+templates/cv/*.txt
+templates/cover-letters/cover_*.*
+templates/cover-letters/Cover_*.*
+!templates/cover-letters/cover_example.tex
 
-# documents/ subfolder contents are personal — only README and folder structure are tracked
-documents/cv/**
-documents/linkedin/**
-documents/diplomas/**
-documents/references/**
-documents/applications/**
-documents/postings/**
-# Interview prep and experience records: these name the employers applied to,
-# quote what was submitted, and set out the candidate's weak points.
-documents/interview/**
-!documents/**/.gitkeep
+# job-applications/ subfolder contents are personal — only README and folder structure are tracked
+job-applications/**
 
 # Frozen pre-migration snapshot (see archive/README.md). Never a data source.
 archive/*.csv
@@ -99,7 +84,7 @@ ui-debug.log
 .logs/
 
 # Gmail sync state (message IDs, subjects - personal data)
-gmail_sync/
+gmail-sync/
 
 # Generated reports (personal output from /html-report)
 reports/
@@ -152,6 +137,13 @@ li_*.json
 *_job_posting.txt
 google_job_posting.txt
 tekgence_detail.txt
+
+# Job scraper state (seen jobs, notion sync, etc.)
+# Match at any depth: the job-scraper skill resolves `job-scraper/` relative to
+# its own directory, so these land at .claude/skills/job-scraper/job-scraper/*.
+**/job-scraper/seen_jobs.json
+**/job-scraper/notion_sync.json
+**/job-scraper/*.md
 
 # Scratch, ad-hoc, and local helper scripts containing personal paths/data
 cross_reference.py

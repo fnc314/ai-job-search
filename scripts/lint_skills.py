@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Lint the repo's skill, command, and settings files.
 
-Run from anywhere: python tools/lint_skills.py
+Run from anywhere: python scripts/lint_skills.py
 
 Checks:
 - Every SKILL.md (.claude/skills/*, .agents/skills/*) has YAML frontmatter that

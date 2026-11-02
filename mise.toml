@@ -2,8 +2,8 @@
 # Pinned to match .github/workflows/ci.yml. The tracker scripts own the only
 # copy of the application record, so the interpreter is not allowed to drift.
 python = "3.15.2"
-bun = "latest"
-usage = { version = "7.1.4", workflow = "publish-cli.yml" }
+bun = "1.4.4"
+usage = { version = "7.1.5", workflow = "publish-cli.yml" }
 
 [env]
 _ = { file = ".env.local" }
@@ -207,7 +207,7 @@ description = "Upload local artifacts to GCS and backfill Firestore (set TRACKER
 usage = '''
 flag "--dry-run" help="Show tree view without uploading"
 flag "--company <company>" help="Only process artifacts for this company (case-insensitive)"
-flag "--documents <documents>" help="Path to documents/applications/ directory"
+flag "--documents <documents>" help="Path to job-applications/ directory"
 '''
 run = '''.venv/bin/python scripts/migrate_gcs.py{% if usage.dry_run %} --dry-run{% endif %}{% if usage.company %} --company {{ usage.company }}{% endif %}{% if usage.documents %} --documents {{ usage.documents }}{% endif %}'''
 
