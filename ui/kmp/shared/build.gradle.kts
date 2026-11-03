@@ -89,6 +89,8 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(libs.ktor.client.cio)
+            // Firebase Admin SDK for JVM (Desktop)
+            implementation(libs.firebase.admin)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)

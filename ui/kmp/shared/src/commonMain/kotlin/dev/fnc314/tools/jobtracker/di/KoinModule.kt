@@ -1,6 +1,5 @@
 package dev.fnc314.tools.jobtracker.di
 
-import dev.fnc314.tools.jobtracker.data.firestore.FirestoreJobApplicationRepository
 import dev.fnc314.tools.jobtracker.data.firestore.FirestoreTrackerEditsRepository
 import dev.fnc314.tools.jobtracker.data.gcs.KtorStorageRepository
 import dev.fnc314.tools.jobtracker.domain.impl.usecase.*
@@ -22,7 +21,7 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    single<JobApplicationRepository> { FirestoreJobApplicationRepository() }
+    single<JobApplicationRepository> { createJobApplicationRepository() }
     single<TrackerEditsRepository> { FirestoreTrackerEditsRepository() }
     single<StorageRepository> {
         KtorStorageRepository(get())

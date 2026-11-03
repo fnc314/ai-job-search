@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "399944190604",
+    "project_id": "job-search-fnc314-dev",
+    "storage_bucket": "job-search-fnc314-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:399944190604:android:039c88290beda151adc9a9",
+        "android_client_info": {
+          "package_name": "dev.fnc314.tools.jobtracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdnr32qCcc1eE8Gez91NPhBDj75NuhhEU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

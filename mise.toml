@@ -1,3 +1,12 @@
+monorepo_root = true
+
+[monorepo]
+  lockfile = true
+  config_roots = [
+    "ui/kmp",
+    "ui/kotlin-toolchain",
+  ]
+
 [tools]
   # Pinned to match .github/workflows/ci.yml. The tracker scripts own the only
   # copy of the application record, so the interpreter is not allowed to drift.
@@ -5,15 +14,16 @@
   bun = "1.4.4"
   usage = { version = "7.1.5", workflow = "publish-cli.yml" }
   gradle = "9.8.2"
-java = "27.0.1+1"
+  java = "27.0.1+1"
 
 [env]
   _ = { file = ".env.local" }
   # TUI log cleanup settings (used by the `cd` hook)
-  TUI_LOG_RETENTION_DAYS = "7"      # Days to keep TUI log directories (0 = always clean)
-  TUI_LOG_COOLDOWN_HOURS = "24"     # Hours between cleanup prompts
-  ANDROID_USER_HOME = "~/.android"
-  ANDROID_HOME = "~/.android/sdk"
+  TUI_LOG_RETENTION_DAYS = "7"                                                        # Days to keep TUI log directories (0 = always clean)
+  TUI_LOG_COOLDOWN_HOURS = "24"                                                       # Hours between cleanup prompts
+  ANDROID_USER_HOME = "/Users/fnc314/.android"
+  ANDROID_HOME = "/Users/fnc314/.android/sdk"
+  JAVA_HOME = "/Users/fnc314/.local/share/mise/installs/java/27.0.1+1/Contents/Home"
 
 [tasks]
   # ── Tasks ──────────────────────────────────────────────────────────────────
@@ -217,7 +227,7 @@ flag "--documents <documents>" help="Path to job-applications/ directory"
   purge-gcs-legacy = { description = "Purge old-style GCS artifacts and migrate orphans (set TRACKER_ALLOW_WRITES=1)", usage = 'flag "--dry-run" help="Preview what would be done without making changes"', run = ".venv/bin/python scripts/purge_gcs_legacy.py{% if usage.dry_run %} --dry-run{% endif %}" }
   "mise:docs:tasks" = {
     description = "Regenerates docs/mise (lints Usage specs, generates Markdown, and runs mise task-docs)",
-    sources = ["mise.toml", "scripts/specs/*.usage.kdl"],
+    sources = [ "mise.toml", "scripts/specs/*.usage.kdl" ],
     shell = "zsh -c",
     run = """
   # Lint all Usage specs first
@@ -238,7 +248,7 @@ flag "--documents <documents>" help="Path to job-applications/ directory"
   }
   "completions:generate" = {
     description = "Generate Zsh completions from Usage specs and install to ~/.env/zsh/custom/completions/",
-    sources = ["scripts/specs/*.usage.kdl"],
+    sources = [ "scripts/specs/*.usage.kdl" ],
     shell = "zsh -c",
     run = """
   local completions_dir="$HOME/.env/zsh/custom/completions"
