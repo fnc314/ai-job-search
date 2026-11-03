@@ -15,12 +15,14 @@ import dev.fnc314.tools.jobtracker.di.appModule
 import dev.fnc314.tools.jobtracker.ui.add.AddJobApplicationScreen
 import dev.fnc314.tools.jobtracker.ui.component.JobTrackerTheme
 import dev.fnc314.tools.jobtracker.ui.detail.JobApplicationDetailScreen
+import dev.fnc314.tools.jobtracker.ui.edits.TrackerEditsScreen
 import dev.fnc314.tools.jobtracker.ui.lead.AddLeadScreen
 import dev.fnc314.tools.jobtracker.ui.list.JobApplicationsListScreen
 import dev.fnc314.tools.jobtracker.ui.settings.AppSettings
 import org.koin.compose.KoinApplication
 
 enum class AddMode { Application, Lead }
+enum class ScreenRoute { List, Detail, AddApplication, AddLead, Edits }
 
 @Composable
 fun App() {
@@ -41,25 +43,34 @@ fun App() {
                 color = MaterialTheme.colorScheme.background,
             ) {
                 var selectedAppId: String? by remember { mutableStateOf<String?>(null) }
+                var showEdits by remember { mutableStateOf(false) }
                 var addMode: AddMode? by remember { mutableStateOf<AddMode?>(null) }
                 var fabMenuExpanded by remember { mutableStateOf(false) }
                 val focusManager = LocalFocusManager.current
 
-                when (addMode) {
-                    AddMode.Application ->
+                when {
+                    showEdits ->
+                        TrackerEditsScreen(
+                            onNavigateBack = { showEdits = false },
+                            onEditClick = { appId ->
+                                showEdits = false
+                                selectedAppId = appId
+                            },
+                        )
+                    addMode == AddMode.Application ->
                         AddJobApplicationScreen(
                             onNavigateBack = { addMode = null },
                         )
-                    AddMode.Lead ->
+                    addMode == AddMode.Lead ->
                         AddLeadScreen(
                             onNavigateBack = { addMode = null },
                         )
-                    else -> selectedAppId?.let { appId ->
+                    selectedAppId != null ->
                         JobApplicationDetailScreen(
-                            applicationId = appId,
+                            applicationId = selectedAppId!!,
                             onNavigateBack = { selectedAppId = null },
                         )
-                    } ?: run {
+                    else ->
                         Box(modifier = Modifier.fillMaxSize()) {
                             JobApplicationsListScreen(
                                 onApplicationClick = { id -> selectedAppId = id },
@@ -67,6 +78,7 @@ fun App() {
                                     focusManager.clearFocus()
                                     fabMenuExpanded = true
                                 },
+                                onEditsClick = { showEdits = true },
                             )
                             Box(
                                 modifier = Modifier.matchParentSize(),
@@ -89,10 +101,16 @@ fun App() {
                                             fabMenuExpanded = false
                                         },
                                     )
+                                    DropdownMenuItem(
+                                        text = { Text("Pending Edits") },
+                                        onClick = {
+                                            showEdits = true
+                                            fabMenuExpanded = false
+                                        },
+                                    )
                                 }
                             }
                         }
-                    }
                 }
             }
         }

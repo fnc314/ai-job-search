@@ -24,6 +24,7 @@ fun JobApplicationsListScreen(
     viewModel: JobApplicationsListViewModel = koinViewModel(),
     onApplicationClick: (String) -> Unit,
     onAddClick: () -> Unit = {},
+    onEditsClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val applications by viewModel.filteredApplications.collectAsState()
@@ -49,6 +50,12 @@ fun JobApplicationsListScreen(
             TopAppBar(
                 title = { Text("Job Applications") },
                 actions = {
+                    IconButton(
+                        onClick = onEditsClick,
+                        modifier = Modifier.semantics { contentDescription = "View pending edits" },
+                    ) {
+                        Text("✏️")
+                    }
                     IconButton(
                         onClick = { showSettings = true },
                         modifier = Modifier.semantics { contentDescription = "Open settings" },

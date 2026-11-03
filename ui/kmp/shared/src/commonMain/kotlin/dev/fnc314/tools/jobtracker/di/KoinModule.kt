@@ -10,6 +10,7 @@ import dev.fnc314.tools.jobtracker.domain.repository.TrackerEditsRepository
 import dev.fnc314.tools.jobtracker.domain.usecase.*
 import dev.fnc314.tools.jobtracker.ui.add.AddJobApplicationViewModel
 import dev.fnc314.tools.jobtracker.ui.detail.JobApplicationDetailViewModel
+import dev.fnc314.tools.jobtracker.ui.edits.TrackerEditsViewModel
 import dev.fnc314.tools.jobtracker.ui.lead.AddLeadViewModel
 import dev.fnc314.tools.jobtracker.ui.list.JobApplicationsListViewModel
 import dev.fnc314.tools.jobtracker.platform.PlatformAuth
@@ -65,6 +66,7 @@ val viewModelModule = module {
     singleOf(::JobApplicationDetailViewModel)
     factoryOf(::AddJobApplicationViewModel)
     factoryOf(::AddLeadViewModel)
+    factoryOf(::TrackerEditsViewModel)
 }
 
 val appModule = module {

@@ -12,7 +12,7 @@ sessionId: session-261102-210753-zclp
 | Step 2 | ✓ Done | Job Applications List Screen with Theme and Accessibility |
 | Step 3 | ✓ Done | Job Application Detail Screen with File Consumption |
 | Step 4 | ✓ Done | Add Job Application and Lead Forms |
-| Step 5 | * In Progress | Tracker Edits Review and Final Polish |
+| Step 5 | ✓ Done | Tracker Edits Review and Final Polish |
 
 ### Completed Features & Flows
 - **Domain Layer**: All 15 UseCase interfaces and 3 repository interfaces are defined
@@ -24,7 +24,7 @@ sessionId: session-261102-210753-zclp
 - **UI Components**: `JobTrackerTheme`, `StatusBadge`, `JobApplicationsListScreen`, `JobApplicationsListViewModel`, `JobApplicationRow`, `FilterChip`, `ColumnHeader`, `SettingsDialog`
 - **Detail Screen**: `JobApplicationDetailScreen`, `JobApplicationDetailViewModel`, `EventsTimeline`, `ArtifactsList`, `DetailDialogs` (UpdateStatusDialog, RecordEventDialog, UpdateFitScoreDialog)
 - **Add Forms**: `AddJobApplicationScreen`, `AddJobApplicationViewModel`, `AddLeadScreen`, `AddLeadViewModel` with form validation and enum dropdowns
-- **Navigation**: App.kt routes from list → detail, FAB menu → Add Application / Add Lead
+- **Navigation**: App.kt routes from list → detail, FAB menu → Add Application / Add Lead / Pending Edits, TopAppBar → Edits
 - **UI Features**: Sort indicators, filter chips, settings dialog (column visibility, dark mode, seed color), FAB for add, detail screen navigation, action dialogs
 - **Build**: JVM compilation succeeds
 
@@ -37,8 +37,9 @@ sessionId: session-261102-210753-zclp
 - **Settings Dialog**: Column visibility, theme seed color, dark/light toggle not implemented
 - **Detail Screen**: Implemented (Step 3) — summary, company profile, artifacts, events timeline, action dialogs
 - **Add Forms**: Implemented (Step 4) — AddJobApplicationScreen, AddLeadScreen with validation and enum dropdowns
-- **Proposals Review**: Not yet implemented (Step 5)
+- **Proposals Review**: Implemented (Step 5) — TrackerEditsScreen, TrackerEditsViewModel with approve/reject/expire
 - **Unit Tests**: UseCase unit tests not yet written
+- **EnumDisplay**: Refactored to generic `displayName()` extension on `Enum<T>` with `TrackerStatus` override
 
 # Requirements
 
@@ -1170,7 +1171,7 @@ Build interactive forms for creating new job applications and recording recruite
 - Add dry-run preview showing resolved payload before writing
 - Handle form validation errors and Firestore write errors gracefully
 
-###   Step 5: Tracker Edits Review and Final Polish (Lower Priority)
+### ✓ Step 5: Tracker Edits Review and Final Polish (Lower Priority)
 Build the tracker edits review screen and ensure all mise task equivalences are covered.
 
 - **Create Proposals UseCase interfaces** in `domain/usecase/`:
