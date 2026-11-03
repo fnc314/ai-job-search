@@ -24,6 +24,7 @@ cmd "get" help="Show one application and its events" {
 
 cmd "add" help="Create an application from a JSON payload" {
   flag "--json <file>" help="Payload file, or - for stdin"
+  flag "-i --interactive" help="Prompt for fields interactively"
   flag "--dry-run" help="Resolve and validate only"
 }
 

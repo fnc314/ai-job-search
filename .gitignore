@@ -175,3 +175,4 @@ cover_*.log
 
 bin
 ui/kmp/build/
+ui/kotlin-toolchain/build/

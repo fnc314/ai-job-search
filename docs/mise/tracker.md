@@ -47,12 +47,13 @@ Show one application and its events
 
 ## `tracker add`
 
-- **Usage:** `tracker add [--json <file>] [--dry-run]`
+- **Usage:** `tracker add [FLAGS]`
 
 Create an application from a JSON payload
 
 ### Flags
 - **`--json <file>`** — Payload file, or - for stdin
+- **`-i --interactive`** — Prompt for fields interactively
 - **`--dry-run`** — Resolve and validate only
 
 ## `tracker upsert`

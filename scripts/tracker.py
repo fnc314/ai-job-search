@@ -594,6 +594,7 @@ def buildApplication(payload: dict, *, now: str | None = None) -> tuple[dict, li
         "roleType": payload.get("roleType") or None,
         "channel": normalizeChannel(payload.get("channel")),
         "contactPerson": payload.get("contactPerson") or None,
+        "contactEmail": payload.get("contactEmail") or None,
         "fitRating": payload.get("fitRating"),
         "source": source,
         "tags": tags,
@@ -651,7 +652,7 @@ def mergeApplication(existing: dict, payload: dict, *, now: str) -> dict:
             mergedTags.append(tag)
     mergedPayload["tags"] = mergedTags
 
-    for key in ("companyId", "sector", "roleType", "channel", "contactPerson", "source"):
+    for key in ("companyId", "sector", "roleType", "channel", "contactPerson", "contactEmail", "source"):
         if mergedPayload.get(key) in (None, "") and existing.get(key) is not None:
             mergedPayload[key] = existing[key]
     if mergedPayload.get("fitRating") is None:
@@ -782,14 +783,382 @@ def commandLead(args) -> int:
     return EXIT_OK
 
 
+def _read_line(prompt: str) -> str:
+    """Read a line from stdin, raising ContractError on EOF."""
+    sys.stderr.write(prompt)
+    line = sys.stdin.readline()
+    if not line:
+        raise contract.ContractError(
+            "unexpected end of input. "
+            "Run `.venv/bin/python scripts/tracker.py add -i` directly."
+        )
+    return line.strip()
+
+
+def _prompt_channel_menu() -> str | None:
+    """Show a grouped channel menu and return the selected channel value."""
+    channels = contract.enums("channel")
+    groups = {
+        "ATS Platforms": [],
+        "LinkedIn": [],
+        "Outreach": [],
+        "Other": [],
+    }
+    for ch in channels:
+        if ch.startswith("channel:outreach:"):
+            groups["Outreach"].append(ch)
+        elif ch == "channel:linkedin":
+            groups["LinkedIn"].append(ch)
+        elif ch in ("channel:greenhouse", "channel:workday", "channel:lever",
+                     "channel:ashby", "channel:smartrecruiters"):
+            groups["ATS Platforms"].append(ch)
+        else:
+            groups["Other"].append(ch)
+
+    sys.stderr.write("\nHow did you find this role?\n")
+    idx = 1
+    idx_to_channel = {}
+    for group_name, group_channels in groups.items():
+        if not group_channels:
+            continue
+        sys.stderr.write(f"  {group_name}:\n")
+        for ch in group_channels:
+            label = ch.replace("channel:", "")
+            sys.stderr.write(f"    {idx}. {label}\n")
+            idx_to_channel[idx] = ch
+            idx += 1
+    sys.stderr.write(f"    {idx}. (skip)\n")
+    idx_to_channel[idx] = None
+
+    while True:
+        choice = _read_line(f"  Select [{1}-{idx}] (or Enter to skip): ")
+        if not choice:
+            return None
+        num = int(choice) if choice.isdigit() else -1
+        if num in idx_to_channel:
+            return idx_to_channel[num]
+        sys.stderr.write(f"  Invalid choice. Pick 1-{idx}.\n")
+
+
+def _prompt_status_menu(default: str = "status:drafting") -> str:
+    """Show a status menu and return the selected status value."""
+    statuses = contract.enums("status")
+    sys.stderr.write("\nWhat stage is this application at?\n")
+    idx_to_status = {}
+    for i, st in enumerate(statuses, 1):
+        label = st.replace("status:", "")
+        sys.stderr.write(f"  {i}. {label}\n")
+        idx_to_status[i] = st
+
+    while True:
+        defaultLabel = default.replace("status:", "")
+        choice = _read_line(f"  Select [1-{len(statuses)}] (default={defaultLabel}): ")
+        if not choice:
+            return default
+        num = int(choice) if choice.isdigit() else -1
+        if num in idx_to_status:
+            return idx_to_status[num]
+        sys.stderr.write(f"  Invalid choice. Pick 1-{len(statuses)}.\n")
+
+
+def _prompt_notes() -> list[str]:
+    """Prompt for repeatable notes. Returns a list of note strings."""
+    notes = []
+    sys.stderr.write("\nAny notes to add? (one per line, blank line to finish)\n")
+    while True:
+        note = _read_line("  Note: ")
+        if not note:
+            break
+        notes.append(note)
+    return notes
+
+
+def _prompt_tags(pre_selected: list[str] | None = None) -> list[str]:
+    """Show a grouped tag menu and return selected tags.
+    
+    Supports multi-select: user enters comma-separated numbers or 'done' to finish.
+    Pre-selected tags are marked with an asterisk.
+    """
+    tags = contract.enums("tag")
+    
+    # Group tags by namespace
+    groups: dict[str, list[str]] = {}
+    for tag in tags:
+        parts = tag.split(":")
+        group_name = parts[0] if len(parts) > 1 else "Other"
+        groups.setdefault(group_name, []).append(tag)
+    
+    pre_selected = pre_selected or []
+    
+    while True:
+        sys.stderr.write("\nAvailable tags (multi-select):\n")
+        idx = 1
+        idx_to_tag = {}
+        for group_name, group_tags in groups.items():
+            sys.stderr.write(f"\n  [{group_name}]\n")
+            for tag in group_tags:
+                marker = "*" if tag in pre_selected else " "
+                sys.stderr.write(f"  {marker} {idx}. {tag}\n")
+                idx_to_tag[idx] = tag
+                idx += 1
+        
+        sys.stderr.write(f"\n  {idx}. done\n")
+        idx_to_tag[idx] = "__done__"
+        
+        # Show current selection
+        if pre_selected:
+            sys.stderr.write(f"\n  Currently selected: {', '.join(pre_selected)}\n")
+        
+        choice = _read_line(f"  Select [{1}-{idx}] (comma-separated, or Enter to skip): ")
+        if not choice:
+            # Enter to skip — return pre-selected tags
+            return pre_selected
+        
+        # Parse comma-separated choices
+        choices = [c.strip() for c in choice.split(",")]
+        added = []
+        for c in choices:
+            num = int(c) if c.isdigit() else -1
+            if num in idx_to_tag:
+                tag = idx_to_tag[num]
+                if tag == "__done__":
+                    return pre_selected
+                if tag not in pre_selected:
+                    pre_selected.append(tag)
+                    added.append(tag)
+            else:
+                sys.stderr.write(f"  Invalid choice: {c}. Pick {1}-{idx}.\n")
+        
+        if added:
+            sys.stderr.write(f"  Added: {', '.join(added)}\n")
+        
+        # Ask if user wants to continue adding
+        continue_choice = _read_line("  Add more tags? (y/n, default=n): ")
+        if continue_choice.lower() != "y":
+            return pre_selected
+
+
+def _prompt_company() -> str:
+    """Prompt for a required company name."""
+    sys.stderr.write("What company is this for?\n")
+    while True:
+        company = _read_line("  Company name: ")
+        if company:
+            return company
+        sys.stderr.write("  Please enter the company name.\n")
+
+
+def interactiveAdd() -> dict:
+    """Interactively prompt for what to add, then collect the relevant fields.
+
+    Returns a dict with keys:
+      - "kind": "application" or "lead"
+      - payload fields (company, role, channel, etc.)
+      - "notes": list of note strings
+    """
+    if not sys.stdin.isatty():
+        raise contract.ContractError(
+            "interactive mode requires a terminal. "
+            "Pipe a JSON payload instead: `tracker.py add --json -`"
+        )
+
+    # --- Top-level menu: what are we adding? ---
+    sys.stderr.write("\n")
+    sys.stderr.write("=== Tracker: What do you want to add? ===\n\n")
+    sys.stderr.write("  1. New application  (you found a role and want to track it)\n")
+    sys.stderr.write("  2. Recruiter lead   (a recruiter reached out to you)\n\n")
+    sys.stderr.write("What would you like to add?\n")
+
+    while True:
+        choice = _read_line("  Select [1-2]: ")
+        if choice in ("1", "2"):
+            break
+        sys.stderr.write("  Invalid choice. Pick 1 or 2.\n")
+
+    kind = "application" if choice == "1" else "lead"
+
+    if kind == "application":
+        payload = _interactive_application_flow()
+    else:
+        payload = _interactive_lead_flow()
+
+    payload["kind"] = kind
+    return payload
+
+
+def _interactive_application_flow() -> dict:
+    """Prompt for application-specific fields, most pertinent first."""
+    sys.stderr.write("\n--- New Application ---\n")
+    sys.stderr.write("(Press Enter to skip optional fields)\n")
+
+    company = _prompt_company()
+    payload = {"company": company}
+
+    # Role is the next most pertinent field
+    sys.stderr.write("\nWhat role are you applying for?\n")
+    role = _read_line("  Role title: ")
+    if role:
+        payload["role"] = role
+
+    # Channel
+    channel = _prompt_channel_menu()
+    if channel:
+        payload["channel"] = channel.replace("channel:", "")
+
+    # Source URL
+    sys.stderr.write("\nDo you have a link to the job posting?\n")
+    source = _read_line("  Source URL: ")
+    if source:
+        payload["source"] = source
+
+    # Contact person
+    sys.stderr.write("\nDo you have a contact person at this company?\n")
+    contact = _read_line("  Contact name: ")
+    if contact:
+        payload["contactPerson"] = contact
+
+    # Contact email
+    sys.stderr.write("\nWhat is their email address?\n")
+    email = _read_line("  Contact email: ")
+    if email:
+        payload["contactEmail"] = email
+
+    # Fit rating
+    sys.stderr.write("\nHow well does this role fit your profile?\n")
+    fit_raw = _read_line("  Fit rating 0-100 (or Enter to skip): ")
+    if fit_raw:
+        try:
+            fit = int(fit_raw)
+            if 0 <= fit <= 100:
+                payload["fitRating"] = fit
+            else:
+                sys.stderr.write("  Fit rating out of range, skipping.\n")
+        except ValueError:
+            sys.stderr.write("  Invalid number, skipping fit rating.\n")
+
+    # Status
+    status = _prompt_status_menu("status:drafting")
+    if status != "status:drafting":
+        payload["status"] = status
+
+    # Notes
+    notes = _prompt_notes()
+    payload["notes"] = notes
+
+    # Tags
+    tags = _prompt_tags()
+    if tags:
+        payload["tags"] = tags
+
+    return payload
+
+
+def _interactive_lead_flow() -> dict:
+    """Prompt for lead-specific fields, most pertinent first."""
+    sys.stderr.write("\n--- Recruiter Lead ---\n")
+    sys.stderr.write("(A recruiter reached out — let's capture the details)\n")
+
+    company = _prompt_company()
+    payload = {"company": company, "status": "status:lead"}
+
+    # Contact (recruiter name) is very pertinent for leads
+    sys.stderr.write("\nWho reached out?\n")
+    contact = _read_line("  Recruiter name: ")
+    if contact:
+        payload["contactPerson"] = contact
+
+    # Contact email — separate from name
+    sys.stderr.write("\nWhat is their email address?\n")
+    email = _read_line("  Recruiter email: ")
+    if email:
+        payload["contactEmail"] = email
+
+    # Channel defaults to outreach:linkedin
+    sys.stderr.write("\nHow did they reach out?\n")
+    sys.stderr.write("  1. LinkedIn message\n")
+    sys.stderr.write("  2. Email\n")
+    sys.stderr.write("  3. Referral\n")
+    sys.stderr.write("  4. Other\n")
+
+    while True:
+        choice = _read_line("  Select [1-4] (default=1): ")
+        if not choice:
+            payload["channel"] = "channel:outreach:linkedin"
+            break
+        if choice == "1":
+            payload["channel"] = "channel:outreach:linkedin"
+            break
+        elif choice == "2":
+            payload["channel"] = "channel:outreach:email"
+            break
+        elif choice == "3":
+            payload["channel"] = "channel:outreach:referral"
+            break
+        elif choice == "4":
+            payload["channel"] = "channel:other"
+            break
+        sys.stderr.write("  Invalid choice. Pick 1-4.\n")
+
+    # Notes
+    notes = _prompt_notes()
+    payload["notes"] = notes
+
+    # Tags — pre-select process:recruiter:outreach for leads
+    tags = _prompt_tags(pre_selected=["process:recruiter:outreach"])
+    payload["tags"] = tags
+
+    return payload
+
+
 def commandAdd(args) -> int:
-    payload = readPayload(args.json)
+    # Interactive mode builds the payload via prompts
+    if args.interactive and args.json:
+        raise contract.ContractError("use either --json or -i/--interactive, not both")
+    if args.interactive:
+        payload = interactiveAdd()
+        # Handle notes from interactive mode (stored as payload["notes"] list)
+        notes_from_payload = payload.pop("notes", [])
+        kind = payload.pop("kind", "application")
+    elif args.json:
+        payload = readPayload(args.json)
+        notes_from_payload = []
+        kind = "application"
+    else:
+        raise contract.ContractError("use --json <file> or -i/--interactive")
+
+    # For lead kind, ensure the outreach tag is present
+    if kind == "lead":
+        if "status" not in payload:
+            payload["status"] = "status:lead"
+        tags = payload.get("tags", [])
+        if "process:recruiter:outreach" not in tags:
+            tags.append("process:recruiter:outreach")
+        payload["tags"] = tags
+
     document, pendingEvents = buildApplication(payload)
-    artifacts = buildArtifacts(
-        payload.get("artifacts"), source="manual", now=eventsModule.nowIso(),
-        company=document.get("company"), role=document.get("role"),
-        date=document.get("date"),
-    )
+
+    # Append note events from interactive mode
+    for note_text in notes_from_payload:
+        pendingEvents.append(
+            eventsModule.buildEvent(
+                "event:note-added",
+                note=note_text,
+                actor="actor:user",
+                derivedFrom="manual",
+                confidence="high",
+            )
+        )
+    if notes_from_payload:
+        document.update(render.project(document, pendingEvents))
+
+    # Artifacts only for standard applications, not leads
+    artifacts = []
+    if kind == "application":
+        artifacts = buildArtifacts(
+            payload.get("artifacts"), source="manual", now=eventsModule.nowIso(),
+            company=document.get("company"), role=document.get("role"),
+            date=document.get("date"),
+        )
 
     if args.dry_run:
         emit(
@@ -808,7 +1177,8 @@ def commandAdd(args) -> int:
         raise contract.ContractError(
             f"{document['id']} already exists; use `upsert` to merge or `event` to append"
         )
-    client.assertWritesAllowed("a new application")
+    write_label = "a new lead" if kind == "lead" else "a new application"
+    client.assertWritesAllowed(write_label)
     ensure_company(db, document)
     writeApplication(db, document, pendingEvents, artifacts)
     task = enqueueCollectionQuietly(db, [document["id"]], hours=tasks.DEFAULT_HOURS)
@@ -1906,7 +2276,8 @@ def buildParser() -> argparse.ArgumentParser:
     get.set_defaults(handler=commandGet)
 
     add = subparsers.add_parser("add", help="create an application from a JSON payload")
-    add.add_argument("--json", required=True, help="payload file, or - for stdin")
+    add.add_argument("--json", help="payload file, or - for stdin")
+    add.add_argument("-i", "--interactive", action="store_true", help="prompt for fields interactively")
     add.add_argument("--dry-run", action="store_true", help="resolve and validate only")
     add.set_defaults(handler=commandAdd)
 
