@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -33,7 +34,7 @@ kotlin {
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()
        compilerOptions {
-           jvmTarget = JvmTarget.JVM_11
+           jvmTarget = JvmTarget.JVM_17
        }
        androidResources {
            enable = true
@@ -61,12 +62,42 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            
+            // Material Icons
+            implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
+            
+            // Koin
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.viewmodel)
+            
+            // Navigation
+            implementation(libs.navigation.compose)
+            
+            // Ktor
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.content.negotiation)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
         jsMain.dependencies {
             implementation(libs.wrappers.browser)
+            implementation(libs.ktor.client.js)
+        }
+        jvmMain.dependencies {
+            implementation(libs.ktor.client.cio)
+        }
+        androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
+            // Firebase - using explicit versions instead of BOM for KMP compatibility
+            implementation("com.google.firebase:firebase-firestore-ktx:25.1.1")
+            implementation("com.google.firebase:firebase-auth-ktx:23.2.0")
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.testRunner)

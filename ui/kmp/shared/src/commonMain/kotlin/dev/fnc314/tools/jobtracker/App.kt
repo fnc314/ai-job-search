@@ -1,47 +1,98 @@
 package dev.fnc314.tools.jobtracker
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
+import androidx.compose.ui.platform.LocalFocusManager
+import dev.fnc314.tools.jobtracker.di.appModule
+import dev.fnc314.tools.jobtracker.ui.add.AddJobApplicationScreen
+import dev.fnc314.tools.jobtracker.ui.component.JobTrackerTheme
+import dev.fnc314.tools.jobtracker.ui.detail.JobApplicationDetailScreen
+import dev.fnc314.tools.jobtracker.ui.lead.AddLeadScreen
+import dev.fnc314.tools.jobtracker.ui.list.JobApplicationsListScreen
+import dev.fnc314.tools.jobtracker.ui.settings.AppSettings
+import org.koin.compose.KoinApplication
 
-import fnc314jobsearchtracker.shared.generated.resources.Res
-import fnc314jobsearchtracker.shared.generated.resources.compose_multiplatform
+enum class AddMode { Application, Lead }
 
 @Composable
-@Preview
 fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+    KoinApplication(
+        application = {
+            modules(appModule)
+        }
+    ) {
+        var settings by remember { mutableStateOf(AppSettings()) }
+        
+        JobTrackerTheme(
+            darkTheme = settings.darkTheme,
         ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+            Surface(
+                modifier = Modifier
+                    .safeContentPadding()
+                    .fillMaxSize(),
+                color = MaterialTheme.colorScheme.background,
+            ) {
+                var selectedAppId: String? by remember { mutableStateOf<String?>(null) }
+                var addMode: AddMode? by remember { mutableStateOf<AddMode?>(null) }
+                var fabMenuExpanded by remember { mutableStateOf(false) }
+                val focusManager = LocalFocusManager.current
+
+                when (addMode) {
+                    AddMode.Application ->
+                        AddJobApplicationScreen(
+                            onNavigateBack = { addMode = null },
+                        )
+                    AddMode.Lead ->
+                        AddLeadScreen(
+                            onNavigateBack = { addMode = null },
+                        )
+                    else -> selectedAppId?.let { appId ->
+                        JobApplicationDetailScreen(
+                            applicationId = appId,
+                            onNavigateBack = { selectedAppId = null },
+                        )
+                    } ?: run {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            JobApplicationsListScreen(
+                                onApplicationClick = { id -> selectedAppId = id },
+                                onAddClick = {
+                                    focusManager.clearFocus()
+                                    fabMenuExpanded = true
+                                },
+                            )
+                            Box(
+                                modifier = Modifier.matchParentSize(),
+                            ) {
+                                DropdownMenu(
+                                    expanded = fabMenuExpanded,
+                                    onDismissRequest = { fabMenuExpanded = false },
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Add Application") },
+                                        onClick = {
+                                            addMode = AddMode.Application
+                                            fabMenuExpanded = false
+                                        },
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Add Lead") },
+                                        onClick = {
+                                            addMode = AddMode.Lead
+                                            fabMenuExpanded = false
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
