@@ -175,4 +175,9 @@ cover_*.log
 
 bin
 ui/kmp/build/
+ui/kmp/.gradle/
+ui/kmp/.idea/
+ui/kmp/gradle/tools/.gradle/
+ui/kmp/gradle/tools/build/
+ui/kmp/gradle/tools/project-plugins/build/
 ui/kotlin-toolchain/build/
