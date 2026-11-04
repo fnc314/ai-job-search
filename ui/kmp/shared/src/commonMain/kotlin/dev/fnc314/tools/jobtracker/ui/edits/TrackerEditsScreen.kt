@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,9 +53,9 @@ fun TrackerEditsScreen(
                         enabled = !uiState.actionInProgress,
                         modifier = Modifier.semantics { contentDescription = "Expire stale edits" },
                     ) {
-                        Text(
-                            text = "⏳",
-                            style = MaterialTheme.typography.titleMedium,
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Expire stale edits",
                         )
                     }
                     IconButton(
@@ -61,9 +63,9 @@ fun TrackerEditsScreen(
                         enabled = !uiState.loading,
                         modifier = Modifier.semantics { contentDescription = "Refresh edits" },
                     ) {
-                        Text(
-                            text = "🔄",
-                            style = MaterialTheme.typography.titleMedium,
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh edits",
                         )
                     }
                 },

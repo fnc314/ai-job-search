@@ -6,6 +6,9 @@ import dev.fnc314.tools.jobtracker.features.signin.data.PlatformSignInHandler
 import dev.fnc314.tools.jobtracker.features.signin.data.SignInWithGoogleUseCaseImpl
 import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.*
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
+import dev.fnc314.tools.jobtracker.data.settings.AppSettingsRepository
+import dev.fnc314.tools.jobtracker.data.settings.SettingsStorage
+import dev.fnc314.tools.jobtracker.data.settings.createSettingsStorage
 import dev.fnc314.tools.jobtracker.data.firestore.FirestoreTrackerEditsRepository
 import dev.fnc314.tools.jobtracker.data.gcs.KtorStorageRepository
 import dev.fnc314.tools.jobtracker.domain.impl.usecase.*
@@ -34,6 +37,8 @@ val repositoryModule = module {
     }
     single { DefaultAuthRepository(signInHandler = get()) }
     single<AuthRepository> { get<DefaultAuthRepository>() }
+    single<SettingsStorage> { createSettingsStorage() }
+    single { AppSettingsRepository(get()) }
 }
 
 val useCaseModule = module {

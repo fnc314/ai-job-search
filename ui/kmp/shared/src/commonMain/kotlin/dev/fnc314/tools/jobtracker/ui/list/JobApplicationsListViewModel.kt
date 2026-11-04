@@ -54,6 +54,12 @@ class JobApplicationsListViewModel(
         applyFilterAndSort()
     }
 
+    fun setSort(column: SortJobApplicationsUseCase.SortColumn, ascending: Boolean) {
+        _sortColumn.value = column
+        _sortAscending.value = ascending
+        applyFilterAndSort()
+    }
+
     fun refresh() {
         loadApplications()
     }

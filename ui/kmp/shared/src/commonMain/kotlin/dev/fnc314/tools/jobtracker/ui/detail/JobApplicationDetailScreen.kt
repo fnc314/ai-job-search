@@ -16,11 +16,15 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
+import dev.fnc314.tools.jobtracker.core.designsystem.WindowWidthSizeClass
+import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.data.model.*
 import dev.fnc314.tools.jobtracker.ui.component.StatusBadge
 import dev.fnc314.tools.jobtracker.ui.detail.component.ArtifactsList
 import dev.fnc314.tools.jobtracker.ui.detail.component.EventsTimeline
 import dev.fnc314.tools.jobtracker.util.displayName
+import dev.fnc314.tools.jobtracker.util.formatSemanticTimestamp
 import org.koin.compose.koinInject
 
 @Composable
@@ -164,46 +168,95 @@ fun JobApplicationDetailScreen(
             else -> {
                 val app = state.application
                 val company = state.company
+                val windowSizeClass = LocalWindowSizeClass.current
+                val isWide = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
 
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(padding)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                        .padding(padding),
+                    contentAlignment = Alignment.TopCenter
                 ) {
-                    // Application Summary
-                    ApplicationSummarySection(application = app)
-
-                    // Company Profile
-                    company?.let {
-                        CompanyProfileSection(company = it)
-                    }
-
-                    // Artifacts
-                    SectionHeader("Artifacts")
-                    ArtifactsList(
-                        artifacts = state.artifacts,
-                        onArtifactClick = onArtifactClick,
-                    )
-
-                    // Events Timeline
-                    SectionHeader("Events Timeline")
-                    EventsTimeline(events = state.events)
-
-                    // Notes
-                    app?.notesRendered?.let { notes ->
-                        SectionHeader("Notes")
-                        Card(
+                    if (isWide) {
+                        // 2-column layout for Medium and Expanded viewports
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
+                                .widthIn(max = 1200.dp)
+                                .padding(MaterialTheme.spacing.medium)
+                                .verticalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
                         ) {
-                            Text(
-                                text = notes,
-                                modifier = Modifier.padding(12.dp),
-                                style = MaterialTheme.typography.bodyMedium,
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
+                            ) {
+                                ApplicationSummarySection(application = app)
+                                company?.let { CompanyProfileSection(company = it) }
+                                app?.notesRendered?.let { notes ->
+                                    SectionHeader("Notes")
+                                    OutlinedCard(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = MaterialTheme.shapes.medium,
+                                    ) {
+                                        Text(
+                                            text = notes,
+                                            modifier = Modifier.padding(MaterialTheme.spacing.medium),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                    }
+                                }
+                            }
+
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
+                            ) {
+                                SectionHeader("Artifacts")
+                                ArtifactsList(
+                                    artifacts = state.artifacts,
+                                    onArtifactClick = onArtifactClick,
+                                )
+
+                                SectionHeader("Events Timeline")
+                                EventsTimeline(events = state.events)
+                            }
+                        }
+                    } else {
+                        // 1-column layout for Compact viewports
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+                        ) {
+                            ApplicationSummarySection(application = app)
+                            company?.let { CompanyProfileSection(company = it) }
+
+                            SectionHeader("Artifacts")
+                            ArtifactsList(
+                                artifacts = state.artifacts,
+                                onArtifactClick = onArtifactClick,
                             )
+
+                            SectionHeader("Events Timeline")
+                            EventsTimeline(events = state.events)
+
+                            app?.notesRendered?.let { notes ->
+                                SectionHeader("Notes")
+                                OutlinedCard(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = MaterialTheme.spacing.medium),
+                                    shape = MaterialTheme.shapes.medium,
+                                ) {
+                                    Text(
+                                        text = notes,
+                                        modifier = Modifier.padding(MaterialTheme.spacing.medium),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -217,16 +270,17 @@ fun ApplicationSummarySection(
     application: JobApplication?,
     modifier: Modifier = Modifier,
 ) {
-    Card(
+    OutlinedCard(
+        shape = MaterialTheme.shapes.medium,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = MaterialTheme.spacing.medium),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(MaterialTheme.spacing.medium),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -291,12 +345,15 @@ fun ApplicationSummarySection(
                 )
             }
 
-            application?.createdAt?.let { createdAt ->
-                Text(
-                    text = "Created: ${createdAt.toString().take(19)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            application?.let { app ->
+                val timeLabel = formatSemanticTimestamp(app.updatedAt, app.createdAt)
+                if (timeLabel != null) {
+                    Text(
+                        text = timeLabel,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }
@@ -307,54 +364,41 @@ fun CompanyProfileSection(
     company: Company,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = modifier.padding(horizontal = 16.dp),
-        onClick = { expanded = !expanded },
+    OutlinedCard(
+        shape = MaterialTheme.shapes.medium,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spacing.medium),
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(MaterialTheme.spacing.medium),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {
             Text(
-                text = company.name,
+                text = "Company Profile: ${company.name}",
                 style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
             )
-            Text(
-                text = if (expanded) "▲" else "▼",
-                style = MaterialTheme.typography.labelSmall,
-            )
-        }
-        if (expanded) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                company.website?.let { website ->
-                    Text(
-                        text = "🌐 $website",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-                company.industry?.let { industry ->
-                    Text(
-                        text = "Industry: $industry",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-                if (company.aliases.isNotEmpty()) {
-                    Text(
-                        text = "Also known as: ${company.aliases.joinToString(", ")}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+            company.website?.let { website ->
+                Text(
+                    text = "🌐 $website",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+            company.industry?.let { industry ->
+                Text(
+                    text = "Industry: $industry",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+            if (company.aliases.isNotEmpty()) {
+                Text(
+                    text = "Aliases: ${company.aliases.joinToString(", ")}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }

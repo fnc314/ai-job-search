@@ -8,7 +8,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import dev.fnc314.tools.jobtracker.core.designsystem.JobTrackerTheme
+import dev.fnc314.tools.jobtracker.core.designsystem.ProvideWindowSizeClass
+import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.core.data.model.AuthState
+import dev.fnc314.tools.jobtracker.data.settings.AppSettingsRepository
 import dev.fnc314.tools.jobtracker.di.appModule
 import dev.fnc314.tools.jobtracker.features.signin.data.DefaultAuthRepository
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInScreen
@@ -36,10 +39,12 @@ fun App() {
             }
         ),
     ) {
+        val settingsRepository = koinInject<AppSettingsRepository>()
+        val settings by settingsRepository.settings.collectAsState()
         val systemDark = isSystemInDarkTheme()
-        var settings by remember { mutableStateOf(AppSettings(darkTheme = systemDark)) }
+        val isDark = settings.isDark(systemDark)
 
-        val seedColor = settings.seedColorHex.toColorOrNull() ?: Color(0xFF6750A4)
+        val seedColor = settings.seedColorHex.toColorOrNull() ?: SeedColors.ProfessionalBlue
 
         // Observe auth state from the DefaultAuthRepository singleton
         val authRepository = koinInject<DefaultAuthRepository>()
@@ -56,13 +61,14 @@ fun App() {
         val isAuthenticated = authState is AuthState.Authenticated
 
         JobTrackerTheme(
-            darkTheme = settings.darkTheme,
+            darkTheme = isDark,
             seedColor = seedColor,
         ) {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background,
-            ) {
+            ProvideWindowSizeClass {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
                 if (!isAuthenticated) {
                     // Show sign-in screen when not authenticated
                     val signInViewModel = koinViewModel<SignInViewModel>()
@@ -86,7 +92,7 @@ fun App() {
                                     onAddLeadClick = { navigator.navigateTo(AddLeadRoute) },
                                     onEditsClick = { navigator.navigateTo(EditsRoute) },
                                     settings = settings,
-                                    onSettingsChange = { settings = it },
+                                    onSettingsChange = { settingsRepository.updateSettings(it) },
                                     signInViewModel = signInViewModel,
                                 )
                             }
@@ -117,7 +123,7 @@ fun App() {
                                         navigator.navigateTo(DetailRoute(appId))
                                     },
                                     settings = settings,
-                                    onSettingsChange = { settings = it },
+                                    onSettingsChange = { settingsRepository.updateSettings(it) },
                                 )
                             }
                         }
@@ -132,6 +138,7 @@ fun App() {
             }
         }
     }
+}
 }
 
 private fun String.toColorOrNull(): Color? {

@@ -1,32 +1,55 @@
 package dev.fnc314.tools.jobtracker.ui.settings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import dev.fnc314.tools.jobtracker.core.data.model.AuthState
+import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
+import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInUiState
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
-import dev.fnc314.tools.jobtracker.domain.usecase.SortJobApplicationsUseCase
+import kotlinx.serialization.Serializable
 
+@Serializable
+enum class UiMode {
+    SYSTEM,
+    LIGHT,
+    DARK
+}
+
+@Serializable
 data class AppSettings(
     val showDate: Boolean = true,
     val showCompany: Boolean = true,
     val showStatus: Boolean = true,
     val showFit: Boolean = true,
     val showRole: Boolean = true,
-    val darkTheme: Boolean = false,
-    val dynamicColor: Boolean = true,
-    val seedColorHex: String = "#6750A4",
-)
+    val uiMode: UiMode = UiMode.SYSTEM,
+    val dynamicColor: Boolean = false,
+    val seedColorHex: String = "#2F5597",
+) {
+    fun isDark(systemInDarkTheme: Boolean): Boolean = when (uiMode) {
+        UiMode.SYSTEM -> systemInDarkTheme
+        UiMode.LIGHT -> false
+        UiMode.DARK -> true
+    }
+
+    val darkTheme: Boolean
+        get() = uiMode == UiMode.DARK
+}
 
 @Composable
 fun SettingsDialog(
@@ -36,24 +59,124 @@ fun SettingsDialog(
     viewModel: SignInViewModel? = null,
     modifier: Modifier = Modifier,
 ) {
-    var showColorPicker by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Settings") },
+        title = {
+            Text(
+                text = "Preferences",
+                style = MaterialTheme.typography.headlineSmall
+            )
+        },
         text = {
             Column(
                 modifier = modifier
                     .verticalScroll(rememberScrollState())
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             ) {
+                // Theme & Appearance
+                Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
+                    Text(
+                        text = "Appearance & Theme",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+
+                    // UI Mode Selector (System / Light / Dark)
+                    Text(
+                        text = "UI Mode",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+                    ) {
+                        UiMode.entries.forEach { mode ->
+                            val isSelected = settings.uiMode == mode
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = { onSettingsChange(settings.copy(uiMode = mode)) },
+                                label = {
+                                    Text(
+                                        when (mode) {
+                                            UiMode.SYSTEM -> "System"
+                                            UiMode.LIGHT -> "Light"
+                                            UiMode.DARK -> "Dark"
+                                        }
+                                    )
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Seed Color Swatches
+                    Text(
+                        text = "Accent Color Seed",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        SeedColors.All.forEach { (name, color) ->
+                            val hexString = color.toHexString()
+                            val isSelected = settings.seedColorHex.equals(hexString, ignoreCase = true)
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(color)
+                                    .clickable {
+                                        onSettingsChange(settings.copy(seedColorHex = hexString))
+                                    }
+                                    .semantics { contentDescription = "$name theme color" }
+                                    .then(
+                                        if (isSelected) {
+                                            Modifier.border(
+                                                width = 3.dp,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                shape = CircleShape
+                                            )
+                                        } else {
+                                            Modifier
+                                        }
+                                    )
+                            )
+                        }
+                    }
+
+                    // Custom Seed Hex Field
+                    OutlinedTextField(
+                        value = settings.seedColorHex,
+                        onValueChange = {
+                            keyboardController?.hide()
+                            onSettingsChange(settings.copy(seedColorHex = it))
+                        },
+                        label = { Text("Custom Seed Hex") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = "Custom theme seed color hex value" },
+                        singleLine = true,
+                    )
+                }
+
+                HorizontalDivider()
+
                 // Column visibility
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall)) {
                     Text(
                         text = "Column Visibility",
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                     CheckboxRow(
                         label = "Date",
@@ -89,16 +212,17 @@ fun SettingsDialog(
                     val uiState by viewModel.uiState.collectAsState()
                     val authenticatedUser = (uiState as? SignInUiState.Authenticated)?.user
                     if (authenticatedUser != null) {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)) {
                             Text(
                                 text = "Account",
-                                style = MaterialTheme.typography.titleSmall,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary,
                             )
                             Text(
                                 text = authenticatedUser.displayName ?: authenticatedUser.email ?: "Signed in",
                                 style = MaterialTheme.typography.bodyMedium,
                             )
-                            TextButton(
+                            OutlinedButton(
                                 onClick = {
                                     viewModel.onSignOutClicked()
                                     onDismiss()
@@ -108,56 +232,12 @@ fun SettingsDialog(
                                 Text("Sign Out")
                             }
                         }
-                        HorizontalDivider()
-                    }
-                }
-
-                // Theme settings
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = "Theme",
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                    CheckboxRow(
-                        label = "Dark Mode",
-                        checked = settings.darkTheme,
-                        onCheckedChange = { onSettingsChange(settings.copy(darkTheme = it)) },
-                    )
-                    CheckboxRow(
-                        label = "Dynamic Color (Material You)",
-                        checked = settings.dynamicColor,
-                        onCheckedChange = { onSettingsChange(settings.copy(dynamicColor = it)) },
-                    )
-                    if (!settings.dynamicColor) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = "Seed Color",
-                                modifier = Modifier.weight(1f),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            OutlinedTextField(
-                                value = settings.seedColorHex,
-                                onValueChange = {
-                                    keyboardController?.hide()
-                                    onSettingsChange(settings.copy(seedColorHex = it))
-                                },
-                                label = { Text("Hex") },
-                                modifier = Modifier
-                                    .semantics { contentDescription = "Theme seed color hex value" }
-                                    .width(120.dp),
-                                singleLine = true,
-                            )
-                        }
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(
+            Button(
                 onClick = onDismiss,
                 modifier = Modifier.semantics { contentDescription = "Close settings" },
             ) {
@@ -191,4 +271,14 @@ private fun CheckboxRow(
             modifier = Modifier.weight(1f),
         )
     }
+}
+
+private fun Color.toHexString(): String {
+    val r = (this.red * 255).toInt().coerceIn(0, 255)
+    val g = (this.green * 255).toInt().coerceIn(0, 255)
+    val b = (this.blue * 255).toInt().coerceIn(0, 255)
+    return "#" +
+            r.toString(16).padStart(2, '0') +
+            g.toString(16).padStart(2, '0') +
+            b.toString(16).padStart(2, '0')
 }

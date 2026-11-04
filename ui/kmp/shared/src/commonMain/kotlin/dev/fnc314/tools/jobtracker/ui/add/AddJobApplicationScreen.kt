@@ -51,14 +51,20 @@ fun AddJobApplicationScreen(
             )
         },
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(paddingValues),
+            contentAlignment = Alignment.TopCenter,
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 760.dp)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
             Text(
                 text = "(*) Denotes a required field",
                 style = MaterialTheme.typography.bodySmall,
@@ -202,6 +208,7 @@ fun AddJobApplicationScreen(
             Spacer(modifier = Modifier.height(280.dp))
         }
     }
+}
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

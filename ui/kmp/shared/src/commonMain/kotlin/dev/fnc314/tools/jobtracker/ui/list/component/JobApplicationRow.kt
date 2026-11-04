@@ -1,15 +1,11 @@
 package dev.fnc314.tools.jobtracker.ui.list.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -17,12 +13,9 @@ import androidx.compose.ui.unit.dp
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.ui.component.StatusBadge
-import dev.fnc314.tools.jobtracker.ui.detail.component.formatTimestamp
 import dev.fnc314.tools.jobtracker.util.displayName
-import kotlin.time.Clock
-import kotlin.time.Instant
+import dev.fnc314.tools.jobtracker.util.formatSemanticTimestamp
 
-@OptIn(ExperimentalGridApi::class)
 @Composable
 fun JobApplicationRow(
     application: JobApplication,
@@ -30,89 +23,71 @@ fun JobApplicationRow(
     modifier: Modifier = Modifier,
 ) {
     val statusName = application.status.displayName()
-    val extraSmallGap = MaterialTheme.spacing.extraSmall
-    Grid(
-        config = {
-            column(1.fr)
-            column(GridTrackSize.Auto)
-            gap(row = extraSmallGap, column = extraSmallGap)
-            area(
-                areaId = "company",
-                row = 1,
-                column = 1
-            )
-            area(
-                areaId = "role",
-                row = 2,
-                column = 1,
-            )
-            area(
-                areaId = "status",
-                row = 1,
-                column = 2
-            )
-            area(
-                areaId = "timestamp",
-                row = 2,
-                column = 2,
-            )
-        },
+
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(MaterialTheme.spacing.small)
             .clickable(
                 onClick = onClick,
                 onClickLabel = "View ${application.company} details",
             )
+            .padding(MaterialTheme.spacing.medium)
             .semantics {
-                contentDescription =
-                    "${application.company}, ${application.role ?: "No role"}, $statusName"
+                contentDescription = "${application.company}, ${application.role ?: "No role"}, $statusName"
             },
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
     ) {
-        Text(
-            text = application.company,
-            modifier = Modifier
-                .gridItem(areaId = "company", alignment = Alignment.TopStart)
-                .border(width = 1.dp, color = Color.Red),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Start,
-            maxLines = 1,
-        )
-        application.role?.let {
+        // Top line: Company and Status badge
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(
-                text = it,
-                modifier = Modifier
-                    .gridItem(areaId = "role", alignment = Alignment.BottomStart)
-                    .border(width = 1.dp, color = Color.Red),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Start,
-                maxLines = 2,
+                text = application.company,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f, fill = false),
+                maxLines = 1,
+            )
+            Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
+            StatusBadge(
+                status = application.status,
+                textAlign = TextAlign.End,
+                maxLines = 1,
             )
         }
-        StatusBadge(
-            status = application.status,
-            modifier = Modifier
-                .gridItem(areaId = "status", alignment = Alignment.TopEnd)
-                .border(width = 1.dp, color = Color.Red),
-            textAlign = TextAlign.End,
-            maxLines = 1,
-        )
-        Text(
-            text = when {
-                application.createdAt != null -> "Created ${formatTimestamp(instant = application.createdAt)}"
-                application.updatedAt != null -> "Updated ${formatTimestamp(instant = application.updatedAt)}"
-                else -> "No Time Information"
-            },
-            modifier = Modifier
-                .gridItem(areaId = "timestamp", alignment = Alignment.BottomEnd)
-                .border(width = 1.dp, color = Color.Red),
-            color = MaterialTheme.colorScheme.secondaryFixed,
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.End,
-            maxLines = 2
-        )
-    }
 
+        // Subtitle line: Role and Timestamp / Fit
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            application.role?.let { role ->
+                Text(
+                    text = role,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f, fill = false),
+                    maxLines = 1,
+                )
+            } ?: Spacer(modifier = Modifier.weight(1f))
+
+            Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
+
+            val timeLabel = formatSemanticTimestamp(
+                updatedAt = application.updatedAt,
+                createdAt = application.createdAt,
+            )
+            if (timeLabel != null) {
+                Text(
+                    text = timeLabel,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline,
+                    maxLines = 1,
+                )
+            }
+        }
+    }
 }

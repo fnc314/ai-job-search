@@ -19,6 +19,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
@@ -77,10 +79,19 @@ fun NotesWidget(
         onNotesChanged(filled)
     }
 
-    fun ensureTrailingEmpty() {
-        if (items.isEmpty() || items.last().text.isNotEmpty()) {
-            items.add(NoteItem(text = ""))
+    fun ensureTrailingEmpty(): NoteItem {
+        return if (items.isEmpty() || items.last().text.isNotEmpty()) {
+            val emptyItem = NoteItem(text = "")
+            items.add(emptyItem)
+            emptyItem
+        } else {
+            items.last()
         }
+    }
+
+    fun addNewNoteAndFocus() {
+        val target = ensureTrailingEmpty()
+        focusNewItemId = target.id
     }
 
     fun commitDrafting(index: Int) {
@@ -89,6 +100,8 @@ fun NotesWidget(
                 val newItem = NoteItem(text = "")
                 items.add(newItem)
                 focusNewItemId = newItem.id
+            } else {
+                addNewNoteAndFocus()
             }
             notifyNotesChanged()
         }
@@ -103,11 +116,27 @@ fun NotesWidget(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
         if (label.isNotEmpty()) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                IconButton(
+                    onClick = { addNewNoteAndFocus() },
+                    modifier = Modifier.semantics { contentDescription = "Add new note" }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add new note",
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
         }
 
         items.forEachIndexed { index, item ->
@@ -225,10 +254,16 @@ private fun NoteRow(
 
     LaunchedEffect(requestFocus) {
         if (requestFocus) {
-            delay(50)
-            try {
-                focusRequester.requestFocus()
-            } catch (_: Exception) {}
+            var attempts = 0
+            while (attempts < 10) {
+                try {
+                    focusRequester.requestFocus()
+                    break
+                } catch (_: Exception) {
+                    delay(30)
+                    attempts++
+                }
+            }
             onFocusRequested()
         }
     }
