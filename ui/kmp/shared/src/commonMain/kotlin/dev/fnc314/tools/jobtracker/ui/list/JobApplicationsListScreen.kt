@@ -3,6 +3,11 @@ package dev.fnc314.tools.jobtracker.ui.list
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.Add
+import androidx.compose.material.icons.sharp.Edit
+import androidx.compose.material.icons.sharp.Refresh
+import androidx.compose.material.icons.sharp.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -62,21 +67,36 @@ fun JobApplicationsListScreen(
                 actions = {
                     IconButton(
                         onClick = onEditsClick,
-                        modifier = Modifier.semantics { contentDescription = "View pending edits" },
+                        modifier = Modifier.minimumInteractiveComponentSize()
+                            .semantics { contentDescription = "View pending edits" },
+//                        colors = IconButtonDefaults.outlinedIconButtonColors(
+//                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+//                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+//                        ),
                     ) {
-                        Text("✏️")
+                        Icons.Sharp.Edit
                     }
                     IconButton(
                         onClick = { showSettings = true },
-                        modifier = Modifier.semantics { contentDescription = "Open settings" },
+                        modifier = Modifier.minimumInteractiveComponentSize()
+                            .semantics { contentDescription = "Open settings" },
+//                        colors = IconButtonDefaults.outlinedIconButtonColors(
+//                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+//                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+//                        ),
                     ) {
-                        Text("⚙")
+                        Icons.Sharp.Settings
                     }
                     IconButton(
                         onClick = { viewModel.refresh() },
-                        modifier = Modifier.semantics { contentDescription = "Refresh" },
+                        modifier = Modifier.minimumInteractiveComponentSize()
+                            .semantics { contentDescription = "Refresh" },
+//                        colors = IconButtonDefaults.outlinedIconButtonColors(
+//                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+//                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+//                        ),
                     ) {
-                        Text("↻")
+                        Icons.Sharp.Refresh
                     }
                 },
             )
@@ -90,7 +110,7 @@ fun JobApplicationsListScreen(
                     },
                     modifier = Modifier.semantics { contentDescription = "Add new application" },
                 ) {
-                    Text("+")
+                    Icons.Sharp.Add
                 }
                 DropdownMenu(
                     expanded = fabMenuExpanded,

@@ -166,7 +166,7 @@ private fun com.google.firebase.firestore.DocumentSnapshot.safeGetTimestamp(fiel
         }
         null -> null
         else -> {
-            Log.w(TAG, "safeGetTimestamp: Unknown type for '$field': ${raw?.javaClass?.simpleName}")
+            Log.w(TAG, "safeGetTimestamp: Unknown type for '$field': ${raw.javaClass.simpleName}")
             null
         }
     }
@@ -276,6 +276,7 @@ private fun com.google.firebase.firestore.DocumentSnapshot.toJobApplication(): J
         notesRendered = notesRendered,
         createdAt = createdAt,
         updatedAt = updatedAt,
+        jobApplicationUrl = jobUrl,
     )
 }
 

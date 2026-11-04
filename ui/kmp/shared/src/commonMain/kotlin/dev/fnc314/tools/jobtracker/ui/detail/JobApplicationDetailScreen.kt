@@ -3,6 +3,11 @@ package dev.fnc314.tools.jobtracker.ui.detail
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.sharp.ArrowBack
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.sharp.Edit
+import androidx.compose.material.icons.sharp.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -73,29 +78,52 @@ fun JobApplicationDetailScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = onNavigateBack,
-                        modifier = Modifier.semantics { contentDescription = "Go back" },
+                        modifier = Modifier
+                            .minimumInteractiveComponentSize()
+                            .semantics { contentDescription = "Go back" },
+                        colors = IconButtonDefaults.outlinedIconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
                     ) {
-                        Text("←")
+                        Icons.AutoMirrored.Sharp.ArrowBack
                     }
                 },
                 actions = {
                     IconButton(
                         onClick = { showStatusDialog = true },
-                        modifier = Modifier.semantics { contentDescription = "Update status" },
+                        modifier = Modifier
+                            .minimumInteractiveComponentSize()
+                            .semantics { contentDescription = "Update status" },
+                        colors = IconButtonDefaults.outlinedIconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        ),
                     ) {
-                        Text("📋")
+                        Icons.Sharp.Notifications
                     }
                     IconButton(
                         onClick = { showEventDialog = true },
-                        modifier = Modifier.semantics { contentDescription = "Record event" },
+                        modifier = Modifier
+                            .minimumInteractiveComponentSize()
+                            .semantics { contentDescription = "Record event" },
+                        colors = IconButtonDefaults.outlinedIconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        ),
                     ) {
-                        Text("📝")
+                        Icons.Sharp.Edit
                     }
                     IconButton(
                         onClick = { showFitDialog = true },
-                        modifier = Modifier.semantics { contentDescription = "Update fit score" },
+                        modifier = Modifier
+                            .minimumInteractiveComponentSize()
+                            .semantics { contentDescription = "Update fit score" },
+                        colors = IconButtonDefaults.outlinedIconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        ),
                     ) {
-                        Text("⭐")
+                        Icons.Default.Build
                     }
                 },
             )
