@@ -38,7 +38,7 @@ The command is **silently optional**: when the destination is not reachable, the
 
 Validate the cheap, local precondition before creating anything external. A run with nothing to sync must exit with **zero side effects** - no database created, no state file written.
 
-1. Read `job-scraper/seen_jobs.json` (may be missing) and the tracker via `.venv/bin/python scripts/tracker.py list` (may return zero documents).
+1. Read `job-scraper/seen_jobs.json` (may be missing) and the tracker via `mise run tracker list` (may return zero documents).
 2. Select `seen_jobs.json` entries with status `ranked` whose `rank_score` meets the threshold from Step 0. `--all` lifts the threshold entirely.
 3. Every tracker document joins the sync set (an applied-to job always syncs, ranked or not), matched to `seen_jobs.json` entries case-insensitively on company + role where possible. Tracker documents with no `seen_jobs.json` entry sync too - build their Key as `<company>_<role>` lowercased with underscores.
 4. **Status precedence:** the tracker wins. A job that is `ranked` in `seen_jobs.json` but `interview` in the tracker syncs as `interview`. Jobs only in `seen_jobs.json` keep their stored status.

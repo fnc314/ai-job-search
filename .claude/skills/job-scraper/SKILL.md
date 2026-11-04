@@ -39,7 +39,7 @@ Optional arguments:
 ### Step 0: Load State
 
 1. Read `job-scraper/seen_jobs.json` (create if missing - start with `{"seen": {}}`)
-2. Read the tracker with `.venv/bin/python scripts/tracker.py list` to extract already-applied companies+roles
+2. Read the tracker with `mise run tracker list` to extract already-applied companies+roles
 3. Read `search-queries.md` (this directory) for the search strategy
 
 ### Step 1: Search
@@ -227,14 +227,14 @@ If the run found many new jobs (roughly 8+), also suggest `/rank` - it batch-sco
 
 ### Step 6: Update Tracker (Optional)
 
-Do not create the application record here. `/apply` owns evaluation and drafting, and `/outcome` owns the submission record — it is the one command that knows the application was actually sent. If the user asks to track a job now, point them at `/outcome <company>`, which creates the record through `scripts/tracker.py add`.
+Do not create the application record here. `/apply` owns evaluation and drafting, and `/outcome` owns the submission record — it is the one command that knows the application was actually sent. If the user asks to track a job now, point them at `/outcome <company>`, which creates the record through `mise run tracker add`.
 
 ---
 
 ## Important Rules
 
 1. **Never fabricate job postings.** Only present jobs from actual CLI search/detail output or WebSearch/WebFetch results.
-2. **Respect deduplication.** Always check seen_jobs.json AND the tracker (`scripts/tracker.py list`) before presenting.
+2. **Respect deduplication.** Always check seen_jobs.json AND the tracker (`mise run tracker list`) before presenting.
 3. **Focus on configured geographic area.** Skip jobs that require relocation or are clearly outside commute range.
 4. **Only open positions.** Skip postings with expired deadlines or those marked as closed.
 5. **Be efficient with detail fetches.** Don't run `detail` or WebFetch on every search hit — pre-filter by title/snippet, then fetch only promising matches.

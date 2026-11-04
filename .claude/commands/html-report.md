@@ -6,7 +6,7 @@ Generate a self-contained HTML dashboard from the tracker store and the applicat
 
 - No argument → output to `reports/application-dashboard.html` (and optionally sync to `ui/web/application-dashboard.html` if `ui/web/` exists)
 - A path argument (e.g. `/html-report ~/Desktop/report.html`) → use that path
-- `--open` flag → after writing, tell the user to open the file or spin up `python3 ui/web/application-dashboard-server.py`
+- `--open` flag → after writing, tell the user to open the file or spin up `mise run dashboard`
 
 Create `reports/` if it does not exist.
 
@@ -16,7 +16,7 @@ Create `reports/` if it does not exist.
 
 Read in parallel:
 
-1. **The tracker store** — the primary source. Read it with `.venv/bin/python scripts/tracker.py list`, which returns one JSON document per application with `date`, `company`, `sector`, `role`, `roleType`, `channel`, `status`, `contactPerson`, `fitRating`, `notesRendered`, `source`, plus `artifacts` via `tracker.py get <id>` for the CV and cover-letter paths. `scripts/generate_report.py` already does this and is what `/html-report` should regenerate from.
+1. **The tracker store** — the primary source. Read it with `mise run tracker list`, which returns one JSON document per application with `date`, `company`, `sector`, `role`, `roleType`, `channel`, `status`, `contactPerson`, `fitRating`, `notesRendered`, `source`, plus `artifacts` via `mise run tracker get <id>` for the CV and cover-letter paths. `mise run report` already does this and is what `/html-report` should regenerate from.
 
 2. **`job-applications/*/*/outcome.md`** — for each resolved application, read the outcome file to get the exact interview stages reached (the checkboxes) and any notes. Merge this into the matching tracker document by company+role fuzzy match (lowercase, ignore punctuation). If an archive exists for a row but there is no match, attach it as extra context anyway.
 
@@ -116,7 +116,7 @@ Then present:
 >
 > Open it directly in any browser, or spin up the local preview server:
 > ```bash
-> python3 ui/web/application-dashboard-server.py
+> mise run dashboard
 > ```
 >
 > **Summary:**

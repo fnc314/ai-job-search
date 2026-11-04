@@ -22,7 +22,7 @@ Follow these steps **in order**.
 ## Step 1: Load State
 
 1. Read `job-scraper/seen_jobs.json`. If the file is missing or has no entries, tell the user to run `/scrape` first and stop.
-2. Read the tracker with `.venv/bin/python scripts/tracker.py list` (JSON). Build the exclusion set: any company+role already in the tracker is out of scope regardless of flags - it has been applied to or consciously tracked.
+2. Read the tracker with `mise run tracker list` (JSON). Build the exclusion set: any company+role already in the tracker is out of scope regardless of flags - it has been applied to or consciously tracked.
 3. Select candidates: entries with status `new` (or all non-applied entries with `--all`), minus the exclusion set, filtered by the focus area if one was given.
 4. If no candidates remain, say so ("Nothing new to rank - run /scrape to find fresh postings") and stop.
 5. Read the scoring framework and profile **once**:

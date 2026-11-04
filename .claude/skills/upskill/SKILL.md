@@ -34,7 +34,7 @@ In targeted mode, derive a slug from the job title and company for the report fi
 ## Step 2: Load Data
 
 ### Aggregate mode
-1. Read the tracker with `.venv/bin/python scripts/tracker.py list` (JSON). Each document carries `date`, `company`, `sector`, `role`, `roleType`, `channel`, `status`, `contactPerson`, `fitRating`, and `notesRendered`.
+1. Read the tracker with `mise run tracker list` (JSON). Each document carries `date`, `company`, `sector`, `role`, `roleType`, `channel`, `status`, `contactPerson`, `fitRating`, and `notesRendered`.
 2. For each document, note the `role`, `company`, and `fitRating`. `fitRating` is a 0–100 score where 100 = perfect fit. You will use it to weight gaps — a lower fit rating means the role exposed more gaps.
 3. Read `.claude/skills/job-application-assistant/01-candidate-profile.md` to get the candidate's current skills and experience.
 4. Check `upskill/` for the most recent aggregate report file (`report-YYYY-MM-DD.md`) — if one exists, note its date and load it for the diff in Step 8.

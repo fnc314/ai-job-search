@@ -39,7 +39,7 @@ If neither is available/active, instruct the user to connect Gmail (Composio `CO
 Check the queue first:
 
 ```bash
-TRACKER_ALLOW_WRITES=0 .venv/bin/python scripts/tracker.py proposals list --state proposal:pending
+TRACKER_ALLOW_WRITES=0 mise run tracker proposals list --state proposal:pending
 ```
 
 `proposals list` is read-only and needs no opt-in. If the user asked to fetch, go to Step 3 even when the queue is non-empty — do not silently switch modes.
@@ -48,7 +48,7 @@ TRACKER_ALLOW_WRITES=0 .venv/bin/python scripts/tracker.py proposals list --stat
 
 ## Step 2: Load Tracked Applications
 
-1. Read the tracker with `.venv/bin/python scripts/tracker.py list --open`. If it returns no documents, tell the user there is nothing to sync against yet (suggest `/outcome` or `/apply` first) and stop. `/gmail-sync` never originates new applications.
+1. Read the tracker with `mise run tracker list --open`. If it returns no documents, tell the user there is nothing to sync against yet (suggest `/outcome` or `/apply` first) and stop. `/gmail-sync` never originates new applications.
 2. For each open application, note `id`, `company`, `role`, and current `status`; the collector uses these to match and classify, and the review table quotes them.
 3. If `$ARGUMENTS` named a company, filter this set case-insensitively. No match → say so and stop; do not guess.
 
@@ -74,7 +74,7 @@ The default scope is all four job-search inbox areas:
 Sub-labels are expanded from the inventory stored by the previous sync, because Gmail has no `label:JOBS/*` wildcard. Read it first:
 
 ```bash
-.venv/bin/python scripts/tracker.py labels
+mise run tracker labels
 ```
 
 That returns `{count, labels: [{id, name, type}]}` from `meta/sync.gmail.labels`. If the list is empty (first run, or a wipe), fall back to the label whose name contains "job", "application", or "career" from this run's `GMAIL_LIST_LABELS` / `list_labels`, and record the full inventory so the next run can enumerate.
@@ -159,11 +159,11 @@ Write the label inventory beside it, from this run's `GMAIL_LIST_LABELS` / `list
 Preview, then stage:
 
 ```bash
-TRACKER_ALLOW_WRITES=0 .venv/bin/python scripts/tracker.py collect --dry-run --labels generated/gmail-labels.json
-TRACKER_ALLOW_WRITES=1 .venv/bin/python scripts/tracker.py collect --trigger trigger:manual --labels generated/gmail-labels.json
+TRACKER_ALLOW_WRITES=0 mise run tracker collect --dry-run --labels generated/gmail-labels.json
+TRACKER_ALLOW_WRITES=1 mise run tracker collect --trigger trigger:manual --labels generated/gmail-labels.json
 ```
 
-`--labels` stores the inventory in `meta/sync.gmail.labels` (with `labelsSeenAt`), which is what `tracker.py labels` and the next `--label` call enumerate. It is written even when no proposal is staged, so a quiet fetch still teaches the next run which labels exist.
+`--labels` stores the inventory in `meta/sync.gmail.labels` (with `labelsSeenAt`), which is what `mise run tracker labels` and the next `--label` call enumerate. It is written even when no proposal is staged, so a quiet fetch still teaches the next run which labels exist.
 
 `collect` matches and classifies deterministically, stages **one** proposal, and writes `meta/sync` (processed message ids + watermark). It writes `pending-proposals` and `meta/sync` and nothing else. It never creates, updates, or closes an application.
 
@@ -176,8 +176,8 @@ If the result says `staged: false`, report the reason (`no new messages`, `no me
 Everything below is the human half.
 
 ```bash
-.venv/bin/python scripts/tracker.py proposals list --state proposal:pending
-.venv/bin/python scripts/tracker.py proposals show <proposalId>
+mise run tracker proposals list --state proposal:pending
+mise run tracker proposals show <proposalId>
 ```
 
 Present every pending proposal as one table. The collector's `changes[]` already carries the matched application, the event type, the current and proposed status, the confidence, and the source email; quote them rather than re-deriving anything:
@@ -222,7 +222,7 @@ Stop and wait. Nothing is written before the reply.
 Approval is a single command; it emits one event per selected change and updates the derived fields in the same batch, so a partly-applied proposal cannot exist:
 
 ```bash
-TRACKER_ALLOW_WRITES=1 .venv/bin/python scripts/tracker.py proposals approve <proposalId> --only 1,3 --note "reviewed 2026-10-31"
+TRACKER_ALLOW_WRITES=1 mise run tracker proposals approve <proposalId> --only 1,3 --note "reviewed 2026-10-31"
 ```
 
 `--only` takes the 1-based row numbers from Step 4. Omit it to approve everything. The result reports `approved` and `skipped` (unselected rows, already-matching statuses, deleted applications) — never claim a row was written without seeing it under `approved`.
@@ -230,7 +230,7 @@ TRACKER_ALLOW_WRITES=1 .venv/bin/python scripts/tracker.py proposals approve <pr
 For a rejection or a batch the user declines entirely:
 
 ```bash
-.venv/bin/python scripts/tracker.py proposals reject <proposalId> --reason "not a status change"
+mise run tracker proposals reject <proposalId> --reason "not a status change"
 ```
 
 Rejecting writes nothing to `applications`. The message ids stay processed, so the same mail is not re-proposed.

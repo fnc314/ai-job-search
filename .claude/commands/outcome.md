@@ -2,12 +2,12 @@
 
 You are recording what happened to a job application: progress updates (interview invitations, stages completed, offers) and final resolutions (hired, rejected, no response). The data lands in two places the framework already reads but nothing systematically writes:
 
-- the tracker store (Firestore, written through `scripts/tracker.py`) - the status and event history that `/scrape` and `/rank` use for dedup and exclusion
+- the tracker store (Firestore, written through `mise run tracker`) - the status and event history that `/scrape` and `/rank` use for dedup and exclusion
 - `job-applications/<Company>/<Role>/<YYYY-MM-DD>/` - the per-application archive (posting, submitted drafts, `outcome.md`) that `/setup` Path A mines to calibrate `04-job-evaluation.md` and surface STAR candidates
 
 `/outcome` writes the data; `/setup` interprets it. This command never edits the evaluation framework or profile files itself.
 
-**Every tracker write goes through `scripts/tracker.py`.** Never hand-edit a document, and never write `job_search_tracker.csv` — that file is a frozen snapshot from the 2026-10 migration, and nothing updates it (see `docs/tracker-migration.md`).
+**Every tracker write goes through `mise run tracker`.** Never hand-edit a document, and never write `job_search_tracker.csv` — that file is a frozen snapshot from the 2026-10 migration, and nothing updates it (see `docs/tracker-migration.md`).
 
 The command also owns the stretch *before* there is an outcome to record: the **follow-up branch** (Step 2b) surfaces open applications that have gone quiet, drafts a brief follow-up note in the user's voice, and logs it - so the chase and the resolution it eventually leads to live in one flow.
 
@@ -29,10 +29,10 @@ Follow these steps **in order**.
 
 ## Step 1: Load State and Identify the Application
 
-1. Read the record with `.venv/bin/python scripts/tracker.py list --open` (optionally `--limit N`). It prints JSON: each document carries `id`, `company`, `role`, `date`, `status`, `fitRating`, plus derived `counters` and `timeline`.
+1. Read the record with `mise run tracker list --open` (optionally `--limit N`). It prints JSON: each document carries `id`, `company`, `role`, `date`, `status`, `fitRating`, plus derived `counters` and `timeline`.
 2. **With an argument:** match documents case-insensitively on company (and role, if given). One match → proceed. Several → list them and ask. None → the application was made outside the workflow; collect company, role, date applied, channel, and posting URL from the user, then create the record with a JSON payload:
    ```bash
-   TRACKER_ALLOW_WRITES=1 .venv/bin/python scripts/tracker.py add --json - <<'JSON'
+   TRACKER_ALLOW_WRITES=1 mise run tracker add --json - <<'JSON'
    {
      "company": "Acme",
      "role": "Staff Android Engineer",
@@ -94,7 +94,7 @@ Enter this branch from the `followup` argument (Step 0) or from the offer under 
 
 - Append a `event:follow-up-sent` event:
   ```bash
-  TRACKER_ALLOW_WRITES=1 .venv/bin/python scripts/tracker.py event <applicationId> --type event:follow-up-sent --date YYYY-MM-DD --note "followed up via <channel>"
+  TRACKER_ALLOW_WRITES=1 mise run tracker event <applicationId> --type event:follow-up-sent --date YYYY-MM-DD --note "followed up via <channel>"
   ```
   The event increments `counters.followUpsSent` and resets `timeline.daysSinceActivity`; nothing needs to parse a note to recount.
 - Save the final note as `followup_YYYY-MM-DD.md` in the application's archive folder. Safe by documented convention: `/setup` reads only the four named archive files and ignores extras (the same rule that covers `/interview`'s prep files), and `job-applications/**` is gitignored personal data.
@@ -109,7 +109,7 @@ If the user decides not to send, log nothing.
 
 Create or update `job-applications/<Company>/<Role>/<YYYY-MM-DD>/`. All content here is personal data - the folder is already gitignored (`job-applications/**`), so nothing needs redacting.
 
-1. **`main_<company>_<role>.tex` and `cover_<company>_<role>.tex`** - copy (never move) the submitted files. Locate them via `.venv/bin/python scripts/tracker.py get <applicationId>` → `artifacts[]` with `kind: artifact:cv` / `artifact:cover-letter` (each carries `localPath`, `driveUrl`, or `externalUrl`); if those are empty, look in the application's dated folder. If a file already exists in the archive, leave it - the archived version is what was actually submitted. If no draft files exist (application made outside `/apply`), skip with a note.
+1. **`main_<company>_<role>.tex` and `cover_<company>_<role>.tex`** - copy (never move) the submitted files. Locate them via `mise run tracker get <applicationId>` → `artifacts[]` with `kind: artifact:cv` / `artifact:cover-letter` (each carries `localPath`, `driveUrl`, or `externalUrl`); if those are empty, look in the application's dated folder. If a file already exists in the archive, leave it - the archived version is what was actually submitted. If no draft files exist (application made outside `/apply`), skip with a note.
 2. **`job_posting.md`** - if it already exists, leave it. Otherwise try WebFetch on the tracker row's `source` URL and save the posting text. If the URL is dead (postings expire fast - this is exactly why the archive matters), ask the user to paste the posting, or write a stub noting the posting is unavailable. **Never reconstruct a posting from memory.**
 3. **`outcome.md`** - write or update it in exactly the format documented in `documents/README.md`, so `/setup` Path A parses it without special cases:
 
@@ -144,13 +144,13 @@ Record the change as an **event**. The record is an append-only log, so the upda
 
 **Status change (funnel moved):**
 ```bash
-TRACKER_ALLOW_WRITES=1 .venv/bin/python scripts/tracker.py status <applicationId> <status> --date YYYY-MM-DD --note "<what happened>"
+TRACKER_ALLOW_WRITES=1 mise run tracker status <applicationId> <status> --date YYYY-MM-DD --note "<what happened>"
 ```
 The CLI namespaces the status, emits the matching event (`event:interview-scheduled`, `event:rejection`, …), updates `isOpen`, recomputes `notesRendered`, and queues a Gmail sync check two hours out.
 
 **Activity that does not move the funnel** (follow-up sent, interview completed, assessment taken):
 ```bash
-TRACKER_ALLOW_WRITES=1 .venv/bin/python scripts/tracker.py event <applicationId> --type event:follow-up-sent --date YYYY-MM-DD --note "..."
+TRACKER_ALLOW_WRITES=1 mise run tracker event <applicationId> --type event:follow-up-sent --date YYYY-MM-DD --note "..."
 ```
 
 **Corrections.** If the stored status is simply wrong, pass `--correction`; it emits `event:status-corrected` instead of pretending the funnel moved. A no-op status call is refused for the same reason.
@@ -206,7 +206,7 @@ If the recorded status is `hired`, congratulate the user warmly first - this is 
 1. **Write data, don't interpret it.** The archive and tracker are the outputs; calibration belongs to `/setup`. This command never edits profile or framework files.
 2. **The archived version is the submitted version.** Existing files in the application folder are never overwritten by fresher drafts.
 3. **Never fabricate.** A dead posting URL gets a user-pasted copy or an explicit "unavailable" stub, not a reconstruction. Feedback is recorded as the user reports it.
-4. **Stay schema-compatible.** `outcome.md` follows the format in `documents/README.md` exactly (`in_progress` is the one addition, for open applications); every tracker write goes through `scripts/tracker.py`, which validates against `tracker.schema.json`.
+4. **Stay schema-compatible.** `outcome.md` follows the format in `documents/README.md` exactly (`in_progress` is the one addition, for open applications); every tracker write goes through `mise run tracker`, which validates against `tracker.schema.json`.
 5. **Idempotent updates.** Re-running on the same application appends new stages and notes; it never duplicates folders, rows, or history.
 6. **Follow-ups: draft only, never send.** The follow-up branch produces text for the user to send themselves. It never emails, messages, or submits anything, and it must not be wired to tools that do.
 7. **Follow-ups: no new claims.** Every substantive statement in a follow-up or thank-you note comes from the archived submitted materials. Rule 3 applies with no exceptions.

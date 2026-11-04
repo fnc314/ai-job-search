@@ -37,7 +37,7 @@ Read the evaluation framework:
 Using the framework from `04-job-evaluation.md`, evaluate the job posting against the candidate's profile. If the salary lookup tool is configured, run:
 
 ```bash
-python salary_lookup.py "<Company Name>" --json
+mise run salary "<Company Name>" --json
 ```
 
 If the posting specifies a city, add `--city "<City>"` to narrow results. Parse the JSON output and include the salary benchmark in the evaluation. If the tool is not configured or returns an error, skip the salary benchmark.
@@ -70,10 +70,10 @@ Once the fit is calculated in Step 1, even before drafting begins, ensure the ev
 
     If the file exists, append a "## Initial Fit Evaluation" section.
 3.  **Update Tracker**: Record the score against the application **if it already exists** in the tracker:
-    - Find its id with `.venv/bin/python scripts/tracker.py list --open` and matching the company (and role) case-insensitively. One match → use that id. Several → list them and ask. None → do not create anything (wait for `/outcome`, which owns the submission record).
+    - Find its id with `mise run tracker list --open` and matching the company (and role) case-insensitively. One match → use that id. Several → list them and ask. None → do not create anything (wait for `/outcome`, which owns the submission record).
     - Then write the score:
       ```bash
-      TRACKER_ALLOW_WRITES=1 .venv/bin/python scripts/tracker.py score <applicationId> --fit <score> --note "initial evaluation"
+      TRACKER_ALLOW_WRITES=1 mise run tracker score <applicationId> --fit <score> --note "initial evaluation"
       ```
     This appends `event:fit-recalculated` and updates `fitRating`; it never moves the funnel. The previous rating is kept in the event's `metadata.previousFitRating`, so a recalculation is auditable rather than an overwrite. Use `--dry-run` to see the event without writing.
 
