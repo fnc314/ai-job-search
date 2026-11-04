@@ -55,16 +55,16 @@ def readAll(db) -> dict:
 
     # The TUI shows a review badge; the cache must carry it too, or an offline
     # reader would claim there is nothing waiting when there is.
-    pendingProposals = [
-        {
-            "proposalId": document.get("proposalId"),
-            "createdAt": document.get("createdAt"),
-            "changes": len(document.get("changes") or []),
-            "unmatched": len(document.get("unmatched") or []),
-        }
-        for document in db.collection(client.PENDING_PROPOSALS).stream()
-        if document.to_dict().get("state") == "proposal:pending"
-    ]
+    pendingProposals = []
+    for snapshot in db.collection(client.PENDING_PROPOSALS).stream():
+        doc_dict = contract.fromFirestore(snapshot.to_dict())
+        if doc_dict.get("state") == "proposal:pending":
+            pendingProposals.append({
+                "proposalId": doc_dict.get("proposalId"),
+                "createdAt": doc_dict.get("createdAt"),
+                "changes": len(doc_dict.get("changes") or []),
+                "unmatched": len(doc_dict.get("unmatched") or []),
+            })
     return {
         "generatedAt": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "schemaVersion": contract.schemaVersion(),
@@ -82,7 +82,7 @@ def save(payload: dict, path: pathlib.Path | None = None) -> pathlib.Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_suffix(destination.suffix + ".tmp")
     temporary.write_text(
-        json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=False) + "\n",
+        json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=False, default=str) + "\n",
         encoding="utf-8",
     )
     os.replace(temporary, destination)

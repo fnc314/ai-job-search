@@ -7,6 +7,10 @@ import kotlinx.coroutines.tasks.await
 import kotlin.time.Clock
 import kotlin.time.Instant
 import android.util.Log
+import kotlinx.collections.immutable.immutableListOf
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 
 private const val COLLECTION_APPLICATIONS = "applications"
 private const val COLLECTION_COMPANIES = "companies"
@@ -88,9 +92,29 @@ class AndroidFirestoreJobApplicationRepository : JobApplicationRepository {
                 "status" to statusToFirestore(status),
                 "updatedAt" to com.google.firebase.Timestamp(Clock.System.now().toJavaInstant())
             )
-            if (date != null) updates["statusDate"] = date
-            if (note != null) updates["statusNote"] = note
             docRef.update(updates).await()
+            if (note != null || date != null) {
+                val eventId = java.util.UUID.randomUUID().toString()
+                val nowInstant = Clock.System.now().toJavaInstant()
+                val eventMap = mutableMapOf<String, Any>(
+                    "eventId" to eventId,
+                    "applicationId" to id,
+                    "type" to "event:status-changed",
+                    "statusTo" to statusToFirestore(status),
+                    "actor" to "actor:user",
+                    "derivedFrom" to "manual",
+                    "confidence" to "high",
+                    "ts" to com.google.firebase.Timestamp(nowInstant),
+                    "date" to (date ?: java.time.format.DateTimeFormatter.ISO_INSTANT.format(nowInstant))
+                )
+                if (note != null) eventMap["note"] = note
+                db.collection(COLLECTION_APPLICATIONS)
+                    .document(id)
+                    .collection(SUBCOLLECTION_EVENTS)
+                    .document(eventId)
+                    .set(eventMap)
+                    .await()
+            }
             getJobApplication(id) ?: Factory.createJobApplication(
                 id = id,
                 company = "",
@@ -123,7 +147,7 @@ class AndroidFirestoreJobApplicationRepository : JobApplicationRepository {
     override suspend fun updateFitScore(id: String, score: Int): JobApplication {
         return try {
             val docRef = db.collection(COLLECTION_APPLICATIONS).document(id)
-            docRef.update("fitScore", score).await()
+            docRef.update("fitRating", score).await()
             getJobApplication(id) ?: Factory.createJobApplication(
                 id = id,
                 company = "",
@@ -235,7 +259,7 @@ private fun com.google.firebase.firestore.DocumentSnapshot.toJobApplication(): J
     val fitRating = (get("fitRating") as? Number)?.toInt()
     val fitEvaluation = fitEvaluationMap?.toTrackerFit() ?: run {
         if (fitRating != null) {
-            TrackerFit(rubricVersion = fitRating, evaluatedAt = null, gaps = emptyList())
+            TrackerFit(rubricVersion = fitRating, evaluatedAt = null, gaps = persistentListOf())
         } else {
             null
         }
@@ -266,8 +290,8 @@ private fun com.google.firebase.firestore.DocumentSnapshot.toJobApplication(): J
         jobId = jobId,
         jobUrl = jobUrl,
         description = description,
-        tags = tags,
-        contactIds = contactIds,
+        tags = tags.toImmutableList(),
+        contactIds = contactIds.toImmutableList(),
         compensation = compensation,
         locationDetail = locationDetail,
         fitEvaluation = fitEvaluation,
@@ -319,7 +343,7 @@ private fun Map<String, Any>.toTrackerFit(): TrackerFit? {
     return TrackerFit(
         rubricVersion = (get("rubricVersion") as? Number)?.toInt() ?: 1,
         evaluatedAt = (get("evaluatedAt") as? com.google.firebase.Timestamp)?.toInstant()?.toKotlinInstant(),
-        gaps = (get("gaps") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+        gaps = ((get("gaps") as? List<*>)?.filterIsInstance<String>())?.toPersistentList() ?: persistentListOf(),
     )
 }
 
@@ -366,7 +390,11 @@ private fun JobApplication.toMap(): Map<String, Any> {
 
 private fun TrackerEvent.toMap(): Map<String, Any> {
     val map = mutableMapOf<String, Any>()
-    map["applicationId"] = applicationId
+    val nowTs = createdAt?.let { com.google.firebase.Timestamp(it.toJavaInstant()) }
+        ?: com.google.firebase.Timestamp(Clock.System.now().toJavaInstant())
+    map["eventId"] = id
+    map["ts"] = nowTs
+    map["date"] = nowTs.toDate().toInstant().toString()
     map["type"] = eventTypeToFirestore(type)
     statusFrom?.let { map["statusFrom"] = statusToFirestore(it) }
     statusTo?.let { map["statusTo"] = statusToFirestore(it) }
@@ -375,7 +403,6 @@ private fun TrackerEvent.toMap(): Map<String, Any> {
     map["actor"] = actorToFirestore(actor)
     map["derivedFrom"] = derivedFromToFirestore(derivedFrom)
     map["confidence"] = confidenceToFirestore(confidence)
-    createdAt?.let { map["createdAt"] = com.google.firebase.Timestamp(it.toJavaInstant()) }
     return map
 }
 
@@ -498,20 +525,20 @@ private fun actorToFirestore(actor: EventActor): String {
 
 private fun derivedFromToFirestore(derived: DerivedFrom): String {
     return when (derived) {
-        DerivedFrom.MANUAL -> "derived:manual"
-        DerivedFrom.NOTES_REGEX -> "derived:notes-regex"
-        DerivedFrom.EMAIL -> "derived:email"
-        DerivedFrom.CSV_IMPORT -> "derived:csv-import"
-        else -> "derived:unspecified"
+        DerivedFrom.MANUAL -> "manual"
+        DerivedFrom.NOTES_REGEX -> "notes-regex"
+        DerivedFrom.EMAIL -> "gmail"
+        DerivedFrom.CSV_IMPORT -> "csv-import"
+        else -> "manual"
     }
 }
 
 private fun confidenceToFirestore(confidence: Confidence): String {
     return when (confidence) {
-        Confidence.HIGH -> "confidence:high"
-        Confidence.MEDIUM -> "confidence:medium"
-        Confidence.LOW -> "confidence:low"
-        else -> "confidence:unspecified"
+        Confidence.HIGH -> "high"
+        Confidence.MEDIUM -> "medium"
+        Confidence.LOW -> "low"
+        else -> "high"
     }
 }
 

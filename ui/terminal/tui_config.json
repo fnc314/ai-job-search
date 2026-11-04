@@ -1,5 +1,6 @@
 {
   "columns": [
+    {"key": "id", "label": "ID", "width": 25, "visible": true},
     {"key": "date", "label": "Date", "width": 12},
     {"key": "company", "label": "Company", "width": 20},
     {"key": "status", "label": "Status", "width": 12},

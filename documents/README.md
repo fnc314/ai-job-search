@@ -17,9 +17,9 @@ templates/
 ├── cover-letters/               # Cover letter templates
 │   ├── cover_example.tex
 │   └── cover_<company>_<role>.tex
-job-applications/                # Past job applications
-└── <Company>/
-    └── <Role>/
+job-applications/                # Past job applications (lower-kebab-case)
+└── <company>/
+    └── <role>/
         └── <YYYY-MM-DD>/
             ├── job_posting.md
             ├── main_<company>_<role>.tex

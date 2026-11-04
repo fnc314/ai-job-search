@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.fnc314.tools.jobtracker.data.model.*
 import dev.fnc314.tools.jobtracker.ui.component.StatusBadge
@@ -85,7 +86,7 @@ fun JobApplicationDetailScreen(
                             contentColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Icons.AutoMirrored.Sharp.ArrowBack
+                        Icon(Icons.AutoMirrored.Sharp.ArrowBack, contentDescription = "Go back")
                     }
                 },
                 actions = {
@@ -99,7 +100,7 @@ fun JobApplicationDetailScreen(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                         ),
                     ) {
-                        Icons.Sharp.Notifications
+                        Icon(Icons.Sharp.Notifications, contentDescription = "Update status")
                     }
                     IconButton(
                         onClick = { showEventDialog = true },
@@ -111,7 +112,7 @@ fun JobApplicationDetailScreen(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                         ),
                     ) {
-                        Icons.Sharp.Edit
+                        Icon(Icons.Sharp.Edit, contentDescription = "Record event")
                     }
                     IconButton(
                         onClick = { showFitDialog = true },
@@ -123,7 +124,7 @@ fun JobApplicationDetailScreen(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                         ),
                     ) {
-                        Icons.Default.Build
+                        Icon(Icons.Default.Build, contentDescription = "Update fit score")
                     }
                 },
             )
@@ -238,7 +239,7 @@ fun ApplicationSummarySection(
                     modifier = Modifier.weight(1f),
                 )
                 application?.status?.let { status ->
-                    StatusBadge(status = status)
+                    StatusBadge(status = status, textAlign = TextAlign.End)
                 }
             }
 

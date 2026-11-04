@@ -10,6 +10,7 @@ import textwrap
 import threading
 import time
 import traceback
+import subprocess
 from pathlib import Path
 
 try:
@@ -107,6 +108,7 @@ def log_crash(exc: BaseException) -> None:
 
 DEFAULT_CONFIG = {
     "columns": [
+        {"key": "id", "label": "ID", "width": 25, "visible": True},
         {"key": "date", "label": "Date", "width": 12, "visible": True},
         {"key": "company", "label": "Company", "width": 20, "visible": True},
         {"key": "status", "label": "Status", "width": 12, "visible": True},
@@ -146,6 +148,9 @@ def load_config():
                 for key, val in DEFAULT_CONFIG.items():
                     if key not in config:
                         config[key] = val
+                existing_keys = {c.get("key") for c in config.get("columns", [])}
+                if "id" not in existing_keys:
+                    config["columns"].insert(0, {"key": "id", "label": "ID", "width": 25, "visible": True})
                 return config
         except Exception:
             pass
@@ -159,6 +164,9 @@ def load_config():
                 for key, val in DEFAULT_CONFIG.items():
                     if key not in config:
                         config[key] = val
+                existing_keys = {c.get("key") for c in config.get("columns", [])}
+                if "id" not in existing_keys:
+                    config["columns"].insert(0, {"key": "id", "label": "ID", "width": 25, "visible": True})
                 return config
         except Exception:
             pass
@@ -733,6 +741,8 @@ def get_column_widths(rows, cols_config):
             if key == "fit_rating" and not val:
                 val = "?? RECALC"
             max_w = max(max_w, len(val))
+        if key == "id":
+            max_w = min(max_w, 28)
         widths[key] = max_w
     return widths
 
@@ -790,14 +800,31 @@ def load_detail_lines(row, max_width):
     raw_entries = [] # List of (text, file_path_or_url)
     
     # Application summary
+    app_id = row.get('id', '')
+    raw_entries.append((f"ID:      {app_id}", None))
+    uuid_val = row.get('uuid')
+    if uuid_val:
+        raw_entries.append((f"UUID:    {uuid_val}", None))
     raw_entries.append((f"COMPANY: {row.get('company')}", None))
     raw_entries.append((f"ROLE:    {row.get('role')}", None))
     raw_entries.append((f"DATE:    {row.get('date')}", None))
     raw_entries.append((f"STATUS:  {row.get('status')} (Fit: {row.get('fit_rating')})", None))
     raw_entries.append((f"NOTES:   {row.get('notes')}", None))
+    job_url = row.get('job_url')
+    if job_url:
+        raw_entries.append((f"JOB URL: {job_url}", job_url))
+    app_url = row.get('job_application_url')
+    if app_url:
+        raw_entries.append((f"APP URL: {app_url}", app_url))
+    contact_person = row.get('contact_person')
+    if contact_person:
+        raw_entries.append((f"CONTACT: {contact_person}", None))
+    contact_email = row.get('contact_email')
+    if contact_email:
+        raw_entries.append((f"EMAIL:   {contact_email}", None))
     source_url = row.get('source')
     if source_url:
-        raw_entries.append((f"URL:     {source_url}", source_url))
+        raw_entries.append((f"SOURCE:  {source_url}", source_url))
     raw_entries.append(("", None))
     
     # Company profile from Firestore (merged by reader.py as _company)
@@ -1065,6 +1092,67 @@ def _show_loading(stdscr, message, is_light_theme, no_color, data_thread: thread
     return False
 
 
+EDIT_FIELDS = [
+    {"key": "company", "label": "Company", "vital": True},
+    {"key": "role", "label": "Role", "vital": False},
+    {"key": "status", "label": "Status", "vital": True, "is_status": True},
+    {"key": "date", "label": "Date", "vital": True, "is_date": True},
+    {"key": "job_url", "label": "Job URL", "vital": False, "is_url": True},
+    {"key": "job_application_url", "label": "Job Application URL", "vital": False, "is_url": True},
+    {"key": "contact_person", "label": "Contact Person", "vital": False},
+    {"key": "contact_email", "label": "Contact Email", "vital": False},
+    {"key": "fit_rating", "label": "Fit Rating", "vital": False, "is_num": True},
+    {"key": "notes", "label": "Notes", "vital": False},
+]
+
+
+def _tui_prompt_input(stdscr, prompt: str, initial: str, y: int, x: int, max_w: int, attr: int) -> str | None:
+    """Prompt user for a single line of input inside curses.
+
+    Supports typing, Backspace, Delete, Left/Right arrow, Enter (accept), Esc (cancel).
+    Returns the entered string, or None if cancelled.
+    """
+    curses.curs_set(1)
+    buf = list(initial or "")
+    cursor_pos = len(buf)
+
+    while True:
+        line_str = f"{prompt}{''.join(buf)}"
+        safe_addstr(stdscr, y, x, line_str[:max_w-1].ljust(max_w-1), attr)
+        target_x = min(x + len(prompt) + cursor_pos, max_w - 2)
+        try:
+            stdscr.move(y, target_x)
+        except curses.error:
+            pass
+        stdscr.refresh()
+
+        ch = stdscr.getch()
+        if ch in (10, 13):  # Enter
+            curses.curs_set(0)
+            return "".join(buf)
+        elif ch == 27:  # Esc
+            curses.curs_set(0)
+            return None
+        elif ch in (curses.KEY_BACKSPACE, 127, 8):
+            if cursor_pos > 0:
+                buf.pop(cursor_pos - 1)
+                cursor_pos -= 1
+        elif ch == curses.KEY_DC:  # Delete
+            if cursor_pos < len(buf):
+                buf.pop(cursor_pos)
+        elif ch == curses.KEY_LEFT:
+            cursor_pos = max(0, cursor_pos - 1)
+        elif ch == curses.KEY_RIGHT:
+            cursor_pos = min(len(buf), cursor_pos + 1)
+        elif ch == curses.KEY_HOME:
+            cursor_pos = 0
+        elif ch == curses.KEY_END:
+            cursor_pos = len(buf)
+        elif 32 <= ch <= 126:
+            buf.insert(cursor_pos, chr(ch))
+            cursor_pos += 1
+
+
 def main(stdscr, preloaded_rows=None, preloaded_error=None):
     """Main curses loop.
 
@@ -1178,6 +1266,11 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
     in_settings = False
     in_file_view = False
     settings_idx = 0
+    in_edit = False
+    edit_idx = 0
+    edit_row = {}
+    edit_target_row_idx = 0
+    edit_error = ""
     
     active_selection_idx = None
     focused_pane = "LIST" # "LIST" or "DETAILS"
@@ -1239,6 +1332,34 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                     safe_addstr(stdscr, 2 + i, 2, line, c_default)
             
             footer_text = f" Theme: {'Light' if is_light_theme else 'Dark'} | Split-View: {'ON' if config['split_mode'] else 'OFF'} "
+            safe_addstr(stdscr, h - 1, 0, footer_text.ljust(w)[:w-1], c_footer)
+
+        elif in_edit:
+            # --- EDIT RECORD VIEW ---
+            app_id = edit_row.get("id", "")
+            header_text = f" EDIT APPLICATION | {app_id} | [j/k]: Move | [Enter]: Edit | [s]: Save | [Esc]: Cancel "
+            safe_addstr(stdscr, 0, 0, header_text.ljust(w)[:w-1], c_header)
+
+            if edit_error:
+                safe_addstr(stdscr, 2, 2, f" ERROR: {edit_error}".ljust(w-4)[:w-4], curses.A_BOLD | curses.color_pair(3))
+            else:
+                safe_addstr(stdscr, 2, 2, " Select a field to modify its value. Vital fields (*) cannot be emptied.".ljust(w-4)[:w-4], c_default)
+
+            total_items = len(EDIT_FIELDS) + 2
+            for i, fdef in enumerate(EDIT_FIELDS):
+                vital_mark = " *" if fdef["vital"] else ""
+                val = str(edit_row.get(fdef["key"], "") or "")
+                display_val = val if val else "(empty)"
+                line = f" {i+1:>2}. {fdef['label']}{vital_mark}: {display_val}"
+                attr = c_selected if i == edit_idx else c_default
+                safe_addstr(stdscr, 4 + i, 2, line.ljust(w-4)[:w-4], attr)
+
+            save_idx = len(EDIT_FIELDS)
+            cancel_idx = len(EDIT_FIELDS) + 1
+            safe_addstr(stdscr, 4 + save_idx + 1, 2, " [s] Save Changes to Tracker ".ljust(w-4)[:w-4], c_selected if edit_idx == save_idx else c_header)
+            safe_addstr(stdscr, 4 + cancel_idx + 1, 2, " [Esc] Cancel and Discard Changes ".ljust(w-4)[:w-4], c_selected if edit_idx == cancel_idx else c_default)
+
+            footer_text = f" Editing: {app_id} | [Enter]: Edit | [s]: Commit to Tracker | [Esc]: Back "
             safe_addstr(stdscr, h - 1, 0, footer_text.ljust(w)[:w-1], c_footer)
 
         elif in_detail and not config["split_mode"]:
@@ -1385,7 +1506,7 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                 filter_hint = " [a]: All "
             else:
                 filter_hint = " [l]: Leads | [o]: Open | [r]: Rejected | [a]: All "
-            footer_text = f"{filter_hint}[j/k]: Nav | [Enter]: Detail | [c]: Config | [t]: Theme | [q]: Quit "
+            footer_text = f"{filter_hint}[j/k]: Nav | [Enter]: Detail | [e]: Edit | [c]: Config | [t]: Theme | [q]: Quit "
             safe_addstr(stdscr, h - 1, 0, footer_text.ljust(w)[:w-1], c_footer)
             
             if is_split:
@@ -1426,6 +1547,9 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                 in_file_view = False
             elif in_settings:
                 in_settings = False
+            elif in_edit:
+                in_edit = False
+                edit_error = ""
             elif in_detail:
                 in_detail = False
             elif active_selection_idx is not None:
@@ -1455,6 +1579,93 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                 config["columns"] = cols_config
                 save_config(config)
                 in_settings = False
+        elif in_edit:
+            total_items = len(EDIT_FIELDS) + 2
+            if key in [curses.KEY_DOWN, ord('j')]:
+                edit_idx = (edit_idx + 1) % total_items
+            elif key in [curses.KEY_UP, ord('k')]:
+                edit_idx = (edit_idx - 1) % total_items
+            elif key == ord('s') or (key in [10, 13] and edit_idx == len(EDIT_FIELDS)):
+                # Save changes
+                vital_errs = []
+                if not edit_row.get("company") or not str(edit_row.get("company")).strip():
+                    vital_errs.append("Company is required and cannot be empty.")
+                if not edit_row.get("status"):
+                    vital_errs.append("Status is required and cannot be empty.")
+                if not edit_row.get("date"):
+                    vital_errs.append("Date is required and cannot be empty.")
+                if vital_errs:
+                    edit_error = " ".join(vital_errs)
+                    continue
+
+                cmd = [
+                    sys.executable,
+                    str(REPO_ROOT / "scripts" / "tracker.py"),
+                    "edit",
+                    "--app-id", str(edit_row.get("id", "")),
+                    "--company", str(edit_row.get("company", "")),
+                    "--status", str(edit_row.get("status", "")),
+                    "--date", str(edit_row.get("date", "")),
+                ]
+                if edit_row.get("role"):
+                    cmd.extend(["--role", str(edit_row["role"])])
+                if edit_row.get("job_url"):
+                    cmd.extend(["--job-url", str(edit_row["job_url"])])
+                if edit_row.get("job_application_url"):
+                    cmd.extend(["--job-application-url", str(edit_row["job_application_url"])])
+                if edit_row.get("contact_person"):
+                    cmd.extend(["--contact-person", str(edit_row["contact_person"])])
+                if edit_row.get("contact_email"):
+                    cmd.extend(["--contact-email", str(edit_row["contact_email"])])
+                if edit_row.get("fit_rating") not in (None, ""):
+                    cmd.extend(["--fit-rating", str(edit_row["fit_rating"])])
+
+                try:
+                    proc = subprocess.run(cmd, capture_output=True, text=True, env=os.environ.copy())
+                    if proc.returncode == 0:
+                        if edit_target_row_idx < len(display_rows):
+                            display_rows[edit_target_row_idx].update(edit_row)
+                        if edit_row.get("id") in detail_cache:
+                            del detail_cache[edit_row["id"]]
+                        in_edit = False
+                        edit_error = ""
+                        log("Application %s edited successfully via TUI", edit_row.get("id"))
+                    else:
+                        edit_error = proc.stderr.strip() or proc.stdout.strip() or "Failed to update record"
+                except Exception as ex:
+                    edit_error = f"Error saving: {ex}"
+            elif key in [10, 13]:
+                if edit_idx < len(EDIT_FIELDS):
+                    fdef = EDIT_FIELDS[edit_idx]
+                    curr_val = str(edit_row.get(fdef["key"], "") or "")
+                    prompt_str = f" Enter {fdef['label']}: "
+                    new_val = _tui_prompt_input(stdscr, prompt_str, curr_val, 4 + edit_idx, 2, w - 4, c_selected)
+                    if new_val is not None:
+                        new_val = new_val.strip()
+                        if fdef["vital"] and not new_val:
+                            edit_error = f"Validation Error: {fdef['label']} cannot be empty."
+                        elif fdef.get("is_url") and new_val:
+                            sys.path.insert(0, str(REPO_ROOT / "scripts"))
+                            import urls
+                            cleaned_url = urls.clean_url(new_val)
+                            edit_row[fdef["key"]] = cleaned_url
+                            edit_error = ""
+                        elif fdef.get("is_num") and new_val:
+                            try:
+                                n = int(new_val)
+                                if 0 <= n <= 100:
+                                    edit_row[fdef["key"]] = str(n)
+                                    edit_error = ""
+                                else:
+                                    edit_error = "Fit rating must be between 0 and 100."
+                            except ValueError:
+                                edit_error = "Fit rating must be an integer."
+                        else:
+                            edit_row[fdef["key"]] = new_val
+                            edit_error = ""
+                elif edit_idx == len(EDIT_FIELDS) + 1:
+                    in_edit = False
+                    edit_error = ""
         elif in_detail and not config["split_mode"]:
             if key == ord('r') and rows:
                 try:
@@ -1522,6 +1733,14 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                             in_file_view = True
         else:
             if key == ord('c'): in_settings = True
+            elif key == ord('e') and display_rows:
+                target_idx = active_selection_idx if active_selection_idx is not None else current_row
+                target_idx = max(0, min(target_idx, len(display_rows) - 1))
+                edit_target_row_idx = target_idx
+                edit_row = dict(display_rows[target_idx])
+                edit_idx = 0
+                edit_error = ""
+                in_edit = True
             elif key == ord('l'):
                 active_filter = 'lead'
                 current_row = 0

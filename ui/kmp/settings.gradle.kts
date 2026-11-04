@@ -25,13 +25,6 @@ projectCollections {
     }
 }
 
-dependencyResolutionManagement {
-    repositories {
-        maven {
-            name = "localRecords"
-            url = file("../../.m2").toURI()
-        }
-    }
-}
+includeBuild("../../records")
 
 include(":shared")

@@ -48,7 +48,7 @@ Follow these steps **in order**.
    - `channel` must be a `channel:*` value from `tracker.schema.json`. If the source is not a recognised ATS, use `channel:other` and keep the human label in `metadata.legacyChannel`.
    - `status` accepts the legacy labels below; the CLI namespaces them.
 3. **Without an argument:** list every open application (`--open`) as a numbered table (company, role, date applied, current status, days quiet, follow-ups sent) and ask which to update. **Days quiet** is `timeline.daysSinceActivity`; **follow-ups sent** is `counters.followUpsSent`. Both are computed from the event log — never re-parse prose to derive them. If any open record is 10+ days quiet with fewer than two follow-ups, add one line under the table: "Some of these have gone quiet - want a follow-up draft? (Step 2b)". If every record is resolved, say so and stop.
-4. Derive the archive folder path: `job-applications/<Company>/<Role>/<YYYY-MM-DD>/` (Title-Case with underscores for spaces, dated subdirectory — the convention documented in `documents/README.md`). Check whether the folder and an `outcome.md` already exist - if so, you are updating, not creating.
+4. Derive the archive folder path: `job-applications/<company>/<role>/<YYYY-MM-DD>/` (lower-kebab-case, stripping stop words and corporate suffixes, dated subdirectory — the convention documented in `documents/README.md`). Check whether the folder and an `outcome.md` already exist - if so, you are updating, not creating.
 
 ---
 

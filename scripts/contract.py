@@ -16,6 +16,8 @@ import uuid
 
 import jsonschema
 
+from urls import clean_url
+
 SCHEMA_PATH = pathlib.Path(__file__).resolve().parent.parent / "tracker.schema.json"
 
 # Crockford base32 is gone; identifiers are UUIDv7. This is the canonical
@@ -76,65 +78,73 @@ _DIR_CONTRACTIONS = {
     "ios": "iOS",
 }
 
+_DIR_CONTRACTIONS = {
+    "sr": "senior",
+    "sr.": "senior",
+    "jr": "junior",
+    "jr.": "junior",
+    "asst": "assistant",
+    "asst.": "assistant",
+    "assoc": "associate",
+    "assoc.": "associate",
+}
+
+_STOP_WORDS = {"the", "a", "an", "of", "and"}
+_CORP_SUFFIXES = {"inc", "llc", "corp", "corporation", "ltd", "co", "company"}
 _DIR_BAD_WORDS = {"the", "a", "an", "of", "and", "or", "in", "on", "at", "to", "for"}
 
-# Roman numerals that should stay uppercase (common in job titles: Level II, III, IV, V)
-_ROMAN_NUMERALS = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"}
+# Roman numerals
+_ROMAN_NUMERALS = {"i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"}
 
 
 def normalize_dir_name(raw: str) -> str:
-    """Normalize a company or role name for use in directory paths.
+    """Normalize a company or role name for use in lower-kebab-case directory paths.
+
+    Rules:
+      1. Strip parentheticals following a word like ' (MLB)'.
+      2. Expand title contractions ('sr.' -> 'senior', 'jr.' -> 'junior', etc.).
+      3. Strip stop words ('the', 'a', 'an', 'of', 'and') and corporate suffixes ('inc', 'llc', etc.).
+      4. Convert to lower-kebab-case.
 
     Example transformations:
-        "Sr. Software Engineer, Android"  ->  "Senior_Software_Engineer_Android"
-        "staff-android-engineer"          ->  "Staff_Android_Engineer"
-        "Sr-Mobile-Engineer-Android"      ->  "Senior_Mobile_Engineer_Android"
-        "EBay"                            ->  "EBay"
-        "onX"                             ->  "OnX"
+        "The Washington Post"             ->  "washington-post"
+        "Scout Motors Inc."               ->  "scout-motors"
+        "Sr. Software Engineer, Android"  ->  "senior-software-engineer-android"
+        "Major League Baseball (MLB)"     ->  "major-league-baseball"
+        "Snap Inc."                       ->  "snap"
+        "EBay"                            ->  "ebay"
+        "onX"                             ->  "onx"
     """
     if not raw:
         return ""
 
-    text = raw.strip()
+    text = re.sub(r"(?<=\w)\s*\([A-Za-z0-9]+\)", "", raw.strip())
+    normalized = unicodedata.normalize("NFKD", text)
+    asciiOnly = normalized.encode("ascii", "ignore").decode("ascii")
+    raw_slug = _SLUG_STRIP.sub("-", asciiOnly.lower().strip()).strip("-")
+    if not raw_slug:
+        return ""
+    tokens = raw_slug.split("-")
 
-    # 1. Replace commas with hyphens (so "Engineer, Android" becomes "Engineer-Android")
-    text = text.replace(",", "-")
-
-    # 2. Remove stray leading punctuation or special chars
-    text = re.sub(r"^[^a-zA-Z0-9]+", "", text)
-    text = re.sub(r"[^a-zA-Z0-9]+$", "", text)
-
-    # 3. Strip non-alphanumeric characters except spaces, hyphens, underscores, dots
-    #    (removes &, @, #, etc.)
-    text = re.sub(r"[^\w\s\-\.\_]", "", text)
-
-    # 4. Split on any non-alphanumeric boundary (hyphens, underscores, spaces, dots)
-    tokens = re.split(r"[\s_\-\.]+", text)
-
-    # 5. Expand contractions and title-case each token
     expanded = []
     for token in tokens:
         if not token:
             continue
-        lower = token.lower()
-        if lower in _DIR_CONTRACTIONS:
-            # Contractions may expand to multiple words
-            expanded.extend(_DIR_CONTRACTIONS[lower].split(" "))
-        elif token.upper() in _ROMAN_NUMERALS:
-            # Preserve Roman numerals (II, III, IV, V, etc.) as uppercase
-            expanded.append(token.upper())
+        if token in _DIR_CONTRACTIONS:
+            expanded.append(_DIR_CONTRACTIONS[token])
         else:
-            expanded.append(token.title())
+            expanded.append(token)
 
-    # 5. Deduplicate adjacent identical words (case-insensitive)
+    filtered = [w for w in expanded if w not in _STOP_WORDS and w not in _CORP_SUFFIXES]
+    final_tokens = filtered or expanded
+
     deduped = []
-    for word in expanded:
-        if deduped and deduped[-1].lower() == word.lower():
+    for word in final_tokens:
+        if deduped and deduped[-1] == word:
             continue
         deduped.append(word)
 
-    # 6. Join with underscores
-    return "_".join(deduped)
+    return "-".join(deduped)
 
 _CACHE: dict | None = None
 _VALIDATORS: dict[str, jsonschema.Draft202012Validator] = {}
@@ -249,12 +259,14 @@ def isTerminal(status: str) -> bool:
 
 
 def slug(value: str, fallback: str = "") -> str:
-    """ASCII kebab slug, used for companyId and document IDs."""
+    """ASCII kebab slug, used for companyId and document IDs.
+    
+    Normalizes to lower-kebab-case, stripping stop words ('the', 'a', 'an', 'of', 'and'),
+    corporate suffixes ('inc', 'llc', etc.), and parentheticals like '(MLB)'.
+    """
     if not value:
         return fallback
-    normalized = unicodedata.normalize("NFKD", value)
-    asciiOnly = normalized.encode("ascii", "ignore").decode("ascii")
-    return _SLUG_STRIP.sub("-", asciiOnly.lower().strip()).strip("-") or fallback
+    return normalize_dir_name(value) or fallback
 
 
 def documentId(company: str, role: str | None) -> str:

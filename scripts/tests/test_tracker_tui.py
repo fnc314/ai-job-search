@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 tui_spec = importlib.util.spec_from_file_location(
     "tracker_tui",
@@ -18,15 +18,21 @@ tui_spec.loader.exec_module(tui_mod)
 
 
 class TrackerTuiTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if "TRACKER_SOURCE" not in os.environ:
+            os.environ["TRACKER_SOURCE"] = "cache"
+
     def test_load_config_loads_defaults(self):
         config = tui_mod.load_config()
         self.assertIn("columns", config)
         self.assertIn("theme", config)
         self.assertIn("split_mode", config)
         self.assertTrue(any(c["key"] == "company" for c in config["columns"]))
+        self.assertTrue(any(c["key"] == "id" for c in config["columns"]))
 
     def test_load_data_finds_tracker(self):
-        rows = tui_mod.load_data()
+        rows, _ = tui_mod.load_data()
         self.assertIsInstance(rows, list)
         self.assertGreater(len(rows), 0, "Expected records from the tracker store")
         sample = rows[0]
@@ -45,7 +51,7 @@ class TrackerTuiTests(unittest.TestCase):
         previous = os.environ.get("TRACKER_SOURCE")
         os.environ["TRACKER_SOURCE"] = "cache" if (REPO_ROOT / "generated" / "tracker-cache.json").exists() else "store"
         try:
-            rows = tui_mod.load_data()
+            rows, _ = tui_mod.load_data()
         finally:
             if previous is None:
                 os.environ.pop("TRACKER_SOURCE", None)
@@ -93,6 +99,8 @@ class TrackerTuiTests(unittest.TestCase):
 
     def test_load_detail_lines(self):
         row = {
+            "id": "openai--android-engineer",
+            "uuid": "018f6c5b-1234-7890-abcd-ef0123456789",
             "company": "OpenAI",
             "role": "Android Engineer Applied Foundations",
             "date": "2026-10-27",
@@ -100,10 +108,23 @@ class TrackerTuiTests(unittest.TestCase):
             "fit_rating": "5",
             "notes": "Testing",
             "source": "https://openai.com",
+            "job_url": "https://openai.com/careers/123",
+            "job_application_url": "https://jobs.ashbyhq.com/openai/123/apply",
         }
         lines = tui_mod.load_detail_lines(row, max_width=80)
         self.assertIsInstance(lines, list)
         self.assertTrue(any("COMPANY: OpenAI" in text for text, _ in lines))
+        self.assertTrue(any("ID:" in text and "openai--android-engineer" in text for text, _ in lines))
+        self.assertTrue(any("UUID:" in text and "018f6c5b-1234-7890-abcd-ef0123456789" in text for text, _ in lines))
+        self.assertTrue(any("JOB URL:" in text and "https://openai.com/careers/123" in text for text, _ in lines))
+        self.assertTrue(any("APP URL:" in text and "https://jobs.ashbyhq.com/openai/123/apply" in text for text, _ in lines))
+
+    def test_edit_fields_configured(self):
+        field_keys = [f["key"] for f in tui_mod.EDIT_FIELDS]
+        self.assertIn("job_url", field_keys)
+        self.assertIn("job_application_url", field_keys)
+        self.assertIn("status", field_keys)
+        self.assertIn("notes", field_keys)
 
 
 if __name__ == "__main__":

@@ -111,7 +111,7 @@ class TestImporter(unittest.TestCase):
 
     def test_channel_free_text_maps_or_falls_back(self):
         byId = {payload["id"]: payload for payload in self.payloads}
-        snap = byId["major-league-baseball-mlb--senior-android-engineer-mlb-app-feature-teams"]
+        snap = byId["major-league-baseball--senior-android-engineer-app-feature-teams"]
         self.assertEqual(snap["channel"], "channel:other")
         self.assertEqual(snap["metadata"]["legacyChannel"], "MLB careers site")
         workday = next(
@@ -333,13 +333,13 @@ class TestArtifacts(unittest.TestCase):
     def test_blob_path_uses_canonical_structure(self):
         self.assertEqual(
             artifacts.blobPath("Acme", "Staff Engineer", "2026-10-31", "artifact:cv", "main.pdf"),
-            "applications/Acme/Staff_Engineer/2026-10-31/main.pdf",
+            "applications/acme/staff-engineer/2026-10-31/main.pdf",
         )
 
     def test_blob_path_normalizes_names(self):
         self.assertEqual(
             artifacts.blobPath("PNC Financial Services", "Sr. Android Engineer", "2026-10-31", "artifact:cv", "main.pdf"),
-            "applications/Pnc_Financial_Services/Senior_Android_Engineer/2026-10-31/main.pdf",
+            "applications/pnc-financial-services/senior-android-engineer/2026-10-31/main.pdf",
         )
 
 

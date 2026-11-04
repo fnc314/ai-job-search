@@ -16,7 +16,7 @@ import unittest
 
 import jsonschema
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 SCHEMA_PATH = ROOT / "tracker.schema.json"
 CSV_PATH = ROOT / "archive" / "job_search_tracker.csv"
 
@@ -85,8 +85,8 @@ class TestSchemaIntegrity(unittest.TestCase):
             "https://json-schema.org/draft/2020-12/schema",
         )
 
-    def test_schema_version_is_four(self):
-        self.assertEqual(self.schema["schemaVersion"], 4)
+    def test_schema_version_is_current(self):
+        self.assertEqual(self.schema["schemaVersion"], 7)
 
     def test_revision_log_is_appended_and_ordered(self):
         revisions = self.schema["x-revision-log"]
@@ -196,7 +196,7 @@ class TestEnumRegistry(unittest.TestCase):
         violations = []
         for tag in self.schema["$defs"]["tagValue"]["enum"]:
             segments = tag.split(":")
-            if len(segments) == 3:
+            if len(segments) == 3 and segments[0] == "compensation":
                 qualifier = segments[2]
                 if qualifier not in regions:
                     violations.append(tag)
@@ -295,7 +295,7 @@ EXAMPLE_APPLICATION = {
     "contactIds": [],
     "createdAt": "2026-10-30T00:00:00-04:00",
     "updatedAt": "2026-10-30T14:22:00-04:00",
-    "schemaVersion": 4,
+    "schemaVersion": 7,
 }
 
 

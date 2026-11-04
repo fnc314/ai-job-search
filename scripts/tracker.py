@@ -41,6 +41,7 @@ import importer  # noqa: E402
 import proposals as proposalsModule  # noqa: E402
 import sheets  # noqa: E402
 import tasks  # noqa: E402
+import alignment  # noqa: E402
 
 EXIT_OK = 0
 EXIT_ERROR = 1
@@ -581,11 +582,15 @@ def buildApplication(payload: dict, *, now: str | None = None) -> tuple[dict, li
             tags.append(tag)
 
     source, sourceMetadata = flattenSource(payload.get("source"))
+    jobUrl = contract.clean_url(payload.get("jobUrl"))
+    jobApplicationUrl = contract.clean_url(payload.get("jobApplicationUrl"))
+    uuid = payload.get("uuid") or contract.newUuid()
     metadata = dict(payload.get("metadata") or {})
     metadata.update(sourceMetadata)
 
     document = {
         "id": applicationId,
+        "uuid": uuid,
         "date": eventsModule.normalizeDate(str(date)),
         "company": company,
         "companyId": payload.get("companyId") or contract.slug(company),
@@ -595,6 +600,8 @@ def buildApplication(payload: dict, *, now: str | None = None) -> tuple[dict, li
         "channel": normalizeChannel(payload.get("channel")),
         "contactPerson": payload.get("contactPerson") or None,
         "contactEmail": payload.get("contactEmail") or None,
+        "jobUrl": jobUrl or None,
+        "jobApplicationUrl": jobApplicationUrl or None,
         "fitRating": payload.get("fitRating"),
         "source": source,
         "tags": tags,
@@ -652,7 +659,7 @@ def mergeApplication(existing: dict, payload: dict, *, now: str) -> dict:
             mergedTags.append(tag)
     mergedPayload["tags"] = mergedTags
 
-    for key in ("companyId", "sector", "roleType", "channel", "contactPerson", "contactEmail", "source"):
+    for key in ("companyId", "sector", "roleType", "channel", "contactPerson", "contactEmail", "source", "jobUrl", "jobApplicationUrl", "uuid"):
         if mergedPayload.get(key) in (None, "") and existing.get(key) is not None:
             mergedPayload[key] = existing[key]
     if mergedPayload.get("fitRating") is None:
@@ -1250,6 +1257,448 @@ def commandUpsert(args) -> int:
     return EXIT_OK
 
 
+def kebab_to_camel(kebab: str) -> str:
+    """Convert kebab-case string (e.g. job-application-url) to camelCase (jobApplicationUrl)."""
+    parts = kebab.lstrip("-").split("-")
+    return parts[0] + "".join(p.capitalize() for p in parts[1:])
+
+
+def parse_dynamic_flags(extra_args: list[str]) -> dict:
+    """Parse dynamic kebab-case CLI flags into camelCase dictionary."""
+    parsed = {}
+    tokens = [t for t in extra_args if t != "--"]
+    i = 0
+    while i < len(tokens):
+        token = tokens[i]
+        if token.startswith("--"):
+            if "=" in token:
+                key, val = token[2:].split("=", 1)
+                parsed[kebab_to_camel(key)] = val
+                i += 1
+            elif i + 1 < len(tokens) and not tokens[i + 1].startswith("--"):
+                key = token[2:]
+                parsed[kebab_to_camel(key)] = tokens[i + 1]
+                i += 2
+            else:
+                key = token[2:]
+                parsed[kebab_to_camel(key)] = True
+                i += 1
+        else:
+            i += 1
+    return parsed
+
+
+def findApplication(db, identifier: str) -> tuple[dict, any] | tuple[None, None]:
+    """Find an application document by id slug or uuid.
+
+    Returns (document_dict, doc_reference).
+    """
+    if not identifier:
+        return None, None
+    ref = db.collection(client.APPLICATIONS).document(identifier)
+    snap = ref.get()
+    if snap.exists:
+        return contract.fromFirestore(snap.to_dict()), ref
+
+    # Try query by uuid field
+    results = list(
+        db.collection(client.APPLICATIONS)
+        .where(filter=FieldFilter("uuid", "==", identifier))
+        .limit(1)
+        .stream()
+    )
+    if results:
+        return contract.fromFirestore(results[0].to_dict()), results[0].reference
+
+    # Try query by internal id field (handles case where Firestore doc key is misaligned)
+    results = list(
+        db.collection(client.APPLICATIONS)
+        .where(filter=FieldFilter("id", "==", identifier))
+        .limit(1)
+        .stream()
+    )
+    if results:
+        return contract.fromFirestore(results[0].to_dict()), results[0].reference
+
+    return None, None
+
+
+def _select_application_inline(db) -> str | None:
+    """Display an in-line list of existing records and ask user to select 1."""
+    sys.stderr.write("\nFetching applications...\n")
+    apps = []
+    for doc in db.collection(client.APPLICATIONS).stream():
+        data = contract.fromFirestore(doc.to_dict())
+        apps.append(data)
+
+    if not apps:
+        sys.stderr.write("No applications found in the tracker.\n")
+        return None
+
+    apps.sort(key=lambda a: (a.get("date", ""), a.get("company", "")), reverse=True)
+
+    sys.stderr.write(f"\n=== Existing Applications ({len(apps)}) ===\n")
+    for i, a in enumerate(apps, 1):
+        status_clean = _strip_namespace(a.get("status", ""))
+        comp = a.get("company", "Unknown")
+        role = a.get("role", "Unknown")
+        aid = a.get("id", "")
+        uuid_str = a.get("uuid", "")
+        uuid_short = f" [uuid: {uuid_str[:8]}]" if uuid_str else ""
+        sys.stderr.write(f"  {i:>2}. [{status_clean}] {comp} - {role} (id: {aid}{uuid_short})\n")
+
+    sys.stderr.write("\n")
+    while True:
+        choice = _read_line(f"Select application [1-{len(apps)}] (or enter ID / 'q' to cancel): ")
+        if not choice or choice.lower() == "q":
+            return None
+        if choice.isdigit():
+            num = int(choice)
+            if 1 <= num <= len(apps):
+                return apps[num - 1]["id"]
+            sys.stderr.write(f"Invalid selection. Choose between 1 and {len(apps)}.\n")
+            continue
+
+        for a in apps:
+            if a.get("id") == choice or a.get("uuid") == choice:
+                return a.get("id")
+        sys.stderr.write(f"No application matched {choice!r}.\n")
+
+
+def interactiveEdit(existing: dict, draft_updates: dict | None = None) -> dict | None:
+    """Present a settings-like interactive menu of fields and current values."""
+    if not sys.stdin.isatty():
+        raise contract.ContractError("interactive mode requires a terminal.")
+
+    draft = dict(existing)
+    if draft_updates:
+        draft.update(draft_updates)
+
+    fields = [
+        ("Company", "company", True),
+        ("Role", "role", False),
+        ("Status", "status", True),
+        ("Date", "date", True),
+        ("Job URL", "jobUrl", False),
+        ("Job Application URL", "jobApplicationUrl", False),
+        ("Channel", "channel", False),
+        ("Contact Person", "contactPerson", False),
+        ("Contact Email", "contactEmail", False),
+        ("Fit Rating", "fitRating", False),
+        ("Location", "location", False),
+        ("Tags", "tags", False),
+    ]
+
+    while True:
+        sys.stderr.write(f"\n=== Edit Application: {existing.get('id')} ===\n")
+        if existing.get("uuid"):
+            sys.stderr.write(f"UUID: {existing.get('uuid')}\n")
+        sys.stderr.write("\n")
+
+        for idx, (label, key, is_vital) in enumerate(fields, 1):
+            val = draft.get(key)
+            if key == "status":
+                display_val = _strip_namespace(str(val or ""))
+            elif key == "location" and isinstance(val, dict):
+                display_val = ", ".join(filter(None, [val.get("city"), val.get("region")])) or "(none)"
+            elif key == "tags" and isinstance(val, list):
+                display_val = ", ".join(val) or "(none)"
+            elif val is None or val == "":
+                display_val = "(empty)"
+            else:
+                display_val = str(val)
+            vital_indicator = " *" if is_vital else ""
+            sys.stderr.write(f"  {idx:>2}. {label}{vital_indicator}: {display_val}\n")
+
+        save_idx = len(fields) + 1
+        cancel_idx = len(fields) + 2
+        sys.stderr.write(f"\n  {save_idx:>2}. [Save and Exit]\n")
+        sys.stderr.write(f"  {cancel_idx:>2}. [Cancel / Discard Changes]\n")
+        sys.stderr.write("\n")
+
+        choice = _read_line(f"Select field to edit [1-{cancel_idx}] (default={save_idx}): ")
+        if not choice or choice == str(save_idx):
+            vital_errors = []
+            if not draft.get("company") or not str(draft.get("company")).strip():
+                vital_errors.append("Company is required and cannot be empty.")
+            if not draft.get("status"):
+                vital_errors.append("Status is required and cannot be empty.")
+            if not draft.get("date"):
+                vital_errors.append("Date is required and cannot be empty.")
+            if vital_errors:
+                sys.stderr.write("\nValidation failed:\n")
+                for err in vital_errors:
+                    sys.stderr.write(f"  - {err}\n")
+                continue
+            return {key: draft[key] for _, key, _ in fields if key in draft}
+
+        if choice == str(cancel_idx) or choice.lower() in ("q", "cancel"):
+            return None
+
+        if not choice.isdigit():
+            sys.stderr.write(f"Please enter a number 1-{cancel_idx}.\n")
+            continue
+
+        sel = int(choice)
+        if not (1 <= sel <= len(fields)):
+            sys.stderr.write(f"Please enter a number 1-{cancel_idx}.\n")
+            continue
+
+        label, key, is_vital = fields[sel - 1]
+        current_val = draft.get(key)
+        sys.stderr.write(f"\nEditing {label} (current: {current_val or '(empty)'}):\n")
+
+        if key == "status":
+            new_status = _prompt_status_menu(draft.get("status") or "status:drafting")
+            draft["status"] = new_status
+        elif key == "channel":
+            new_channel = _prompt_channel_menu()
+            if new_channel:
+                draft["channel"] = new_channel
+        elif key == "tags":
+            current_tags = draft.get("tags") or []
+            new_tags = _prompt_tags(pre_selected=current_tags)
+            draft["tags"] = new_tags
+        elif key in ("jobUrl", "jobApplicationUrl"):
+            new_url = _read_line(f"  {label} (Enter to keep, '-' to clear): ")
+            if new_url == "-":
+                draft[key] = None
+            elif new_url:
+                cleaned = contract.clean_url(new_url)
+                draft[key] = cleaned
+                sys.stderr.write(f"  -> Cleaned URL: {cleaned}\n")
+        else:
+            new_val = _read_line(f"  {label} (Enter to keep, '-' to clear): ")
+            if new_val == "-":
+                if is_vital:
+                    sys.stderr.write(f"  Error: {label} is a vital field and cannot be emptied.\n")
+                else:
+                    draft[key] = None
+            elif new_val:
+                if key == "fitRating":
+                    try:
+                        fit_num = int(new_val)
+                        if 0 <= fit_num <= 100:
+                            draft["fitRating"] = fit_num
+                        else:
+                            sys.stderr.write("  Fit rating must be between 0 and 100.\n")
+                    except ValueError:
+                        sys.stderr.write("  Invalid integer for fit rating.\n")
+                elif key == "date":
+                    try:
+                        draft["date"] = eventsModule.normalizeDate(new_val)
+                    except Exception as e:
+                        sys.stderr.write(f"  Invalid date: {e}\n")
+                elif key == "company":
+                    draft["company"] = new_val.strip()
+                elif key == "location":
+                    draft["location"] = {"city": new_val.strip()}
+                else:
+                    draft[key] = new_val.strip()
+
+
+def commandEdit(args, extra_args: list[str] | None = None) -> int:
+    target_id = getattr(args, "app_id", None) or getattr(args, "id", None)
+    extra_flags = parse_dynamic_flags(extra_args or [])
+
+    # Disallow modifying unique ID
+    for forbidden in ("id", "appId", "uuid"):
+        if forbidden in extra_flags:
+            raise contract.ContractError("The unique ID (id / uuid) of a record cannot be modified.")
+
+    db = client.getDb()
+
+    # If interactive and no ID provided, prompt inline selection
+    if getattr(args, "interactive", False) and not target_id:
+        target_id = _select_application_inline(db)
+        if not target_id:
+            sys.stderr.write("Edit cancelled.\n")
+            return EXIT_OK
+
+    if not target_id:
+        raise contract.ContractError("Application ID is required (use --app-id=<id> or <id>, or -i to select)")
+
+    existing, ref = findApplication(db, target_id)
+    if not existing:
+        raise contract.ContractError(f"Application not found: {target_id}")
+
+    # Gather updates
+    updates = {}
+    for attr in ("company", "role", "status", "date", "channel", "contact_person", "contact_email",
+                 "job_url", "job_application_url", "fit_rating", "location", "sector", "role_type", "source"):
+        val = getattr(args, attr, None)
+        if val is not None:
+            camel_k = kebab_to_camel(attr.replace("_", "-"))
+            if camel_k in ("jobUrl", "jobApplicationUrl", "source"):
+                val = contract.clean_url(val)
+            updates[camel_k] = val
+
+    # Merge dynamic flags
+    for k, v in extra_flags.items():
+        if k in ("jobUrl", "jobApplicationUrl", "source") and isinstance(v, str):
+            v = contract.clean_url(v)
+        updates[k] = v
+
+    if getattr(args, "interactive", False):
+        interactive_updates = interactiveEdit(existing, draft_updates=updates)
+        if interactive_updates is None:
+            sys.stderr.write("Edit cancelled. No changes saved.\n")
+            return EXIT_OK
+        updates.update(interactive_updates)
+
+    if not updates:
+        sys.stderr.write("No changes specified.\n")
+        emit({"ok": True, "message": "no changes specified", "id": existing["id"]})
+        return EXIT_OK
+
+    updated_doc = dict(existing)
+    now = eventsModule.nowIso()
+
+    for k, v in updates.items():
+        if k in ("id", "uuid"):
+            continue
+        if k == "company":
+            if not v or not str(v).strip():
+                raise contract.ContractError("Company is a vital field and cannot be empty")
+            updated_doc["company"] = str(v).strip()
+        elif k == "status":
+            normalized_status = contract.normalizeStatus(v)
+            updated_doc.update(contract.deriveStatusFields(normalized_status))
+        elif k == "date":
+            updated_doc["date"] = eventsModule.normalizeDate(str(v))
+        elif k in ("jobUrl", "jobApplicationUrl", "source"):
+            updated_doc[k] = contract.clean_url(v) if v else None
+        elif k == "fitRating":
+            if v in (None, "", "null"):
+                updated_doc["fitRating"] = None
+            else:
+                updated_doc["fitRating"] = int(v)
+        elif k == "tags":
+            if isinstance(v, str):
+                v = [t.strip() for t in v.split(",") if t.strip()]
+            updated_doc["tags"] = [normalizeTag(t) for t in v]
+        elif k == "location":
+            if isinstance(v, str):
+                updated_doc["location"] = {"city": v}
+            elif isinstance(v, dict):
+                updated_doc["location"] = v
+        else:
+            updated_doc[k] = v
+
+    updated_doc["updatedAt"] = now
+    updated_doc["schemaVersion"] = contract.schemaVersion()
+    if not updated_doc.get("uuid"):
+        updated_doc["uuid"] = contract.newUuid()
+
+    # Quarantine unexpected top-level properties into metadata so the document
+    # satisfies schema validation (additionalProperties: false) without losing data.
+    allowed_props = set(contract.definition("application")["properties"].keys())
+    for k in list(updated_doc.keys()):
+        if k not in allowed_props:
+            sys.stderr.write(f"Warning: moving unexpected top-level property '{k}' to metadata\n")
+            if "metadata" not in updated_doc or not isinstance(updated_doc.get("metadata"), dict):
+                updated_doc["metadata"] = {}
+            updated_doc["metadata"][k] = updated_doc.pop(k)
+
+    contract.validate("application", updated_doc)
+
+    diff = {}
+    for k in updates:
+        old_val = existing.get(k)
+        new_val = updated_doc.get(k)
+        if old_val != new_val:
+            diff[k] = {"old": old_val, "new": new_val}
+
+    if not diff:
+        sys.stderr.write("No effective field changes detected.\n")
+        emit({"ok": True, "message": "no changes made", "id": existing["id"]})
+        return EXIT_OK
+
+    note_text = getattr(args, "note", None) or f"Edited fields: {', '.join(diff.keys())}"
+    event_type = "event:status-corrected" if "status" in diff else "event:note-added"
+    audit_event = eventsModule.buildEvent(
+        event_type,
+        date=now[:10],
+        note=note_text,
+        actor="actor:user",
+        derivedFrom="manual",
+        confidence="high",
+        metadata={"changes": diff},
+    )
+
+    import alignment
+    is_dry_run = getattr(args, "dry_run", False)
+    recalc_fit = ("fitRating" not in updates)
+
+    align_result = alignment.align_application(
+        db=db,
+        identifier_or_ref=ref,
+        updated_doc=updated_doc,
+        dry_run=is_dry_run,
+        recalc_fit=recalc_fit,
+        update_docs=True,
+        note=note_text,
+    )
+
+    if is_dry_run:
+        emit({
+            "dryRun": True,
+            "id": align_result.get("canonicalId", updated_doc.get("id", existing["id"])),
+            "changes": diff,
+            "application": align_result.get("doc", updated_doc),
+            "auditEvent": audit_event,
+            "outcomeFile": align_result.get("outcomeFile"),
+        })
+        return EXIT_OK
+
+    emit({
+        "ok": True,
+        "id": align_result["id"],
+        "uuid": updated_doc.get("uuid"),
+        "changes": diff,
+        "eventId": audit_event["eventId"],
+        "aligned": align_result.get("migrated", False),
+        "fitRating": align_result.get("fitRating"),
+        "outcomeFile": align_result.get("outcomeFile"),
+    })
+    return EXIT_OK
+
+
+def commandAlign(args) -> int:
+    """Align entries in Firebase to canonical document IDs, recalculate fit, and update outcome.md."""
+    import alignment
+    db = client.getDb()
+    target_id = getattr(args, "app_id", None) or getattr(args, "id", None)
+    dry_run = getattr(args, "dry_run", False)
+
+    if not dry_run:
+        client.assertWritesAllowed("an application data alignment")
+
+    if target_id:
+        existing, ref = findApplication(db, target_id)
+        if not existing:
+            raise contract.ContractError(f"Application not found: {target_id}")
+        res = alignment.align_application(
+            db=db,
+            identifier_or_ref=ref,
+            dry_run=dry_run,
+            recalc_fit=not getattr(args, "no_fit_recalc", False),
+            update_docs=not getattr(args, "no_docs_update", False),
+            note=getattr(args, "note", None),
+        )
+        emit(res)
+    else:
+        results = alignment.align_all_applications(db, dry_run=dry_run)
+        emit({
+            "ok": True,
+            "dryRun": dry_run,
+            "alignedCount": len(results),
+            "aligned": results,
+        })
+
+    return EXIT_OK
+
+
 def commandStatus(args) -> int:
     db = client.getDb()
     reference = db.collection(client.APPLICATIONS).document(args.id)
@@ -1547,7 +1996,7 @@ def commandArtifact(args) -> int:
     return EXIT_OK
 
 
-def resolveArtifactPath(artifact: dict, root: pathlib.Path) -> pathlib.Path | None:
+def resolveArtifactPath(artifact: dict, root: pathlib.Path, includeDrive: bool = True) -> pathlib.Path | None:
     """Find the local file an imported artifact points at, if there is one.
 
     The import kept two location styles: repo-relative `localPath` and an
@@ -1556,6 +2005,12 @@ def resolveArtifactPath(artifact: dict, root: pathlib.Path) -> pathlib.Path | No
     localPath = artifact.get("localPath")
     if localPath:
         candidate = pathlib.Path(localPath)
+        return candidate if candidate.is_absolute() else root / candidate
+    driveUrl = artifact.get("driveUrl")
+    if driveUrl and includeDrive:
+        if str(driveUrl).endswith(".gdoc"):
+            return None
+        candidate = pathlib.Path(driveUrl)
         return candidate if candidate.is_absolute() else root / candidate
     return None
 
@@ -2429,13 +2884,54 @@ def buildParser() -> argparse.ArgumentParser:
     lead.add_argument("--dry-run", action="store_true", help="resolve and validate only")
     lead.set_defaults(handler=commandLead)
 
+    edit = subparsers.add_parser("edit", help="modify fields of an existing application")
+    edit.add_argument("id", nargs="?", help="application ID or UUID")
+    edit.add_argument("--app-id", help="application ID or UUID (alternative to positional ID)")
+    edit.add_argument("-i", "--interactive", action="store_true", help="interactively select record and edit fields")
+    edit.add_argument("--dry-run", action="store_true", help="preview changes without writing")
+    edit.add_argument("--company", help="company name (vital field)")
+    edit.add_argument("--role", help="role title")
+    edit.add_argument("--status", help="target status (vital field)")
+    edit.add_argument("--date", help="application date (vital field)")
+    edit.add_argument("--job-url", help="URL for job posting (trackers will be stripped)")
+    edit.add_argument("--job-application-url", help="URL for job application portal (trackers will be stripped)")
+    edit.add_argument("--channel", help="application channel")
+    edit.add_argument("--contact-person", help="primary contact person name")
+    edit.add_argument("--contact-email", help="contact person email")
+    edit.add_argument("--fit-rating", type=int, help="fit rating 0-100")
+    edit.add_argument("--location", help="role location/city")
+    edit.add_argument("--sector", help="industry sector")
+    edit.add_argument("--role-type", help="role type")
+    edit.add_argument("--source", help="source URL")
+    edit.add_argument("--note", help="audit note explaining the change")
+    edit.set_defaults(handler=commandEdit)
+
+    align = subparsers.add_parser("align", help="align entries in Firebase to canonical IDs, recalculate fit, and update outcome.md")
+    align.add_argument("id", nargs="?", help="application ID or UUID to align")
+    align.add_argument("--app-id", help="application ID or UUID to align")
+    align.add_argument("--all", action="store_true", help="scan and align all applications")
+    align.add_argument("--dry-run", action="store_true", help="preview changes without writing")
+    align.add_argument("--no-fit-recalc", action="store_true", help="skip recalculating fit")
+    align.add_argument("--no-docs-update", action="store_true", help="skip updating outcome.md")
+    align.add_argument("--note", help="optional audit note")
+    align.set_defaults(handler=commandAlign)
+
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = buildParser()
-    args = parser.parse_args(argv)
+    args, extra_args = parser.parse_known_args(argv)
+    cmd_name = getattr(args, "cmd", None)
+    if extra_args and cmd_name != "edit":
+        non_sep = [a for a in extra_args if a != "--"]
+        if non_sep:
+            parser.error(f"unrecognized arguments: {' '.join(non_sep)}")
     try:
+        import inspect
+        sig = inspect.signature(args.handler)
+        if "extra_args" in sig.parameters:
+            return args.handler(args, extra_args=extra_args)
         return args.handler(args)
     except contract.ContractError as error:
         warn(f"contract error: {error}")

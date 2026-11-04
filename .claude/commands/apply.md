@@ -56,7 +56,7 @@ Present the evaluation to the user with:
 
 Once the fit is calculated in Step 1, even before drafting begins, ensure the evaluation is recorded. This prevents data loss if the session is interrupted.
 
-1.  **Application Folder**: Create `job-applications/<Company>/<Role>/<YYYY-MM-DD>/` if it doesn't exist (use today's date). Company and role names use Title-Case with underscores for spaces (e.g., `Snap_Inc/Software_Engineer_Android_Level_5/2026-10-30/`).
+1.  **Application Folder**: Create `job-applications/<company>/<role>/<YYYY-MM-DD>/` if it doesn't exist (use today's date). Company and role names use lower-kebab-case, stripping stop words ('the', 'a', 'an', 'of', 'and') and corporate suffixes ('inc', 'llc', etc.) (e.g., `snap/software-engineer-android-level-5/2026-10-30/`).
 2.  **Archive Fit**: Write the full evaluation (Skills, Experience, Behavioral, Salary, Score) to `job-applications/<Company>/<Role>/<YYYY-MM-DD>/outcome.md`. The file MUST begin with a metadata header that includes the source URL so the posting can be revisited:
 
     ```markdown

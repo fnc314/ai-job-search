@@ -1,5 +1,6 @@
 package dev.fnc314.tools.jobtracker.ui.component
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -7,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.fnc314.tools.jobtracker.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.util.displayName
@@ -14,7 +16,9 @@ import dev.fnc314.tools.jobtracker.util.displayName
 @Composable
 fun StatusBadge(
     status: TrackerStatus,
+    textAlign: TextAlign,
     modifier: Modifier = Modifier,
+    maxLines: Int = 1,
 ) {
     val displayName = status.displayName()
     val (icon, color) = when (status) {
@@ -31,13 +35,21 @@ fun StatusBadge(
     }
 
     Row(
-        modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        modifier = modifier.padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = when (textAlign) {
+            TextAlign.End -> Arrangement.End
+            TextAlign.Start -> Arrangement.Start
+            TextAlign.Center -> Arrangement.Center
+            else -> Arrangement.Start
+        }
     ) {
         Text(
             text = displayName,
             style = MaterialTheme.typography.bodyMedium,
             color = color,
+            textAlign = textAlign,
+            maxLines = maxLines,
         )
     }
 }

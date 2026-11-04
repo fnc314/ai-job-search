@@ -142,7 +142,11 @@ def rowFromStore(application: dict, artifacts: list[dict] | None = None) -> dict
         "notes": notes,
         "cv_file": _artifactValue(artifacts, "artifact:cv"),
         "cover_letter_file": _artifactValue(artifacts, "artifact:cover-letter"),
-        "source": application.get("source") or "",
+        "source": contract.clean_url(application.get("source")) or "",
+        "job_url": contract.clean_url(application.get("jobUrl")) or "",
+        "job_application_url": contract.clean_url(application.get("jobApplicationUrl")) or "",
+        "contact_email": application.get("contactEmail") or "",
+        "uuid": application.get("uuid") or "",
         # Firestore has no row order. `importIndex` preserves the order the CSV
         # had, so a regenerated dashboard keeps the exact ordering it had before
         # the migration instead of shuffling same-date rows.

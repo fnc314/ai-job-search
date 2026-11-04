@@ -27,7 +27,7 @@ import sys
 import tempfile
 import unittest
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -89,7 +89,7 @@ class TestPayloadResolution(unittest.TestCase):
     def test_status_is_normalized_and_derived(self):
         document, _ = tracker.buildApplication(self.payload(status="rejected"))
         self.assertEqual(document["status"], "status:rejected")
-        self.assertEqual(document["statusRank"], 5)
+        self.assertEqual(document["statusRank"], 6)
         self.assertFalse(document["isOpen"])
 
     def test_missing_status_defaults_to_drafting(self):

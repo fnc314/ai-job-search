@@ -1,6 +1,6 @@
 This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM).
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
+* [/apps/ios](./apps/ios/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
   you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 
 * [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
@@ -16,14 +16,14 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM
 
 Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
 
-- Android app: `./gradlew :androidApp:assembleDebug`
+- Android app: `./gradlew :apps-android:assembleDebug`
 - Desktop app:
-  - Hot reload: `./gradlew :desktopApp:hotRun --auto`
-  - Standard run: `./gradlew :desktopApp:run`
+  - Hot reload: `./gradlew :apps-desktop:hotRun --auto`
+  - Standard run: `./gradlew :apps-desktop:run`
 - Web app:
-  - Wasm target (faster, modern browsers): `./gradlew :webApp:wasmJsBrowserDevelopmentRun`
-  - JS target (slower, supports older browsers): `./gradlew :webApp:jsBrowserDevelopmentRun`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+  - Wasm target (faster, modern browsers): `./gradlew :apps-web:wasmJsBrowserDevelopmentRun`
+  - JS target (slower, supports older browsers): `./gradlew :apps-web:jsBrowserDevelopmentRun`
+- iOS app: open the [/apps/ios](./apps/ios) directory in Xcode and run it from there.
 
 ### Running tests
 

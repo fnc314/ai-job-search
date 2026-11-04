@@ -1,6 +1,7 @@
 package dev.fnc314.tools.jobtracker.di
 
 import dev.fnc314.tools.jobtracker.data.model.*
+import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -37,8 +38,8 @@ object Factory {
         jobId = jobId,
         jobUrl = jobUrl,
         description = description,
-        tags = tags,
-        contactIds = contactIds,
+        tags = tags.toImmutableList(),
+        contactIds = contactIds.toImmutableList(),
         compensation = compensation,
         locationDetail = locationDetail,
         fitEvaluation = fitEvaluation,
@@ -159,7 +160,7 @@ object Factory {
     ): TrackerFit = TrackerFit(
         rubricVersion = rubricVersion,
         evaluatedAt = evaluatedAt,
-        gaps = gaps,
+        gaps = gaps.toImmutableList(),
     )
 
     fun createTrackerCounts(

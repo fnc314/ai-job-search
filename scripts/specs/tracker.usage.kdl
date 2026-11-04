@@ -147,3 +147,39 @@ cmd "lead" help="Record a recruiter outreach lead" {
   flag "-t --tag <tag>" var=#true help="Additional tags (repeatable)"
   flag "--dry-run" help="Resolve and validate only"
 }
+
+cmd "edit" help="Modify fields of an existing application record" {
+  arg "[id]" help="Application ID or UUID to edit"
+  flag "--app-id <id>" help="Application ID or UUID to edit"
+  flag "-i --interactive" help="Interactively select record and edit fields"
+  flag "--dry-run" help="Preview changes without writing"
+  flag "--date <date>" help="Application date (YYYY-MM-DD)"
+  flag "--note <note>" help="Audit note explaining the change"
+  flag "--contact-person <name>" help="Primary contact person name"
+  flag "--contact-email <email>" help="Contact email address"
+  flag "--fit-rating <fit>" help="Fit rating integer (0-100)"
+  flag "--company <val>" help="Company name (vital field)"
+  flag "--role <val>" help="Role title"
+  flag "--location <val>" help="Update location"
+  flag "--status <val>" help="Application status (e.g. status:applied)"
+  flag "--channel <val>" help="Application channel (e.g. channel:linkedin)"
+  flag "--job-id <val>" help="Update jobId"
+  flag "--job-url <val>" help="URL for jobUrl (trackers will be stripped)"
+  flag "--description <val>" help="Update description"
+  flag "--tags <val>" help="Update tags"
+  flag "--contact-ids <val>" help="Update contactIds"
+  flag "--compensation <val>" help="Update compensation"
+  flag "--location-detail <val>" help="Update locationDetail"
+  flag "--fit-evaluation <val>" help="Update fitEvaluation"
+  flag "--job-application-url <val>" help="URL for jobApplicationUrl (trackers will be stripped)"
+}
+
+cmd "align" help="Align applications in Firebase to canonical IDs, recalculate fit, and update outcome.md" {
+  arg "[id]" help="Application ID or UUID to align"
+  flag "--app-id <id>" help="Application ID or UUID to align"
+  flag "--all" help="Scan and align all applications"
+  flag "--dry-run" help="Preview changes without writing"
+  flag "--no-fit-recalc" help="Skip recalculating fit"
+  flag "--no-docs-update" help="Skip updating outcome.md"
+  flag "--note <note>" help="Optional audit note"
+}

@@ -22,6 +22,7 @@
   koin = "4.2.2"
   kotlin = "2.4.21"
   kotlin-wrappers = "2026.11.0"
+  kotlinx-collections-immutable = "0.5.2"
   kotlinx-coroutines = "1.11.0"
   kotlinx-datetime = "0.8.0"
   kotlinx-serialization = "1.12.0"
@@ -33,7 +34,6 @@
   jvm = "17"
   googlePlayServices = "4.5.0"
   node = "26.13.0"
-  records = "1.0.0"
 
 [libraries]
   kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -57,6 +57,7 @@
   compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
   compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
   compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
+  kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinx-collections-immutable" }
   kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
   kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
   kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
@@ -82,7 +83,8 @@
   navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
   mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
   android-gradle-plugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "agp" }
-  records-proto = { group = "dev.fnc314.tools.jobsearch.records", name = "records-proto", version.ref = "records" }
+  records-proto = { group = "dev.fnc314.tools.jobsearch.records", name = "records-proto" }
+  records-parser = { group = "dev.fnc314.tools.jobsearch.records", name = "records-parser" }
 
 [bundles]
   compose-ui = [
@@ -93,6 +95,7 @@
     "compose-components-resources",
     "compose-uiToolingPreview",
     "compose-material-icons-core",
+    "kotlinx-collections-immutable",
   ]
   compose-tooling = [
     "compose-uiToolingPreview",

@@ -88,8 +88,9 @@ kotlin {
             implementation(libs.bundles.ktor.client.jvm)
             // Firebase Admin SDK for JVM (Desktop)
             implementation(libs.bundles.firebase.jvm)
-            // Records proto models
+            // Records proto models and parser
             implementation(libs.records.proto)
+            implementation(libs.records.parser)
         }
         androidMain.dependencies {
             implementation(libs.bundles.ktor.client.android)

@@ -11,6 +11,7 @@ fun JobTrackerTheme(
     seedColor: Color = Color(0xFF6750A4),
     content: @Composable () -> Unit,
 ) {
+
     val colorScheme = if (darkTheme) {
         darkColorScheme(
             primary = seedColor,
@@ -23,7 +24,7 @@ fun JobTrackerTheme(
 
     SetupSystemBars(darkTheme = darkTheme)
 
-    MaterialTheme(
+    MaterialExpressiveTheme(
         colorScheme = colorScheme,
         typography = MaterialTheme.typography,
         content = content,

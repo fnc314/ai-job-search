@@ -1,5 +1,6 @@
 package dev.fnc314.tools.jobtracker.ui.list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +17,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.domain.usecase.FilterJobApplicationsUseCase
 import dev.fnc314.tools.jobtracker.domain.usecase.SortJobApplicationsUseCase
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
@@ -69,34 +71,25 @@ fun JobApplicationsListScreen(
                         onClick = onEditsClick,
                         modifier = Modifier.minimumInteractiveComponentSize()
                             .semantics { contentDescription = "View pending edits" },
-//                        colors = IconButtonDefaults.outlinedIconButtonColors(
-//                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-//                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-//                        ),
+                        colors = IconButtonDefaults.iconButtonVibrantColors(),
                     ) {
-                        Icons.Sharp.Edit
+                        Icon(Icons.Sharp.Edit, contentDescription = "View pending edits")
                     }
                     IconButton(
                         onClick = { showSettings = true },
                         modifier = Modifier.minimumInteractiveComponentSize()
                             .semantics { contentDescription = "Open settings" },
-//                        colors = IconButtonDefaults.outlinedIconButtonColors(
-//                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-//                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-//                        ),
+                        colors = IconButtonDefaults.iconButtonVibrantColors(),
                     ) {
-                        Icons.Sharp.Settings
+                        Icon(Icons.Sharp.Settings, contentDescription = "Open settings")
                     }
                     IconButton(
                         onClick = { viewModel.refresh() },
                         modifier = Modifier.minimumInteractiveComponentSize()
                             .semantics { contentDescription = "Refresh" },
-//                        colors = IconButtonDefaults.outlinedIconButtonColors(
-//                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-//                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-//                        ),
+                        colors = IconButtonDefaults.iconButtonVibrantColors(),
                     ) {
-                        Icons.Sharp.Refresh
+                        Icon(Icons.Sharp.Refresh, contentDescription = "Refresh")
                     }
                 },
             )
@@ -109,8 +102,10 @@ fun JobApplicationsListScreen(
                         fabMenuExpanded = true
                     },
                     modifier = Modifier.semantics { contentDescription = "Add new application" },
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = MaterialTheme.colorScheme.primary,
                 ) {
-                    Icons.Sharp.Add
+                    Icon(Icons.Sharp.Add, contentDescription = "Add")
                 }
                 DropdownMenu(
                     expanded = fabMenuExpanded,
@@ -122,6 +117,9 @@ fun JobApplicationsListScreen(
                             fabMenuExpanded = false
                             onAddApplicationClick()
                         },
+                        colors = MenuDefaults.itemColors(
+                            textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     )
                     DropdownMenuItem(
                         text = { Text("Add Lead") },
@@ -129,6 +127,9 @@ fun JobApplicationsListScreen(
                             fabMenuExpanded = false
                             onAddLeadClick()
                         },
+                        colors = MenuDefaults.itemColors(
+                            textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     )
                     DropdownMenuItem(
                         text = { Text("Pending Edits") },
@@ -136,6 +137,9 @@ fun JobApplicationsListScreen(
                             fabMenuExpanded = false
                             onEditsClick()
                         },
+                        colors = MenuDefaults.itemColors(
+                            textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     )
                 }
             }
@@ -204,12 +208,22 @@ fun JobApplicationsListScreen(
                 else -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(all = MaterialTheme.spacing.extraSmall),
+
                     ) {
                         items(applications, key = { it.id }) { app ->
-                            JobApplicationRow(
-                                application = app,
-                                onClick = { onApplicationClick(app.id) },
-                            )
+                            Card(
+                                modifier = Modifier
+                                    .background(color = MaterialTheme.colorScheme.surface)
+                                    .padding(vertical = MaterialTheme.spacing.extraSmall)
+                                ,
+                                shape = CardDefaults.outlinedShape,
+                            ) {
+                                JobApplicationRow(
+                                    application = app,
+                                    onClick = { onApplicationClick(app.id) },
+                                )
+                            }
                         }
                     }
                 }

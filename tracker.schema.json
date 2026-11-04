@@ -4,7 +4,7 @@
   "title": "Job Search Tracker",
   "description": "Single contract for every document in the tracker store. Validates the JSON boundary (what scripts/tracker.py reads and writes); Firestore Timestamps are produced from these ISO strings on write. The enum registry lives ONLY in $defs so it cannot drift from the fields it constrains.",
 
-  "schemaVersion": 6,
+  "schemaVersion": 7,
   "x-supersedes": "job_search_tracker.schema.json v1 (CSV row contract)",
 
   "x-revision-log": [
@@ -23,6 +23,10 @@
     {
       "version": 6,
       "note": "Added contactEmail field to application record for storing recruiter email addresses directly on leads and applications."
+    },
+    {
+      "version": 7,
+      "note": "Added jobUrl, jobApplicationUrl, and uuid (UUIDv7) fields to application record. Supported in tracker edit command, tab completions, and TUI."
     }
   ],
 
@@ -424,6 +428,11 @@
         "isOpen": { "type": "boolean" },
         "contactPerson": { "$ref": "#/$defs/nullableString" },
         "contactEmail": { "$ref": "#/$defs/nullableString" },
+        "jobUrl": { "$ref": "#/$defs/nullableString" },
+        "jobApplicationUrl": { "$ref": "#/$defs/nullableString" },
+        "uuid": {
+          "oneOf": [{ "$ref": "#/$defs/uuidV7" }, { "type": "null" }]
+        },
         "fitRating": {
           "type": ["integer", "null"],
           "minimum": 0,
@@ -461,7 +470,7 @@
         },
         "createdAt": { "$ref": "#/$defs/isoTimestamp" },
         "updatedAt": { "$ref": "#/$defs/isoTimestamp" },
-        "schemaVersion": { "type": "integer", "const": 6 }
+        "schemaVersion": { "type": "integer", "const": 7 }
       }
     },
 

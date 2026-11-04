@@ -12,7 +12,7 @@ import pathlib
 import sys
 import unittest
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -79,6 +79,18 @@ class TestSlugAndDocumentId(unittest.TestCase):
         self.assertEqual(contract.slug("DoorDash"), "doordash")
         self.assertEqual(contract.slug("PPG Industries"), "ppg-industries")
         self.assertEqual(contract.slug("AT&T"), "at-t")
+        self.assertEqual(contract.slug("The Washington Post"), "washington-post")
+        self.assertEqual(contract.slug("The Trade Desk"), "trade-desk")
+        self.assertEqual(contract.slug("Scout Motors Inc."), "scout-motors")
+        self.assertEqual(contract.slug("Major League Baseball (MLB)"), "major-league-baseball")
+        self.assertEqual(contract.slug("Snap Inc."), "snap")
+
+    def test_normalize_dir_name_lower_kebab(self):
+        self.assertEqual(contract.normalize_dir_name("The Washington Post"), "washington-post")
+        self.assertEqual(contract.normalize_dir_name("Sr. Software Engineer, Android"), "senior-software-engineer-android")
+        self.assertEqual(contract.normalize_dir_name("Scout Motors Inc."), "scout-motors")
+        self.assertEqual(contract.normalize_dir_name("Major League Baseball (MLB)"), "major-league-baseball")
+        self.assertEqual(contract.normalize_dir_name("EBay"), "ebay")
 
     def test_slug_does_not_emit_leading_or_trailing_hyphens(self):
         self.assertEqual(contract.slug("  Acme  "), "acme")

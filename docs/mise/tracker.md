@@ -293,3 +293,53 @@ Record a recruiter outreach lead
 - **`-n --note <note>`** — Context about the outreach (repeatable)
 - **`-t --tag <tag>`** — Additional tags (repeatable)
 - **`--dry-run`** — Resolve and validate only
+
+## `tracker edit`
+
+- **Usage:** `tracker edit [FLAGS] [id]`
+
+Modify fields of an existing application record
+
+### Arguments
+- **`[id]`** — Application ID or UUID to edit
+
+### Flags
+- **`--app-id <id>`** — Application ID or UUID to edit
+- **`-i --interactive`** — Interactively select record and edit fields
+- **`--dry-run`** — Preview changes without writing
+- **`--date <date>`** — Application date (YYYY-MM-DD)
+- **`--note <note>`** — Audit note explaining the change
+- **`--contact-person <name>`** — Primary contact person name
+- **`--contact-email <email>`** — Contact email address
+- **`--fit-rating <fit>`** — Fit rating integer (0-100)
+- **`--company <val>`** — Company name (vital field)
+- **`--role <val>`** — Role title
+- **`--location <val>`** — Update location
+- **`--status <val>`** — Application status (e.g. status:applied)
+- **`--channel <val>`** — Application channel (e.g. channel:linkedin)
+- **`--job-id <val>`** — Update jobId
+- **`--job-url <val>`** — URL for jobUrl (trackers will be stripped)
+- **`--description <val>`** — Update description
+- **`--tags <val>`** — Update tags
+- **`--contact-ids <val>`** — Update contactIds
+- **`--compensation <val>`** — Update compensation
+- **`--location-detail <val>`** — Update locationDetail
+- **`--fit-evaluation <val>`** — Update fitEvaluation
+- **`--job-application-url <val>`** — URL for jobApplicationUrl (trackers will be stripped)
+
+## `tracker align`
+
+- **Usage:** `tracker align [FLAGS] [id]`
+
+Align applications in Firebase to canonical IDs, recalculate fit, and update outcome.md
+
+### Arguments
+- **`[id]`** — Application ID or UUID to align
+
+### Flags
+- **`--app-id <id>`** — Application ID or UUID to align
+- **`--all`** — Scan and align all applications
+- **`--dry-run`** — Preview changes without writing
+- **`--no-fit-recalc`** — Skip recalculating fit
+- **`--no-docs-update`** — Skip updating outcome.md
+- **`--note <note>`** — Optional audit note
