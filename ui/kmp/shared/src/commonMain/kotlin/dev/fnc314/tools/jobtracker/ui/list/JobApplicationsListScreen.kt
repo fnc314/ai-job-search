@@ -214,9 +214,9 @@ fun JobApplicationsListScreen(
                         items(applications, key = { it.id }) { app ->
                             Card(
                                 modifier = Modifier
+                                    .fillMaxWidth()
                                     .background(color = MaterialTheme.colorScheme.surface)
-                                    .padding(vertical = MaterialTheme.spacing.extraSmall)
-                                ,
+                                    .padding(vertical = MaterialTheme.spacing.extraSmall),
                                 shape = CardDefaults.outlinedShape,
                             ) {
                                 JobApplicationRow(

@@ -33,6 +33,8 @@ fun JobApplicationRow(
     val extraSmallGap = MaterialTheme.spacing.extraSmall
     Grid(
         config = {
+            column(1.fr)
+            column(GridTrackSize.Auto)
             gap(row = extraSmallGap, column = extraSmallGap)
             area(
                 areaId = "company",
@@ -56,11 +58,11 @@ fun JobApplicationRow(
             )
         },
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(MaterialTheme.spacing.small)
             .clickable(
                 onClick = onClick,
-                onClickLabel = "View $${application.company} details",
+                onClickLabel = "View ${application.company} details",
             )
             .semantics {
                 contentDescription =
@@ -69,7 +71,9 @@ fun JobApplicationRow(
     ) {
         Text(
             text = application.company,
-            modifier = Modifier.fillMaxWidth().gridItem(areaId = "company", alignment = Alignment.CenterStart).border(width = 1.dp, color = Color.Red),
+            modifier = Modifier
+                .gridItem(areaId = "company", alignment = Alignment.TopStart)
+                .border(width = 1.dp, color = Color.Red),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Start,
@@ -78,7 +82,9 @@ fun JobApplicationRow(
         application.role?.let {
             Text(
                 text = it,
-                modifier = Modifier.fillMaxWidth().gridItem(areaId = "role", alignment = Alignment.CenterStart).border(width = 1.dp, color = Color.Red),
+                modifier = Modifier
+                    .gridItem(areaId = "role", alignment = Alignment.BottomStart)
+                    .border(width = 1.dp, color = Color.Red),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Start,
@@ -87,7 +93,9 @@ fun JobApplicationRow(
         }
         StatusBadge(
             status = application.status,
-            modifier = Modifier.fillMaxWidth().gridItem(areaId = "status", alignment = Alignment.CenterEnd).border(width = 1.dp, color = Color.Red),
+            modifier = Modifier
+                .gridItem(areaId = "status", alignment = Alignment.TopEnd)
+                .border(width = 1.dp, color = Color.Red),
             textAlign = TextAlign.End,
             maxLines = 1,
         )
@@ -97,7 +105,9 @@ fun JobApplicationRow(
                 application.updatedAt != null -> "Updated ${formatTimestamp(instant = application.updatedAt)}"
                 else -> "No Time Information"
             },
-            modifier = Modifier.fillMaxWidth().gridItem(areaId = "timestamp", alignment = Alignment.CenterEnd).border(width = 1.dp, color = Color.Red),
+            modifier = Modifier
+                .gridItem(areaId = "timestamp", alignment = Alignment.BottomEnd)
+                .border(width = 1.dp, color = Color.Red),
             color = MaterialTheme.colorScheme.secondaryFixed,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.End,

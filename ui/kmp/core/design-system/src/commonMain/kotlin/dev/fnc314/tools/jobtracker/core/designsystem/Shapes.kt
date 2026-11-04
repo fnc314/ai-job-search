@@ -1,0 +1,24 @@
+package dev.fnc314.tools.jobtracker.core.designsystem
+
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Shapes
+import androidx.compose.ui.unit.dp
+
+val JobTrackerShapes = Shapes(
+    extraSmall = RoundedCornerShape(4.dp),
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(12.dp),
+    large = RoundedCornerShape(16.dp),
+    extraLarge = RoundedCornerShape(28.dp),
+)
+
+data class ExtendedShapes(
+    val full: CornerBasedShape = CircleShape,
+    val card: CornerBasedShape = RoundedCornerShape(12.dp),
+    val chip: CornerBasedShape = RoundedCornerShape(8.dp),
+    val button: CornerBasedShape = RoundedCornerShape(20.dp),
+    val dialog: CornerBasedShape = RoundedCornerShape(28.dp),
+    val bottomSheet: CornerBasedShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+)

@@ -7,20 +7,22 @@
 *The job search that runs on your machine.*
 
 <p align="center">
-  <a href="https://trendshift.io/repositories/43622?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-43622" target="_blank"rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/43622/daily" alt="MadsLorentzen%2Fai-job-search | Trendshift" width="250" height="55"/></a>
+  <a href="https://trendshift.io/repositories/43622?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-43622" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/43622/daily" alt="MadsLorentzen%2Fai-job-search | Trendshift" width="250" height="55"/></a>
 </p>
 
 [![CI](https://github.com/MadsLorentzen/ai-job-search/actions/workflows/ci.yml/badge.svg)](https://github.com/MadsLorentzen/ai-job-search/actions/workflows/ci.yml)
 
-An AI-powered job application framework built for **all major AI CLIs** (Claude Code, OpenCode, Gemini, Codex). Fork it, fill in your profile, and let OpenCode (or your AI) evaluate job postings, tailor your CV, write cover letters, and prepare you for interviews.
+An AI-powered job application and tracking framework built for **all major AI CLIs** (Claude Code, Google Gemini / Antigravity, OpenCode, Codex). Fork it, fill in your profile, and let your AI agent evaluate job postings, tailor your CV, write cover letters, prepare you for interviews, and manage your full application pipeline across terminal, web, and native mobile/desktop apps.
 
-> Note: This is an independent open-source project and is not affiliated with, endorsed by, sponsored by, or maintained by Anthropic. Product names are referenced only to describe the toolchains this workflow supports.
+> **Note**: This is an independent open-source project and is not affiliated with, endorsed by, sponsored by, or maintained by Anthropic or Google. Product names are referenced only to describe supported toolchains.
 >
 > This project has **no affiliated cryptocurrency, token, or paid sponsorship program**. Anything claiming otherwise is unauthorized and should be treated as a scam. The only ways to support the project are the Ko-fi link below and contributing on GitHub.
 
 ## Does it actually work?
 
-I'm a geophysicist by training. When my position was cut in late 2025, I built this framework to run my own job search - the same `/scrape`, `/apply`, and `/interview` workflow in this repo, used weekly, on my own career. I was upfront about it with every employer I spoke to, and instead of counting against me, it usually sparked a genuine technical conversation.
+*From the original author (Mads Lorentzen):*
+
+I'm a geophysicist by training. When my position was cut in late 2025, I built this framework to run my own job search — the same `/scrape`, `/apply`, and `/interview` workflow in this repo, used weekly, on my own career. I was upfront about it with every employer I spoke to, and instead of counting against me, it usually sparked a genuine technical conversation.
 
 Sixty-nine tailored applications, twenty first interviews, and one signed contract later, I started as an AI engineer in June 2026. People kept asking whether this actually works. It got me hired. Now it's yours.
 
@@ -37,349 +39,244 @@ Sixty-nine tailored applications, twenty first interviews, and one signed contra
   </a>
 </p>
 
+---
+
 ## What this is
 
-A structured workflow that turns your AI CLI into a full-stack job application assistant. The core workflow (self-profiling, fit evaluation, and the drafter-reviewer application pipeline) is **language- and country-agnostic**. The job portal search skills are built for the Danish market (Jobindex, Jobnet, Akademikernes Jobbank, etc.), but the pattern is designed to be swapped for your local job boards.
+A structured, agentic workflow that turns your AI CLI into a full-stack job application assistant and pipeline tracker. The core workflow (self-profiling, fit evaluation, drafter-reviewer generation, and interview preparation) is **language- and country-agnostic**.
 
 ```
-/setup          /scrape              /apply <url>
-  |                |                     |
-  v                v                     v
-Fill in        Search job           Evaluate fit
-your profile   portals              Score & recommend
-  |                |                     |
-  v                v                     v
-Profile        Present matches      Draft CV + Cover Letter
-files ready    with fit ratings     (LaTeX, tailored)
-                   |                     |
-                   v                     v
-               Pick a match         Reviewer agent critiques
-               -> /apply            -> Revise -> Final output
+/setup          /scrape              /apply <url>            /interview
+  |                |                     |                       |
+  v                v                     v                       v
+Fill in        Search job           Evaluate fit            Prepare STAR
+your profile   portals              Score & recommend       talking points,
+  |                |                     |                  company intel,
+  v                v                     v                  mock interviews
+Profile        Present matches      Draft CV + Letter            |
+files ready    with fit ratings     (Tailored LaTeX)             v
+                   |                     |                  Track funnel
+                   v                     v                  in Firestore
+               Pick match           Reviewer agent          & Dashboards
+               -> /apply            -> PDF inspect -> Done
 ```
 
-The framework encodes career guidance best practices, including structured evaluation criteria, forward-looking cover letter framing, and optional salary benchmarking.
+---
 
-## Prerequisites
-
-- **An AI CLI**: OpenCode, Claude Code, Gemini CLI, Antigravity, or Codex. Thanks to the Universal Agent Architecture, all CLIs share the same workflow logic.
-- Python 3.10+
-- [Bun](https://bun.sh) (for job search CLI tools)
-- **Optional**: LaTeX distribution with `lualatex` and `xelatex` (e.g. [TeX Live](https://tug.org/texlive/), [MacTeX](https://tug.org/mactex/), or [MiKTeX](https://miktex.org/)). If you skip this, the AI will still generate the `.tex` source files, which you can easily compile online for free via [Overleaf](https://www.overleaf.com/). If installing locally, note that the CV compiles with `lualatex` and the cover letter compiles with `xelatex`.
-- Optional: `pdftotext` from [poppler](https://poppler.freedesktop.org/) (macOS: `brew install poppler`, Debian/Ubuntu: `apt install poppler-utils`, Windows: `choco install poppler`) — used by `/apply`'s ATS parseability check on the compiled CV. If missing, the check degrades gracefully to a visual keyword review.
-
-## Quick start
-
-### 1. Fork and clone
-
-```bash
-gh repo fork MadsLorentzen/ai-job-search --clone
-cd ai-job-search
-```
-
-### 2. Install job search tools
-
-PowerShell:
-
-```powershell
-$tools = @("jobbank-search", "jobdanmark-search", "jobindex-search", "jobnet-search", "linkedin-search", "freehire-search")
-foreach ($tool in $tools) {
-  Push-Location ".agents/skills/$tool/cli"
-  bun install
-  Pop-Location
-}
-```
-
-Bash / zsh / Git Bash:
-
-```bash
-for tool in jobbank-search jobdanmark-search jobindex-search jobnet-search linkedin-search freehire-search; do
-  (cd .agents/skills/$tool/cli && bun install)
-done
-```
-
-For `linkedin-search` and `freehire-search` the install is optional: both have zero runtime dependencies and run with plain `bun`; `bun install` only pulls TypeScript dev types.
-
-### 3. Set up your profile
-
-```bash
-opencode # or claude, or your preferred AI CLI
-# Then inside the chat:
-/setup
-```
-
-`/setup` offers three paths: read your `documents/` folder if you have one populated (CV PDF, LinkedIn export, diplomas, reference letters, past applications), import a single CV pasted in chat, or walk through an interview. It auto-detects what you have and asks. Documents-folder mode is idempotent and safe to re-run as you add more material; see `documents/README.md` for the layout.
-
-### 4. Search for jobs
-
-```bash
-/scrape
-```
-
-This searches multiple job portals for positions matching your profile, deduplicates results, and presents them sorted by fit. Pick a match to run `/apply` on it directly — or, when a scrape returns more jobs than you want to eyeball, run `/rank` to batch-score them all against the fit framework and get a ranked shortlist first.
-
-### 5. Apply to a job
-
-```bash
-/apply https://jobindex.dk/job/1234567
-```
-
-If the URL can't be fetched (some job portals block automated access), you can paste the job description directly instead:
-
-```bash
-/apply <paste the full job description here>
-```
-
-This runs the full workflow: evaluate fit, draft CV + cover letter, review with a second agent, revise, and present the final output.
-
-Postings are treated as untrusted input (the workflow follows no instructions embedded in them and fetches no links from their body), but agentic defenses are instruction-level, not a sandbox - on an unfamiliar job board, skim what was fetched and written before you hit send. Details in [SECURITY.md](SECURITY.md).
-
-## Other commands
-
-`/setup`, `/scrape`, and `/apply` form the core workflow. Ten more commands extend it once your profile is in place:
-
-- **`/interview`** preps you for a scheduled interview on a tracked application. It builds a stage-specific prep pack from the application's archive (the exact posting, the CV and cover letter the interviewer actually read, feedback recorded from earlier rounds), researches the company and interviewers with a verify-before-use rule, maps likely questions to your STAR examples, and offers a mock interview following the roleplay protocol in `07-interview-prep.md`. Gaps get honest bridge answers, never invented experience.
-- **`/outcome`** records what happened to an application - interview stages, offers, rejections, silence. It archives the submitted CV, cover letter, and posting text into `job-applications/<company>_<role>/`, keeps `outcome.md` in the format `/setup` Path A parses, and updates the tracker. It also owns the stretch before there is an outcome to record: `/outcome followup` surfaces open applications that have gone quiet (default 10 days), drafts a short channel-appropriate follow-up in your writing style using only claims from the materials you already submitted (drafts only, never sends; at most twice per application), and offers a thank-you note in the same turn an interview stage is recorded. Once a few applications resolve, it points you back to `/setup` to calibrate the fit framework from what actually got interviews.
-- **`/notion-sync`** publishes a one-way, read-only view of the pipeline into a Notion database via the official Notion MCP server (OAuth, no API keys) - one row per ranked job plus every tracked application, with a write-once briefing page per row. The repo files stay the system of record: nothing syncs back, and documents sync as filenames only. Complements `/html-report`: that is the deep offline dashboard you regenerate at your desk; this is the glanceable live view from anywhere Notion runs (desktop, web, phone).
-- **`/gmail-sync`** reads your Gmail (via the Gmail connector) for status signals on your open applications - interview invites, assessment links, offers, rejections - and proposes them as a batch for you to approve before anything is written to the tracker or `outcome.md`, citing the source email on every proposed change. Offers stop short of proposing `hired`/`offer_declined` since that's your call; conflicting or unmatched signals get flagged for a manual `/outcome` pass instead of guessed.
-- **`/rank`** bridges `/scrape` and `/apply`: it batch-scores all newly scraped postings against the fit framework (parallel agents fetch each posting and score the five evaluation dimensions) and returns a ranked shortlist with honest per-job strengths and gaps. Deal-breakers veto, deadlines get urgency flags, dead postings get marked expired. Pick a number and it hands off to the full `/apply` workflow.
-- **`/expand`** enriches your profile by scanning public sources you've already linked in it (GitHub repos, portfolio site, Kaggle, Google Scholar) and looking up syllabi for named courses and certifications. Discovered competencies are added to your profile with a source tag. Useful right after `/setup` to surface skills that documents alone don't make explicit.
-- **`/upskill`** analyzes the gap between your profile and your tracked job postings (or a single posting via `/upskill <URL>`). Produces a prioritized heatmap of skill gaps and a learning plan with web-searched study resources and time estimates. Useful for career planning between applications.
-- **`/html-report`** generates a self-contained HTML dashboard from the tracker store and the application archives — stat cards, status/sector/channel/funnel charts (inline SVG, no external dependencies), and a filterable applications table. Saved to `reports/` and `ui/web/application-dashboard.html`, which can be served locally via `mise run dashboard`. Re-run it any time after `/outcome` adds new entries.
-- **`/add-template`** registers your own CV or cover letter template (LaTeX, Typst, or another toolchain) in place of the stock ones. It captures the template's instructions (source extension, compile command, fonts, style rules, page limit), runs a mandatory test compile, and wires the template into `/apply`. See [Custom templates](#custom-templates) below.
-- **`/add-portal`** generates a job-portal search skill for a job board in your market. It investigates the portal (search URL pattern, result structure, access rules), scaffolds the CLI skill from the same structure as the shipped ones, and test-runs a live query before registering. See [Job search tools](#job-search-tools) below.
-
-`/reset` is also available, see [Starting over](#starting-over) below.
-
-## File structure
+## Current Project Layout
 
 ```
 ai-job-search/
-├── AGENTS.md                          # The Universal Brain (Single Source of Truth)
-├── config/                            # Candidate Profile & Rules
-│   ├── 01-candidate-profile.md        # Your education, experience, skills
-│   ├── 02-behavioral-profile.md       # PI/DISC/personality assessment
-│   ├── 03-writing-style.md            # Tone, structure, do's and don'ts
-│   ├── 04-job-evaluation.md           # Scoring framework for job fit
-│   ├── 05-cv-templates.md             # LaTeX CV structure + tailoring rules
-│   ├── 06-cover-letter-templates.md   # LaTeX cover letter templates
-│   └── 07-interview-prep.md           # STAR examples + interview framework
-├── modes/                             # Universal Workflow Logic
-│   ├── _shared.md                     # Verification checklists and rules
-│   ├── apply.md                       # /apply workflow (drafter-reviewer)
-│   ├── setup.md                       # /setup onboarding
-│   ├── rank.md                        # /rank triage scraped jobs
-│   ├── outcome.md                     # /outcome record application results
-│   ├── interview.md                   # /interview prep pack
-│   └── ...                            # (expand, upskill, html-report, etc.)
-├── OPENCODE.md                        # Pointer for OpenCode CLI
-├── GEMINI.md                          # Pointer for Gemini CLI
-├── CLAUDE.md                          # Pointer for Claude Code CLI
-├── .agents/skills/                    # Universal Job Search Skills
-│   ├── jobbank-search/                # Akademikernes Jobbank (Denmark)
-│   ├── jobdanmark-search/             # Jobdanmark.dk (Denmark)
-│   ├── jobindex-search/               # Jobindex.dk (Denmark)
-│   ├── jobnet-search/                 # Jobnet.dk (Denmark, government portal)
-│   ├── linkedin-search/               # LinkedIn public job listings (country-agnostic)
-│   └── freehire-search/               # freehire.me tech job aggregator (multi-market, REST API)
-├── templates/cv/
-│   └── main_example.tex               # moderncv LaTeX template
-├── templates/cover-letters/
-│   ├── cover.cls                      # Custom cover letter LaTeX class
-│   ├── cover_example.tex              # Example cover letter (structural reference + CI smoke test)
-│   └── OpenFonts/                     # Lato + Raleway fonts
-├── templates/                         # Custom templates registered via /add-template
-│   └── README.md                      # Folder layout instructions
-├── documents/                         # Career source materials for /setup Path A and /expand
-│   ├── README.md                      # Folder layout instructions
-│   ├── templates/cv/                            # Master CV (PDF or .tex)
-│   ├── linkedin/                      # LinkedIn profile export (PDF)
-│   ├── diplomas/                      # Degree certificates and transcripts
-│   ├── references/                    # Reference letters
-│   └── applications/                  # Past application records (COMPANY/JOB_TITLE/DATE/)
-├── ui/                                # User Interfaces for Application Tracking
-│   ├── web/                           # Web-based dashboard
-│   │   ├── application-dashboard.html # Interactive HTML dashboard
-│   │   └── application-dashboard-server.py # Lightweight local dashboard server
-│   └── terminal/                      # Terminal-based TUI tracker
-│       ├── tracker_tui.py             # Curses TUI interactive application tracker
-│       └── tui_config.json            # Column layout and display settings
-├── scripts/
-│   ├── generate_report.py             # Generates HTML application dashboard
-│   └── salary_lookup.py               # Salary benchmarking tool (BYO data)
-├── .github/workflows/ci.yml           # CI: LaTeX smoke compiles, skill lint, CLI typechecks
-├── tools/
-│   ├── convert_salary_excel.py        # Convert salary Excel to JSON
-│   ├── lint_skills.py                 # CI lint for skills, commands, settings.json
-│   ├── security_guards.py             # CI guards: permission allowlist, gitignore rules, manifests
-│   └── README_SALARY_TOOL.md          # Salary tool setup instructions
-├── scripts/                           # Implementation logic obscured behind the mise interface
-├── tracker.schema.json                # Typed contract for Firestore documents (v4)
-├── archive/                           # Frozen CSV-era snapshot; never a data source
-├── job-scraper/                       # Scraper state (seen jobs, results)
-├── generated/                         # Disposable caches + Gmail fetch payloads (gitignored)
-├── .env.local                         # Local secrets (gitignored); see .env.example
-├── upskill/                           # /upskill report output (markdown reports per run)
-└── SETUP.md                           # Detailed setup guide
+├── .agents/                           # Universal Agent Index & Portable Skills
+│   ├── README.md                      # Canonical index of all skills and CLI entry points
+│   └── skills/                        # Portable Agent Skills (CLIs and workflows)
+│       ├── job-tracker/               # System-of-record invariants, commands, & schemas
+│       ├── job-search/                # Orchestration skill for setup, apply, and interview prep
+│       ├── freehire-search/           # Tech job aggregator search CLI
+│       ├── linkedin-search/           # Country-agnostic LinkedIn job query CLI
+│       ├── composio/                  # Composio tooling integration
+│       └── jobindex-search/ ...       # Regional job search portals (Jobnet, Jobbank, etc.)
+├── .claude/                           # Claude-specific commands and skill references
+│   ├── commands/                      # Slash command definitions (/apply, /outcome, /setup, etc.)
+│   └── skills/job-application-assistant/ # Methodology guides and candidate profile
+├── templates/                         # Master Application Templates
+│   ├── cv/main_example.tex            # Master LaTeX CV (Inconsolata headings, Sans-serif body)
+│   └── cover-letters/                 # Custom LaTeX cover letter class (cover.cls) & fonts
+├── scripts/                           # Underlying Python implementation tools
+│   ├── tracker.py                     # Central system-of-record CLI for Firestore mutations
+│   ├── reader.py                      # Multi-source read projection for UIs (live store / cache / csv)
+│   ├── generate_report.py             # Generates standalone SVG/HTML application dashboard
+│   ├── salary_lookup.py               # Salary benchmark querying tool
+│   ├── gmail_fetch.py                 # Gmail collector via Composio CLI
+│   └── specs/                         # CLI argument specifications in Usage KDL format
+├── ui/                                # Multi-Interface Application Tracking Suite
+│   ├── terminal/                      # Interactive Terminal UI (TUI)
+│   │   ├── tracker_tui.py             # Keyboard-driven curses application tracker
+│   │   └── tui_config.json            # Layout and theme configurations
+│   ├── web/                           # Standalone Web Dashboard
+│   │   ├── application-dashboard.html # Interactive HTML/SVG pipeline report
+│   │   └── application-dashboard-server.py # Lightweight localhost preview server
+│   └── kmp/                           # Native Kotlin Multiplatform Suite (Android, Desktop, Web, iOS)
+│       ├── apps/                      # Platform targets: android, desktop, web (Wasm/JS), ios
+│       ├── core/                      # core-design-system (Material 3), core-widgets, core-data
+│       ├── features/                  # features/sign-in
+│       └── shared/                    # Shared business logic, Koin DI, Firestore repositories
+├── records/                           # Protobuf contracts and parser bridge
+│   ├── proto/                         # tracker/v1/application.proto definitions
+│   └── parser/                        # Java/Kotlin data bridge
+├── documents/                         # Candidate career materials (CVs, LinkedIn exports, diplomas)
+├── job-applications/                  # Generated per-job application archives (LaTeX + compiled PDFs)
+├── tracker.schema.json                # Single typed contract for all Firestore records (Schema v7)
+├── archive/                           # Frozen pre-migration CSV snapshot (read-only historical audit)
+├── generated/                         # Disposable caches and Gmail fetch payloads (gitignored)
+├── docs/mise/                         # Auto-generated documentation for all mise tasks
+├── mise.toml                          # Task runner configuration and tool version management
+├── AGENTS.md                          # Universal Agent instructions (Single Source of Truth)
+├── GEMINI.md                          # Google Gemini / Antigravity CLI entry point
+└── CLAUDE.md                          # Claude Code CLI entry point
 ```
 
-## Application Tracking & Dashboards
+---
 
-Track and visualize your job search pipeline using the built-in terminal and web interfaces via `mise`:
+## Universal Functionality Colocation via `.agents`
 
-### Terminal UI Tracker (TUI)
-For fast, keyboard-driven navigation across all applications:
+This workspace implements the **Universal Agent Architecture**. All autonomous behaviors, search skills, and database invariants are colocated inside the [`.agents/`](.agents/) directory:
+
+- **Single Source of Truth:** Core skills live in [`.agents/skills/`](.agents/skills/) using the standardized Agent Skills format. Every CLI pointer (`AGENTS.md`, `GEMINI.md`, `CLAUDE.md`, `OPENCODE.md`) references these canonical definitions.
+- **Portability Across AI Tools:** Whether executing via **Claude Code**, **Google Gemini / Antigravity**, **OpenCode**, or **Codex**, the AI uses the exact same operational rules, verification checklists, and CLI toolchains.
+- **Self-Contained CLIs:** Scraper and search skills (e.g. `linkedin-search`, `freehire-search`) live directly with their runtime dependencies, enabling instant execution without modifying global packages.
+
+---
+
+## Database Architecture & Interaction Interfaces
+
+Cloud Firestore is the **single authoritative system of record** (`job-search-fnc314-dev`). The historical CSV in `archive/` is retired and never read as a mutable data source.
+
+### Invariants & Schema Contract
+1. **Typed Boundary:** Every document adheres strictly to [`tracker.schema.json`](tracker.schema.json) (Schema Version 7).
+2. **Append-Only History:** Funnel movements, status changes, and notes are never destructively overwritten; they are logged as immutable events in the `applications/{id}/events` subcollection. Derived fields (`notesRendered`, `isOpen`, `counters`, `timeline`) are reprojected from the event log.
+3. **Write Safety:** Mutations to Firestore are opt-in and require `TRACKER_ALLOW_WRITES=1`.
+
+### Interaction Interfaces
+
+The workspace provides multiple specialized interfaces to interact with the database depending on your workflow:
+
+```
+                                  ┌──────────────────────────────┐
+                                  │   Cloud Firestore (nam5)     │
+                                  │   System of Record (Schema 7)│
+                                  └──────────────▲───────────────┘
+                                                 │
+            ┌────────────────────────────────────┼────────────────────────────────────┐
+            │                                    │                                    │
+            ▼                                    ▼                                    ▼
+┌───────────────────────┐            ┌───────────────────────┐            ┌───────────────────────┐
+│     mise / CLI        │            │   Terminal UI (TUI)   │            │ Kotlin Multiplatform  │
+│  `mise run tracker`   │            │    `mise run tui`     │            │ `mise run ui:kmp:*`   │
+│ Scripts, automation,  │            │ Keyboard-driven       │            │ Android, Desktop JVM, │
+│ bulk edits, auditing  │            │ real-time curses view │            │ Web Wasm/JS, and iOS  │
+└───────────────────────┘            └───────────────────────┘            └───────────────────────┘
+            │                                    │                                    │
+            ▼                                    ▼                                    ▼
+┌───────────────────────┐            ┌───────────────────────┐            ┌───────────────────────┐
+│     Web Dashboard     │            │   Google Sheet Sync   │            │   Notion Live View    │
+│  `mise run dashboard` │            │ `tracker sheet --sync`│            │     `/notion-sync`    │
+│ Local SVG/HTML report │            │ Regenerated sheet     │            │ Mobile-friendly live  │
+│ served on :8000       │            │ mirror view           │            │ dashboard view        │
+└───────────────────────┘            └───────────────────────┘            └───────────────────────┘
+```
+
+1. **The CLI (`mise run tracker <command>`)**:
+   Full programmatic control for listing, inspecting, updating, status changes, manual event appending, and scoring.
+   ```bash
+   mise run tracker list --open
+   mise run tracker get capital-one
+   mise run tracker edit capital-one --interactive
+   mise run tracker status capital-one interview --note "Technical screen scheduled"
+   ```
+2. **Interactive Terminal UI (`mise run tui`)**:
+   Fast, keyboard-driven curses tracker. Supports sorting, interactive filtering, viewing notes history, and jumping to local CV/cover letter PDFs.
+3. **Web Dashboard Server (`mise run dashboard`)**:
+   Lightweight Python server serving [`ui/web/application-dashboard.html`](ui/web/application-dashboard.html) at `http://127.0.0.1:8000` with interactive pipeline metrics, sector distributions, and status charts.
+4. **Native Multiplatform Apps (`ui/kmp`)**:
+   Native applications built with Compose Multiplatform:
+   - **Desktop (JVM):** Full native desktop experience (`mise run ui:kmp:desktop:run`).
+   - **Android:** Mobile tracker with Material 3 design and offline-first Firestore sync (`mise run ui:kmp:android:install`).
+   - **Web:** Browser clients compiled to WebAssembly and JavaScript (`mise run ui:kmp:web:wasm:dev`).
+5. **Synchronized Views (Google Sheets & Notion)**:
+   - Synchronize an external Google Sheet mirror: `mise run tracker sheet --sync`.
+   - Publish a read-only live briefing to Notion: `/notion-sync`.
+
+---
+
+## The `mise` Toolkit
+
+Task execution across the entire repository is standardized using [`mise`](https://mise.jdx.dev/). Each task's arguments and usage are documented under [`docs/mise/`](docs/mise/).
+
+### Application & Search Tasks
+- **`mise run tracker <command>`** — Execute tracker CLI operations (e.g., `check`, `list`, `get`, `add`, `edit`, `status`, `score`, `event`, `artifact`, `proposals`).
+- **`mise run align`** — Align Firebase records to canonical IDs, recalculate fit ratings, and refresh `outcome.md`.
+- **`mise run scrape`** — Search portals and collect new job listings deduplicated against the tracker.
+- **`mise run salary [company]`** — Benchmark role compensation using local salary data.
+- **`mise run tui`** — Launch the interactive curses Terminal UI.
+- **`mise run dashboard`** — Serve the HTML dashboard locally on port 8000.
+- **`mise run report`** — Regenerate static HTML application report.
+- **`mise run setup`** — Run first-time setup, validate environment, and seed schema.
+
+### Gmail Ingestion & Automation Tasks
+- **`mise run gmail:sync:labels`** — Discover and cache user Gmail labels via Composio CLI.
+- **`mise run gmail:read:inbox`** — Fetch job-related emails and write inbox payload.
+- **`mise run gmail:collect`** — Stage proposals from fetched emails to Firestore for human review.
+
+### Kotlin Multiplatform (`ui/kmp`) Tasks
+- **`mise run ui:kmp:build`** — Build all KMP targets and modules.
+- **`mise run ui:kmp:clean`** — Clean Gradle build cache and build directories.
+- **`mise run ui:kmp:test`** — Run KMP unit tests across shared modules.
+- **`mise run ui:kmp:desktop:run`** — Launch the Compose Desktop application.
+- **`mise run ui:kmp:desktop:package`** — Package native desktop distribution (DMG/MSI/DEB).
+- **`mise run ui:kmp:android:assemble`** — Build Android debug APK.
+- **`mise run ui:kmp:android:bundle`** — Build Android release App Bundle.
+- **`mise run ui:kmp:android:install`** — Install debug APK to connected device/emulator.
+- **`mise run ui:kmp:web:wasm:dev`** — Run Compose Web dev server (Wasm target).
+- **`mise run ui:kmp:web:wasm:dist`** — Build production Web Wasm bundle.
+- **`mise run ui:kmp:web:js:dev`** — Run Compose Web dev server (JS target).
+- **`mise run ui:kmp:web:js:dist`** — Build production Web JS bundle.
+
+### Documentation & Shell Completions
+- **`mise run mise:docs:tasks`** — Lint Usage specs, sync Protobuf, and regenerate Markdown documentation in `docs/mise/`.
+- **`mise run completions:generate`** — Generate fast Zsh autocompletions for all CLI specs.
+
+---
+
+## Prerequisites & Installation
+
+1. **AI CLI**: OpenCode, Claude Code, Gemini CLI, Antigravity, or Codex.
+2. **Task Runner**: [mise](https://mise.jdx.dev/) (`curl https://mise.run | sh` or `brew install mise`).
+3. **Runtimes**: Python 3.10+, [Bun](https://bun.sh) (for portal search CLIs), JDK 17+ (for KMP and Protobuf builds).
+4. **LaTeX Distribution**: MacTeX, TeX Live, or MiKTeX with `lualatex` (for CV) and `xelatex` (for cover letter).
+5. **Optional ATS Tooling**: `pdftotext` from `poppler` (`brew install poppler` on macOS).
+
+### Quick Setup
+
 ```bash
-mise run tui
-```
-- **Navigation:** `j`/`k` or arrow keys to scroll, `Enter` to expand details or view candidate files (resumes, cover letters, `outcome.md`).
-- **Sorting:** Press `1`–`5` to toggle sorting by date, company, status, fit rating, or role.
-- **Outreach Protocols:** Integrates directly with recruiter and peer networking message templates.
-- **Configuration:** Custom column layouts and themes can be customized in `ui/terminal/tui_config.json` or `~/.config/job-tracker/config.json`.
+# 1. Install toolchains and dependencies
+mise install
 
-### Web Dashboard & Server
-For a visual overview of pipeline conversion, status counts, and sector breakdowns:
+# 2. Run initial environment validation
+mise run setup --check
+
+# 3. Launch your AI assistant
+antigravity # or claude, opencode, gemini
+```
+
+Inside your AI chat, run:
 ```bash
-# Start the local dashboard server and open in your default browser:
-mise run dashboard
-
-# Or regenerate the static HTML report manually:
-mise run report
-```
-- **Live Local Server:** Quickly spun up with `mise run dashboard` (served on `http://127.0.0.1:8000`).
-- **Auto-Regeneration:** Visit `http://127.0.0.1:8000/refresh` or start with `--regenerate` to pull the latest entries from the tracker store (Firestore, with the local cache as a fallback).
-- **Zero External Dependencies:** Built with vanilla HTML/CSS and inline SVGs.
-
-## How `/apply` works
-
-The `/apply` command runs a **drafter-reviewer workflow** with mandatory PDF compilation:
-
-1. **Parse** the job posting (URL or text)
-2. **Evaluate fit** against your profile (skills, experience, culture, location, career alignment)
-3. **Draft** a tailored CV and cover letter in LaTeX
-4. **Spawn a reviewer agent** that researches the company and critiques the drafts
-5. **Revise** based on the reviewer's feedback
-6. **Compile and inspect** both PDFs: lualatex for the CV, xelatex for the cover letter. The AI agent reads the rendered pages and iterates on the LaTeX until the CV is exactly 2 pages with no orphaned entry titles, and the cover letter is exactly 1 page with the signature visible and fonts consistent.
-7. **ATS-check the CV**: extract the PDF's text layer (`pdftotext`, optional dependency) and verify it the way an ATS parser sees it — contact details present as literal text, no garbled glyphs, sane reading order — then score the posting's keyword coverage against the extraction. Keywords the profile genuinely supports get added; genuine gaps stay visible, never stuffed.
-8. **Present** the final output with a verification checklist
-
-All claims in the CV and cover letter are verified against your actual profile. The system never fabricates skills or experience.
-
-### What makes this workflow different
-
-- **PDF verification loop.** Most LaTeX-resume templates produce "looks fine in the .tex" output that breaks in the PDF: job titles orphan to the next page, cover letters spill onto page 2, bullet fonts silently fall back to the body font. The `/apply` command compiles and visually inspects every PDF and applies targeted fixes (`\needspace`, `\enlargethispage`, font-matching wrappers for list items) until the layout is clean. This runs automatically on every application.
-- **ATS verification on the PDF text layer.** An ATS reads the PDF's embedded text, not the rendered page — and LaTeX can silently produce PDFs whose text extracts as garbage (icon glyphs where the email should be, interleaved lines from multi-column layouts). `/apply` extracts the compiled CV's text layer with `pdftotext` and verifies contact details, reading order, and the posting's keyword coverage against what a parser actually sees. Honesty rule enforced: a keyword the profile doesn't support is acknowledged as a gap, never stuffed in.
-- **Relevance-weighted CV cutting.** When a CV overflows 2 pages, the workflow does not cut mechanically from the "oldest" section. It scores each candidate line by (a) relevance to the target posting, (b) uniqueness in the document, and (c) whether the cover letter depends on it, and cuts the lowest-total-score line first. An older-role bullet that hits posting keywords survives ahead of a recent-role bullet that does not.
-- **Drafter-reviewer separation.** The drafter writes; a second AI agent, spawned with a fresh context, researches the company and critiques the drafts. The drafter then revises. This catches missed keywords, weak framing, and generic language that a single pass often leaves in.
-- **Token-efficient reviewer dispatch.** The reviewer agent receives drafts inline rather than re-reading them, and the verification checklist runs once at the end of the workflow rather than being duplicated by both agents. Note: the new compile-and-inspect step in Step 5 spends some of those savings on PDF rendering and layout iteration — the workflow trades some end-to-end token cost for a real reduction in broken PDFs reaching the user.
-
-## Customization
-
-### Which files to edit manually
-
-If you prefer editing files directly instead of using `/setup`:
-
-| File | What to change |
-|------|---------------|
-| `CLAUDE.md` | Your full profile (name, education, experience, skills, goals) |
-| `01-candidate-profile.md` | Structured version of your CV data |
-| `02-behavioral-profile.md` | Your behavioral assessment or self-assessment |
-| `04-job-evaluation.md` | Skill match areas, career goals, motivation filters |
-| `05-cv-templates.md` | Profile statement templates for different role types |
-| `07-interview-prep.md` | Your STAR examples from actual experience |
-| `search-queries.md` | Job search queries for your skills and location |
-
-### Updating your search queries
-
-As your priorities evolve, you can reconfigure just the job search without re-running the full profile setup:
-
-```
-/setup --section search
+/setup
 ```
 
-This re-runs the search configuration interview: which roles to target, which skills to search for, which locations, and which portals. It also suggests role types you may not have considered based on your profile.
+---
 
-### Custom templates
+## How `/apply` Works
 
-The CV uses [moderncv](https://ctan.org/pkg/moderncv) (banking style). The cover letter uses a custom `cover.cls` with Lato/Raleway fonts. Both are LaTeX — the reference engine this repo ships and maintains.
+The `/apply` command executes a rigorous **drafter-reviewer workflow** with automated PDF layout verification:
 
-To use your own template instead — LaTeX, [Typst](https://typst.app/), or any other toolchain that compiles to PDF from the command line — run:
+1. **Parse & Evaluate:** Extracts posting requirements and scores fit against your verified candidate profile.
+2. **Draft LaTeX:** Generates tailored CV (`cv/main_example.tex`) and Cover Letter (`cover_letters/cover.cls`).
+3. **Reviewer Audit:** An independent reviewer agent critiques the drafts for keyword alignment, tone, and ATS scanability.
+4. **Compile & Inspect:** Compiles with `lualatex` (CV) and `xelatex` (Cover Letter). Enforces strict layout rules (CV strictly 2 pages; Cover Letter strictly 1 page).
+5. **ATS Verification:** Extracts embedded text using `pdftotext` to ensure zero symbol corruption, valid reading order, and genuine keyword grounding (zero fabrication).
 
-```
-/add-template
-```
+---
 
-Point it at your source file (a `.tex` file plus any `.cls`/`.sty` files or bundled fonts; a `.typ` file plus any local packages; or an equivalent for another toolchain). The command interviews you for the template's instructions — source extension, compile command, fonts and where they live, style rules to preserve, hard page limit — stores everything under `templates/`, runs a mandatory test compile, and activates the template so `/apply` drafts and compiles from it. Templates are stored with `[PLACEHOLDER]` tokens instead of personal data, so they're safe to commit and share.
+## Contributing & Upstream Synchronization
 
-- `/add-template --list` shows registered templates
-- `/add-template --use <name>` switches between them
-- `/add-template --use default` reverts to the stock moderncv / cover.cls templates
-
-If you prefer doing it by hand, the manual route still works: update the guidance in `05-cv-templates.md` and `06-cover-letter-templates.md`.
-
-### Job search tools
-
-The four Danish CLI tools in `.agents/skills/` (Jobbank, Jobdanmark, Jobindex, Jobnet) demonstrate the pattern for building a job-portal integration for a specific market. If you're in a different country, run:
-
-```
-/add-portal
-```
-
-Give it your local job board's URL. The command investigates the portal (search-URL pattern, result-page structure, robots.txt/access rules), scaffolds a CLI skill with the same structure, commands, and output contract as the shipped ones, and test-runs a live query before registering anything. Auth-walled portals are declined, and portals with restrictive terms get a prominent personal-use-only warning in the generated skill. The generated skill is market-specific and lives in your fork; the generator itself is the universal part.
-
-Maintaining a fork adapted to your market or language? Add it to the [Community forks & adaptations](https://github.com/MadsLorentzen/ai-job-search/discussions/78) thread so others can find it.
-
-For **country-agnostic** starting points outside Denmark, the repo ships two portal skills alongside the Danish demos:
-
-- **`linkedin-search`** — built on LinkedIn's public, unauthenticated `jobs-guest` endpoints. Field-agnostic, **zero runtime dependencies** (runs with just `bun`), and takes the search location as an explicit flag, so it works for any market out of the box (`-l "Berlin, Germany"`, `-l "Mumbai, Maharashtra, India"`, `-l "Remote"`, …). Intended for **personal use only** — automated access is against LinkedIn's Terms of Service, so keep volume low. See `.agents/skills/linkedin-search/SKILL.md`.
-- **`freehire-search`** — queries the [freehire.me](https://freehire.me) aggregator's public REST API (JSON, no API key). Tech-focused (software, data, engineering, DevOps, remote), multi-market via facet flags (`--region`, `--country`, `--remote`), and **zero runtime dependencies**. Unlike the HTML-scraping Danish portals, results come back structured (skills, seniority, category). The backend is MIT-licensed and [self-hostable](https://github.com/strelov1/freehire) — point `FREEHIRE_API_URL` at your own instance if you prefer. See `.agents/skills/freehire-search/SKILL.md`.
-
-### Salary benchmarking
-
-The salary tool works with any salary data you provide (union statistics, Glassdoor exports, personal research, etc.). See `tools/README_SALARY_TOOL.md` for the expected format and setup. If you don't have salary data, the salary step is simply skipped.
-
-### Starting over
-
-To wipe your profile data and start fresh:
-
-```
-/reset profile    # clears skill files, preserves framework rules
-/reset documents  # deletes files from documents/ folder
-/reset all        # both
-```
-
-`/reset` shows exactly what will be deleted and requires you to type `RESET` to confirm. Nothing is deleted until you do.
-
-### Staying up to date
-
-Upstream moves fast. Rather than pulling raw `master` and hoping, update your fork to a tagged [release](../../releases) - a vetted checkpoint described in [CHANGELOG.md](CHANGELOG.md). `python3 tools/check_upstream_updates.py` previews exactly which of your personalized files an update touches before you merge. Full walkthrough in [SETUP.md, section 8](SETUP.md#8-pulling-upstream-updates-into-your-fork).
-
-## Tips for better results
-
-### Profile depth matters
-
-The single biggest factor in output quality is how much detail you put into your profile. A thin profile produces generic applications; a detailed one enables genuinely tailored results.
-
-- **Role descriptions:** Don't just list job titles. Describe what you actually did in each position: specific projects, tools used, responsibilities, and measurable achievements. The more material you provide, the more precisely the system can reframe your experience for different roles.
-- **Skills in context:** Instead of listing "Python" or "project management," describe how and where you applied them. "Built ML pipelines for customer churn prediction in Python using scikit-learn" gives the system far more to work with than "Python, machine learning."
-- **All onboarding paths work:** Whether you point `/setup` at your `documents/` folder, paste a single CV, or walk through the interview, the principle is the same: richer input produces sharper output.
-
-### Career path discovery
-
-The framework supports two distinct modes of job searching:
-
-- **Explicit targeting:** You know which roles or sectors you want. The system helps refine and prioritize based on fit.
-- **Latent opportunity discovery:** By analyzing your full history (not just job titles, but the actual work you did), the system can surface career paths you haven't considered. Transferable skills that map to unexpected industries, patterns in what you enjoyed or excelled at, or emerging roles that combine your domain expertise with new technology.
-
-To get the most from this, invest time during `/setup` in describing not just your experience, but what energized you, what drained you, and what you'd want more of. This context directly shapes how the system evaluates fit and which roles it surfaces during `/scrape`.
-
-## Contributing
-
-Thinking about a PR? Read [CONTRIBUTING.md](CONTRIBUTING.md) first - it explains what gets merged, what lives in forks, and why.
+- Upstream releases are tagged in GitHub releases. Use `python3 tools/check_upstream_updates.py` to preview upstream updates against your personalized files.
+- Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for PR guidelines and [SECURITY.md](SECURITY.md) for untrusted data handling rules.
 
 ## Acknowledgements
 
-- [Mikkel Krogholm](https://github.com/mikkelkrogsholm) ([skills repo](https://github.com/mikkelkrogsholm/skills)) for the job search CLI skills
-- Built with [Claude Code](https://claude.com/claude-code) by [Anthropic](https://anthropic.com)
+- **Original Creator:** [Mads Lorentzen](https://github.com/MadsLorentzen) ([ai-job-search](https://github.com/MadsLorentzen/ai-job-search))
+- **Portal Search CLIs:** [Mikkel Krogholm](https://github.com/mikkelkrogsholm)
 
 ## License
 
