@@ -175,13 +175,13 @@ The `:core:widgets` module is created with an `api` dependency on `:core:design-
 - Implement filtering/counting of filled inputs in ViewModels when serializing notes for System of Record submission.
 - Verify multi-module build and experience behavior across targets.
 
-### * Step 4: Fix swipe-to-delete animation and replace up-down buttons with gripper handles in NotesWidget
+### ✓ Step 4: Fix swipe-to-delete animation and replace up-down buttons with gripper handles in NotesWidget
 Improve the UX in `NotesWidget` by fixing the swipe-to-delete jump/glitch and replacing up/down arrows with drag/reorder gripper handles.
 
 - Animate item exit (fade/shrink) or use `AnimatedVisibility` so deletion collapses cleanly without wonky visual artifacts.
 - Replace arrow buttons (▲/▼) with vertical drag gripper handle icons (`Icons.Default.DragHandle` / `⠿`).
 
-###   Step 5: Migrate navigation to Jetpack Navigation 3 with system back button support
+### ✓ Step 5: Migrate navigation to Jetpack Navigation 3 with system back button support
 Adopt Navigation 3 so the back button navigates backwards through app screens instead of closing the app.
 
 - Add Navigation 3 dependency (`androidx.navigation3:navigation3-ui` / `runtime` or appropriate multiplatform-compatible integration) and back handler support.

@@ -51,6 +51,8 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.bundles.compose.tooling)
+            implementation(libs.navigation3.runtime)
+            implementation(libs.navigation3.ui)
         }
         commonMain.dependencies {
             implementation(projects.coreWidgets)

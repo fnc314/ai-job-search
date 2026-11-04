@@ -7,9 +7,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import dev.fnc314.tools.jobtracker.di.appModule
-import dev.fnc314.tools.jobtracker.ui.add.AddJobApplicationScreen
 import dev.fnc314.tools.jobtracker.core.designsystem.JobTrackerTheme
+import dev.fnc314.tools.jobtracker.di.appModule
+import dev.fnc314.tools.jobtracker.navigation.*
+import dev.fnc314.tools.jobtracker.ui.add.AddJobApplicationScreen
 import dev.fnc314.tools.jobtracker.ui.detail.JobApplicationDetailScreen
 import dev.fnc314.tools.jobtracker.ui.edits.TrackerEditsScreen
 import dev.fnc314.tools.jobtracker.ui.lead.AddLeadScreen
@@ -17,9 +18,6 @@ import dev.fnc314.tools.jobtracker.ui.list.JobApplicationsListScreen
 import dev.fnc314.tools.jobtracker.ui.settings.AppSettings
 import org.koin.compose.KoinApplication
 import org.koin.dsl.koinConfiguration
-
-enum class AddMode { Application, Lead }
-enum class ScreenRoute { List, Detail, AddApplication, AddLead, Edits }
 
 @Composable
 fun App() {
@@ -45,48 +43,58 @@ fun App() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background,
             ) {
-                var selectedAppId: String? by remember { mutableStateOf<String?>(null) }
-                var showEdits by remember { mutableStateOf(false) }
-                var addMode: AddMode? by remember { mutableStateOf<AddMode?>(null) }
+                val navigator = rememberNavigator(startRoute = ListRoute)
 
-                when {
-                    showEdits ->
-                        TrackerEditsScreen(
-                            onNavigateBack = { showEdits = false },
-                            onEditClick = { appId ->
-                                showEdits = false
-                                selectedAppId = appId
-                            },
-                            settings = settings,
-                            onSettingsChange = { settings = it },
-                        )
+                val entryProvider = remember {
+                    navEntryProvider {
+                        entry<ListRoute> {
+                            JobApplicationsListScreen(
+                                onApplicationClick = { id -> navigator.navigateTo(DetailRoute(id)) },
+                                onAddApplicationClick = { navigator.navigateTo(AddApplicationRoute) },
+                                onAddLeadClick = { navigator.navigateTo(AddLeadRoute) },
+                                onEditsClick = { navigator.navigateTo(EditsRoute) },
+                                settings = settings,
+                                onSettingsChange = { settings = it },
+                            )
+                        }
 
-                    addMode == AddMode.Application ->
-                        AddJobApplicationScreen(
-                            onNavigateBack = { addMode = null },
-                        )
+                        entry<DetailRoute> { route ->
+                            JobApplicationDetailScreen(
+                                applicationId = route.applicationId,
+                                onNavigateBack = { navigator.goBack() },
+                            )
+                        }
 
-                    addMode == AddMode.Lead ->
-                        AddLeadScreen(
-                            onNavigateBack = { addMode = null },
-                        )
+                        entry<AddApplicationRoute> {
+                            AddJobApplicationScreen(
+                                onNavigateBack = { navigator.goBack() },
+                            )
+                        }
 
-                    selectedAppId != null ->
-                        JobApplicationDetailScreen(
-                            applicationId = selectedAppId!!,
-                            onNavigateBack = { selectedAppId = null },
-                        )
+                        entry<AddLeadRoute> {
+                            AddLeadScreen(
+                                onNavigateBack = { navigator.goBack() },
+                            )
+                        }
 
-                    else ->
-                        JobApplicationsListScreen(
-                            onApplicationClick = { id -> selectedAppId = id },
-                            onAddApplicationClick = { addMode = AddMode.Application },
-                            onAddLeadClick = { addMode = AddMode.Lead },
-                            onEditsClick = { showEdits = true },
-                            settings = settings,
-                            onSettingsChange = { settings = it },
-                        )
+                        entry<EditsRoute> {
+                            TrackerEditsScreen(
+                                onNavigateBack = { navigator.goBack() },
+                                onEditClick = { appId ->
+                                    navigator.navigateTo(DetailRoute(appId))
+                                },
+                                settings = settings,
+                                onSettingsChange = { settings = it },
+                            )
+                        }
+                    }
                 }
+
+                NavDisplay(
+                    navigator = navigator,
+                    entryProvider = entryProvider,
+                    onBack = { navigator.goBack() },
+                )
             }
         }
     }

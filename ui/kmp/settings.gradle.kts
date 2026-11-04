@@ -17,6 +17,7 @@ plugins {
 projectCollections {
     registerProjectCollection("apps")
     registerProjectCollection("core")
+    registerProjectCollection("features", depth = 2)
     projectNameTransform = ProjectNameMapper { name, _ ->
         name.removePrefix(":")
             .replace(":", "-")
