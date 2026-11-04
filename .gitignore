@@ -185,3 +185,4 @@ ui/kotlin-toolchain/build/
 
 # Local Maven repository for records project
 .m2/
+
