@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import dev.fnc314.tools.jobtracker.data.model.TrackerEdit
 import dev.fnc314.tools.jobtracker.data.model.TrackerEditKind
 import dev.fnc314.tools.jobtracker.data.model.TrackerEditState
+import dev.fnc314.tools.jobtracker.ui.settings.AppSettings
 import dev.fnc314.tools.jobtracker.util.displayName
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -24,6 +25,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun TrackerEditsScreen(
     onNavigateBack: () -> Unit,
     onEditClick: (String) -> Unit = {},
+    settings: AppSettings = AppSettings(),
+    onSettingsChange: (AppSettings) -> Unit = {},
     viewModel: TrackerEditsViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()

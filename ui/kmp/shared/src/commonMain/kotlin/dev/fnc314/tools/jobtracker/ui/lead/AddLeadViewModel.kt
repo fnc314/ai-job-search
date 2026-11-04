@@ -13,7 +13,7 @@ data class AddLeadFormState(
     val company: String = "",
     val contact: String = "",
     val channel: String = "",
-    val notes: String = "",
+    val notes: List<String> = emptyList(),
     val tags: String = "",
     val submitting: Boolean = false,
     val error: String? = null,
@@ -38,7 +38,7 @@ class AddLeadViewModel(
         _formState.update { it.copy(channel = value, error = null) }
     }
 
-    fun updateNotes(value: String) {
+    fun updateNotes(value: List<String>) {
         _formState.update { it.copy(notes = value, error = null) }
     }
 
@@ -69,7 +69,6 @@ class AddLeadViewModel(
         viewModelScope.launch {
             try {
                 val notesList = state.notes
-                    .split("\n")
                     .map { it.trim() }
                     .filter { it.isNotBlank() }
                 val tagsList = state.tags

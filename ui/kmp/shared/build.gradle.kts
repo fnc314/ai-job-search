@@ -50,56 +50,45 @@ kotlin {
     }
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.compose.uiToolingPreview)
-            implementation(libs.compose.uiTooling)
+            implementation(libs.bundles.compose.tooling)
         }
         commonMain.dependencies {
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
-            implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(projects.coreWidgets)
+            // Compose UI
+            implementation(libs.bundles.compose.ui)
             
-            // Material Icons
-            implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
+            // Lifecycle
+            implementation(libs.bundles.androidx.lifecycle.compose)
             
             // Koin
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose)
-            implementation(libs.koin.viewmodel)
+            implementation(libs.bundles.koin)
             
             // Navigation
             implementation(libs.navigation.compose)
             
             // Ktor
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.ktor.content.negotiation)
-            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.bundles.ktor.client)
+            implementation(libs.bundles.serialization)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
         jsMain.dependencies {
             implementation(libs.wrappers.browser)
-            implementation(libs.ktor.client.js)
+            implementation(libs.bundles.ktor.client.js)
         }
         jvmMain.dependencies {
-            implementation(libs.ktor.client.cio)
+            implementation(libs.bundles.ktor.client.jvm)
             // Firebase Admin SDK for JVM (Desktop)
-            implementation(libs.firebase.admin)
+            implementation(libs.bundles.firebase.jvm)
         }
         androidMain.dependencies {
-            implementation(libs.ktor.client.okhttp)
-            // Firebase - using explicit versions instead of BOM for KMP compatibility
-            implementation("com.google.firebase:firebase-firestore-ktx:25.1.1")
-            implementation("com.google.firebase:firebase-auth-ktx:23.2.0")
+            implementation(libs.bundles.ktor.client.android)
+            // Firebase
+            implementation(libs.bundles.firebase.android)
         }
         iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
+            implementation(libs.bundles.ktor.client.ios)
         }
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.testRunner)

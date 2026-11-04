@@ -1,14 +1,27 @@
+import dev.fnc314.gradle.plugins.settings.projectcollectionsgradlesettingsplugin.ProjectNameMapper
+
 rootProject.name = "FNC314JobSearchTracker"
 
 pluginManagement {
     includeBuild("./gradle/tools")
+    plugins {
+        id("dev.fnc314.gradle.plugins.settings.project-collections-gradle-settings-plugin") version("5.1.1")
+    }
 }
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+    id("dev.fnc314.gradle.plugins.settings.project-collections-gradle-settings-plugin") version "5.1.1"
 }
 
-include(":androidApp")
-include(":desktopApp")
+projectCollections {
+    registerProjectCollection("apps")
+    registerProjectCollection("core")
+    projectNameTransform = ProjectNameMapper { name, _ ->
+        name.removePrefix(":")
+            .replace(":", "-")
+            .prependIndent(":")
+    }
+}
+
 include(":shared")
-include(":webApp")

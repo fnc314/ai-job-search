@@ -174,6 +174,7 @@ cover_*.log
 .claude/skills/job-scraper/search-queries.md
 
 bin
+ui/kmp/androidApp/google-services.json
 ui/kmp/build/
 ui/kmp/.gradle/
 ui/kmp/.idea/

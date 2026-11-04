@@ -7,8 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.fnc314.tools.jobtracker.domain.usecase.FilterJobApplicationsUseCase
 import dev.fnc314.tools.jobtracker.domain.usecase.SortJobApplicationsUseCase
@@ -23,8 +24,11 @@ import org.koin.compose.viewmodel.koinViewModel
 fun JobApplicationsListScreen(
     viewModel: JobApplicationsListViewModel = koinViewModel(),
     onApplicationClick: (String) -> Unit,
-    onAddClick: () -> Unit = {},
+    onAddApplicationClick: () -> Unit = {},
+    onAddLeadClick: () -> Unit = {},
     onEditsClick: () -> Unit = {},
+    settings: AppSettings = AppSettings(),
+    onSettingsChange: (AppSettings) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val applications by viewModel.filteredApplications.collectAsState()
@@ -35,12 +39,15 @@ fun JobApplicationsListScreen(
     val sortAscending by viewModel.sortAscending.collectAsState()
 
     var showSettings by remember { mutableStateOf(false) }
-    var settings by remember { mutableStateOf(AppSettings()) }
+    var fabMenuExpanded by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     if (showSettings) {
         SettingsDialog(
             settings = settings,
-            onSettingsChange = { settings = it },
+            onSettingsChange = {
+                onSettingsChange(it)
+            },
             onDismiss = { showSettings = false },
         )
     }
@@ -72,11 +79,42 @@ fun JobApplicationsListScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddClick,
-                modifier = Modifier.semantics { contentDescription = "Add new application" },
-            ) {
-                Text("+")
+            Box {
+                FloatingActionButton(
+                    onClick = {
+                        focusManager.clearFocus()
+                        fabMenuExpanded = true
+                    },
+                    modifier = Modifier.semantics { contentDescription = "Add new application" },
+                ) {
+                    Text("+")
+                }
+                DropdownMenu(
+                    expanded = fabMenuExpanded,
+                    onDismissRequest = { fabMenuExpanded = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Add Application") },
+                        onClick = {
+                            fabMenuExpanded = false
+                            onAddApplicationClick()
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Add Lead") },
+                        onClick = {
+                            fabMenuExpanded = false
+                            onAddLeadClick()
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Pending Edits") },
+                        onClick = {
+                            fabMenuExpanded = false
+                            onEditsClick()
+                        },
+                    )
+                }
             }
         },
     ) { padding ->

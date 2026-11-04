@@ -1,0 +1,13 @@
+name "scrape"
+bin "scrape"
+about "Search job portals and collect new listings, deduplicated against seen jobs and the tracker."
+version "1.0.0"
+
+flag "-q --query" help="Explicit query (repeatable); overrides search-queries.md"
+flag "--limit <limit>" help="Max results per portal per query (default: 20)"
+flag "--priority <priority>" help="Priority categories to run, 0 = all (default: 3)"
+flag "--focus <focus>" help="Focus area to prioritize queries (e.g. Android)"
+flag "--save-seen" help="Write updated seen_jobs.json after search"
+flag "--table" help="Output as a Markdown table instead of JSON"
+flag "--summary" help="Only show summary stats, not individual results"
+flag "--health" help="Only check portal health (probe each portal)"

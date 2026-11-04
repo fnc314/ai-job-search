@@ -26,7 +26,7 @@ data class AddApplicationFormState(
     val jobUrl: String = "",
     val jobId: String = "",
     val location: String = "",
-    val notes: String = "",
+    val notes: List<String> = emptyList(),
     val tags: String = "",
     val submitting: Boolean = false,
     val error: String? = null,
@@ -79,7 +79,7 @@ class AddJobApplicationViewModel(
         _formState.update { it.copy(location = value, error = null) }
     }
 
-    fun updateNotes(value: String) {
+    fun updateNotes(value: List<String>) {
         _formState.update { it.copy(notes = value, error = null) }
     }
 
@@ -118,6 +118,10 @@ class AddJobApplicationViewModel(
                     .map { it.trim() }
                     .filter { it.isNotBlank() }
 
+                val filledNotes = state.notes
+                    .map { it.trim() }
+                    .filter { it.isNotBlank() }
+
                 val app = Factory.createJobApplication(
                     id = Clock.System.now().toString(),
                     company = state.company.trim(),
@@ -129,7 +133,7 @@ class AddJobApplicationViewModel(
                     location = state.location.takeIf { it.isNotBlank() },
                     description = state.roleType.takeIf { it.isNotBlank() },
                     tags = tagsList,
-                    notesRendered = state.notes.takeIf { it.isNotBlank() },
+                    notesRendered = if (filledNotes.isNotEmpty()) filledNotes.joinToString("\n") else null,
                     locationDetail = if (state.workMode != WorkMode.UNSPECIFIED || state.location.isNotBlank()) {
                         Factory.createLocation(
                             city = state.location.takeIf { it.isNotBlank() },

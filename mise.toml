@@ -12,7 +12,7 @@ monorepo_root = true
   # copy of the application record, so the interpreter is not allowed to drift.
   python = "3.15.2"
   bun = "1.4.4"
-  usage = { version = "7.1.5", workflow = "publish-cli.yml" }
+  usage = { version = "7.2.0", workflow = "publish-cli.yml" }
   gradle = "9.8.2"
   java = "27.0.1+1"
 
@@ -180,6 +180,21 @@ flag "--list-all" help="List all companies"
 flag "--validate" help="Validate salary_data.json and print a report"
 """,
     run = ".venv/bin/python scripts/salary_lookup.py{% if usage.company %} {{ usage.company }}{% endif %}{% if usage.city %} --city {{ usage.city }}{% endif %}{% if usage.json %} --json{% endif %}{% if usage.list_all %} --list-all{% endif %}{% if usage.validate %} --validate{% endif %}"
+  }
+  scrape = {
+    description = "Search job portals and collect new listings, deduplicated against seen jobs and the tracker",
+    raw = true,
+    usage = """
+flag "-q --query" help="Explicit query (repeatable); overrides search-queries.md"
+flag "--limit <limit>" help="Max results per portal per query (default: 20)"
+flag "--priority <priority>" help="Priority categories to run, 0 = all (default: 3)"
+flag "--focus <focus>" help="Focus area to prioritize queries (e.g. Android)"
+flag "--save-seen" help="Write updated seen_jobs.json after search"
+flag "--table" help="Output as a Markdown table instead of JSON"
+flag "--summary" help="Only show summary stats, not individual results"
+flag "--health" help="Only check portal health (probe each portal)"
+""",
+    run = '.venv/bin/python scripts/scrape.py{% if usage.query %}{% for q in usage.query %} -q "{{ q }}"{% endfor %}{% endif %}{% if usage.limit %} --limit {{ usage.limit }}{% endif %}{% if usage.priority %} --priority {{ usage.priority }}{% endif %}{% if usage.focus %} --focus "{{ usage.focus }}"{% endif %}{% if usage.save_seen %} --save-seen{% endif %}{% if usage.table %} --table{% endif %}{% if usage.summary %} --summary{% endif %}{% if usage.health %} --health{% endif %}'
   }
   # ── Gmail sync ─────────────────────────────────────────────────────────────
   # Each step is independent so a scheduler or agent can run only what it needs.

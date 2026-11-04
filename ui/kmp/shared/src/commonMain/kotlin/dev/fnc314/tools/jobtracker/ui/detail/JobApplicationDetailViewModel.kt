@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
 import org.koin.core.component.KoinComponent
@@ -116,9 +115,9 @@ class JobApplicationDetailViewModel : KoinComponent {
         }
     }
 
-    fun getArtifactSignedUrl(path: String): String? {
+    suspend fun getArtifactSignedUrl(path: String): String? {
         return try {
-            runBlocking { getSignedUrlUseCase(GetArtifactSignedUrlUseCase.Params(path = path)) }
+            getSignedUrlUseCase(GetArtifactSignedUrlUseCase.Params(path = path))
         } catch (e: Exception) {
             null
         }

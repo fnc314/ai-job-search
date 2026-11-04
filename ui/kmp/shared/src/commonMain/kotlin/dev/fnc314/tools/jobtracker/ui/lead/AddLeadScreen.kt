@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import dev.fnc314.tools.jobtracker.core.widgets.NotesWidget
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +53,12 @@ fun AddLeadScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            Text(
+                text = "(*) Denotes a required field",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
             // Error message
             formState.error?.let { error ->
                 Card(
@@ -73,7 +80,7 @@ fun AddLeadScreen(
             OutlinedTextField(
                 value = formState.company,
                 onValueChange = viewModel::updateCompany,
-                label = { Text("Company") },
+                label = { Text("Company (*)") },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("e.g. Acme Corp") },
                 singleLine = true,
@@ -101,13 +108,10 @@ fun AddLeadScreen(
             )
 
             // Notes
-            OutlinedTextField(
-                value = formState.notes,
-                onValueChange = viewModel::updateNotes,
-                label = { Text("Notes") },
+            NotesWidget(
+                initialNotes = formState.notes,
+                onNotesChanged = viewModel::updateNotes,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Details about the lead...\nOne note per line") },
-                minLines = 3,
             )
 
             // Tags
@@ -119,6 +123,9 @@ fun AddLeadScreen(
                 placeholder = { Text("recruiter, outbound, kotlin (comma-separated)") },
                 singleLine = true,
             )
+
+            // Spacing well below the last item for keyboard clearance
+            Spacer(modifier = Modifier.height(280.dp))
         }
     }
 }
