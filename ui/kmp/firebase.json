@@ -1,0 +1,13 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Job Search Tracker",
+        "supportEmail": "fnc314@gmail.com"
+      }
+    }
+  }
+}

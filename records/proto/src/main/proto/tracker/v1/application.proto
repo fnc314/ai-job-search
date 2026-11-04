@@ -36,4 +36,5 @@ message JobApplication {
   google.protobuf.Timestamp createdAt = 18;
   google.protobuf.Timestamp updatedAt = 19;
   google.protobuf.Struct metadata = 20;
+  string jobApplicationUrl = 21;
 }

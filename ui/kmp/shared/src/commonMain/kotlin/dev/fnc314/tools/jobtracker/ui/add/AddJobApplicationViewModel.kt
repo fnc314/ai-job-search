@@ -24,6 +24,7 @@ data class AddApplicationFormState(
     val channel: ApplicationChannel = ApplicationChannel.UNSPECIFIED,
     val status: TrackerStatus = TrackerStatus.APPLIED,
     val jobUrl: String = "",
+    val jobApplicationUrl: String = "",
     val jobId: String = "",
     val location: String = "",
     val notes: List<String> = emptyList(),
@@ -69,6 +70,10 @@ class AddJobApplicationViewModel(
 
     fun updateJobUrl(value: String) {
         _formState.update { it.copy(jobUrl = value, error = null) }
+    }
+
+    fun updateJobApplicationUrl(value: String) {
+        _formState.update { it.copy(jobApplicationUrl = value, error = null) }
     }
 
     fun updateJobId(value: String) {
@@ -130,6 +135,7 @@ class AddJobApplicationViewModel(
                     channel = state.channel,
                     jobId = state.jobId.takeIf { it.isNotBlank() },
                     jobUrl = state.jobUrl.takeIf { it.isNotBlank() },
+                    jobApplicationUrl = state.jobApplicationUrl.takeIf { it.isNotBlank() },
                     location = state.location.takeIf { it.isNotBlank() },
                     description = state.roleType.takeIf { it.isNotBlank() },
                     tags = tagsList,

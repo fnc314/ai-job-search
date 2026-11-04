@@ -151,6 +151,16 @@ fun AddJobApplicationScreen(
                 singleLine = true,
             )
 
+            // Application URL
+            OutlinedTextField(
+                value = formState.jobApplicationUrl,
+                onValueChange = viewModel::updateJobApplicationUrl,
+                label = { Text("Application URL") },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("https://...") },
+                singleLine = true,
+            )
+
             // Job ID
             OutlinedTextField(
                 value = formState.jobId,

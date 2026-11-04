@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.protobuf)
+    `maven-publish`
 }
 
 kotlin {
@@ -20,6 +21,20 @@ protobuf {
             it.builtins {
                 create("kotlin")
             }
+        }
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["kotlin"])
+        }
+    }
+    repositories {
+        maven {
+            name = "local"
+            url = file("${rootProject.rootDir}/../.m2").toURI()
         }
     }
 }

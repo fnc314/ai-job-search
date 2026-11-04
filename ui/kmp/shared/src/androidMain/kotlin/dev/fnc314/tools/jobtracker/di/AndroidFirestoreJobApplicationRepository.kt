@@ -6,10 +6,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import kotlin.time.Clock
 import kotlin.time.Instant
+import android.util.Log
 
 private const val COLLECTION_APPLICATIONS = "applications"
 private const val COLLECTION_COMPANIES = "companies"
 private const val SUBCOLLECTION_EVENTS = "events"
+private const val TAG = "FirestoreRepo"
 
 class AndroidFirestoreJobApplicationRepository : JobApplicationRepository {
 
@@ -17,12 +19,21 @@ class AndroidFirestoreJobApplicationRepository : JobApplicationRepository {
 
     override suspend fun getAllJobApplications(): List<JobApplication> {
         return try {
+            Log.d(TAG, "getAllJobApplications: Querying Firestore applications collection")
             val snapshot = db.collection(COLLECTION_APPLICATIONS).get().await()
-            snapshot.documents.mapNotNull { document ->
-                document.toJobApplication()
+            Log.d(TAG, "getAllJobApplications: Received ${snapshot.size()} documents")
+            val apps = snapshot.documents.mapNotNull { document ->
+                try {
+                    document.toJobApplication()
+                } catch (e: Exception) {
+                    Log.e(TAG, "getAllJobApplications: Failed to parse document ${document.id}", e)
+                    null
+                }
             }
+            Log.i(TAG, "getAllJobApplications: Successfully parsed ${apps.size} job applications")
+            apps
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "getAllJobApplications: Query failed", e)
             emptyList()
         }
     }
@@ -30,9 +41,14 @@ class AndroidFirestoreJobApplicationRepository : JobApplicationRepository {
     override suspend fun getJobApplication(id: String): JobApplication? {
         return try {
             val document = db.collection(COLLECTION_APPLICATIONS).document(id).get().await()
-            document.toJobApplication()
+            try {
+                document.toJobApplication()
+            } catch (e: Exception) {
+                Log.e(TAG, "getJobApplication: Failed to parse document $id", e)
+                null
+            }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "getJobApplication: Query failed for $id", e)
             null
         }
     }
@@ -70,7 +86,7 @@ class AndroidFirestoreJobApplicationRepository : JobApplicationRepository {
             val docRef = db.collection(COLLECTION_APPLICATIONS).document(id)
             val updates = mutableMapOf<String, Any>(
                 "status" to statusToFirestore(status),
-                "updatedAt" to Clock.System.now()
+                "updatedAt" to com.google.firebase.Timestamp(Clock.System.now().toJavaInstant())
             )
             if (date != null) updates["statusDate"] = date
             if (note != null) updates["statusNote"] = note
@@ -129,36 +145,137 @@ class AndroidFirestoreJobApplicationRepository : JobApplicationRepository {
 private fun java.time.Instant.toKotlinInstant(): Instant =
     Instant.fromEpochSeconds(epochSecond, nano.toLong())
 
+// Safe timestamp extraction: handles both Firestore Timestamp objects and ISO-8601 strings.
+// getTimestamp() throws RuntimeException if the field exists but is not a Timestamp type,
+// so we check the raw value first.
+private fun com.google.firebase.firestore.DocumentSnapshot.safeGetTimestamp(field: String): java.time.Instant? {
+    val raw = get(field)
+    return when (raw) {
+        is com.google.firebase.Timestamp -> raw.toInstant()
+        is String -> {
+            try {
+                java.time.Instant.parse(raw)
+            } catch (e: Exception) {
+                Log.w(TAG, "safeGetTimestamp: Failed to parse string timestamp for '$field': $raw")
+                null
+            }
+        }
+        is Number -> {
+            // Epoch seconds (Unix timestamp)
+            java.time.Instant.ofEpochSecond(raw.toLong())
+        }
+        null -> null
+        else -> {
+            Log.w(TAG, "safeGetTimestamp: Unknown type for '$field': ${raw?.javaClass?.simpleName}")
+            null
+        }
+    }
+}
+
 private fun Instant.toJavaInstant(): java.time.Instant =
     java.time.Instant.ofEpochSecond(epochSeconds, (nanosecondsOfSecond / 1_000_000).toLong())
 
+// Safe string extraction: getString() throws RuntimeException if the field exists but is
+// not a String type (e.g., some documents store "location" as a HashMap/object).
+private fun com.google.firebase.firestore.DocumentSnapshot.safeGetString(field: String): String? {
+    val raw = get(field)
+    return when (raw) {
+        is String -> raw
+        null -> null
+        else -> {
+            Log.w(TAG, "safeGetString: Field '$field' is not a String, got ${raw.javaClass.simpleName}")
+            null
+        }
+    }
+}
+
 private fun com.google.firebase.firestore.DocumentSnapshot.toJobApplication(): JobApplication? {
-    val id = id ?: return null
+    val docId = id ?: return null
+    // Firestore documents from the Python sync script have a different schema than the
+    // Kotlin model expects. Many fields are missing or have different types.
+    // This mapping handles the actual Firestore document structure gracefully.
+    
+    // Company is required; skip documents without it
+    val companyVal = get("company")
+    if (companyVal == null || companyVal is String && companyVal.isEmpty()) return null
+    val company = companyVal as? String ?: ""
+    
+    // String fields that may be null or have unexpected types in Firestore
+    val role = safeGetString("role")
+    val location = safeGetString("location")
+    val notesRendered = safeGetString("notesRendered")
+    val jobId = safeGetString("jobId")
+    val jobUrl = safeGetString("jobUrl")
+    val description = safeGetString("description")
+    
+    // Status: stored as "status:applied", "status:interview", etc. May be null.
+    val statusStr = safeGetString("status")
+    val status = EnumParsing.parseTrackerStatus(statusStr)
+    
+    // Channel: stored as "channel:greenhouse", etc., or null
+    val channelStr = safeGetString("channel")
+    val channel = EnumParsing.parseApplicationChannel(channelStr)
+    
+    // Tags: array of strings, may be empty array
+    val tags = (get("tags") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+    
+    // ContactIds: array of strings, may be empty array
+    val contactIds = (get("contactIds") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+    
+    // Compensation: map or null
     val compensationMap = get("compensation") as? Map<String, Any>
+    val compensation = compensationMap?.toCompensation()
+    
+    // LocationDetail: map or null (separate from the plain "location" string)
     val locationDetailMap = get("locationDetail") as? Map<String, Any>
+    val locationDetail = locationDetailMap?.toLocation()
+    
+    // Fit evaluation: may be stored as "fitEvaluation" map or as "fitRating" integer
     val fitEvaluationMap = get("fitEvaluation") as? Map<String, Any>
+    val fitRating = (get("fitRating") as? Number)?.toInt()
+    val fitEvaluation = fitEvaluationMap?.toTrackerFit() ?: run {
+        if (fitRating != null) {
+            TrackerFit(rubricVersion = fitRating, evaluatedAt = null, gaps = emptyList())
+        } else {
+            null
+        }
+    }
+    
+    // Counters: map or null
     val countersMap = get("counters") as? Map<String, Any>
+    val counters = countersMap?.toTrackerCounts()
+    
+    // Timeline: map or null
     val timelineMap = get("timeline") as? Map<String, Any>
+    val timeline = timelineMap?.toTimeline()
+    
+    // Timestamps: Firestore documents may store timestamps as com.google.firebase.Timestamp
+    // objects (written by the Android app) or as ISO-8601 strings (written by the Python
+    // sync script). getTimestamp() throws RuntimeException if the field exists but is not
+    // a Timestamp, so we use safeGetTimestamp() to handle both cases.
+    val createdAt = safeGetTimestamp("createdAt")?.toKotlinInstant()
+    val updatedAt = safeGetTimestamp("updatedAt")?.toKotlinInstant()
+    
     return JobApplication(
-        id = id,
-        company = getString("company") ?: "",
-        role = getString("role"),
-        location = getString("location"),
-        status = EnumParsing.parseTrackerStatus(getString("status")),
-        channel = EnumParsing.parseApplicationChannel(getString("channel")),
-        jobId = getString("jobId"),
-        jobUrl = getString("jobUrl"),
-        description = getString("description"),
-        tags = (get("tags") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-        contactIds = (get("contactIds") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-        compensation = compensationMap?.toCompensation(),
-        locationDetail = locationDetailMap?.toLocation(),
-        fitEvaluation = fitEvaluationMap?.toTrackerFit(),
-        counters = countersMap?.toTrackerCounts(),
-        timeline = timelineMap?.toTimeline(),
-        notesRendered = getString("notesRendered"),
-        createdAt = getTimestamp("createdAt")?.toInstant()?.toKotlinInstant(),
-        updatedAt = getTimestamp("updatedAt")?.toInstant()?.toKotlinInstant(),
+        id = docId,
+        company = company,
+        role = role,
+        location = location,
+        status = status,
+        channel = channel,
+        jobId = jobId,
+        jobUrl = jobUrl,
+        description = description,
+        tags = tags,
+        contactIds = contactIds,
+        compensation = compensation,
+        locationDetail = locationDetail,
+        fitEvaluation = fitEvaluation,
+        counters = counters,
+        timeline = timeline,
+        notesRendered = notesRendered,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
     )
 }
 
@@ -166,12 +283,12 @@ private fun com.google.firebase.firestore.DocumentSnapshot.toCompany(): Company?
     val id = id ?: return null
     return Company(
         id = id,
-        name = getString("name") ?: "",
+        name = safeGetString("name") ?: "",
         aliases = (get("aliases") as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
-        website = getString("website"),
-        industry = getString("industry"),
-        createdAt = getTimestamp("createdAt")?.toInstant()?.toKotlinInstant(),
-        updatedAt = getTimestamp("updatedAt")?.toInstant()?.toKotlinInstant(),
+        website = safeGetString("website"),
+        industry = safeGetString("industry"),
+        createdAt = safeGetTimestamp("createdAt")?.toKotlinInstant(),
+        updatedAt = safeGetTimestamp("updatedAt")?.toKotlinInstant(),
     )
 }
 

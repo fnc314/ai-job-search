@@ -182,3 +182,6 @@ ui/kmp/gradle/tools/.gradle/
 ui/kmp/gradle/tools/build/
 ui/kmp/gradle/tools/project-plugins/build/
 ui/kotlin-toolchain/build/
+
+# Local Maven repository for records project
+.m2/

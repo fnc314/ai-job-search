@@ -248,7 +248,15 @@ fun ApplicationSummarySection(
 
             application?.jobUrl?.let { url ->
                 Text(
-                    text = "🔗 $url",
+                    text = "🔗 Job URL: $url",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+
+            application?.jobApplicationUrl?.let { url ->
+                Text(
+                    text = "📋 Application URL: $url",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                 )

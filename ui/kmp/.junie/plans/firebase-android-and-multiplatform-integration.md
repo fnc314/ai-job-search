@@ -195,14 +195,14 @@ Create independent, reusable modules for data models, repository abstractions, a
 - Implement shared user identity model (e.g., `UserAccount(uid, email, displayName, photoUrl)`), auth state representation (`AuthState`), and base `AuthRepository` interface in `core:data`.
 - Provide platform-agnostic network/auth contracts and DI bindings that other feature modules can depend on.
 
-### * Step 3: Implement feature/sign-in Data & Domain Modules with Android Google Sign-In
+### ✓ Step 3: Implement feature/sign-in Data & Domain Modules with Android Google Sign-In
 Implement the domain and data layer for Firebase authentication supporting platform-specific implementations.
 - Create `feature/sign-in/domain` housing sign-in use cases (`SignInWithGoogleUseCase`, `SignOutUseCase`, `ObserveAuthStateUseCase`, `GetCurrentUserUseCase`).
 - Create `feature/sign-in/data` implementing `AuthRepository`.
 - In `feature/sign-in/data`'s Android source set, implement Google Sign-In using Android Credential Manager (`androidx.credentials`) and `FirebaseAuth.signInWithCredential(GoogleAuthProvider.getCredential(...))`.
 - Update Firestore security rules in Firebase to authorize reads and writes for verified Google authenticated accounts.
 
-###   Step 4: Implement feature/sign-in UI and Wire Navigation/Data Display on Android
+### ✓ Step 4: Implement feature/sign-in UI and Wire Navigation/Data Display on Android
 Build the sign-in user interface and gate navigation until the user signs in with Google.
 - Create `feature/sign-in/ui` with Compose Multiplatform UI components for the Google Account Sign-In screen and account status.
 - Implement `SignInViewModel` managing `SignInUiState` (Unauthenticated, SigningIn, Authenticated, Error).

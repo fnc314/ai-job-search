@@ -12,7 +12,20 @@
           "package_name": "dev.fnc314.tools.jobtracker"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "399944190604-pt0bjq89vv7dvqrtqq0madgv5gqo6b8q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.fnc314.tools.jobtracker",
+            "certificate_hash": "785a7d8ffd32574947e5b08c2ba5757d284f0573"
+          }
+        },
+        {
+          "client_id": "399944190604-dpasrf0mis9860nvp74m6dc98cp5rphq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCdnr32qCcc1eE8Gez91NPhBDj75NuhhEU"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "399944190604-dpasrf0mis9860nvp74m6dc98cp5rphq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "399944190604-km3a5ubqrlil8rd6giok4o1cqur85bj4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.fnc314.tools.jobtracker"
+              }
+            }
+          ]
         }
       }
     }

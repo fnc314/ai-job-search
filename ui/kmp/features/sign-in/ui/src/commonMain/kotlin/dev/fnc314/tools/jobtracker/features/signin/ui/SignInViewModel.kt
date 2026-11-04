@@ -1,0 +1,80 @@
+package dev.fnc314.tools.jobtracker.features.signin.ui
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dev.fnc314.tools.jobtracker.core.data.model.AuthState
+import dev.fnc314.tools.jobtracker.core.data.model.UserAccount
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.ObserveAuthStateUseCase
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignInWithGoogleUseCase
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignOutUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+sealed interface SignInUiState {
+    data object Unauthenticated : SignInUiState
+    data object SigningIn : SignInUiState
+    data class Authenticated(val user: UserAccount) : SignInUiState
+    data class Error(val message: String) : SignInUiState
+}
+
+class SignInViewModel(
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val signOutUseCase: SignOutUseCase,
+    observeAuthStateUseCase: ObserveAuthStateUseCase
+) : ViewModel() {
+
+    private val _isSigningIn = MutableStateFlow(false)
+    private val _errorMessage = MutableStateFlow<String?>(null)
+
+    val uiState: StateFlow<SignInUiState> = combine(
+        observeAuthStateUseCase(),
+        _isSigningIn,
+        _errorMessage
+    ) { authState, isSigningIn, errorMessage ->
+        when {
+            isSigningIn -> SignInUiState.SigningIn
+            errorMessage != null -> SignInUiState.Error(errorMessage)
+            authState is AuthState.Authenticated -> SignInUiState.Authenticated(authState.user)
+            authState is AuthState.Error -> SignInUiState.Error(authState.message)
+            authState is AuthState.Loading -> SignInUiState.SigningIn
+            else -> SignInUiState.Unauthenticated
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = SignInUiState.Unauthenticated
+    )
+
+    fun onSignInWithGoogleClicked() {
+        println("[SignInViewModel] onSignInWithGoogleClicked: Starting sign-in")
+        viewModelScope.launch {
+            _isSigningIn.value = true
+            _errorMessage.value = null
+            val result = signInWithGoogleUseCase()
+            result.onSuccess { user ->
+                println("[SignInViewModel] onSignInWithGoogleClicked: Success - ${user.displayName ?: user.email}")
+            }
+            result.onFailure { error ->
+                println("[SignInViewModel] onSignInWithGoogleClicked: Failed - ${error.message}")
+                _errorMessage.value = error.message ?: "Sign-in failed"
+            }
+            _isSigningIn.value = false
+        }
+    }
+
+    fun onSignOutClicked() {
+        println("[SignInViewModel] onSignOutClicked: Signing out")
+        viewModelScope.launch {
+            signOutUseCase()
+            println("[SignInViewModel] onSignOutClicked: Complete")
+        }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
+    }
+}

@@ -1,5 +1,11 @@
 package dev.fnc314.tools.jobtracker.di
 
+import dev.fnc314.tools.jobtracker.core.data.repository.AuthRepository
+import dev.fnc314.tools.jobtracker.features.signin.data.DefaultAuthRepository
+import dev.fnc314.tools.jobtracker.features.signin.data.PlatformSignInHandler
+import dev.fnc314.tools.jobtracker.features.signin.data.SignInWithGoogleUseCaseImpl
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.*
+import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
 import dev.fnc314.tools.jobtracker.data.firestore.FirestoreTrackerEditsRepository
 import dev.fnc314.tools.jobtracker.data.gcs.KtorStorageRepository
 import dev.fnc314.tools.jobtracker.domain.impl.usecase.*
@@ -26,6 +32,8 @@ val repositoryModule = module {
     single<StorageRepository> {
         KtorStorageRepository(get())
     }
+    single { DefaultAuthRepository(signInHandler = get()) }
+    single<AuthRepository> { get<DefaultAuthRepository>() }
 }
 
 val useCaseModule = module {
@@ -44,9 +52,14 @@ val useCaseModule = module {
     factoryOf(::ApproveEditUseCaseImpl) bind ApproveEditUseCase::class
     factoryOf(::RejectEditUseCaseImpl) bind RejectEditUseCase::class
     factoryOf(::ExpireStaleEditsUseCaseImpl) bind ExpireStaleEditsUseCase::class
+    factory<SignInWithGoogleUseCase> { SignInWithGoogleUseCaseImpl(get()) }
+    factory { ObserveAuthStateUseCase(get()) }
+    factory { GetCurrentUserUseCase(get()) }
+    factory { SignOutUseCase(get()) }
 }
 
 val platformModule = module {
+    single { createPlatformSignInHandler() }
     single { PlatformAuth() }
     single { PlatformFileOpener() }
     single {
@@ -66,6 +79,7 @@ val viewModelModule = module {
     factoryOf(::AddJobApplicationViewModel)
     factoryOf(::AddLeadViewModel)
     factoryOf(::TrackerEditsViewModel)
+    factoryOf(::SignInViewModel)
 }
 
 val appModule = module {

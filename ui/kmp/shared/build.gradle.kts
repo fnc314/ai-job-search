@@ -55,6 +55,11 @@ kotlin {
             implementation(libs.navigation3.ui)
         }
         commonMain.dependencies {
+            implementation(projects.coreData)
+            implementation(projects.coreNetwork)
+            implementation(projects.featuresSignInDomain)
+            implementation(projects.featuresSignInData)
+            implementation(projects.featuresSignInUi)
             implementation(projects.coreWidgets)
             // Compose UI
             implementation(libs.bundles.compose.ui)
@@ -83,6 +88,8 @@ kotlin {
             implementation(libs.bundles.ktor.client.jvm)
             // Firebase Admin SDK for JVM (Desktop)
             implementation(libs.bundles.firebase.jvm)
+            // Records proto models
+            implementation(libs.records.proto)
         }
         androidMain.dependencies {
             implementation(libs.bundles.ktor.client.android)

@@ -17,6 +17,7 @@ class MainActivity : ComponentActivity() {
         if (FirebaseApp.getApps(this).isEmpty()) {
             FirebaseApp.initializeApp(this)
         }
+        dev.fnc314.tools.jobtracker.di.AndroidApplicationContextHolder.application = application
 
         setContent {
             App()

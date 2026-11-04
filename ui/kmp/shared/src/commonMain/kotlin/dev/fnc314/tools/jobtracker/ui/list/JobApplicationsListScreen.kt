@@ -13,6 +13,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.fnc314.tools.jobtracker.domain.usecase.FilterJobApplicationsUseCase
 import dev.fnc314.tools.jobtracker.domain.usecase.SortJobApplicationsUseCase
+import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
 import dev.fnc314.tools.jobtracker.ui.list.component.ColumnHeader
 import dev.fnc314.tools.jobtracker.ui.list.component.FilterChipItem
 import dev.fnc314.tools.jobtracker.ui.list.component.JobApplicationRow
@@ -29,6 +30,7 @@ fun JobApplicationsListScreen(
     onEditsClick: () -> Unit = {},
     settings: AppSettings = AppSettings(),
     onSettingsChange: (AppSettings) -> Unit = {},
+    signInViewModel: SignInViewModel? = null,
     modifier: Modifier = Modifier,
 ) {
     val applications by viewModel.filteredApplications.collectAsState()
@@ -49,6 +51,7 @@ fun JobApplicationsListScreen(
                 onSettingsChange(it)
             },
             onDismiss = { showSettings = false },
+            viewModel = signInViewModel,
         )
     }
 

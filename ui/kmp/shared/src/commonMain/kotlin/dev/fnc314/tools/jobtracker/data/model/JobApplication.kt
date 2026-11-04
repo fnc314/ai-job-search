@@ -22,4 +22,5 @@ data class JobApplication(
     val notesRendered: String?,
     val createdAt: Instant?,
     val updatedAt: Instant?,
+    val jobApplicationUrl: String?,
 )

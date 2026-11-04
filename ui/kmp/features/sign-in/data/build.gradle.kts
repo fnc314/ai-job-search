@@ -43,7 +43,7 @@ kotlin {
             implementation(libs.androidx.credentials)
             implementation(libs.androidx.credentials.play.services.auth)
             implementation(libs.google.id)
-            implementation(libs.androidx.activity)
+            implementation(libs.androidx.activity.compose)
         }
     }
 }

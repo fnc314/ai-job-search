@@ -33,6 +33,7 @@
   jvm = "17"
   googlePlayServices = "4.5.0"
   node = "26.13.0"
+  records = "1.0.0"
 
 [libraries]
   kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -81,6 +82,7 @@
   navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
   mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
   android-gradle-plugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "agp" }
+  records-proto = { group = "dev.fnc314.tools.jobsearch.records", name = "records-proto", version.ref = "records" }
 
 [bundles]
   compose-ui = [

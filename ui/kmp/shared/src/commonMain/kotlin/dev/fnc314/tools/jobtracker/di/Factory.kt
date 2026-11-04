@@ -26,6 +26,7 @@ object Factory {
         notesRendered: String? = null,
         createdAt: Instant? = Clock.System.now(),
         updatedAt: Instant? = Clock.System.now(),
+        jobApplicationUrl: String? = null,
     ): JobApplication = JobApplication(
         id = id,
         company = company,
@@ -46,6 +47,7 @@ object Factory {
         notesRendered = notesRendered,
         createdAt = createdAt,
         updatedAt = updatedAt,
+        jobApplicationUrl = jobApplicationUrl,
     )
 
     fun createTrackerEvent(

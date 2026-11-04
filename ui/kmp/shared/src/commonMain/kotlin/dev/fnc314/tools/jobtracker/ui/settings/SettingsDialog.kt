@@ -12,6 +12,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import dev.fnc314.tools.jobtracker.core.data.model.AuthState
+import dev.fnc314.tools.jobtracker.features.signin.ui.SignInUiState
+import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
 import dev.fnc314.tools.jobtracker.domain.usecase.SortJobApplicationsUseCase
 
 data class AppSettings(
@@ -30,6 +33,7 @@ fun SettingsDialog(
     settings: AppSettings,
     onSettingsChange: (AppSettings) -> Unit,
     onDismiss: () -> Unit,
+    viewModel: SignInViewModel? = null,
     modifier: Modifier = Modifier,
 ) {
     var showColorPicker by remember { mutableStateOf(false) }
@@ -79,6 +83,34 @@ fun SettingsDialog(
                 }
 
                 HorizontalDivider()
+
+                // Account settings
+                if (viewModel != null) {
+                    val uiState by viewModel.uiState.collectAsState()
+                    val authenticatedUser = (uiState as? SignInUiState.Authenticated)?.user
+                    if (authenticatedUser != null) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                text = "Account",
+                                style = MaterialTheme.typography.titleSmall,
+                            )
+                            Text(
+                                text = authenticatedUser.displayName ?: authenticatedUser.email ?: "Signed in",
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                            TextButton(
+                                onClick = {
+                                    viewModel.onSignOutClicked()
+                                    onDismiss()
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text("Sign Out")
+                            }
+                        }
+                        HorizontalDivider()
+                    }
+                }
 
                 // Theme settings
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

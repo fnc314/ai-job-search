@@ -12,6 +12,9 @@ import kotlinx.serialization.Serializable
 sealed interface NavRoute
 
 @Serializable
+data object SignInRoute : NavRoute
+
+@Serializable
 data object ListRoute : NavRoute
 
 @Serializable
