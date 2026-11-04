@@ -189,13 +189,13 @@ Place Firebase client configuration in the Android app and grant network permiss
 - Update `apps/android/src/main/AndroidManifest.xml` to include `<uses-permission android:name="android.permission.INTERNET" />` and `<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />`.
 - Verify the Android application builds cleanly with the `google-services` Gradle plugin processing the configuration.
 
-### * Step 2: Establish core:data and core:network Infrastructure Modules
+### ✓ Step 2: Establish core:data and core:network Infrastructure Modules
 Create independent, reusable modules for data models, repository abstractions, and common Firebase configs.
 - Register `core/data` (and if needed `features` collection) in `settings.gradle.kts`.
 - Implement shared user identity model (e.g., `UserAccount(uid, email, displayName, photoUrl)`), auth state representation (`AuthState`), and base `AuthRepository` interface in `core:data`.
 - Provide platform-agnostic network/auth contracts and DI bindings that other feature modules can depend on.
 
-###   Step 3: Implement feature/sign-in Data & Domain Modules with Android Google Sign-In
+### * Step 3: Implement feature/sign-in Data & Domain Modules with Android Google Sign-In
 Implement the domain and data layer for Firebase authentication supporting platform-specific implementations.
 - Create `feature/sign-in/domain` housing sign-in use cases (`SignInWithGoogleUseCase`, `SignOutUseCase`, `ObserveAuthStateUseCase`, `GetCurrentUserUseCase`).
 - Create `feature/sign-in/data` implementing `AuthRepository`.
