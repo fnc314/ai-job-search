@@ -5,20 +5,20 @@ import dev.fnc314.tools.jobtracker.core.data.model.UserAccount
 import dev.fnc314.tools.jobtracker.core.data.repository.AuthRepository
 import kotlinx.coroutines.flow.StateFlow
 
-class ObserveAuthStateUseCase(
+public class ObserveAuthStateUseCase(
     private val authRepository: AuthRepository
 ) {
-    operator fun invoke(): StateFlow<AuthState> = authRepository.authState
+    public operator fun invoke(): StateFlow<AuthState> = authRepository.authState
 }
 
-class GetCurrentUserUseCase(
+public class GetCurrentUserUseCase(
     private val authRepository: AuthRepository
 ) {
-    operator fun invoke(): UserAccount? = authRepository.currentUser
+    public operator fun invoke(): UserAccount? = authRepository.currentUser
 }
 
-class SignOutUseCase(
+public class SignOutUseCase(
     private val authRepository: AuthRepository
 ) {
-    suspend operator fun invoke(): Result<Unit> = authRepository.signOut()
+    public suspend operator fun invoke(): Result<Unit> = authRepository.signOut()
 }

@@ -1,43 +1,38 @@
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidMultiplatformLibrary)
-    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.local.kotlin.multiplatform)
+    alias(libs.plugins.local.android.kmp.library)
+    alias(libs.plugins.local.compose)
+    alias(libs.plugins.local.dependencies.compose)
+    alias(libs.plugins.local.dependencies.serialization)
 }
 
 kotlin {
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "CoreData"
-            isStatic = true
-        }
-    }
-    jvm()
-    js {
-        browser()
-    }
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-    }
-    android {
-        namespace = "dev.fnc314.tools.jobtracker.core.data"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_17
-        }
-    }
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.coreNetwork)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
-            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.bundles.ktor.client)
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
+        jvmMain.dependencies {
+            implementation(libs.bundles.ktor.client.jvm)
+            implementation(libs.bundles.firebase.jvm)
+            implementation(libs.records.proto)
+            implementation(libs.records.parser)
+        }
+        androidMain.dependencies {
+            implementation(libs.bundles.ktor.client.android)
+            implementation(libs.bundles.firebase.android)
+            implementation(libs.kotlinx.coroutinesPlayServices)
+        }
+        iosMain.dependencies {
+            implementation(libs.bundles.ktor.client.ios)
+        }
+        jsMain.dependencies {
+            implementation(libs.bundles.ktor.client.js)
         }
     }
 }

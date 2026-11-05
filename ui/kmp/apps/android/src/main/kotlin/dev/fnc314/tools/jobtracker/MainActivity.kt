@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.firebase.FirebaseApp
-import dev.fnc314.tools.jobtracker.di.AndroidApplicationContextHolder
+import dev.fnc314.tools.jobtracker.core.data.AndroidApplicationContextHolder
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

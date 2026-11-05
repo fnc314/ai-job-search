@@ -7,13 +7,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-expect class PlatformSignInHandler {
-    suspend fun signIn(): Result<UserAccount>
-    suspend fun getCurrentUser(): UserAccount?
-    suspend fun signOut(): Result<Unit>
+public expect class PlatformSignInHandler {
+    public suspend fun signIn(): Result<UserAccount>
+    public suspend fun getCurrentUser(): UserAccount?
+    public suspend fun signOut(): Result<Unit>
 }
 
-class DefaultAuthRepository(
+public expect fun createPlatformSignInHandler(): PlatformSignInHandler
+
+public class DefaultAuthRepository(
     private val signInHandler: PlatformSignInHandler,
     initialUser: UserAccount? = null
 ) : AuthRepository {
@@ -26,7 +28,7 @@ class DefaultAuthRepository(
     override val currentUser: UserAccount?
         get() = (_authState.value as? AuthState.Authenticated)?.user
 
-    suspend fun signInWithGoogle(): Result<UserAccount> {
+    public suspend fun signInWithGoogle(): Result<UserAccount> {
         println("[DefaultAuthRepository] signInWithGoogle: Setting state to Loading")
         _authState.value = AuthState.Loading
         println("[DefaultAuthRepository] signInWithGoogle: Calling platform sign-in handler")
@@ -53,7 +55,7 @@ class DefaultAuthRepository(
         return result
     }
 
-    override suspend fun initAuthState() {
+    override suspend fun initAuthState(): Unit {
         println("[DefaultAuthRepository] initAuthState: Checking for existing session")
         val user = signInHandler.getCurrentUser()
         if (user != null) {
@@ -65,7 +67,7 @@ class DefaultAuthRepository(
         }
     }
 
-    fun updateAuthState(state: AuthState) {
+    public fun updateAuthState(state: AuthState): Unit {
         println("[DefaultAuthRepository] updateAuthState: $state")
         _authState.value = state
     }

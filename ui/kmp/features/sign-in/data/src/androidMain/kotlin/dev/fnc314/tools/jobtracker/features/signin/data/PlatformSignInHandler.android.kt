@@ -18,14 +18,14 @@ import kotlinx.coroutines.tasks.await
 
 private const val TAG = "PlatformSignInHandler"
 
-actual class PlatformSignInHandler(
+public actual class PlatformSignInHandler(
     private val context: Context,
     private val serverClientId: String? = null
 ) {
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val credentialManager: CredentialManager by lazy { CredentialManager.create(context) }
 
-    actual suspend fun signIn(): Result<UserAccount> = runCatching {
+    public actual suspend fun signIn(): Result<UserAccount> = runCatching {
         Log.d(TAG, "signIn: Starting sign-in flow")
 
         // Check if user is already signed in to Firebase
@@ -108,7 +108,7 @@ actual class PlatformSignInHandler(
         }
     }
 
-    actual suspend fun getCurrentUser(): UserAccount? {
+    public actual suspend fun getCurrentUser(): UserAccount? {
         val user = auth.currentUser
         return if (user != null) {
             Log.d(TAG, "getCurrentUser: Found authenticated user: ${user.uid}")
@@ -124,11 +124,17 @@ actual class PlatformSignInHandler(
         }
     }
 
-    actual suspend fun signOut(): Result<Unit> = runCatching {
+    public actual suspend fun signOut(): Result<Unit> = runCatching {
         Log.d(TAG, "signOut: Signing out from Firebase")
         auth.signOut()
         Log.d(TAG, "signOut: Clearing credential state")
         credentialManager.clearCredentialState(ClearCredentialStateRequest())
         Log.i(TAG, "signOut: Sign out complete")
     }
+}
+
+public actual fun createPlatformSignInHandler(): PlatformSignInHandler {
+    val context = dev.fnc314.tools.jobtracker.core.data.AndroidApplicationContextHolder.application
+        ?: throw IllegalStateException("Android application context must be initialized before using PlatformSignInHandler")
+    return PlatformSignInHandler(context)
 }

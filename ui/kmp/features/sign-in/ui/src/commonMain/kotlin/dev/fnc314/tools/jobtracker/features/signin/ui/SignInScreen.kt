@@ -29,10 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
+import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
+import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 
 @Composable
-fun SignInScreen(
+public fun SignInScreen(
     viewModel: SignInViewModel,
     onSignInSuccess: () -> Unit,
     modifier: Modifier = Modifier
@@ -61,29 +63,29 @@ fun SignInScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(24.dp),
+                .padding(MaterialTheme.spacing.large),
             contentAlignment = Alignment.Center
         ) {
             OutlinedCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(MaterialTheme.spacing.medium)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp),
+                        .padding(MaterialTheme.spacing.large),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.AccountCircle,
                         contentDescription = "Sign In",
-                        modifier = Modifier.size(72.dp),
+                        modifier = Modifier.size(MaterialTheme.iconSizes.avatar),
                         tint = MaterialTheme.colorScheme.primary
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
 
                     Text(
                         text = "Job Search Tracker",
@@ -92,7 +94,7 @@ fun SignInScreen(
                         textAlign = TextAlign.Center
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
 
                     Text(
                         text = "Sign in to access your applications, companies, and timeline directly from Firestore.",
@@ -101,12 +103,12 @@ fun SignInScreen(
                         textAlign = TextAlign.Center
                     )
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraLarge))
 
                     when (uiState) {
                         is SignInUiState.SigningIn -> {
-                            CircularProgressIndicator(modifier = Modifier.size(36.dp))
-                            Spacer(modifier = Modifier.height(8.dp))
+                            CircularProgressIndicator(modifier = Modifier.size(MaterialTheme.componentSizes.iconButtonSize))
+                            Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
                             Text(
                                 text = "Signing in...",
                                 style = MaterialTheme.typography.bodySmall,
@@ -120,7 +122,7 @@ fun SignInScreen(
                                 color = MaterialTheme.colorScheme.error,
                                 textAlign = TextAlign.Center
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(modifier = Modifier.height(MaterialTheme.spacing.subMedium))
                             Button(
                                 onClick = {
                                     viewModel.clearError()

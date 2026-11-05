@@ -35,7 +35,6 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.coreData)
             implementation(libs.bundles.ktor.client)
         }
         androidMain.dependencies {

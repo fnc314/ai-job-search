@@ -22,7 +22,9 @@ fun JobTrackerTheme(
     SetupSystemBars(darkTheme = darkTheme)
 
     CompositionLocalProvider(
-        LocalSpacing provides spacing
+        LocalSpacing provides spacing,
+        LocalIconSizes provides IconSizes(),
+        LocalComponentSizes provides ComponentSizes(),
     ) {
         MaterialExpressiveTheme(
             colorScheme = colorScheme,

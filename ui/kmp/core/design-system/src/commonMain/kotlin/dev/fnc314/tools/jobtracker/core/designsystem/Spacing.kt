@@ -10,8 +10,12 @@ import androidx.compose.ui.unit.dp
 data class Spacing(
     val none: Dp = 0.dp,
     val hairline: Dp = 1.dp,
+    val micro: Dp = 2.dp,
+    val compact: Dp = 3.dp,
     val extraSmall: Dp = 4.dp,
+    val subSmall: Dp = 6.dp,
     val small: Dp = 8.dp,
+    val subMedium: Dp = 12.dp,
     val medium: Dp = 16.dp,
     val large: Dp = 24.dp,
     val extraLarge: Dp = 32.dp,

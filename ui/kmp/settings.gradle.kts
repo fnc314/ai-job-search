@@ -26,5 +26,3 @@ projectCollections {
 }
 
 includeBuild("../../records")
-
-include(":shared")

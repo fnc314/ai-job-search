@@ -4,6 +4,7 @@ plugins {
 }
 
 kotlin {
+  explicitApi()
   jvmToolchain(
     libs.versions.jvm.get().toInt()
   )
@@ -12,6 +13,8 @@ kotlin {
 dependencies {
   gradleApi()
   implementation(libs.android.gradle.plugin)
+  implementation(libs.kotlin.gradle.plugin)
+  implementation(libs.compose.gradle.plugin)
 }
 
 gradlePlugin {
@@ -20,12 +23,43 @@ gradlePlugin {
       id = libs.plugins.local.multiplatform.library.map { it.pluginId }.get()
       description = "Applies Android Kotlin Multiplatform Library Plugin"
       implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.MultiplatformLibrary"
-      tags.addAll(
-        setOf(
-          "Android", "Kotlin", "Androd Library", "Kotlin Multiplatform Mobile"
-        )
-      )
       displayName = "Multiplatform Library"
+    }
+    create("kotlin-multiplatform") {
+      id = libs.plugins.local.kotlin.multiplatform.map { it.pluginId }.get()
+      description = "Applies Kotlin Multiplatform toolchains and target conventions"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.functional.KotlinMultiplatformConventionPlugin"
+      displayName = "Kotlin Multiplatform Convention"
+    }
+    create("android-kmp-library") {
+      id = libs.plugins.local.android.kmp.library.map { it.pluginId }.get()
+      description = "Applies Android KMP Library toolchain and SDK conventions"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.functional.AndroidKmpLibraryConventionPlugin"
+      displayName = "Android KMP Library Convention"
+    }
+    create("compose") {
+      id = libs.plugins.local.compose.map { it.pluginId }.get()
+      description = "Applies Compose Multiplatform and Compose Compiler plugins"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.functional.ComposeConventionPlugin"
+      displayName = "Compose Multiplatform Convention"
+    }
+    create("dependencies-compose") {
+      id = libs.plugins.local.dependencies.compose.map { it.pluginId }.get()
+      description = "Applies Compose UI and tooling dependency bundles"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.ComposeDependenciesConventionPlugin"
+      displayName = "Compose Dependencies Convention"
+    }
+    create("dependencies-serialization") {
+      id = libs.plugins.local.dependencies.serialization.map { it.pluginId }.get()
+      description = "Applies Kotlin Serialization plugin and runtime library"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.SerializationDependenciesConventionPlugin"
+      displayName = "Serialization Dependencies Convention"
+    }
+    create("dependencies-koin") {
+      id = libs.plugins.local.dependencies.koin.map { it.pluginId }.get()
+      description = "Applies Koin dependency bundles"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.KoinDependenciesConventionPlugin"
+      displayName = "Koin Dependencies Convention"
     }
   }
 }

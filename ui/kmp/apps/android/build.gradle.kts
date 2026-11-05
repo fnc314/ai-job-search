@@ -13,7 +13,8 @@ kotlin {
 }
 
 dependencies {
-    implementation(projects.shared)
+    implementation(projects.appsCore)
+    implementation(projects.coreData)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)

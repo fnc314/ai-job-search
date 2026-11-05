@@ -14,14 +14,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-sealed interface SignInUiState {
-    data object Unauthenticated : SignInUiState
-    data object SigningIn : SignInUiState
-    data class Authenticated(val user: UserAccount) : SignInUiState
-    data class Error(val message: String) : SignInUiState
+public sealed interface SignInUiState {
+    public data object Unauthenticated : SignInUiState
+    public data object SigningIn : SignInUiState
+    public data class Authenticated(public val user: UserAccount) : SignInUiState
+    public data class Error(public val message: String) : SignInUiState
 }
 
-class SignInViewModel(
+public class SignInViewModel(
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
     private val signOutUseCase: SignOutUseCase,
     observeAuthStateUseCase: ObserveAuthStateUseCase
@@ -30,7 +30,7 @@ class SignInViewModel(
     private val _isSigningIn = MutableStateFlow(false)
     private val _errorMessage = MutableStateFlow<String?>(null)
 
-    val uiState: StateFlow<SignInUiState> = combine(
+    public val uiState: StateFlow<SignInUiState> = combine(
         observeAuthStateUseCase(),
         _isSigningIn,
         _errorMessage
@@ -49,7 +49,7 @@ class SignInViewModel(
         initialValue = SignInUiState.Unauthenticated
     )
 
-    fun onSignInWithGoogleClicked() {
+    public fun onSignInWithGoogleClicked(): Unit {
         println("[SignInViewModel] onSignInWithGoogleClicked: Starting sign-in")
         viewModelScope.launch {
             _isSigningIn.value = true
@@ -66,7 +66,7 @@ class SignInViewModel(
         }
     }
 
-    fun onSignOutClicked() {
+    public fun onSignOutClicked(): Unit {
         println("[SignInViewModel] onSignOutClicked: Signing out")
         viewModelScope.launch {
             signOutUseCase()
@@ -74,7 +74,7 @@ class SignInViewModel(
         }
     }
 
-    fun clearError() {
+    public fun clearError(): Unit {
         _errorMessage.value = null
     }
 }

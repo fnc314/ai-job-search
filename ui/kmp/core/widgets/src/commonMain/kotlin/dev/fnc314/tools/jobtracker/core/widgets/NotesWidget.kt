@@ -33,8 +33,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
@@ -50,7 +50,7 @@ private data class NoteItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotesWidget(
+public fun NotesWidget(
     onNotesChanged: (List<String>) -> Unit,
     modifier: Modifier = Modifier,
     initialNotes: List<String> = emptyList(),
@@ -146,7 +146,7 @@ fun NotesWidget(
                 val isDragging = draggingIndex == index
 
                 val elevation by animateDpAsState(
-                    targetValue = if (isDragging) 12.dp else 0.dp,
+                    targetValue = if (isDragging) MaterialTheme.componentSizes.elevationDraggingCard else MaterialTheme.spacing.none,
                     label = "dragElevation"
                 )
                 val scale by animateFloatAsState(
@@ -313,8 +313,8 @@ private fun NoteRow(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.small,
-                    tonalElevation = if (isDragging) 6.dp else 0.dp,
-                    shadowElevation = if (isDragging) 8.dp else 0.dp,
+                    tonalElevation = if (isDragging) MaterialTheme.componentSizes.elevationDraggingTonal else MaterialTheme.spacing.none,
+                    shadowElevation = if (isDragging) MaterialTheme.componentSizes.elevationDraggingShadow else MaterialTheme.spacing.none,
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -363,8 +363,8 @@ private fun NoteRow(
                         if (canReorder && !isDrafting) {
                             Box(
                                 modifier = Modifier
-                                    .padding(horizontal = 6.dp)
-                                    .size(36.dp)
+                                    .padding(horizontal = MaterialTheme.spacing.subSmall)
+                                    .size(MaterialTheme.componentSizes.iconButtonSize)
                                     .pointerInput(Unit) {
                                         detectDragGestures(
                                             onDragStart = { onDragStart() },

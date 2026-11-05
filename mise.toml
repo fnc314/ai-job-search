@@ -7,7 +7,7 @@ monorepo_root = true
   bun = "1.4.4"
   usage = { version = "7.2.0", workflow = "publish-cli.yml" }
   gradle = "9.8.2"
-  java = "27.0.1+1"
+  java = "26.0.2+101"
 
 [env]
   _ = { file = ".env.local" }
@@ -282,7 +282,6 @@ flag "--documents <documents>" help="Path to job-applications/ directory"
     run = ".venv/bin/python scripts/migrate_gcs.py{% if usage.dry_run %} --dry-run{% endif %}{% if usage.company %} --company {{ usage.company }}{% endif %}{% if usage.documents %} --documents {{ usage.documents }}{% endif %}"
   }
   purge-gcs-legacy = { description = "Purge old-style GCS artifacts and migrate orphans (set TRACKER_ALLOW_WRITES=1)", usage = 'flag "--dry-run" help="Preview what would be done without making changes"', run = ".venv/bin/python scripts/purge_gcs_legacy.py{% if usage.dry_run %} --dry-run{% endif %}" }
-
   # ── Kotlin Multiplatform (ui/kmp) ──────────────────────────────────────────
   "ui:kmp:build" = { description = "Build all KMP targets and modules in ui/kmp", run = "cd ui/kmp && ./gradlew build -x test" }
   "ui:kmp:clean" = { description = "Clean Gradle build artifacts in ui/kmp", run = "cd ui/kmp && ./gradlew clean" }
@@ -296,7 +295,6 @@ flag "--documents <documents>" help="Path to job-applications/ directory"
   "ui:kmp:web:wasm:dist" = { description = "Assemble Web Wasm distribution bundle", run = "cd ui/kmp && ./gradlew :apps-web:wasmJsBrowserDistribution" }
   "ui:kmp:web:js:dev" = { description = "Run Web application in browser using JS development server", run = "cd ui/kmp && ./gradlew :apps-web:jsBrowserDevelopmentRun" }
   "ui:kmp:web:js:dist" = { description = "Assemble Web JS distribution bundle", run = "cd ui/kmp && ./gradlew :apps-web:jsBrowserDistribution" }
-
   "mise:docs:tasks" = {
     description = "Regenerates docs/mise (lints Usage specs, generates Markdown, and runs mise task-docs)",
     sources = "[mise.toml, scripts/specs/*.usage.kdl, records/proto/src/main/proto/tracker/v1/application.proto]",
