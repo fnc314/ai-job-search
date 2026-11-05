@@ -23,9 +23,11 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`mark-detekt-and-konsist-plan-completed.md`](./2026-11-05/181232_mark-detekt-and-konsist-plan-completed.md) | Completed | In-repo plan relocation, registry status synchronization, and bookkeeping enforcement |
+| [`canonical-enum-mapping-and-wire-contracts-plan.md`](./2026-11-05/175500_canonical-enum-mapping-and-wire-contracts-plan.md) | In Review | Two-tier canonical enum mapping, self-contained wire contracts, O(1) lookups, and Room converter modernization |
 | [`dokka-and-comprehensive-kdocs-plan.md`](./2026-11-05/163042_dokka-and-comprehensive-kdocs-plan.md) | Completed | Dokka 2.3.0 unified multi-project setup & exhaustive KDocs across records & ui/kmp |
 | [`plan-relocation-and-index-alignment.md`](./2026-11-05/173850_plan-relocation-and-index-alignment.md) | Completed | Relocation of cross-subsystem plans to .agents/plans, timestamp hierarchy & registry synchronization |
-| [`detekt-and-konsist-integration-plan.md`](./2026-11-05/172809_detekt-and-konsist-integration-plan.md) | In Review | Integration of Detekt 1.23.8 & Konsist 0.18.1 across `records` & `ui/kmp` |
+| [`detekt-and-konsist-integration-plan.md`](./2026-11-05/172809_detekt-and-konsist-integration-plan.md) | Completed | Integration of Detekt 1.23.8 & Konsist 0.18.1 across `records` & `ui/kmp` |
 | [`plan-files-consolidation-and-gitignore-alignment.md`](./2026-11-05/164709_plan-files-consolidation-and-gitignore-alignment.md) | Completed | Plan files reorganization, duplicate cleanup, and universal `.gitignore` alignment |
 | [`add-job-url-fields-to-tui-and-cli.md`](./2026-11-04/020823_add-job-url-fields-to-tui-and-cli.md) | Completed | Job URL fields in tracker schema, Curses TUI, and Python CLI tools |
 | [`recruiter-outreach-tracking.md`](./2026-11-02/172651_recruiter-outreach-tracking.md) | Completed | Recruiter outreach data models, CLI subcommands, and pipeline tracking |

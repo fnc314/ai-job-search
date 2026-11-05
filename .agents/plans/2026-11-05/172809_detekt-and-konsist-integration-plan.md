@@ -163,6 +163,11 @@ Add tasks in root `mise.toml`:
 - `konsist`: runs konsist tests across `records` and `ui/kmp`
 - `lint`: runs both `detekt` and `konsist`
 
+### Step 6: Plan In-Repo Relocation, Bookkeeping & Registry Status Synchronization
+- Move/persist planning files into `.agents/plans/YYYY-MM-DD/HHMMSS_<plan-name>.md`.
+- Synchronize `.agents/plans/README.md` to update the plan status to `Completed`.
+- Ensure all execution plans explicitly enforce in-repo plan relocation and registry updates as standard completion criteria.
+
 ---
 
 ## Verification Plan
