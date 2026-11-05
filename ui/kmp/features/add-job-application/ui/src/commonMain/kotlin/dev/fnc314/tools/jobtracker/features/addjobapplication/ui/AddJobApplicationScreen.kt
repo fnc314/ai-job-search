@@ -5,14 +5,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import dev.fnc314.tools.jobtracker.core.designsystem.TooltipIconButton
+import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.widgets.NotesWidget
@@ -24,48 +23,50 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddJobApplicationScreen(
+public fun AddJobApplicationScreen(
     onNavigateBack: () -> Unit,
     viewModel: AddJobApplicationViewModel = koinViewModel(),
 ) {
     val formState by viewModel.formState.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Add Application") },
-                navigationIcon = {
-                    TooltipIconButton(
-                        tooltip = "Back to list",
-                        icon = Icons.AutoMirrored.Filled.ArrowBack,
-                        onClick = onNavigateBack,
-                    )
-                },
-                actions = {
-                    TextButton(
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = MaterialTheme.componentSizes.formMaxWidth)
+                .verticalScroll(rememberScrollState())
+                .padding(MaterialTheme.spacing.medium),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+        ) {
+            // Form header with Cancel and Save actions
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Add Application",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    OutlinedButton(onClick = onNavigateBack) {
+                        Text("Cancel")
+                    }
+                    Button(
                         onClick = { viewModel.submit { onNavigateBack() } },
                         enabled = !formState.submitting,
                     ) {
                         Text(if (formState.submitting) "Saving..." else "Save")
                     }
-                },
-            )
-        },
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = MaterialTheme.componentSizes.formMaxWidth)
-                    .verticalScroll(rememberScrollState())
-                    .padding(MaterialTheme.spacing.medium),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-            ) {
+                }
+            }
                 Text(
                     text = "(*) Denotes a required field",
                     style = MaterialTheme.typography.bodySmall,
@@ -210,7 +211,6 @@ fun AddJobApplicationScreen(
             }
         }
     }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

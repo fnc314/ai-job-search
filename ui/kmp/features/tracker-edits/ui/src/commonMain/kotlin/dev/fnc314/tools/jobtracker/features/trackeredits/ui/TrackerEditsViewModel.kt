@@ -13,14 +13,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class TrackerEditsUiState(
+public data class TrackerEditsUiState(
     val edits: List<TrackerEdit> = emptyList(),
     val loading: Boolean = false,
     val error: String? = null,
     val actionInProgress: Boolean = false,
 )
 
-class TrackerEditsViewModel(
+public class TrackerEditsViewModel(
     private val loadPendingEdits: LoadPendingEditsUseCase,
     private val approveEdit: ApproveEditUseCase,
     private val rejectEdit: RejectEditUseCase,
@@ -28,13 +28,13 @@ class TrackerEditsViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TrackerEditsUiState())
-    val uiState: StateFlow<TrackerEditsUiState> = _uiState.asStateFlow()
+    public val uiState: StateFlow<TrackerEditsUiState> = _uiState.asStateFlow()
 
     init {
         loadEdits()
     }
 
-    fun loadEdits() {
+    public fun loadEdits() {
         viewModelScope.launch {
             _uiState.update { it.copy(loading = true, error = null) }
             try {
@@ -46,7 +46,7 @@ class TrackerEditsViewModel(
         }
     }
 
-    fun approveEdit(id: String, note: String? = null) {
+    public fun approveEdit(id: String, note: String? = null) {
         viewModelScope.launch {
             _uiState.update { it.copy(actionInProgress = true) }
             try {
@@ -63,7 +63,7 @@ class TrackerEditsViewModel(
         }
     }
 
-    fun rejectEdit(id: String, reason: String) {
+    public fun rejectEdit(id: String, reason: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(actionInProgress = true) }
             try {
@@ -80,7 +80,7 @@ class TrackerEditsViewModel(
         }
     }
 
-    fun expireStaleEdits() {
+    public fun expireStaleEdits() {
         viewModelScope.launch {
             _uiState.update { it.copy(actionInProgress = true) }
             try {

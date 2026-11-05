@@ -6,7 +6,7 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
-val addJobApplicationDataModule = module {
+public val addJobApplicationDataModule: org.koin.core.module.Module = module {
     factoryOf(::CreateJobApplicationUseCaseImpl) bind CreateJobApplicationUseCase::class
     factoryOf(::CreateLeadUseCaseImpl) bind CreateLeadUseCase::class
 }

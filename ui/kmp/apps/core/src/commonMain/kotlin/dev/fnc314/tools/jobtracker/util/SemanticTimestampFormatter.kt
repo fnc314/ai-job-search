@@ -14,7 +14,7 @@ import kotlin.time.Instant
  *  - X Months, Y Weeks, and Z Days until 2 Months
  *  - YYYY-MM-DD (X Months ago) thereafter
  */
-fun formatSemanticTimestamp(
+internal fun formatSemanticTimestamp(
     updatedAt: Instant?,
     createdAt: Instant?,
     now: Instant = Clock.System.now(),
@@ -28,7 +28,7 @@ fun formatSemanticTimestamp(
 /**
  * Formats a single Instant into semantic human-friendly relative duration text.
  */
-fun formatSemanticInstant(
+internal fun formatSemanticInstant(
     instant: Instant,
     now: Instant = Clock.System.now(),
 ): String {

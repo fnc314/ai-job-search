@@ -11,5 +11,8 @@ kotlin {
             api(projects.coreDesignSystem)
             api(projects.coreData)
         }
+        androidMain.dependencies {
+            implementation(libs.androidx.core.ktx)
+        }
     }
 }

@@ -21,7 +21,7 @@ import androidx.compose.ui.semantics.semantics
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.data.settings.UiMode
 import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
-import dev.fnc314.tools.jobtracker.core.designsystem.TooltipIconButton
+import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInUiState
@@ -29,7 +29,7 @@ import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun SettingsScreen(
+public fun SettingsScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = koinViewModel(),
@@ -47,7 +47,7 @@ fun SettingsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
+public fun SettingsScreen(
     settings: AppSettings,
     onSettingsChange: (AppSettings) -> Unit,
     onNavigateBack: () -> Unit,
@@ -56,38 +56,16 @@ fun SettingsScreen(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Settings",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                navigationIcon = {
-                    TooltipIconButton(
-                        tooltip = "Back",
-                        icon = Icons.AutoMirrored.Filled.ArrowBack,
-                        onClick = onNavigateBack,
-                    )
-                },
-            )
-        },
-        modifier = modifier,
-    ) { paddingValues ->
-        Box(
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = MaterialTheme.componentSizes.formMaxWidth)
-                    .verticalScroll(rememberScrollState())
-                    .padding(MaterialTheme.spacing.medium),
+                .fillMaxWidth()
+                .widthIn(max = MaterialTheme.componentSizes.formMaxWidth)
+                .verticalScroll(rememberScrollState())
+                .padding(MaterialTheme.spacing.medium),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             ) {
                 // Section 1: Appearance & Theme
@@ -306,7 +284,6 @@ fun SettingsScreen(
             }
         }
     }
-}
 
 @Composable
 private fun CheckboxRow(

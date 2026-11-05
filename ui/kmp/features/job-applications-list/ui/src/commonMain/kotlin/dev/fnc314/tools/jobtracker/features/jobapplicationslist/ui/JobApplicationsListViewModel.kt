@@ -11,39 +11,39 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 
-class JobApplicationsListViewModel(
+public class JobApplicationsListViewModel(
     private val loadAll: LoadAllJobApplicationsUseCase,
     private val filterApplications: FilterJobApplicationsUseCase,
     private val sortApplications: SortJobApplicationsUseCase,
 ) : ViewModel(), KoinComponent {
 
     private val _statusFilter = MutableStateFlow(TrackerStatus.NONE)
-    val statusFilter = _statusFilter.asStateFlow()
+    public val statusFilter: StateFlow<TrackerStatus> = _statusFilter.asStateFlow()
 
     private val _ageFilter = MutableStateFlow(FilterJobApplicationsUseCase.ApplicationAge.NONE)
-    val ageFilter = _ageFilter.asStateFlow()
+    public val ageFilter: StateFlow<FilterJobApplicationsUseCase.ApplicationAge> = _ageFilter.asStateFlow()
 
     private val _sortColumn = MutableStateFlow(SortJobApplicationsUseCase.SortColumn.DATE_CREATED)
-    val sortColumn = _sortColumn.asStateFlow()
+    public val sortColumn: StateFlow<SortJobApplicationsUseCase.SortColumn> = _sortColumn.asStateFlow()
 
     private val _sortAscending = MutableStateFlow(false)
-    val sortAscending = _sortAscending.asStateFlow()
+    public val sortAscending: StateFlow<Boolean> = _sortAscending.asStateFlow()
 
     private val _applications = MutableStateFlow<List<JobApplication>>(emptyList())
     private val _filteredApplications = MutableStateFlow<List<JobApplication>>(emptyList())
-    val filteredApplications = _filteredApplications.asStateFlow()
+    public val filteredApplications: StateFlow<List<JobApplication>> = _filteredApplications.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
+    public val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
-    val error = _error.asStateFlow()
+    public val error: StateFlow<String?> = _error.asStateFlow()
 
     init {
         loadApplications()
     }
 
-    fun setFilter(
+    public fun setFilter(
         status: TrackerStatus = _statusFilter.value,
         age: FilterJobApplicationsUseCase.ApplicationAge = _ageFilter.value,
     ) {
@@ -52,13 +52,13 @@ class JobApplicationsListViewModel(
         applyFilterAndSort()
     }
 
-    fun setSort(column: SortJobApplicationsUseCase.SortColumn, ascending: Boolean) {
+    public fun setSort(column: SortJobApplicationsUseCase.SortColumn, ascending: Boolean) {
         _sortColumn.value = column
         _sortAscending.value = ascending
         applyFilterAndSort()
     }
 
-    fun refresh() {
+    public fun refresh() {
         // Reset to initial sort order: newest -> oldest createdAt
         _sortColumn.value = SortJobApplicationsUseCase.SortColumn.DATE_CREATED
         _sortAscending.value = false

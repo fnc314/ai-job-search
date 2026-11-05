@@ -7,12 +7,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun JobTrackerTheme(
+public fun JobTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     seedColor: Color = SeedColors.ProfessionalBlue,
     spacing: Spacing = Spacing(),
     content: @Composable () -> Unit,
-) {
+): Unit {
     val colorScheme = if (darkTheme) {
         buildDarkColorScheme(seedColor)
     } else {
@@ -36,4 +36,4 @@ fun JobTrackerTheme(
 }
 
 @Composable
-expect fun SetupSystemBars(darkTheme: Boolean)
+public expect fun SetupSystemBars(darkTheme: Boolean): Unit

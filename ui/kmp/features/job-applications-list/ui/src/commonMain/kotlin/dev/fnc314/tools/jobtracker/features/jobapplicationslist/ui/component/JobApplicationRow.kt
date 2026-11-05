@@ -18,7 +18,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.displayName
 import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticTimestamp
 
 @Composable
-fun JobApplicationRow(
+internal fun JobApplicationRow(
     application: JobApplication,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

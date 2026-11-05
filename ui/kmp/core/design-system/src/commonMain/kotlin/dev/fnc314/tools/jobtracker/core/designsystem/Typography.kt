@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.sp
  * Headings feature a technical monospace typeface reflecting the candidate's branding,
  * balanced with highly legible sans-serif body and label typography.
  */
-val JobTrackerTypography = Typography(
+public val JobTrackerTypography: Typography = Typography(
     // Display styles (prominent branding and splash headers)
     displayLarge = TextStyle(
         fontFamily = FontFamily.Monospace,

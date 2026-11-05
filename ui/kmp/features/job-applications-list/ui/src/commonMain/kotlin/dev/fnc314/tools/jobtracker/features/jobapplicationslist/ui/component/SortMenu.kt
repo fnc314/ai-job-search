@@ -17,7 +17,7 @@ import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.S
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SortMenu(
+internal fun SortMenu(
     sortColumn: SortJobApplicationsUseCase.SortColumn,
     sortAscending: Boolean,
     onSortChange: (SortJobApplicationsUseCase.SortColumn, Boolean) -> Unit,

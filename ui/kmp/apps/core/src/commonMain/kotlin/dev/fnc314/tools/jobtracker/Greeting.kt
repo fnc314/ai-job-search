@@ -1,6 +1,6 @@
 package dev.fnc314.tools.jobtracker
 
-class Greeting {
+internal class Greeting {
     private val platform = getPlatform()
 
     fun greet(): String {

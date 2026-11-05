@@ -6,15 +6,15 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 
-object SeedColors {
-    val ProfessionalBlue = Color(0xFF2F5597)
-    val MaterialPurple = Color(0xFF6750A4)
-    val ForestTeal = Color(0xFF006A6A)
-    val SlateIndigo = Color(0xFF3C5BA9)
-    val NordicSage = Color(0xFF386A20)
-    val WarmAmber = Color(0xFF825500)
+public object SeedColors {
+    public val ProfessionalBlue: Color = Color(0xFF2F5597)
+    public val MaterialPurple: Color = Color(0xFF6750A4)
+    public val ForestTeal: Color = Color(0xFF006A6A)
+    public val SlateIndigo: Color = Color(0xFF3C5BA9)
+    public val NordicSage: Color = Color(0xFF386A20)
+    public val WarmAmber: Color = Color(0xFF825500)
 
-    val All = listOf(
+    public val All: List<Pair<String, Color>> = listOf(
         "Professional Blue" to ProfessionalBlue,
         "Material Purple" to MaterialPurple,
         "Forest Teal" to ForestTeal,
@@ -27,7 +27,7 @@ object SeedColors {
 /**
  * Derives a full M3 Light ColorScheme using the provided seed color.
  */
-fun buildLightColorScheme(seed: Color): ColorScheme {
+public fun buildLightColorScheme(seed: Color): ColorScheme {
     // Generate harmonious tonal shifts based on seed
     val isLightSeed = seed.luminance() > 0.5f
     val onPrimary = if (isLightSeed) Color.Black else Color.White
@@ -84,7 +84,7 @@ fun buildLightColorScheme(seed: Color): ColorScheme {
 /**
  * Derives a full M3 Dark ColorScheme using the provided seed color.
  */
-fun buildDarkColorScheme(seed: Color): ColorScheme {
+public fun buildDarkColorScheme(seed: Color): ColorScheme {
     val primaryLightened = Color(
         red = (seed.red * 0.5f + 0.5f).coerceIn(0f, 1f),
         green = (seed.green * 0.5f + 0.5f).coerceIn(0f, 1f),

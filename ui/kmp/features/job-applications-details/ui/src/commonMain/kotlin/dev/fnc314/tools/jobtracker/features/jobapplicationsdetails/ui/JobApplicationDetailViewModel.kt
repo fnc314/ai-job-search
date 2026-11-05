@@ -14,7 +14,7 @@ import kotlin.uuid.Uuid
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-data class DetailUiState(
+public data class DetailUiState(
     val application: JobApplication? = null,
     val company: Company? = null,
     val events: List<TrackerEvent> = emptyList(),
@@ -24,7 +24,7 @@ data class DetailUiState(
     val isUpdating: Boolean = false,
 )
 
-class JobApplicationDetailViewModel : ViewModel(), KoinComponent {
+public class JobApplicationDetailViewModel : ViewModel(), KoinComponent {
     private val loadApplicationUseCase: LoadJobApplicationUseCase by inject()
     private val loadCompaniesUseCase: LoadCompaniesUseCase by inject()
     private val updateStatusUseCase: UpdateApplicationStatusUseCase by inject()
@@ -32,12 +32,12 @@ class JobApplicationDetailViewModel : ViewModel(), KoinComponent {
     private val updateFitScoreUseCase: UpdateFitScoreUseCase by inject()
     private val getSignedUrlUseCase: GetArtifactSignedUrlUseCase by inject()
     private val _uiState = MutableStateFlow(DetailUiState())
-    val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
+    public val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
     // Simple scope for synchronous calls from Compose
     private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default)
 
-    fun loadApplication(id: String) {
+    public fun loadApplication(id: String) {
         scope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
@@ -59,7 +59,7 @@ class JobApplicationDetailViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun updateStatus(status: TrackerStatus, date: String? = null, note: String? = null) {
+    public fun updateStatus(status: TrackerStatus, date: String? = null, note: String? = null) {
         val app = _uiState.value.application ?: return
         scope.launch {
             _uiState.update { it.copy(isUpdating = true) }
@@ -77,7 +77,7 @@ class JobApplicationDetailViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun recordEvent(type: TrackerEventType, note: String? = null) {
+    public fun recordEvent(type: TrackerEventType, note: String? = null) {
         val app = _uiState.value.application ?: return
         val event = Factory.createTrackerEvent(
             id = Uuid.random().toString(),
@@ -103,7 +103,7 @@ class JobApplicationDetailViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun updateFitScore(score: Int) {
+    public fun updateFitScore(score: Int) {
         val app = _uiState.value.application ?: return
         scope.launch {
             _uiState.update { it.copy(isUpdating = true) }
@@ -116,7 +116,7 @@ class JobApplicationDetailViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    suspend fun getArtifactSignedUrl(path: String): String? {
+    public suspend fun getArtifactSignedUrl(path: String): String? {
         return try {
             getSignedUrlUseCase(GetArtifactSignedUrlUseCase.Params(path = path))
         } catch (e: Exception) {
@@ -124,7 +124,7 @@ class JobApplicationDetailViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun dismissError() {
+    public fun dismissError() {
         _uiState.update { it.copy(error = null) }
     }
 }

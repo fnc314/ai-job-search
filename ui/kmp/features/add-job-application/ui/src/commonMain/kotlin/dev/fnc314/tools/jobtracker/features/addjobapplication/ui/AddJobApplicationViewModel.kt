@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
-data class AddApplicationFormState(
+public data class AddApplicationFormState(
     val company: String = "",
     val role: String = "",
     val sector: String = "",
@@ -33,66 +33,66 @@ data class AddApplicationFormState(
     val error: String? = null,
 )
 
-class AddJobApplicationViewModel(
+public class AddJobApplicationViewModel(
     private val createApplication: CreateJobApplicationUseCase,
 ) : ViewModel() {
 
     private val _formState = MutableStateFlow(AddApplicationFormState())
-    val formState: StateFlow<AddApplicationFormState> = _formState.asStateFlow()
+    public val formState: StateFlow<AddApplicationFormState> = _formState.asStateFlow()
 
-    fun updateCompany(value: String) {
+    public fun updateCompany(value: String) {
         _formState.update { it.copy(company = value, error = null) }
     }
 
-    fun updateRole(value: String) {
+    public fun updateRole(value: String) {
         _formState.update { it.copy(role = value, error = null) }
     }
 
-    fun updateSector(value: String) {
+    public fun updateSector(value: String) {
         _formState.update { it.copy(sector = value, error = null) }
     }
 
-    fun updateRoleType(value: String) {
+    public fun updateRoleType(value: String) {
         _formState.update { it.copy(roleType = value, error = null) }
     }
 
-    fun updateWorkMode(value: WorkMode) {
+    public fun updateWorkMode(value: WorkMode) {
         _formState.update { it.copy(workMode = value, error = null) }
     }
 
-    fun updateChannel(value: ApplicationChannel) {
+    public fun updateChannel(value: ApplicationChannel) {
         _formState.update { it.copy(channel = value, error = null) }
     }
 
-    fun updateStatus(value: TrackerStatus) {
+    public fun updateStatus(value: TrackerStatus) {
         _formState.update { it.copy(status = value, error = null) }
     }
 
-    fun updateJobUrl(value: String) {
+    public fun updateJobUrl(value: String) {
         _formState.update { it.copy(jobUrl = value, error = null) }
     }
 
-    fun updateJobApplicationUrl(value: String) {
+    public fun updateJobApplicationUrl(value: String) {
         _formState.update { it.copy(jobApplicationUrl = value, error = null) }
     }
 
-    fun updateJobId(value: String) {
+    public fun updateJobId(value: String) {
         _formState.update { it.copy(jobId = value, error = null) }
     }
 
-    fun updateLocation(value: String) {
+    public fun updateLocation(value: String) {
         _formState.update { it.copy(location = value, error = null) }
     }
 
-    fun updateNotes(value: List<String>) {
+    public fun updateNotes(value: List<String>) {
         _formState.update { it.copy(notes = value, error = null) }
     }
 
-    fun updateTags(value: String) {
+    public fun updateTags(value: String) {
         _formState.update { it.copy(tags = value, error = null) }
     }
 
-    fun validate(): Boolean {
+    public fun validate(): Boolean {
         val state = _formState.value
         val companyValid = state.company.isNotBlank()
         val roleValid = state.role.isNotBlank()
@@ -109,7 +109,7 @@ class AddJobApplicationViewModel(
         return true
     }
 
-    fun submit(onSuccess: (String) -> Unit) {
+    public fun submit(onSuccess: (String) -> Unit) {
         if (!validate()) return
 
         val state = _formState.value
@@ -157,7 +157,7 @@ class AddJobApplicationViewModel(
         }
     }
 
-    fun reset() {
+    public fun reset() {
         _formState.value = AddApplicationFormState()
     }
 }

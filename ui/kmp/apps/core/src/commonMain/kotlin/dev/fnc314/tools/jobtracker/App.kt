@@ -3,40 +3,44 @@ package dev.fnc314.tools.jobtracker
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import dev.fnc314.tools.jobtracker.core.designsystem.JobTrackerTheme
-import dev.fnc314.tools.jobtracker.core.designsystem.ProvideWindowSizeClass
-import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import dev.fnc314.tools.jobtracker.core.data.model.AuthState
 import dev.fnc314.tools.jobtracker.core.data.repository.AuthRepository
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository
+import dev.fnc314.tools.jobtracker.core.designsystem.JobTrackerTheme
+import dev.fnc314.tools.jobtracker.core.designsystem.ProvideWindowSizeClass
+import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.di.appModule
-import dev.fnc314.tools.jobtracker.features.signin.ui.SignInScreen
-import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
-import dev.fnc314.tools.jobtracker.navigation.*
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddJobApplicationScreen
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadScreen
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.JobApplicationsDetailsScreen
-import dev.fnc314.tools.jobtracker.features.trackeredits.ui.TrackerEditsScreen
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationsListScreen
 import dev.fnc314.tools.jobtracker.features.settings.ui.SettingsScreen
+import dev.fnc314.tools.jobtracker.features.signin.ui.SignInScreen
+import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
+import dev.fnc314.tools.jobtracker.features.trackeredits.ui.TrackerEditsScreen
+import dev.fnc314.tools.jobtracker.navigation.*
+import dev.fnc314.tools.jobtracker.ui.AppScaffold
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.dsl.koinConfiguration
 
 @Composable
-fun App() {
+public fun App() {
     KoinApplication(
         configuration = koinConfiguration(
             declaration = {
-                modules(
-                    appModule
-                )
+                modules(appModule)
             }
         ),
     ) {
@@ -61,6 +65,22 @@ fun App() {
         val authState by authRepository.authState.collectAsState()
         val isAuthenticated = authState is AuthState.Authenticated
 
+        val navController = rememberNavController()
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        // React to authentication changes
+        LaunchedEffect(isAuthenticated) {
+            if (isAuthenticated) {
+                navController.navigate(ListRoute) {
+                    popUpTo(SignInRoute) { inclusive = true }
+                }
+            } else {
+                navController.navigate(SignInRoute) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
+
         JobTrackerTheme(
             darkTheme = isDark,
             seedColor = seedColor,
@@ -70,86 +90,95 @@ fun App() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                if (!isAuthenticated) {
-                    // Show sign-in screen when not authenticated
-                    val signInViewModel = koinViewModel<SignInViewModel>()
-                    SignInScreen(
-                        viewModel = signInViewModel,
-                        onSignInSuccess = {
-                            // Auth state change will automatically switch to the main app
-                        },
-                    )
-                } else {
-                    // Main app navigation (authenticated)
-                    val signInViewModel = koinViewModel<SignInViewModel>()
-                    val navigator = rememberNavigator(startRoute = ListRoute)
+                    AppScaffold(
+                        navController = navController,
+                        isAuthenticated = isAuthenticated,
+                        snackbarHostState = snackbarHostState,
+                    ) { _ ->
+                        val signInViewModel = koinViewModel<SignInViewModel>()
 
-                    val entryProvider = remember {
-                        navEntryProvider {
-                            entry<ListRoute> {
+                        NavHost(
+                            navController = navController,
+                            startDestination = if (isAuthenticated) ListRoute else SignInRoute,
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            composable<SignInRoute> {
+                                SignInScreen(
+                                    viewModel = signInViewModel,
+                                    onSignInSuccess = {
+                                        // Handled by reactive authState LaunchedEffect
+                                    },
+                                )
+                            }
+
+                            composable<ListRoute> {
                                 JobApplicationsListScreen(
-                                    onApplicationClick = { id -> navigator.navigateTo(DetailRoute(id)) },
-                                    onAddApplicationClick = { navigator.navigateTo(AddApplicationRoute) },
-                                    onAddLeadClick = { navigator.navigateTo(AddLeadRoute) },
-                                    onEditsClick = { navigator.navigateTo(EditsRoute) },
-                                    onSettingsClick = { navigator.navigateTo(SettingsRoute) },
-                                    settings = settings,
-                                    onSettingsChange = { settingsRepository.updateSettings(it) },
-                                )
-                            }
-
-                            entry<DetailRoute> { route ->
-                                JobApplicationsDetailsScreen(
-                                    applicationId = route.applicationId,
-                                    onNavigateBack = { navigator.goBack() },
-                                    settings = settings,
-                                )
-                            }
-
-                            entry<AddApplicationRoute> {
-                                AddJobApplicationScreen(
-                                    onNavigateBack = { navigator.goBack() },
-                                )
-                            }
-
-                            entry<AddLeadRoute> {
-                                AddLeadScreen(
-                                    onNavigateBack = { navigator.goBack() },
-                                )
-                            }
-
-                            entry<EditsRoute> {
-                                TrackerEditsScreen(
-                                    onNavigateBack = { navigator.goBack() },
-                                    onEditClick = { appId ->
-                                        navigator.navigateTo(DetailRoute(appId))
+                                    onApplicationClick = { id ->
+                                        navController.navigate(DetailRoute(id))
+                                    },
+                                    onAddApplicationClick = {
+                                        navController.navigate(AddApplicationRoute)
+                                    },
+                                    onAddLeadClick = {
+                                        navController.navigate(AddLeadRoute)
+                                    },
+                                    onEditsClick = {
+                                        navController.navigate(EditsRoute)
+                                    },
+                                    onSettingsClick = {
+                                        navController.navigate(SettingsRoute)
                                     },
                                     settings = settings,
                                     onSettingsChange = { settingsRepository.updateSettings(it) },
                                 )
                             }
 
-                            entry<SettingsRoute> {
+                            composable<DetailRoute> { backStackEntry ->
+                                val detailRoute: DetailRoute = backStackEntry.toRoute()
+                                JobApplicationsDetailsScreen(
+                                    applicationId = detailRoute.applicationId,
+                                    onNavigateBack = { navController.popBackStack() },
+                                    settings = settings,
+                                )
+                            }
+
+                            composable<AddApplicationRoute> {
+                                AddJobApplicationScreen(
+                                    onNavigateBack = { navController.popBackStack() },
+                                )
+                            }
+
+                            composable<AddLeadRoute> {
+                                AddLeadScreen(
+                                    onNavigateBack = { navController.popBackStack() },
+                                )
+                            }
+
+                            composable<EditsRoute> {
+                                TrackerEditsScreen(
+                                    onNavigateBack = { navController.popBackStack() },
+                                    onEditClick = { appId ->
+                                        navController.navigate(DetailRoute(appId))
+                                    },
+                                    settings = settings,
+                                    onSettingsChange = { settingsRepository.updateSettings(it) },
+                                )
+                            }
+
+                            composable<SettingsRoute> {
                                 SettingsScreen(
                                     settings = settings,
                                     onSettingsChange = { settingsRepository.updateSettings(it) },
-                                    onNavigateBack = { navigator.goBack() },
+                                    onNavigateBack = { navController.popBackStack() },
                                     signInViewModel = signInViewModel,
                                 )
                             }
                         }
                     }
-
-                    NavDisplay(
-                        navigator = navigator,
-                        entryProvider = entryProvider,
-                        onBack = { navigator.goBack() },
-                    )
                 }
             }
         }
     }
-}
 }
 
 private fun String.toColorOrNull(): Color? {

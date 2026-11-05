@@ -20,7 +20,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.displayName
 import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticInstant
 
 @Composable
-fun EventsTimeline(
+internal fun EventsTimeline(
     events: List<TrackerEvent>,
     application: JobApplication? = null,
     modifier: Modifier = Modifier,

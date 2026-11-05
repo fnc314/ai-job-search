@@ -1,51 +1,24 @@
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidMultiplatformLibrary)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.local.kotlin.multiplatform)
+    alias(libs.plugins.local.android.kmp.library)
+    alias(libs.plugins.local.compose)
+    alias(libs.plugins.local.dependencies.compose)
+    alias(libs.plugins.local.dependencies.serialization)
+    alias(libs.plugins.local.dependencies.koin)
 }
 
 kotlin {
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "AppsCore"
-            isStatic = true
-        }
-    }
-    jvm()
     js {
         browser()
         binaries.executable()
     }
-    @OptIn(ExperimentalWasmDsl::class)
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
         browser()
         binaries.executable()
     }
-    android {
-        namespace = "dev.fnc314.tools.jobtracker.apps.core"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_17
-        }
-        androidResources {
-            enable = true
-        }
-        withHostTest {
-            isIncludeAndroidResources = true
-        }
-    }
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.bundles.compose.tooling)
             implementation(libs.navigation3.runtime)
             implementation(libs.navigation3.ui)
             implementation(libs.bundles.ktor.client.android)
@@ -65,21 +38,14 @@ kotlin {
             implementation(projects.featuresAddJobApplicationUi)
             implementation(projects.featuresTrackerEditsUi)
 
-            // Compose UI
-            implementation(libs.bundles.compose.ui)
-
             // Lifecycle
             implementation(libs.bundles.androidx.lifecycle.compose)
-
-            // Koin
-            implementation(libs.bundles.koin)
 
             // Navigation
             implementation(libs.navigation.compose)
 
-            // Ktor & Serialization
+            // Ktor
             implementation(libs.bundles.ktor.client)
-            implementation(libs.bundles.serialization)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

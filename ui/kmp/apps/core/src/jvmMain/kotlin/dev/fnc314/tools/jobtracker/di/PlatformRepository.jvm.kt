@@ -4,7 +4,7 @@ import dev.fnc314.tools.jobtracker.core.data.repository.JVMJobApplicationReposit
 import dev.fnc314.tools.jobtracker.core.data.repository.JobApplicationRepository
 import dev.fnc314.tools.jobtracker.platform.FirebaseJVM
 
-actual fun createJobApplicationRepository(): JobApplicationRepository {
+internal actual fun createJobApplicationRepository(): JobApplicationRepository {
     FirebaseJVM.initialize()
     return JVMJobApplicationRepository()
 }

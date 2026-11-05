@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class AddLeadFormState(
+public data class AddLeadFormState(
     val company: String = "",
     val contact: String = "",
     val channel: String = "",
@@ -19,34 +19,34 @@ data class AddLeadFormState(
     val error: String? = null,
 )
 
-class AddLeadViewModel(
+public class AddLeadViewModel(
     private val createLead: CreateLeadUseCase,
 ) : ViewModel() {
 
     private val _formState = MutableStateFlow(AddLeadFormState())
-    val formState: StateFlow<AddLeadFormState> = _formState.asStateFlow()
+    public val formState: StateFlow<AddLeadFormState> = _formState.asStateFlow()
 
-    fun updateCompany(value: String) {
+    public fun updateCompany(value: String) {
         _formState.update { it.copy(company = value, error = null) }
     }
 
-    fun updateContact(value: String) {
+    public fun updateContact(value: String) {
         _formState.update { it.copy(contact = value, error = null) }
     }
 
-    fun updateChannel(value: String) {
+    public fun updateChannel(value: String) {
         _formState.update { it.copy(channel = value, error = null) }
     }
 
-    fun updateNotes(value: List<String>) {
+    public fun updateNotes(value: List<String>) {
         _formState.update { it.copy(notes = value, error = null) }
     }
 
-    fun updateTags(value: String) {
+    public fun updateTags(value: String) {
         _formState.update { it.copy(tags = value, error = null) }
     }
 
-    fun validate(): Boolean {
+    public fun validate(): Boolean {
         val state = _formState.value
         if (state.company.isBlank()) {
             _formState.update { it.copy(error = "Company name is required") }
@@ -55,7 +55,7 @@ class AddLeadViewModel(
         return true
     }
 
-    fun submit(onSuccess: (String) -> Unit) {
+    public fun submit(onSuccess: (String) -> Unit) {
         if (!validate()) return
 
         val state = _formState.value
@@ -90,7 +90,7 @@ class AddLeadViewModel(
         }
     }
 
-    fun reset() {
+    public fun reset() {
         _formState.value = AddLeadFormState()
     }
 }

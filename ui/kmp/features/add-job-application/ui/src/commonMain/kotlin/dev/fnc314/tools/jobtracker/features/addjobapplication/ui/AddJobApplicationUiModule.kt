@@ -4,11 +4,11 @@ import dev.fnc314.tools.jobtracker.features.addjobapplication.data.addJobApplica
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
-val addJobApplicationUiModule = module {
+public val addJobApplicationUiModule: org.koin.core.module.Module = module {
     factoryOf(::AddJobApplicationViewModel)
     factoryOf(::AddLeadViewModel)
 }
 
-val addJobApplicationFeatureModule = module {
+public val addJobApplicationFeatureModule: org.koin.core.module.Module = module {
     includes(addJobApplicationDataModule, addJobApplicationUiModule)
 }

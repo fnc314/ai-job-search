@@ -14,18 +14,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import dev.fnc314.tools.jobtracker.core.designsystem.TooltipIconButton
+import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEdit
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerEditKind
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerEditState
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
-import dev.fnc314.tools.jobtracker.core.data.model.displayName
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrackerEditsScreen(
+public fun TrackerEditsScreen(
     onNavigateBack: () -> Unit,
     onEditClick: (String) -> Unit = {},
     settings: AppSettings = AppSettings(),
@@ -36,39 +33,40 @@ fun TrackerEditsScreen(
     var rejectDialogEdit by remember { mutableStateOf<TrackerEdit?>(null) }
     var rejectReason by remember { mutableStateOf("") }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Pending Edits") },
-                navigationIcon = {
-                    TooltipIconButton(
-                        tooltip = "Back to list",
-                        icon = Icons.AutoMirrored.Filled.ArrowBack,
-                        onClick = onNavigateBack,
-                    )
-                },
-                actions = {
-                    TooltipIconButton(
-                        tooltip = "Expire stale edits",
-                        icon = Icons.Default.DateRange,
-                        onClick = { viewModel.expireStaleEdits() },
-                        enabled = !uiState.actionInProgress,
-                    )
-                    TooltipIconButton(
-                        tooltip = "Refresh edits",
-                        icon = Icons.Default.Refresh,
-                        onClick = { viewModel.loadEdits() },
-                        enabled = !uiState.loading,
-                    )
-                },
-            )
-        },
-    ) { paddingValues ->
-        Column(
+    Column(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        // Toolbar row: Pending Edits title & Actions
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+                .fillMaxWidth()
+                .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.small),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            Text(
+                text = "Pending Edits",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+            ) {
+                TooltipIconButton(
+                    tooltip = "Expire stale edits",
+                    icon = Icons.Default.DateRange,
+                    onClick = { viewModel.expireStaleEdits() },
+                    enabled = !uiState.actionInProgress,
+                )
+                TooltipIconButton(
+                    tooltip = "Refresh edits",
+                    icon = Icons.Default.Refresh,
+                    onClick = { viewModel.loadEdits() },
+                    enabled = !uiState.loading,
+                )
+            }
+        }
             // Error message
             uiState.error?.let { error ->
                 Card(
@@ -135,7 +133,6 @@ fun TrackerEditsScreen(
                 }
             }
         }
-    }
 
     // Reject confirmation dialog
     rejectDialogEdit?.let { edit ->
@@ -181,7 +178,7 @@ fun TrackerEditsScreen(
 }
 
 @Composable
-fun EditCard(
+internal fun EditCard(
     edit: TrackerEdit,
     onApprove: () -> Unit,
     onReject: () -> Unit,

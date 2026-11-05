@@ -16,7 +16,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.displayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UpdateStatusDialog(
+internal fun UpdateStatusDialog(
     currentStatus: TrackerStatus?,
     onConfirm: (TrackerStatus, String?, String?) -> Unit,
     onDismiss: () -> Unit,
@@ -97,7 +97,7 @@ fun UpdateStatusDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecordEventDialog(
+internal fun RecordEventDialog(
     onConfirm: (TrackerEventType, String?) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -176,7 +176,7 @@ fun RecordEventDialog(
 }
 
 @Composable
-fun UpdateFitScoreDialog(
+internal fun UpdateFitScoreDialog(
     currentScore: Int? = null,
     onConfirm: (Int) -> Unit,
     onDismiss: () -> Unit,
@@ -229,7 +229,7 @@ fun UpdateFitScoreDialog(
 }
 
 @Composable
-fun MarkdownPreviewDialog(
+internal fun MarkdownPreviewDialog(
     artifact: TrackerArtifact,
     onDismiss: () -> Unit,
 ) {
@@ -296,7 +296,7 @@ fun MarkdownPreviewDialog(
 }
 
 @Composable
-fun EventDetailDialog(
+internal fun EventDetailDialog(
     event: TrackerEvent,
     onDismiss: () -> Unit,
 ) {

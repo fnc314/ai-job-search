@@ -1,13 +1,14 @@
 package dev.fnc314.tools.jobtracker.features.settings.ui
 
 import dev.fnc314.tools.jobtracker.features.settings.data.settingsDataModule
+import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
-val settingsUiModule = module {
+public val settingsUiModule: Module = module {
     factoryOf(::SettingsViewModel)
 }
 
-val settingsFeatureModule = module {
+public val settingsFeatureModule: Module = module {
     includes(settingsDataModule, settingsUiModule)
 }

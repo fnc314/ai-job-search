@@ -7,53 +7,53 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-data class IconSizes(
-    val extraSmall: Dp = 12.dp,
-    val small: Dp = 16.dp,
-    val medium: Dp = 18.dp,
-    val standard: Dp = 20.dp,
-    val default: Dp = 24.dp,
-    val large: Dp = 32.dp,
-    val extraLarge: Dp = 48.dp,
-    val avatar: Dp = 72.dp,
+public data class IconSizes(
+    public val extraSmall: Dp = 12.dp,
+    public val small: Dp = 16.dp,
+    public val medium: Dp = 18.dp,
+    public val standard: Dp = 20.dp,
+    public val default: Dp = 24.dp,
+    public val large: Dp = 32.dp,
+    public val extraLarge: Dp = 48.dp,
+    public val avatar: Dp = 72.dp,
 )
 
-data class ComponentSizes(
-    val hairline: Dp = 1.dp,
-    val timelineLineWidth: Dp = 2.dp,
-    val badgePaddingHorizontal: Dp = 8.dp,
-    val badgePaddingVertical: Dp = 3.dp,
-    val iconButtonSize: Dp = 36.dp,
-    val actionTargetSize: Dp = 44.dp,
-    val timelineNodeSize: Dp = 32.dp,
-    val elevationDraggingTonal: Dp = 6.dp,
-    val elevationDraggingShadow: Dp = 8.dp,
-    val elevationDraggingCard: Dp = 12.dp,
-    val listCardAdaptiveMin: Dp = 360.dp,
-    val formMaxWidth: Dp = 760.dp,
-    val detailMaxWidth: Dp = 1200.dp,
-    val formBottomClearance: Dp = 280.dp,
+public data class ComponentSizes(
+    public val hairline: Dp = 1.dp,
+    public val timelineLineWidth: Dp = 2.dp,
+    public val badgePaddingHorizontal: Dp = 8.dp,
+    public val badgePaddingVertical: Dp = 3.dp,
+    public val iconButtonSize: Dp = 36.dp,
+    public val actionTargetSize: Dp = 44.dp,
+    public val timelineNodeSize: Dp = 32.dp,
+    public val elevationDraggingTonal: Dp = 6.dp,
+    public val elevationDraggingShadow: Dp = 8.dp,
+    public val elevationDraggingCard: Dp = 12.dp,
+    public val listCardAdaptiveMin: Dp = 360.dp,
+    public val formMaxWidth: Dp = 760.dp,
+    public val detailMaxWidth: Dp = 1200.dp,
+    public val formBottomClearance: Dp = 280.dp,
 )
 
-val LocalIconSizes = staticCompositionLocalOf { IconSizes() }
-val LocalComponentSizes = staticCompositionLocalOf { ComponentSizes() }
+public val LocalIconSizes: androidx.compose.runtime.ProvidableCompositionLocal<IconSizes> = staticCompositionLocalOf { IconSizes() }
+public val LocalComponentSizes: androidx.compose.runtime.ProvidableCompositionLocal<ComponentSizes> = staticCompositionLocalOf { ComponentSizes() }
 
-val MaterialTheme.iconSizes: IconSizes
+public val MaterialTheme.iconSizes: IconSizes
     @Composable
     @ReadOnlyComposable
     get() = LocalIconSizes.current
 
-val MaterialTheme.iconSize: IconSizes
+public val MaterialTheme.iconSize: IconSizes
     @Composable
     @ReadOnlyComposable
     get() = LocalIconSizes.current
 
-val MaterialTheme.componentSizes: ComponentSizes
+public val MaterialTheme.componentSizes: ComponentSizes
     @Composable
     @ReadOnlyComposable
     get() = LocalComponentSizes.current
 
-val MaterialTheme.componentSize: ComponentSizes
+public val MaterialTheme.componentSize: ComponentSizes
     @Composable
     @ReadOnlyComposable
     get() = LocalComponentSizes.current

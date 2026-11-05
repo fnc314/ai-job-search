@@ -1,14 +1,6 @@
 package dev.fnc314.tools.jobtracker.features.signin.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Button
@@ -55,17 +47,12 @@ public fun SignInScreen(
         }
     }
 
-    Scaffold(
-        modifier = modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(MaterialTheme.spacing.large),
-            contentAlignment = Alignment.Center
-        ) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(MaterialTheme.spacing.large),
+        contentAlignment = Alignment.Center
+    ) {
             OutlinedCard(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -144,6 +131,10 @@ public fun SignInScreen(
                     }
                 }
             }
-        }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
     }
 }

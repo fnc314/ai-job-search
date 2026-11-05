@@ -2,7 +2,7 @@ package dev.fnc314.tools.jobtracker
 
 import web.navigator.navigator
 
-class JsPlatform: Platform {
+internal class JsPlatform: Platform {
     private val userAgent = navigator.userAgent
     private val browserList = listOf("Chrome", "Firefox", "Safari", "Edge")
 
@@ -11,4 +11,4 @@ class JsPlatform: Platform {
             ?: "Unknown"
 }
 
-actual fun getPlatform(): Platform = JsPlatform()
+internal actual fun getPlatform(): Platform = JsPlatform()

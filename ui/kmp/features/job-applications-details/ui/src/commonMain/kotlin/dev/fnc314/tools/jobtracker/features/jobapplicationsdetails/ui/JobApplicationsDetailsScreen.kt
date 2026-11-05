@@ -14,11 +14,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
-import dev.fnc314.tools.jobtracker.core.designsystem.TooltipIconButton
+import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
 import dev.fnc314.tools.jobtracker.core.designsystem.WindowWidthSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
@@ -34,7 +32,7 @@ import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticTimestamp
 import org.koin.compose.koinInject
 
 @Composable
-fun JobApplicationsDetailsScreen(
+public fun JobApplicationsDetailsScreen(
     applicationId: String,
     viewModel: JobApplicationDetailViewModel = koinInject(),
     onNavigateBack: () -> Unit,
@@ -84,43 +82,15 @@ fun JobApplicationsDetailsScreen(
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Application Details") },
-                navigationIcon = {
-                    TooltipIconButton(
-                        tooltip = "Go back",
-                        icon = Icons.AutoMirrored.Sharp.ArrowBack,
-                        onClick = onNavigateBack,
-                    )
-                },
-                actions = {
-                    TooltipIconButton(
-                        tooltip = "Update status",
-                        icon = Icons.Sharp.Notifications,
-                        onClick = { showStatusDialog = true },
-                    )
-                    TooltipIconButton(
-                        tooltip = "Record event",
-                        icon = Icons.Sharp.Edit,
-                        onClick = { showEventDialog = true },
-                    )
-                    TooltipIconButton(
-                        tooltip = "Update fit score",
-                        icon = Icons.Default.Build,
-                        onClick = { showFitDialog = true },
-                    )
-                },
-            )
-        },
-    ) { padding ->
+    var fabMenuExpanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier.fillMaxSize(),
+    ) {
         when {
             state.isLoading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -128,9 +98,7 @@ fun JobApplicationsDetailsScreen(
             }
             state.error != null -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -153,9 +121,7 @@ fun JobApplicationsDetailsScreen(
                 val isWide = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
 
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.TopCenter
                 ) {
                     if (isWide) {
@@ -257,11 +223,78 @@ fun JobApplicationsDetailsScreen(
                 }
             }
         }
+
+        // Details MenuFAB
+        if (state.application != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(MaterialTheme.spacing.medium),
+            ) {
+                FloatingActionButton(
+                    onClick = { fabMenuExpanded = true },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = "Application Actions")
+                }
+                DropdownMenu(
+                    expanded = fabMenuExpanded,
+                    onDismissRequest = { fabMenuExpanded = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Update Status") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Sharp.Notifications,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+                            )
+                        },
+                        onClick = {
+                            fabMenuExpanded = false
+                            showStatusDialog = true
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Record Event") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Sharp.Edit,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+                            )
+                        },
+                        onClick = {
+                            fabMenuExpanded = false
+                            showEventDialog = true
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Update Fit Score") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Build,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+                            )
+                        },
+                        onClick = {
+                            fabMenuExpanded = false
+                            showFitDialog = true
+                        },
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun ApplicationSummarySection(
+internal fun ApplicationSummarySection(
     application: JobApplication?,
     modifier: Modifier = Modifier,
     onAdjustFitClick: (() -> Unit)? = null,
@@ -389,7 +422,7 @@ fun ApplicationSummarySection(
 }
 
 @Composable
-fun CompanyProfileSection(
+internal fun CompanyProfileSection(
     company: Company,
     modifier: Modifier = Modifier,
 ) {
@@ -434,7 +467,7 @@ fun CompanyProfileSection(
 }
 
 @Composable
-fun SectionHeader(
+internal fun SectionHeader(
     title: String,
     modifier: Modifier = Modifier,
 ) {

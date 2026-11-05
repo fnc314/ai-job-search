@@ -1,12 +1,12 @@
 package dev.fnc314.tools.jobtracker.platform
 
-actual class PlatformAuth actual constructor() {
+internal actual class PlatformAuth actual constructor() {
     actual suspend fun signIn(): Boolean = false
     actual fun signOut() {}
     actual fun isAuthenticated(): Boolean = false
 }
 
-actual class PlatformFileOpener {
+internal actual class PlatformFileOpener {
     actual fun openUrl(url: String) {
         window.open(url, "_blank")
     }

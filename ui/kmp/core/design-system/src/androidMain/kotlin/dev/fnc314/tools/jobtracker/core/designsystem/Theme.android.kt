@@ -7,7 +7,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 @Composable
-actual fun SetupSystemBars(darkTheme: Boolean) {
+public actual fun SetupSystemBars(darkTheme: Boolean): Unit {
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

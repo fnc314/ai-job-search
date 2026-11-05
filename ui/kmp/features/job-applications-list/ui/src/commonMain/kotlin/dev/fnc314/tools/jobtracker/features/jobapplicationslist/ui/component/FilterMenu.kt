@@ -18,7 +18,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.displayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterMenu(
+internal fun FilterMenu(
     selectedStatus: TrackerStatus,
     selectedAge: ApplicationAge,
     onFilterChange: (TrackerStatus, ApplicationAge) -> Unit,

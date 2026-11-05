@@ -6,7 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
-val JobTrackerShapes = Shapes(
+public val JobTrackerShapes: Shapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small = RoundedCornerShape(8.dp),
     medium = RoundedCornerShape(12.dp),
@@ -14,11 +14,11 @@ val JobTrackerShapes = Shapes(
     extraLarge = RoundedCornerShape(28.dp),
 )
 
-data class ExtendedShapes(
-    val full: CornerBasedShape = CircleShape,
-    val card: CornerBasedShape = RoundedCornerShape(12.dp),
-    val chip: CornerBasedShape = RoundedCornerShape(8.dp),
-    val button: CornerBasedShape = RoundedCornerShape(20.dp),
-    val dialog: CornerBasedShape = RoundedCornerShape(28.dp),
-    val bottomSheet: CornerBasedShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+public data class ExtendedShapes(
+    public val full: CornerBasedShape = CircleShape,
+    public val card: CornerBasedShape = RoundedCornerShape(12.dp),
+    public val chip: CornerBasedShape = RoundedCornerShape(8.dp),
+    public val button: CornerBasedShape = RoundedCornerShape(20.dp),
+    public val dialog: CornerBasedShape = RoundedCornerShape(28.dp),
+    public val bottomSheet: CornerBasedShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
 )

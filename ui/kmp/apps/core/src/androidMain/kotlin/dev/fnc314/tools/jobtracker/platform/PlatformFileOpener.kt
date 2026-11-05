@@ -6,7 +6,7 @@ import androidx.core.content.ContextCompat.startActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-actual class PlatformFileOpener {
+internal actual class PlatformFileOpener {
     actual fun openUrl(url: String) {
         // TODO: Get context from Android application
         println("Opening URL: $url")

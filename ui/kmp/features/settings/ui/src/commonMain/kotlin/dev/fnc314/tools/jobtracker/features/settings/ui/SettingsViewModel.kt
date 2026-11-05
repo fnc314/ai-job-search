@@ -6,13 +6,13 @@ import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.ObserveSetti
 import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.UpdateSettingsUseCase
 import kotlinx.coroutines.flow.StateFlow
 
-class SettingsViewModel(
+public class SettingsViewModel(
     observeSettingsUseCase: ObserveSettingsUseCase,
     private val updateSettingsUseCase: UpdateSettingsUseCase,
 ) : ViewModel() {
-    val settings: StateFlow<AppSettings> = observeSettingsUseCase()
+    public val settings: StateFlow<AppSettings> = observeSettingsUseCase()
 
-    fun updateSettings(newSettings: AppSettings) {
+    public fun updateSettings(newSettings: AppSettings) {
         updateSettingsUseCase(newSettings)
     }
 }

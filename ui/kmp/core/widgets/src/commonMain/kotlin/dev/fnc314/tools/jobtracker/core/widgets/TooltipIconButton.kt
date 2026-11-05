@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.core.designsystem
+package dev.fnc314.tools.jobtracker.core.widgets
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -13,13 +13,13 @@ import androidx.compose.ui.semantics.semantics
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TooltipIconButton(
+public fun TooltipIconButton(
     tooltip: String,
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-) {
+): Unit {
     TooltipBox(
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = {

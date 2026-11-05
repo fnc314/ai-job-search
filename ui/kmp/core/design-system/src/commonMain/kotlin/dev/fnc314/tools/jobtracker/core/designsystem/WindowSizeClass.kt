@@ -9,13 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-enum class WindowWidthSizeClass {
+public enum class WindowWidthSizeClass {
     Compact,
     Medium,
     Expanded;
 
-    companion object {
-        fun fromWidth(width: Dp): WindowWidthSizeClass = when {
+    public companion object {
+        public fun fromWidth(width: Dp): WindowWidthSizeClass = when {
             width < 600.dp -> Compact
             width < 840.dp -> Medium
             else -> Expanded
@@ -23,13 +23,13 @@ enum class WindowWidthSizeClass {
     }
 }
 
-enum class WindowHeightSizeClass {
+public enum class WindowHeightSizeClass {
     Compact,
     Medium,
     Expanded;
 
-    companion object {
-        fun fromHeight(height: Dp): WindowHeightSizeClass = when {
+    public companion object {
+        public fun fromHeight(height: Dp): WindowHeightSizeClass = when {
             height < 480.dp -> Compact
             height < 900.dp -> Medium
             else -> Expanded
@@ -37,23 +37,23 @@ enum class WindowHeightSizeClass {
     }
 }
 
-data class WindowSizeClass(
-    val widthSizeClass: WindowWidthSizeClass,
-    val heightSizeClass: WindowHeightSizeClass,
+public data class WindowSizeClass(
+    public val widthSizeClass: WindowWidthSizeClass,
+    public val heightSizeClass: WindowHeightSizeClass,
 ) {
-    val isCompact: Boolean get() = widthSizeClass == WindowWidthSizeClass.Compact
-    val isMedium: Boolean get() = widthSizeClass == WindowWidthSizeClass.Medium
-    val isExpanded: Boolean get() = widthSizeClass == WindowWidthSizeClass.Expanded
+    public val isCompact: Boolean get() = widthSizeClass == WindowWidthSizeClass.Compact
+    public val isMedium: Boolean get() = widthSizeClass == WindowWidthSizeClass.Medium
+    public val isExpanded: Boolean get() = widthSizeClass == WindowWidthSizeClass.Expanded
 
-    companion object {
-        fun calculate(width: Dp, height: Dp): WindowSizeClass = WindowSizeClass(
+    public companion object {
+        public fun calculate(width: Dp, height: Dp): WindowSizeClass = WindowSizeClass(
             widthSizeClass = WindowWidthSizeClass.fromWidth(width),
             heightSizeClass = WindowHeightSizeClass.fromHeight(height),
         )
     }
 }
 
-val LocalWindowSizeClass = compositionLocalOf {
+public val LocalWindowSizeClass: androidx.compose.runtime.ProvidableCompositionLocal<WindowSizeClass> = compositionLocalOf {
     WindowSizeClass(
         widthSizeClass = WindowWidthSizeClass.Compact,
         heightSizeClass = WindowHeightSizeClass.Medium,
@@ -65,10 +65,10 @@ val LocalWindowSizeClass = compositionLocalOf {
  * constraints and provides it down the composition tree via [LocalWindowSizeClass].
  */
 @Composable
-fun ProvideWindowSizeClass(
+public fun ProvideWindowSizeClass(
     modifier: Modifier = Modifier,
     content: @Composable (WindowSizeClass) -> Unit,
-) {
+): Unit {
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val windowSizeClass = WindowSizeClass.calculate(maxWidth, maxHeight)
         CompositionLocalProvider(LocalWindowSizeClass provides windowSizeClass) {

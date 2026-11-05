@@ -23,7 +23,7 @@ import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.data.model.displayName
 
 @Composable
-fun ArtifactsList(
+internal fun ArtifactsList(
     artifacts: List<TrackerArtifact>,
     onArtifactClick: (TrackerArtifact) -> Unit,
     modifier: Modifier = Modifier,
@@ -113,7 +113,7 @@ fun ArtifactsList(
 }
 
 @Composable
-fun ArtifactItem(
+internal fun ArtifactItem(
     artifact: TrackerArtifact,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -233,7 +233,7 @@ fun ArtifactItem(
     }
 }
 
-fun formatSize(size: Long): String {
+private fun formatSize(size: Long): String {
     return when {
         size >= 1_000_000 -> "${size / 1_000_000} MB"
         size >= 1_000 -> "${size / 1_000} KB"

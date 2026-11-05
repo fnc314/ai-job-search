@@ -14,9 +14,10 @@ import dev.fnc314.tools.jobtracker.features.signin.ui.signInFeatureModule
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.trackerEditsFeatureModule
 import dev.fnc314.tools.jobtracker.platform.PlatformAuth
 import io.ktor.client.*
+import org.koin.core.module.Module
 import org.koin.dsl.module
 
-val repositoryModule = module {
+public val repositoryModule: Module = module {
     single<JobApplicationRepository> { createJobApplicationRepository() }
     single<StorageRepository> {
         KtorStorageRepository(get())
@@ -24,13 +25,13 @@ val repositoryModule = module {
     single<SettingsStorage> { createSettingsStorage() }
 }
 
-val platformModule = module {
+public val platformModule: Module = module {
     single { PlatformAuth() }
     single { PlatformFileOpener() }
     single { HttpClient() }
 }
 
-val appModule = module {
+public val appModule: Module = module {
     includes(
         repositoryModule,
         platformModule,
