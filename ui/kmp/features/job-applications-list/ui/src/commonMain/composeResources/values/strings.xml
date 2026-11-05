@@ -1,0 +1,50 @@
+<resources>
+    <string name="list_route_title">Job Applications</string>
+    <string name="list_error_prefix">Error: %s</string>
+    <string name="list_action_retry">Retry</string>
+    <string name="list_tooltip_refresh">Refresh applications</string>
+    <string name="list_tooltip_edits">Pending edits</string>
+    <string name="list_tooltip_settings">Settings</string>
+    <string name="list_empty_message">No applications found</string>
+    <string name="list_fab_cd">Add new application or lead</string>
+    <string name="list_fab_icon_cd">Add</string>
+    <string name="list_action_add_application">Add Application</string>
+    <string name="list_action_add_lead">Add Lead</string>
+
+    <string name="list_sort_tooltip">Change sorting column and order</string>
+    <string name="list_sort_cd">Sort by %1$s, %2$s</string>
+    <string name="list_sort_button_label">%1$s (%2$s)</string>
+    <string name="list_sort_section_date">DATE SORT</string>
+    <string name="list_sort_col_date_created">Date Created</string>
+    <string name="list_sort_col_date_updated">Date Updated</string>
+    <string name="list_sort_col_company">Company</string>
+    <string name="list_sort_col_role">Role</string>
+    <string name="list_sort_col_status">Status</string>
+    <string name="list_sort_col_fit">Fit Score</string>
+    <string name="list_sort_created_at">Created At</string>
+    <string name="list_sort_updated_at">Updated At</string>
+    <string name="list_sort_section_other">OTHER FIELDS</string>
+    <string name="list_sort_section_direction">DIRECTION</string>
+    <string name="list_sort_dir_ascending">Ascending</string>
+    <string name="list_sort_dir_descending">Descending</string>
+    <string name="list_sort_order_ascending">Ascending (Oldest first / A → Z)</string>
+    <string name="list_sort_order_descending">Descending (Newest first / Z → A)</string>
+    <string name="list_sort_active_cd">Active</string>
+
+    <string name="list_filter_tooltip">Filter applications by status and age</string>
+    <string name="list_filter_cd">Active filter: %s</string>
+    <string name="list_filter_label_status_age">%1$s · %2$s</string>
+    <string name="list_filter_label_status">Status: %s</string>
+    <string name="list_filter_label_age">Age: %s</string>
+    <string name="list_filter_label_all">Filter: All</string>
+    <string name="list_filter_clear_all">Clear All Filters</string>
+    <string name="list_filter_section_status">STATUS</string>
+    <string name="list_filter_all_statuses">All Statuses</string>
+    <string name="list_filter_section_age">AGE</string>
+    <string name="list_filter_all_time">All Time</string>
+    <string name="list_filter_active_cd">Active</string>
+
+    <string name="list_row_click_cd">View %s details</string>
+    <string name="list_row_no_role">No role</string>
+    <string name="list_row_cd">%1$s, %2$s, %3$s%4$s</string>
+</resources>

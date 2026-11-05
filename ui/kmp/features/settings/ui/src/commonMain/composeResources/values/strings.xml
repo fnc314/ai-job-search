@@ -1,0 +1,17 @@
+<resources>
+    <string name="settings_route_title">Settings</string>
+    <string name="settings_cd_navigate_back">Navigate back</string>
+    <string name="settings_cd_back">Back</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_appearance">Appearance &amp; Theme</string>
+    <string name="settings_label_theme">Theme: %s</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_label_accent_seed">Accent Color Seed</string>
+    <string name="settings_cd_theme_color">%s theme color</string>
+    <string name="settings_label_custom_seed_hex">Custom Seed Hex</string>
+    <string name="settings_cd_custom_seed_hex">Custom theme seed color hex value</string>
+    <string name="settings_section_account">Account</string>
+    <string name="settings_signed_in_default">Signed in</string>
+    <string name="settings_action_sign_out">Sign Out</string>
+</resources>

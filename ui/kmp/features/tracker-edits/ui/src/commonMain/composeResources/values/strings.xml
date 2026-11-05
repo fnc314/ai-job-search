@@ -1,0 +1,23 @@
+<resources>
+    <string name="edits_route_title">Pending Edits</string>
+    <string name="edits_cd_back">Back</string>
+    <string name="edits_action_expire_stale">Expire stale edits</string>
+    <string name="edits_action_refresh">Refresh edits</string>
+    <string name="edits_empty">No pending edits</string>
+    <string name="edits_action_approve">Approve</string>
+    <string name="edits_action_approve_for_app">Approve edit for %s</string>
+    <string name="edits_action_reject">Reject</string>
+    <string name="edits_action_reject_for_app">Reject edit for %s</string>
+    <string name="edits_dialog_reject_title">Reject Edit</string>
+    <string name="edits_dialog_reject_prompt">Enter a reason for rejecting this edit:</string>
+    <string name="edits_dialog_reject_label">Reason</string>
+    <string name="edits_dialog_reject_placeholder">Why are you rejecting this edit?</string>
+    <string name="edits_dialog_reject_cancel">Cancel</string>
+    <string name="edits_confidence_label">Confidence: %s</string>
+    <string name="edits_application_label">Application: %s</string>
+    <string name="edits_cd_view_application">View application %s</string>
+    <string name="edits_changes_header">Changes:</string>
+    <string name="edits_reason_label">Reason: %s</string>
+    <string name="edits_source_email_from">From: %s</string>
+    <string name="edits_source_email_subject">Subject: %s</string>
+</resources>

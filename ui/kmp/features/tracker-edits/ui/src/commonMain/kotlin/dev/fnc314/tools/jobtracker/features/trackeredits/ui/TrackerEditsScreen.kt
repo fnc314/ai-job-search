@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -43,7 +42,33 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
+import dev.fnc314.tools.jobtracker.core.widgets.EmptyStateWidget
+import dev.fnc314.tools.jobtracker.core.widgets.ErrorBannerWidget
+import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_action_approve
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_action_approve_for_app
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_action_expire_stale
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_action_refresh
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_action_reject
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_action_reject_for_app
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_application_label
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_cd_back
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_cd_view_application
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_changes_header
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_confidence_label
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_dialog_reject_cancel
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_dialog_reject_label
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_dialog_reject_placeholder
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_dialog_reject_prompt
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_dialog_reject_title
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_empty
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_reason_label
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_route_title
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_source_email_from
+import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_source_email_subject
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,11 +108,11 @@ public fun TrackerEditsScreen(
                 IconButton(onClick = { viewModel.onIntent(TrackerEditsUiIntent.ClickBack) }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(Res.string.edits_cd_back),
                     )
                 }
                 Text(
-                    text = "Pending Edits",
+                    text = stringResource(Res.string.edits_route_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -100,13 +125,13 @@ public fun TrackerEditsScreen(
                 val isLoading = uiState is TrackerEditsUiState.Loading
 
                 TooltipIconButton(
-                    tooltip = "Expire stale edits",
+                    tooltip = stringResource(Res.string.edits_action_expire_stale),
                     icon = Icons.Default.DateRange,
                     onClick = { viewModel.onIntent(TrackerEditsUiIntent.ExpireStaleEdits) },
                     enabled = !isActionInProgress && !isLoading,
                 )
                 TooltipIconButton(
-                    tooltip = "Refresh edits",
+                    tooltip = stringResource(Res.string.edits_action_refresh),
                     icon = Icons.Default.Refresh,
                     onClick = { viewModel.onIntent(TrackerEditsUiIntent.Refresh) },
                     enabled = !isLoading && !isActionInProgress,
@@ -116,59 +141,27 @@ public fun TrackerEditsScreen(
 
         when (val state = uiState) {
             is TrackerEditsUiState.Loading -> {
-                Box(
+                LoadingWidget(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(MaterialTheme.spacing.medium),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
+                )
             }
             is TrackerEditsUiState.Error -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(MaterialTheme.spacing.medium),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                        ),
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(MaterialTheme.spacing.medium),
-                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Text(
-                                text = state.message,
-                                color = MaterialTheme.colorScheme.onErrorContainer,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            TextButton(onClick = { viewModel.onIntent(TrackerEditsUiIntent.Refresh) }) {
-                                Text("Retry")
-                            }
-                        }
-                    }
-                }
+                ErrorBannerWidget(
+                    message = state.message,
+                    onRetry = { viewModel.onIntent(TrackerEditsUiIntent.Refresh) },
+                    modifier = Modifier.padding(MaterialTheme.spacing.medium),
+                )
             }
             is TrackerEditsUiState.Content -> {
                 if (state.edits.isEmpty()) {
-                    Box(
+                    EmptyStateWidget(
+                        title = stringResource(Res.string.edits_empty),
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(MaterialTheme.spacing.medium),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = "No pending edits",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                    )
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -207,18 +200,18 @@ public fun TrackerEditsScreen(
                 rejectDialogItem = null
                 rejectReason = ""
             },
-            title = { Text("Reject Edit") },
+            title = { Text(stringResource(Res.string.edits_dialog_reject_title)) },
             text = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                 ) {
-                    Text("Enter a reason for rejecting this edit:")
+                    Text(stringResource(Res.string.edits_dialog_reject_prompt))
                     OutlinedTextField(
                         value = rejectReason,
                         onValueChange = { rejectReason = it },
-                        label = { Text("Reason") },
+                        label = { Text(stringResource(Res.string.edits_dialog_reject_label)) },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Why are you rejecting this edit?") },
+                        placeholder = { Text(stringResource(Res.string.edits_dialog_reject_placeholder)) },
                         minLines = 2,
                     )
                 }
@@ -234,7 +227,7 @@ public fun TrackerEditsScreen(
                     },
                     enabled = rejectReason.isNotBlank(),
                 ) {
-                    Text("Reject")
+                    Text(stringResource(Res.string.edits_action_reject))
                 }
             },
             dismissButton = {
@@ -244,7 +237,7 @@ public fun TrackerEditsScreen(
                         rejectReason = ""
                     },
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(Res.string.edits_dialog_reject_cancel))
                 }
             },
         )
@@ -281,7 +274,7 @@ internal fun EditCard(
                     fontWeight = FontWeight.Medium,
                 )
                 Text(
-                    text = "Confidence: ${item.confidenceDisplayName}",
+                    text = stringResource(Res.string.edits_confidence_label, item.confidenceDisplayName),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -297,19 +290,20 @@ internal fun EditCard(
             }
 
             // Application ID
+            val viewAppCd: String = stringResource(Res.string.edits_cd_view_application, item.applicationId)
             Text(
-                text = "Application: ${item.applicationId}",
+                text = stringResource(Res.string.edits_application_label, item.applicationId),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .semantics { contentDescription = "View application ${item.applicationId}" }
+                    .semantics { contentDescription = viewAppCd }
                     .clickableArea(onClick = onViewApplication),
             )
 
             // Changes list
             if (item.changes.isNotEmpty()) {
                 Text(
-                    text = "Changes:",
+                    text = stringResource(Res.string.edits_changes_header),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -334,7 +328,7 @@ internal fun EditCard(
                             )
                             change.reason?.let { reasonText ->
                                 Text(
-                                    text = "Reason: $reasonText",
+                                    text = stringResource(Res.string.edits_reason_label, reasonText),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -362,11 +356,11 @@ internal fun EditCard(
                         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.micro),
                     ) {
                         Text(
-                            text = "From: ${email.from}",
+                            text = stringResource(Res.string.edits_source_email_from, email.from),
                             style = MaterialTheme.typography.bodySmall,
                         )
                         Text(
-                            text = "Subject: ${email.subject}",
+                            text = stringResource(Res.string.edits_source_email_subject, email.subject),
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -374,6 +368,8 @@ internal fun EditCard(
             }
 
             // Action buttons
+            val approveCd: String = stringResource(Res.string.edits_action_approve_for_app, item.applicationId)
+            val rejectCd: String = stringResource(Res.string.edits_action_reject_for_app, item.applicationId)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
@@ -383,18 +379,18 @@ internal fun EditCard(
                     enabled = !isActionInProgress,
                     modifier = Modifier
                         .weight(1f)
-                        .semantics { contentDescription = "Approve this edit" },
+                        .semantics { contentDescription = approveCd },
                 ) {
-                    Text("Approve")
+                    Text(stringResource(Res.string.edits_action_approve))
                 }
                 OutlinedButton(
                     onClick = onReject,
                     enabled = !isActionInProgress,
                     modifier = Modifier
                         .weight(1f)
-                        .semantics { contentDescription = "Reject this edit" },
+                        .semantics { contentDescription = rejectCd },
                 ) {
-                    Text("Reject")
+                    Text(stringResource(Res.string.edits_action_reject))
                 }
             }
         }

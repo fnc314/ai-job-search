@@ -1,35 +1,36 @@
 package dev.fnc314.tools.jobtracker.core.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
+import org.jetbrains.compose.resources.StringResource
 
 public interface TopLevelDestination {
     public val route: NavKeyRoute
-    public val label: String
+    public val labelRes: StringResource
     public val selectedIcon: ImageVector
     public val unselectedIcon: ImageVector
-    public val contentDescription: String
+    public val contentDescriptionRes: StringResource
 
     public companion object {
         public fun from(
             route: NavKeyRoute,
-            label: String,
+            labelRes: StringResource,
             selectedIcon: ImageVector,
             unselectedIcon: ImageVector,
-            contentDescription: String,
+            contentDescriptionRes: StringResource,
         ): TopLevelDestination = TopLevelDestinationImpl(
             route = route,
-            label = label,
+            labelRes = labelRes,
             selectedIcon = selectedIcon,
             unselectedIcon = unselectedIcon,
-            contentDescription = contentDescription,
+            contentDescriptionRes = contentDescriptionRes,
         )
     }
 }
 
 internal data class TopLevelDestinationImpl(
     override val route: NavKeyRoute,
-    override val label: String,
+    override val labelRes: StringResource,
     override val selectedIcon: ImageVector,
     override val unselectedIcon: ImageVector,
-    override val contentDescription: String,
+    override val contentDescriptionRes: StringResource,
 ) : TopLevelDestination

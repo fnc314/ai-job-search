@@ -21,6 +21,11 @@ import dev.fnc314.tools.jobtracker.core.widgets.FitBadge
 import dev.fnc314.tools.jobtracker.core.widgets.StatusBadge
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationItemUiModel
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationsListUiIntent
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_cd
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_click_cd
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_no_role
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun JobApplicationRow(
@@ -28,18 +33,27 @@ internal fun JobApplicationRow(
     onIntent: (JobApplicationsListUiIntent) -> Unit,
     modifier: Modifier = Modifier,
 ): Unit {
+    val clickLabel: String = stringResource(Res.string.list_row_click_cd, model.companyName)
+    val noRoleText: String = stringResource(Res.string.list_row_no_role)
+    val roleDesc: String = if (model.roleTitle.isNotEmpty()) model.roleTitle else noRoleText
+    val fitDesc: String = model.fitScoreText?.let { ", $it" } ?: ""
+    val rowContentDescription: String = stringResource(
+        Res.string.list_row_cd,
+        model.companyName,
+        roleDesc,
+        model.statusDisplayName,
+        fitDesc,
+    )
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clickable(
                 onClick = { onIntent(model.onClickIntent) },
-                onClickLabel = "View ${model.companyName} details",
+                onClickLabel = clickLabel,
             )
             .padding(MaterialTheme.spacing.medium)
             .semantics {
-                val roleDesc = if (model.roleTitle.isNotEmpty()) model.roleTitle else "No role"
-                val fitDesc = model.fitScoreText?.let { ", $it" } ?: ""
-                contentDescription = "${model.companyName}, $roleDesc, ${model.statusDisplayName}$fitDesc"
+                contentDescription = rowContentDescription
             },
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
     ) {

@@ -48,6 +48,18 @@ import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.DetailRout
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.ListRoute
 import dev.fnc314.tools.jobtracker.features.settings.ui.SettingsRoute
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.EditsRoute
+import fnc314jobsearchtracker.apps_core.generated.resources.Res
+import fnc314jobsearchtracker.apps_core.generated.resources.app_action_back
+import fnc314jobsearchtracker.apps_core.generated.resources.app_action_calendar
+import fnc314jobsearchtracker.apps_core.generated.resources.app_action_search
+import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_applications
+import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_applications_cd
+import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_edits
+import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_edits_cd
+import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_settings
+import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_settings_cd
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,38 +88,38 @@ public fun AppScaffold(
     val showNav = isAuthenticated && (isListSelected || isEditsSelected || isSettingsSelected)
     val canNavigateBack = navController.previousBackStackEntry != null && !isListSelected
 
-    val title = when {
-        isListSelected -> "Job Applications"
-        isDetailSelected -> "Application Details"
-        isAddAppSelected -> "Add Application"
-        isAddLeadSelected -> "Add Lead"
-        isEditsSelected -> "Pending Edits"
-        isSettingsSelected -> "Settings"
-        else -> "Job Applications"
+    val titleRes: StringResource = when {
+        isListSelected -> ListRoute.titleRes
+        isDetailSelected -> DetailRoute("").titleRes
+        isAddAppSelected -> AddApplicationRoute.titleRes
+        isAddLeadSelected -> AddLeadRoute.titleRes
+        isEditsSelected -> EditsRoute.titleRes
+        isSettingsSelected -> SettingsRoute.titleRes
+        else -> ListRoute.titleRes
     }
 
     val topLevelDestinations = remember {
         listOf(
             TopLevelDestination.from(
                 route = ListRoute,
-                label = "Applications",
+                labelRes = Res.string.app_nav_applications,
                 selectedIcon = Icons.Filled.Home,
                 unselectedIcon = Icons.Outlined.Home,
-                contentDescription = "Job Applications",
+                contentDescriptionRes = Res.string.app_nav_applications_cd,
             ),
             TopLevelDestination.from(
                 route = EditsRoute,
-                label = "Pending Edits",
+                labelRes = Res.string.app_nav_edits,
                 selectedIcon = Icons.Filled.Edit,
                 unselectedIcon = Icons.Outlined.Edit,
-                contentDescription = "Pending Edits",
+                contentDescriptionRes = Res.string.app_nav_edits_cd,
             ),
             TopLevelDestination.from(
                 route = SettingsRoute,
-                label = "Settings",
+                labelRes = Res.string.app_nav_settings,
                 selectedIcon = Icons.Filled.Settings,
                 unselectedIcon = Icons.Outlined.Settings,
-                contentDescription = "Settings",
+                contentDescriptionRes = Res.string.app_nav_settings_cd,
             ),
         )
     }
@@ -119,7 +131,7 @@ public fun AppScaffold(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = title,
+                        text = stringResource(titleRes),
                         style = MaterialTheme.typography.titleLarge,
                     )
                 },
@@ -128,7 +140,7 @@ public fun AppScaffold(
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
+                                contentDescription = stringResource(Res.string.app_action_back),
                             )
                         }
                     }
@@ -138,13 +150,13 @@ public fun AppScaffold(
                         IconButton(onClick = onSearchClick) {
                             Icon(
                                 imageVector = Icons.Filled.Search,
-                                contentDescription = "Search",
+                                contentDescription = stringResource(Res.string.app_action_search),
                             )
                         }
                         IconButton(onClick = onCalendarClick) {
                             Icon(
                                 imageVector = Icons.Filled.DateRange,
-                                contentDescription = "Calendar",
+                                contentDescription = stringResource(Res.string.app_action_calendar),
                             )
                         }
                     }
@@ -180,10 +192,10 @@ public fun AppScaffold(
                             icon = {
                                 Icon(
                                     imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
-                                    contentDescription = destination.contentDescription,
+                                    contentDescription = stringResource(destination.contentDescriptionRes),
                                 )
                             },
-                            label = { Text(destination.label) },
+                            label = { Text(stringResource(destination.labelRes)) },
                         )
                     }
                 }
@@ -223,10 +235,10 @@ public fun AppScaffold(
                             icon = {
                                 Icon(
                                     imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
-                                    contentDescription = destination.contentDescription,
+                                    contentDescription = stringResource(destination.contentDescriptionRes),
                                 )
                             },
-                            label = { Text(destination.label) },
+                            label = { Text(stringResource(destination.labelRes)) },
                         )
                     }
                 }

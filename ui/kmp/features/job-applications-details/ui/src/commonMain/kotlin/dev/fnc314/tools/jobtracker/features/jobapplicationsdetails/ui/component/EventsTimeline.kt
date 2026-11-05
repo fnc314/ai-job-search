@@ -35,6 +35,10 @@ import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.EventDetailDialog
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.timeline_empty
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.timeline_event_cd
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun EventsTimeline(
@@ -58,7 +62,7 @@ internal fun EventsTimeline(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "No events recorded",
+                text = stringResource(Res.string.timeline_empty),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -72,6 +76,7 @@ internal fun EventsTimeline(
     ) {
         events.forEachIndexed { index, event ->
             val isLast = index == events.lastIndex
+            val eventCd: String = stringResource(Res.string.timeline_event_cd, event.type.displayName())
 
             Row(
                 modifier = Modifier
@@ -82,7 +87,7 @@ internal fun EventsTimeline(
                         horizontal = MaterialTheme.spacing.medium,
                         vertical = MaterialTheme.spacing.small
                     )
-                    .semantics { contentDescription = "Event: ${event.type.displayName()}" },
+                    .semantics { contentDescription = eventCd },
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
                 verticalAlignment = Alignment.Top,
             ) {

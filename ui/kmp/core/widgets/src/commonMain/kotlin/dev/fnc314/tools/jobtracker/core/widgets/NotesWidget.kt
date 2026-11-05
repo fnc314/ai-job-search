@@ -40,7 +40,15 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.zIndex
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
+import fnc314jobsearchtracker.core_widgets.generated.resources.Res
+import fnc314jobsearchtracker.core_widgets.generated.resources.notes_cd_commit
+import fnc314jobsearchtracker.core_widgets.generated.resources.notes_cd_delete
+import fnc314jobsearchtracker.core_widgets.generated.resources.notes_cd_reorder
+import fnc314jobsearchtracker.core_widgets.generated.resources.notes_default_label
+import fnc314jobsearchtracker.core_widgets.generated.resources.notes_label_note
+import fnc314jobsearchtracker.core_widgets.generated.resources.notes_placeholder_add
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -58,7 +66,7 @@ public fun NotesWidget(
     onNotesChanged: (ImmutableList<String>) -> Unit,
     modifier: Modifier = Modifier,
     initialNotes: ImmutableList<String> = persistentListOf(),
-    label: String = "Notes",
+    label: String? = null,
 ) {
     val items = remember {
         mutableStateListOf<NoteItem>().apply {
@@ -66,6 +74,8 @@ public fun NotesWidget(
             add(NoteItem(text = ""))
         }
     }
+
+    val headerLabel = label ?: stringResource(Res.string.notes_default_label)
 
     var focusNewItemId by remember { mutableStateOf<String?>(null) }
 
@@ -119,24 +129,24 @@ public fun NotesWidget(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
     ) {
-        if (label.isNotEmpty()) {
+        if (headerLabel.isNotEmpty()) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = label,
+                    text = headerLabel,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 IconButton(
                     onClick = { addNewNoteAndFocus() },
-                    modifier = Modifier.semantics { contentDescription = "Add new note" }
+                    modifier = Modifier.semantics { contentDescription = headerLabel }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add new note",
+                        contentDescription = headerLabel,
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 }
@@ -174,6 +184,8 @@ public fun NotesWidget(
                 ) {
                     NoteRow(
                         item = item,
+                        index = index,
+                        totalItems = items.size,
                         isDrafting = isDrafting,
                         isDragging = isDragging,
                         requestFocus = requestFocusOnMount,
@@ -240,6 +252,8 @@ public fun NotesWidget(
 @Composable
 private fun NoteRow(
     item: NoteItem,
+    index: Int,
+    totalItems: Int,
     isDrafting: Boolean,
     isDragging: Boolean,
     requestFocus: Boolean,
@@ -308,7 +322,7 @@ private fun NoteRow(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete Note",
+                        contentDescription = stringResource(Res.string.notes_cd_delete, index + 1),
                         tint = MaterialTheme.colorScheme.onErrorContainer
                     )
                 }
@@ -342,7 +356,7 @@ private fun NoteRow(
                                     }
                                 },
                             label = {
-                                Text(if (isDrafting && item.text.isEmpty()) "Add a note..." else "Note")
+                                Text(if (isDrafting && item.text.isEmpty()) stringResource(Res.string.notes_placeholder_add) else stringResource(Res.string.notes_label_note, index + 1))
                             },
                             singleLine = !isFocused,
                             maxLines = if (isFocused) Int.MAX_VALUE else 1,
@@ -351,7 +365,7 @@ private fun NoteRow(
                                     IconButton(onClick = onCommit) {
                                         Icon(
                                             imageVector = Icons.Default.Add,
-                                            contentDescription = "Commit Note"
+                                            contentDescription = stringResource(Res.string.notes_cd_commit, index + 1)
                                         )
                                     }
                                 }
@@ -365,10 +379,15 @@ private fun NoteRow(
                         )
 
                         if (canReorder && !isDrafting) {
+                            val nextIndex = (index + 2).coerceAtMost(totalItems)
+                            val reorderDescription: String = stringResource(Res.string.notes_cd_reorder, index + 1, nextIndex)
                             Box(
                                 modifier = Modifier
                                     .padding(horizontal = MaterialTheme.spacing.subSmall)
                                     .size(MaterialTheme.componentSizes.iconButtonSize)
+                                    .semantics {
+                                        contentDescription = reorderDescription
+                                    }
                                     .pointerInput(Unit) {
                                         detectDragGestures(
                                             onDragStart = { onDragStart() },

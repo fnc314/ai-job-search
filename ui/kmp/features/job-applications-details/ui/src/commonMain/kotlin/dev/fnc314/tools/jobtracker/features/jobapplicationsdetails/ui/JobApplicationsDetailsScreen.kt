@@ -20,18 +20,14 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.sharp.Edit
 import androidx.compose.material.icons.sharp.Notifications
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,10 +46,34 @@ import dev.fnc314.tools.jobtracker.core.designsystem.WindowWidthSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
+import dev.fnc314.tools.jobtracker.core.widgets.ErrorBannerWidget
 import dev.fnc314.tools.jobtracker.core.widgets.FitBadge
+import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import dev.fnc314.tools.jobtracker.core.widgets.StatusBadge
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.component.ArtifactsList
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.component.EventsTimeline
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_action_adjust_fit_cd
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_action_record_event
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_action_update_fit
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_action_update_status
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_company_aliases
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_company_industry
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_company_profile_title
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_company_website
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_error_prefix
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_fab_cd
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_fit_rating_label
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_label_gaps
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_prefix_app_url
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_prefix_channel
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_prefix_compensation
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_prefix_job_url
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_prefix_location
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_section_artifacts
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_section_notes
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.detail_section_timeline
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @Composable
@@ -78,45 +98,16 @@ public fun JobApplicationsDetailsScreen(
             }
         }
         is JobApplicationDetailUiState.Loading -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator()
-            }
+            LoadingWidget(modifier = modifier)
         }
         is JobApplicationDetailUiState.Error -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                    modifier = Modifier.padding(MaterialTheme.spacing.medium),
-                ) {
-                    Text(
-                        text = "Error: ${state.message}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center,
-                    )
-                    Button(
-                        onClick = {
-                            viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
-                        }
-                    ) {
-                        Text("Retry")
-                    }
-                    TextButton(
-                        onClick = {
-                            viewModel.onIntent(JobApplicationDetailUiIntent.ClickBack)
-                        }
-                    ) {
-                        Text("Go Back")
-                    }
-                }
-            }
+            ErrorBannerWidget(
+                message = stringResource(Res.string.detail_error_prefix, state.message),
+                onRetry = {
+                    viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
+                },
+                modifier = modifier.padding(MaterialTheme.spacing.medium),
+            )
         }
         is JobApplicationDetailUiState.Content -> {
             JobApplicationDetailContent(
@@ -211,7 +202,7 @@ private fun JobApplicationDetailContent(
                             )
                             model.company?.let { CompanyProfileSection(company = it) }
                             model.notesRendered?.let { notes ->
-                                SectionHeader("Notes")
+                                SectionHeader(stringResource(Res.string.detail_section_notes))
                                 OutlinedCard(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = MaterialTheme.shapes.medium,
@@ -229,7 +220,7 @@ private fun JobApplicationDetailContent(
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
                         ) {
-                            SectionHeader("Artifacts")
+                            SectionHeader(stringResource(Res.string.detail_section_artifacts))
                             ArtifactsList(
                                 artifacts = model.artifacts,
                                 onArtifactClick = { artifact ->
@@ -256,7 +247,7 @@ private fun JobApplicationDetailContent(
                         )
                         model.company?.let { CompanyProfileSection(company = it) }
 
-                        SectionHeader("Artifacts")
+                        SectionHeader(stringResource(Res.string.detail_section_artifacts))
                         ArtifactsList(
                             artifacts = model.artifacts,
                             onArtifactClick = { artifact ->
@@ -269,7 +260,7 @@ private fun JobApplicationDetailContent(
                         ApplicationTimelineSection(model = model)
 
                         model.notesRendered?.let { notes ->
-                            SectionHeader("Notes")
+                            SectionHeader(stringResource(Res.string.detail_section_notes))
                             OutlinedCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -299,14 +290,17 @@ private fun JobApplicationDetailContent(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
             ) {
-                Icon(Icons.Default.Edit, contentDescription = "Application Actions")
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = stringResource(Res.string.detail_fab_cd),
+                )
             }
             DropdownMenu(
                 expanded = fabMenuExpanded,
                 onDismissRequest = { fabMenuExpanded = false },
             ) {
                 DropdownMenuItem(
-                    text = { Text("Update Status") },
+                    text = { Text(stringResource(Res.string.detail_action_update_status)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Sharp.Notifications,
@@ -321,7 +315,7 @@ private fun JobApplicationDetailContent(
                     },
                 )
                 DropdownMenuItem(
-                    text = { Text("Record Event") },
+                    text = { Text(stringResource(Res.string.detail_action_record_event)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Sharp.Edit,
@@ -336,7 +330,7 @@ private fun JobApplicationDetailContent(
                     },
                 )
                 DropdownMenuItem(
-                    text = { Text("Update Fit Score") },
+                    text = { Text(stringResource(Res.string.detail_action_update_fit)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Build,
@@ -399,38 +393,39 @@ internal fun ApplicationSummarySection(
             ) {
                 model.formattedLocation?.let { location ->
                     Text(
-                        text = "📍 $location",
+                        text = stringResource(Res.string.detail_prefix_location, location),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
                 Text(
-                    text = "📡 ${model.channelDisplayText}",
+                    text = stringResource(Res.string.detail_prefix_channel, model.channelDisplayText),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
 
             model.formattedCompensation?.let { compensation ->
                 Text(
-                    text = "💰 $compensation",
+                    text = stringResource(Res.string.detail_prefix_compensation, compensation),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
 
             val fitScore = model.fitScore
+            val adjustFitLabel: String = stringResource(Res.string.detail_action_adjust_fit_cd)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                 modifier = if (onAdjustFitClick != null) {
                     Modifier.clickable(
                         onClick = onAdjustFitClick,
-                        onClickLabel = "Adjust fit score",
+                        onClickLabel = adjustFitLabel,
                     )
                 } else {
                     Modifier
                 },
             ) {
                 Text(
-                    text = "Fit Rating: ${model.fitScoreDisplayText}",
+                    text = stringResource(Res.string.detail_fit_rating_label, model.fitScoreDisplayText),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 if (fitScore != null) {
@@ -439,7 +434,7 @@ internal fun ApplicationSummarySection(
                 if (onAdjustFitClick != null) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Adjust fit score",
+                        contentDescription = adjustFitLabel,
                         modifier = Modifier.size(MaterialTheme.iconSizes.small),
                         tint = MaterialTheme.colorScheme.primary,
                     )
@@ -448,7 +443,7 @@ internal fun ApplicationSummarySection(
 
             if (model.fitGaps.isNotEmpty()) {
                 Text(
-                    text = "Gaps: ${model.fitGaps.joinToString(", ")}",
+                    text = stringResource(Res.string.detail_label_gaps, model.fitGaps.joinToString(", ")),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -456,7 +451,7 @@ internal fun ApplicationSummarySection(
 
             model.jobUrl?.let { url ->
                 Text(
-                    text = "🔗 Job URL: $url",
+                    text = stringResource(Res.string.detail_prefix_job_url, url),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -464,7 +459,7 @@ internal fun ApplicationSummarySection(
 
             model.jobApplicationUrl?.let { url ->
                 Text(
-                    text = "📋 Application URL: $url",
+                    text = stringResource(Res.string.detail_prefix_app_url, url),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -490,7 +485,7 @@ internal fun ApplicationTimelineSection(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.none),
     ) {
-        SectionHeader("Events Timeline")
+        SectionHeader(stringResource(Res.string.detail_section_timeline))
         EventsTimeline(events = model.timelineEvents)
     }
 }
@@ -513,25 +508,25 @@ internal fun CompanyProfileSection(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {
             Text(
-                text = "Company Profile: ${company.name}",
+                text = stringResource(Res.string.detail_company_profile_title, company.name),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
             company.website?.let { website ->
                 Text(
-                    text = "🌐 $website",
+                    text = stringResource(Res.string.detail_company_website, website),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
             company.industry?.let { industry ->
                 Text(
-                    text = "Industry: $industry",
+                    text = stringResource(Res.string.detail_company_industry, industry),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
             if (company.aliases.isNotEmpty()) {
                 Text(
-                    text = "Aliases: ${company.aliases.joinToString(", ")}",
+                    text = stringResource(Res.string.detail_company_aliases, company.aliases.joinToString(", ")),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

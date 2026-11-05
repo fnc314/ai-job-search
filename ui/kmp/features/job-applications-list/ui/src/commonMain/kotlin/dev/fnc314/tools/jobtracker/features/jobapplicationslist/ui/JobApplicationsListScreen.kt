@@ -20,8 +20,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -47,10 +45,24 @@ import dev.fnc314.tools.jobtracker.core.designsystem.WindowWidthSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
+import dev.fnc314.tools.jobtracker.core.widgets.EmptyStateWidget
+import dev.fnc314.tools.jobtracker.core.widgets.ErrorBannerWidget
+import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.component.FilterMenu
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.component.JobApplicationRow
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.component.SortMenu
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_action_add_application
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_action_add_lead
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_empty_message
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_error_prefix
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_fab_cd
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_fab_icon_cd
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_tooltip_edits
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_tooltip_refresh
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_tooltip_settings
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -74,32 +86,14 @@ public fun JobApplicationsListScreen(
 
     when (val s = state) {
         JobApplicationsListUiState.Loading -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator()
-            }
+            LoadingWidget(modifier = modifier)
         }
         is JobApplicationsListUiState.Error -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                ) {
-                    Text(
-                        text = "Error: ${s.message}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                    Button(onClick = { viewModel.onIntent(JobApplicationsListUiIntent.Refresh) }) {
-                        Text("Retry")
-                    }
-                }
-            }
+            ErrorBannerWidget(
+                message = stringResource(Res.string.list_error_prefix, s.message),
+                onRetry = { viewModel.onIntent(JobApplicationsListUiIntent.Refresh) },
+                modifier = modifier.padding(MaterialTheme.spacing.medium),
+            )
         }
         is JobApplicationsListUiState.Content -> {
             JobApplicationsListContent(
@@ -217,17 +211,17 @@ internal fun JobApplicationsListContent(
                         },
                     )
                     TooltipIconButton(
-                        tooltip = "Refresh",
+                        tooltip = stringResource(Res.string.list_tooltip_refresh),
                         icon = Icons.Default.Refresh,
                         onClick = { onIntent(JobApplicationsListUiIntent.Refresh) },
                     )
                     TooltipIconButton(
-                        tooltip = "Pending edits",
+                        tooltip = stringResource(Res.string.list_tooltip_edits),
                         icon = Icons.Default.Edit,
                         onClick = { onIntent(JobApplicationsListUiIntent.ClickEdits) },
                     )
                     TooltipIconButton(
-                        tooltip = "Settings",
+                        tooltip = stringResource(Res.string.list_tooltip_settings),
                         icon = Icons.Default.Settings,
                         onClick = { onIntent(JobApplicationsListUiIntent.ClickSettings) },
                     )
@@ -236,16 +230,10 @@ internal fun JobApplicationsListContent(
 
             // Content
             if (content.applications.isEmpty()) {
-                Box(
+                EmptyStateWidget(
+                    title = stringResource(Res.string.list_empty_message),
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "No applications found",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                )
             } else {
                 val listPadding = PaddingValues(
                     start = MaterialTheme.spacing.medium,
@@ -321,6 +309,7 @@ internal fun JobApplicationsListContent(
         }
 
         // Floating Action Button with dropdown
+        val fabCd: String = stringResource(Res.string.list_fab_cd)
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -331,18 +320,21 @@ internal fun JobApplicationsListContent(
                     focusManager.clearFocus()
                     fabMenuExpanded = true
                 },
-                modifier = Modifier.semantics { contentDescription = "Add new application or lead" },
+                modifier = Modifier.semantics { contentDescription = fabCd },
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 containerColor = MaterialTheme.colorScheme.primary,
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(Res.string.list_fab_icon_cd),
+                )
             }
             DropdownMenu(
                 expanded = fabMenuExpanded,
                 onDismissRequest = { fabMenuExpanded = false },
             ) {
                 DropdownMenuItem(
-                    text = { Text("Add Application") },
+                    text = { Text(stringResource(Res.string.list_action_add_application)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -357,7 +349,7 @@ internal fun JobApplicationsListContent(
                     },
                 )
                 DropdownMenuItem(
-                    text = { Text("Add Lead") },
+                    text = { Text(stringResource(Res.string.list_action_add_lead)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Person,

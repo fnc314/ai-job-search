@@ -1,0 +1,14 @@
+<resources>
+    <!-- NotesWidget Localized Resources -->
+    <string name="notes_default_label">Notes</string>
+    <string name="notes_placeholder_add">Add a note…</string>
+    <string name="notes_label_note">Note %d</string>
+    <string name="notes_cd_delete">Delete Note %d</string>
+    <string name="notes_cd_reorder">Move Note %1$d to position %2$d</string>
+    <string name="notes_cd_commit">Commit Note %d</string>
+
+    <!-- State Widgets Resources -->
+    <string name="widget_loading_default">Loading…</string>
+    <string name="widget_error_default">An unexpected error occurred</string>
+    <string name="widget_retry_action">Retry</string>
+</resources>

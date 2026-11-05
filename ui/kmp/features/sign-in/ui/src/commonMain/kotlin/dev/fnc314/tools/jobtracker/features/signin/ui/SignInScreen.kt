@@ -31,6 +31,14 @@ import androidx.compose.ui.text.style.TextAlign
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
+import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.sign_in_action_google
+import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.sign_in_action_retry
+import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.sign_in_app_title
+import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.sign_in_failed
+import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.sign_in_progress
+import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.sign_in_subtitle
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 public fun SignInScreen(
@@ -97,7 +105,7 @@ public fun SignInScreen(
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
 
                 Text(
-                    text = "Job Search Tracker",
+                    text = stringResource(Res.string.sign_in_app_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -106,7 +114,7 @@ public fun SignInScreen(
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
 
                 Text(
-                    text = "Sign in to access your applications, companies, and timeline directly from Firestore.",
+                    text = stringResource(Res.string.sign_in_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -119,14 +127,14 @@ public fun SignInScreen(
                         CircularProgressIndicator(modifier = Modifier.size(MaterialTheme.componentSizes.iconButtonSize))
                         Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
                         Text(
-                            text = "Signing in...",
+                            text = stringResource(Res.string.sign_in_progress),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     is SignInUiState.Error -> {
                         Text(
-                            text = "Sign-in failed: ${uiState.message}",
+                            text = stringResource(Res.string.sign_in_failed, uiState.message),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center,
@@ -139,7 +147,7 @@ public fun SignInScreen(
                             },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-                            Text("Try Again")
+                            Text(stringResource(Res.string.sign_in_action_retry))
                         }
                     }
                     else -> {
@@ -147,7 +155,7 @@ public fun SignInScreen(
                             onClick = { onIntent(SignInUiIntent.ClickSignIn) },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-                            Text("Sign In with Google")
+                            Text(stringResource(Res.string.sign_in_action_google))
                         }
                     }
                 }

@@ -41,6 +41,20 @@ import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.MarkdownPreviewDialog
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_action_open
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_action_preview
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_empty
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_item_cd
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_item_subtitle
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_size_bytes
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_size_kb
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_size_mb
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_source_cloud
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_source_doc
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_source_local
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.artifacts_source_remote
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun ArtifactsList(
@@ -67,7 +81,7 @@ internal fun ArtifactsList(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "No artifacts attached",
+                text = stringResource(Res.string.artifacts_empty),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -147,18 +161,21 @@ internal fun ArtifactItem(
     val isMd = artifact.filename.endsWith(".md", ignoreCase = true)
 
     val sourceLabel = when {
-        artifact.storage != null -> "Cloud Storage"
-        artifact.localPath != null -> "Local File"
-        artifact.externalUrl != null -> "Remote URL"
-        else -> "Document"
+        artifact.storage != null -> stringResource(Res.string.artifacts_source_cloud)
+        artifact.localPath != null -> stringResource(Res.string.artifacts_source_local)
+        artifact.externalUrl != null -> stringResource(Res.string.artifacts_source_remote)
+        else -> stringResource(Res.string.artifacts_source_doc)
     }
+    val artifactCd: String = stringResource(Res.string.artifacts_item_cd, kindLabel, artifact.filename, sourceLabel)
 
     OutlinedCard(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .semantics { contentDescription = "$kindLabel: ${artifact.filename} ($sourceLabel)" },
+            .semantics {
+                contentDescription = artifactCd
+            },
     ) {
         Row(
             modifier = Modifier
@@ -208,7 +225,7 @@ internal fun ArtifactItem(
                     style = MaterialTheme.typography.titleSmall,
                 )
                 Text(
-                    text = "$kindLabel · $sourceLabel",
+                    text = stringResource(Res.string.artifacts_item_subtitle, kindLabel, sourceLabel),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -237,13 +254,13 @@ internal fun ArtifactItem(
                         modifier = Modifier.size(MaterialTheme.iconSizes.small),
                     )
                     Spacer(modifier = Modifier.width(MaterialTheme.spacing.extraSmall))
-                    Text("Preview", style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(Res.string.artifacts_action_preview), style = MaterialTheme.typography.labelSmall)
                 }
             } else {
                 IconButton(onClick = onClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                        contentDescription = "Open file",
+                        contentDescription = stringResource(Res.string.artifacts_action_open),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(MaterialTheme.iconSizes.standard),
                     )
@@ -253,10 +270,11 @@ internal fun ArtifactItem(
     }
 }
 
+@Composable
 private fun formatSize(size: Long): String {
     return when {
-        size >= 1_000_000 -> "${size / 1_000_000} MB"
-        size >= 1_000 -> "${size / 1_000} KB"
-        else -> "$size B"
+        size >= 1_000_000 -> stringResource(Res.string.artifacts_size_mb, size / 1_000_000)
+        size >= 1_000 -> stringResource(Res.string.artifacts_size_kb, size / 1_000)
+        else -> stringResource(Res.string.artifacts_size_bytes, size)
     }
 }

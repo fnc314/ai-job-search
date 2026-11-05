@@ -41,6 +41,40 @@ import dev.fnc314.tools.jobtracker.core.data.model.displayName
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.widgets.NotesWidget
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_action_cancel
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_action_save_empty
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_action_save_with_company
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_action_saving_empty
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_action_saving_with_company
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_application_url_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_application_url_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_channel_cd
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_channel_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_company_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_company_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_job_id_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_job_id_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_job_url_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_job_url_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_location_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_location_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_required_supporting
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_role_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_role_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_role_type_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_role_type_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_sector_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_sector_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_status_cd
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_status_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_tags_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_tags_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_title
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_work_mode_cd
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_work_mode_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_form_required_hint
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,13 +118,26 @@ public fun AddJobApplicationScreen(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
         ) {
             // Form header with Cancel and Save actions
+            val saveButtonText: String = if (isSubmitting) {
+                if (rememberedForm.company.isNotBlank()) {
+                    stringResource(Res.string.add_app_action_saving_with_company, rememberedForm.company)
+                } else {
+                    stringResource(Res.string.add_app_action_saving_empty)
+                }
+            } else {
+                if (rememberedForm.company.isNotBlank()) {
+                    stringResource(Res.string.add_app_action_save_with_company, rememberedForm.company)
+                } else {
+                    stringResource(Res.string.add_app_action_save_empty)
+                }
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Add Application",
+                    text = stringResource(Res.string.add_app_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -101,19 +148,19 @@ public fun AddJobApplicationScreen(
                     OutlinedButton(
                         onClick = { viewModel.onIntent(AddJobApplicationUiIntent.ClickBack) },
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(Res.string.add_app_action_cancel))
                     }
                     Button(
                         onClick = { viewModel.onIntent(AddJobApplicationUiIntent.Submit) },
                         enabled = !isSubmitting,
                     ) {
-                        Text(if (isSubmitting) "Saving..." else "Save")
+                        Text(saveButtonText)
                     }
                 }
             }
 
             Text(
-                text = "(*) Denotes a required field",
+                text = stringResource(Res.string.add_form_required_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -139,20 +186,20 @@ public fun AddJobApplicationScreen(
             OutlinedTextField(
                 value = rememberedForm.company,
                 onValueChange = { viewModel.onIntent(AddJobApplicationUiIntent.UpdateCompany(it)) },
-                label = { Text("Company (*)") },
+                label = { Text(stringResource(Res.string.add_app_company_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. Acme Corp") },
+                placeholder = { Text(stringResource(Res.string.add_app_company_placeholder)) },
                 singleLine = true,
-                supportingText = { Text("Required") },
+                supportingText = { Text(stringResource(Res.string.add_app_required_supporting)) },
             )
 
             // Role
             OutlinedTextField(
                 value = rememberedForm.role,
                 onValueChange = { viewModel.onIntent(AddJobApplicationUiIntent.UpdateRole(it)) },
-                label = { Text("Role / Title") },
+                label = { Text(stringResource(Res.string.add_app_role_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. Senior Software Engineer") },
+                placeholder = { Text(stringResource(Res.string.add_app_role_placeholder)) },
                 singleLine = true,
             )
 
@@ -160,9 +207,9 @@ public fun AddJobApplicationScreen(
             OutlinedTextField(
                 value = rememberedForm.sector,
                 onValueChange = { viewModel.onIntent(AddJobApplicationUiIntent.UpdateSector(it)) },
-                label = { Text("Sector") },
+                label = { Text(stringResource(Res.string.add_app_sector_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. SaaS, Fintech") },
+                placeholder = { Text(stringResource(Res.string.add_app_sector_placeholder)) },
                 singleLine = true,
             )
 
@@ -170,9 +217,9 @@ public fun AddJobApplicationScreen(
             OutlinedTextField(
                 value = rememberedForm.roleType,
                 onValueChange = { viewModel.onIntent(AddJobApplicationUiIntent.UpdateRoleType(it)) },
-                label = { Text("Role Type") },
+                label = { Text(stringResource(Res.string.add_app_role_type_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. Full-time, Contract") },
+                placeholder = { Text(stringResource(Res.string.add_app_role_type_placeholder)) },
                 singleLine = true,
             )
 
@@ -198,9 +245,9 @@ public fun AddJobApplicationScreen(
             OutlinedTextField(
                 value = rememberedForm.jobUrl,
                 onValueChange = { viewModel.onIntent(AddJobApplicationUiIntent.UpdateJobUrl(it)) },
-                label = { Text("Job URL") },
+                label = { Text(stringResource(Res.string.add_app_job_url_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("https://...") },
+                placeholder = { Text(stringResource(Res.string.add_app_job_url_placeholder)) },
                 singleLine = true,
             )
 
@@ -208,9 +255,9 @@ public fun AddJobApplicationScreen(
             OutlinedTextField(
                 value = rememberedForm.jobApplicationUrl,
                 onValueChange = { viewModel.onIntent(AddJobApplicationUiIntent.UpdateJobApplicationUrl(it)) },
-                label = { Text("Application URL") },
+                label = { Text(stringResource(Res.string.add_app_application_url_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("https://...") },
+                placeholder = { Text(stringResource(Res.string.add_app_application_url_placeholder)) },
                 singleLine = true,
             )
 
@@ -218,9 +265,9 @@ public fun AddJobApplicationScreen(
             OutlinedTextField(
                 value = rememberedForm.jobId,
                 onValueChange = { viewModel.onIntent(AddJobApplicationUiIntent.UpdateJobId(it)) },
-                label = { Text("Job ID") },
+                label = { Text(stringResource(Res.string.add_app_job_id_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. GH-12345") },
+                placeholder = { Text(stringResource(Res.string.add_app_job_id_placeholder)) },
                 singleLine = true,
             )
 
@@ -228,9 +275,9 @@ public fun AddJobApplicationScreen(
             OutlinedTextField(
                 value = rememberedForm.location,
                 onValueChange = { viewModel.onIntent(AddJobApplicationUiIntent.UpdateLocation(it)) },
-                label = { Text("Location") },
+                label = { Text(stringResource(Res.string.add_app_location_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. San Francisco, CA") },
+                placeholder = { Text(stringResource(Res.string.add_app_location_placeholder)) },
                 singleLine = true,
             )
 
@@ -238,9 +285,9 @@ public fun AddJobApplicationScreen(
             OutlinedTextField(
                 value = rememberedForm.tags,
                 onValueChange = { viewModel.onIntent(AddJobApplicationUiIntent.UpdateTags(it)) },
-                label = { Text("Tags") },
+                label = { Text(stringResource(Res.string.add_app_tags_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("remote, senior, kotlin (comma-separated)") },
+                placeholder = { Text(stringResource(Res.string.add_app_tags_placeholder)) },
                 singleLine = true,
             )
 
@@ -265,6 +312,7 @@ private fun StatusDropdown(
     modifier: Modifier = Modifier,
 ): Unit {
     var expanded by remember { mutableStateOf(false) }
+    val statusCd: String = stringResource(Res.string.add_app_status_cd)
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
@@ -274,11 +322,11 @@ private fun StatusDropdown(
             value = selected.displayName(),
             onValueChange = {},
             readOnly = true,
-            label = { Text("Status") },
+            label = { Text(stringResource(Res.string.add_app_status_label)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor()
-                .semantics { contentDescription = "Select application status" },
+                .semantics { contentDescription = statusCd },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
@@ -308,6 +356,7 @@ private fun ChannelDropdown(
     modifier: Modifier = Modifier,
 ): Unit {
     var expanded by remember { mutableStateOf(false) }
+    val channelCd: String = stringResource(Res.string.add_app_channel_cd)
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
@@ -317,11 +366,11 @@ private fun ChannelDropdown(
             value = selected.displayName(),
             onValueChange = {},
             readOnly = true,
-            label = { Text("Channel") },
+            label = { Text(stringResource(Res.string.add_app_channel_label)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor()
-                .semantics { contentDescription = "Select application channel" },
+                .semantics { contentDescription = channelCd },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
@@ -351,6 +400,7 @@ private fun WorkModeDropdown(
     modifier: Modifier = Modifier,
 ): Unit {
     var expanded by remember { mutableStateOf(false) }
+    val workModeCd: String = stringResource(Res.string.add_app_work_mode_cd)
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
@@ -360,11 +410,11 @@ private fun WorkModeDropdown(
             value = selected.displayName(),
             onValueChange = {},
             readOnly = true,
-            label = { Text("Work Mode") },
+            label = { Text(stringResource(Res.string.add_app_work_mode_label)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor()
-                .semantics { contentDescription = "Select work mode" },
+                .semantics { contentDescription = workModeCd },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },

@@ -32,6 +32,26 @@ import androidx.compose.ui.Modifier
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.widgets.NotesWidget
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_required_supporting
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_form_required_hint
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_action_cancel
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_action_save_empty
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_action_save_with_company
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_action_saving_empty
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_action_saving_with_company
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_channel_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_channel_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_company_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_company_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_contact_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_contact_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_role_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_role_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_tags_label
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_tags_placeholder
+import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_title
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,13 +95,26 @@ public fun AddLeadScreen(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
         ) {
             // Form header with Cancel and Save actions
+            val saveButtonText: String = if (isSubmitting) {
+                if (rememberedForm.company.isNotBlank()) {
+                    stringResource(Res.string.add_lead_action_saving_with_company, rememberedForm.company)
+                } else {
+                    stringResource(Res.string.add_lead_action_saving_empty)
+                }
+            } else {
+                if (rememberedForm.company.isNotBlank()) {
+                    stringResource(Res.string.add_lead_action_save_with_company, rememberedForm.company)
+                } else {
+                    stringResource(Res.string.add_lead_action_save_empty)
+                }
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Add Lead",
+                    text = stringResource(Res.string.add_lead_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -92,19 +125,19 @@ public fun AddLeadScreen(
                     OutlinedButton(
                         onClick = { viewModel.onIntent(AddLeadUiIntent.ClickBack) },
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(Res.string.add_lead_action_cancel))
                     }
                     Button(
                         onClick = { viewModel.onIntent(AddLeadUiIntent.Submit) },
                         enabled = !isSubmitting,
                     ) {
-                        Text(if (isSubmitting) "Saving..." else "Save")
+                        Text(saveButtonText)
                     }
                 }
             }
 
             Text(
-                text = "(*) Denotes a required field",
+                text = stringResource(Res.string.add_form_required_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -130,20 +163,20 @@ public fun AddLeadScreen(
             OutlinedTextField(
                 value = rememberedForm.company,
                 onValueChange = { viewModel.onIntent(AddLeadUiIntent.UpdateCompany(it)) },
-                label = { Text("Company (*)") },
+                label = { Text(stringResource(Res.string.add_lead_company_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. Acme Corp") },
+                placeholder = { Text(stringResource(Res.string.add_lead_company_placeholder)) },
                 singleLine = true,
-                supportingText = { Text("Required") },
+                supportingText = { Text(stringResource(Res.string.add_app_required_supporting)) },
             )
 
             // Contact name
             OutlinedTextField(
                 value = rememberedForm.contact,
                 onValueChange = { viewModel.onIntent(AddLeadUiIntent.UpdateContact(it)) },
-                label = { Text("Contact Name") },
+                label = { Text(stringResource(Res.string.add_lead_contact_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. Jane Smith") },
+                placeholder = { Text(stringResource(Res.string.add_lead_contact_placeholder)) },
                 singleLine = true,
             )
 
@@ -151,9 +184,9 @@ public fun AddLeadScreen(
             OutlinedTextField(
                 value = rememberedForm.role,
                 onValueChange = { viewModel.onIntent(AddLeadUiIntent.UpdateRole(it)) },
-                label = { Text("Role") },
+                label = { Text(stringResource(Res.string.add_lead_role_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. Staff Android Engineer") },
+                placeholder = { Text(stringResource(Res.string.add_lead_role_placeholder)) },
                 singleLine = true,
             )
 
@@ -161,9 +194,9 @@ public fun AddLeadScreen(
             OutlinedTextField(
                 value = rememberedForm.channel,
                 onValueChange = { viewModel.onIntent(AddLeadUiIntent.UpdateChannel(it)) },
-                label = { Text("Channel") },
+                label = { Text(stringResource(Res.string.add_lead_channel_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("e.g. LinkedIn, Referral, Direct") },
+                placeholder = { Text(stringResource(Res.string.add_lead_channel_placeholder)) },
                 singleLine = true,
             )
 
@@ -178,9 +211,9 @@ public fun AddLeadScreen(
             OutlinedTextField(
                 value = rememberedForm.tags,
                 onValueChange = { viewModel.onIntent(AddLeadUiIntent.UpdateTags(it)) },
-                label = { Text("Tags") },
+                label = { Text(stringResource(Res.string.add_lead_tags_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("recruiter, outbound, kotlin (comma-separated)") },
+                placeholder = { Text(stringResource(Res.string.add_lead_tags_placeholder)) },
                 singleLine = true,
             )
 

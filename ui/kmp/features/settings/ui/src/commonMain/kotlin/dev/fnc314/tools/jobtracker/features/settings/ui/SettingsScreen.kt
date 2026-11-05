@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,9 +42,26 @@ import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.designsystem.toHexString
+import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInUiIntent
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInUiState
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_action_sign_out
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_cd_back
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_cd_custom_seed_hex
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_cd_navigate_back
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_cd_theme_color
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_label_accent_seed
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_label_custom_seed_hex
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_label_theme
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_section_account
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_section_appearance
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_signed_in_default
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_theme_dark
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_theme_light
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_title
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -80,12 +96,7 @@ public fun SettingsScreen(
 ): Unit {
     when (uiState) {
         is SettingsUiState.Loading -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator()
-            }
+            LoadingWidget(modifier = modifier)
         }
         is SettingsUiState.NavigateBack -> {
             Box(modifier = modifier.fillMaxSize())
@@ -123,6 +134,7 @@ internal fun SettingsContent(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
         ) {
             // Header with Back button
+            val navBackDescription: String = stringResource(Res.string.settings_cd_navigate_back)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -130,15 +142,15 @@ internal fun SettingsContent(
             ) {
                 IconButton(
                     onClick = { onIntent(SettingsUiIntent.ClickBack) },
-                    modifier = Modifier.semantics { contentDescription = "Navigate back" },
+                    modifier = Modifier.semantics { contentDescription = navBackDescription },
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(Res.string.settings_cd_back),
                     )
                 }
                 Text(
-                    text = "Settings",
+                    text = stringResource(Res.string.settings_title),
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -156,13 +168,13 @@ internal fun SettingsContent(
                     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                 ) {
                     Text(
-                        text = "Appearance & Theme",
+                        text = stringResource(Res.string.settings_section_appearance),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary,
                     )
 
                     Text(
-                        text = "Theme: ${model.themeModeName}",
+                        text = stringResource(Res.string.settings_label_theme, model.themeModeName),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -174,13 +186,13 @@ internal fun SettingsContent(
                         FilterChip(
                             selected = !model.isSystemDark,
                             onClick = { onIntent(SettingsUiIntent.ChangeTheme(isDark = false)) },
-                            label = { Text("Light") },
+                            label = { Text(stringResource(Res.string.settings_theme_light)) },
                             modifier = Modifier.weight(1f),
                         )
                         FilterChip(
                             selected = model.isSystemDark,
                             onClick = { onIntent(SettingsUiIntent.ChangeTheme(isDark = true)) },
-                            label = { Text("Dark") },
+                            label = { Text(stringResource(Res.string.settings_theme_dark)) },
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -188,7 +200,7 @@ internal fun SettingsContent(
                     Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
 
                     Text(
-                        text = "Accent Color Seed",
+                        text = stringResource(Res.string.settings_label_accent_seed),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -201,6 +213,7 @@ internal fun SettingsContent(
                         SeedColors.All.forEach { (name, color) ->
                             val hexString: String = color.toHexString()
                             val isSelected: Boolean = model.seedColorHex.equals(hexString, ignoreCase = true)
+                            val colorCd: String = stringResource(Res.string.settings_cd_theme_color, name)
                             Box(
                                 modifier = Modifier
                                     .size(MaterialTheme.componentSizes.iconButtonSize)
@@ -209,7 +222,7 @@ internal fun SettingsContent(
                                     .clickable {
                                         onIntent(SettingsUiIntent.ChangeSeedColor(hex = hexString))
                                     }
-                                    .semantics { contentDescription = "$name theme color" }
+                                    .semantics { contentDescription = colorCd }
                                     .then(
                                         if (isSelected) {
                                             Modifier.border(
@@ -225,16 +238,17 @@ internal fun SettingsContent(
                         }
                     }
 
+                    val customSeedCd: String = stringResource(Res.string.settings_cd_custom_seed_hex)
                     OutlinedTextField(
                         value = model.seedColorHex,
                         onValueChange = { newHex: String ->
                             keyboardController?.hide()
                             onIntent(SettingsUiIntent.ChangeSeedColor(hex = newHex))
                         },
-                        label = { Text("Custom Seed Hex") },
+                        label = { Text(stringResource(Res.string.settings_label_custom_seed_hex)) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = "Custom theme seed color hex value" },
+                            .semantics { contentDescription = customSeedCd },
                         singleLine = true,
                     )
                 }
@@ -256,13 +270,14 @@ internal fun SettingsContent(
                             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                         ) {
                             Text(
-                                text = "Account",
+                                text = stringResource(Res.string.settings_section_account),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary,
                             )
 
+                            val defaultSignedIn: String = stringResource(Res.string.settings_signed_in_default)
                             Text(
-                                text = authenticatedUser.displayName ?: authenticatedUser.email.ifEmpty { "Signed in" },
+                                text = authenticatedUser.displayName ?: authenticatedUser.email.ifEmpty { defaultSignedIn },
                                 style = MaterialTheme.typography.bodyMedium,
                             )
 
@@ -273,7 +288,7 @@ internal fun SettingsContent(
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
-                                Text("Sign Out")
+                                Text(stringResource(Res.string.settings_action_sign_out))
                             }
                         }
                     }

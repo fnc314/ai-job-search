@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_action_back">Back</string>
+    <string name="app_action_search">Search</string>
+    <string name="app_action_calendar">Calendar</string>
+    <string name="app_nav_applications">Applications</string>
+    <string name="app_nav_applications_cd">Job Applications</string>
+    <string name="app_nav_edits">Pending Edits</string>
+    <string name="app_nav_edits_cd">Pending Edits</string>
+    <string name="app_nav_settings">Settings</string>
+    <string name="app_nav_settings_cd">Settings</string>
+</resources>

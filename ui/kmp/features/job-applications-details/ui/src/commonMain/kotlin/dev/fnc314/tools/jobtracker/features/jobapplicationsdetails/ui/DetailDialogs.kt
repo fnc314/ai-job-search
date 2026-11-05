@@ -37,6 +37,42 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.model.displayName
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_action_cancel
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_action_close
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_action_record
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_action_update
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_actor
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_confidence
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_detail_title
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_email_title
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_na
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_note_label
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_note_placeholder
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_payload_title
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_source
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_timestamp
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_title
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_transition_initial
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_transition_title
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_transition_unchanged
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_transition_value
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_type_cd
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_event_type_label
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_fit_max
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_fit_min
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_fit_score_label
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_fit_slider_cd
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_fit_title
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_md_content_title
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_md_kind
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_md_path
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_status_cd
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_status_label
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_status_note_label
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_status_note_placeholder
+import fnc314jobsearchtracker.features_job_applications_details_ui.generated.resources.dialog_status_title
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,9 +85,10 @@ internal fun UpdateStatusDialog(
     var selectedStatus by remember { mutableStateOf(currentStatus ?: TrackerStatus.APPLIED) }
     var note by remember { mutableStateOf("") }
 
+    val selectStatusCd: String = stringResource(Res.string.dialog_status_cd)
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Update Status") },
+        title = { Text(stringResource(Res.string.dialog_status_title)) },
         text = {
             Column(
                 modifier = modifier
@@ -69,11 +106,11 @@ internal fun UpdateStatusDialog(
                         value = selectedStatus.displayName(),
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Status") },
+                        label = { Text(stringResource(Res.string.dialog_status_label)) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor()
-                            .semantics { contentDescription = "Select new status" },
+                            .semantics { contentDescription = selectStatusCd },
                     )
                     ExposedDropdownMenu(
                         expanded = expanded,
@@ -95,9 +132,9 @@ internal fun UpdateStatusDialog(
                 OutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
-                    label = { Text("Note (optional)") },
+                    label = { Text(stringResource(Res.string.dialog_status_note_label)) },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Reason for status change") },
+                    placeholder = { Text(stringResource(Res.string.dialog_status_note_placeholder)) },
                 )
             }
         },
@@ -108,12 +145,12 @@ internal fun UpdateStatusDialog(
                     onConfirm(selectedStatus, null, noteValue)
                 },
             ) {
-                Text("Update")
+                Text(stringResource(Res.string.dialog_action_update))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.dialog_action_cancel))
             }
         },
     )
@@ -128,10 +165,11 @@ internal fun RecordEventDialog(
 ): Unit {
     var selectedType by remember { mutableStateOf(TrackerEventType.APPLY) }
     var note by remember { mutableStateOf("") }
+    val selectEventCd: String = stringResource(Res.string.dialog_event_type_cd)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Record Event") },
+        title = { Text(stringResource(Res.string.dialog_event_title)) },
         text = {
             Column(
                 modifier = modifier
@@ -149,11 +187,11 @@ internal fun RecordEventDialog(
                         value = selectedType.displayName(),
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Event Type") },
+                        label = { Text(stringResource(Res.string.dialog_event_type_label)) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor()
-                            .semantics { contentDescription = "Select event type" },
+                            .semantics { contentDescription = selectEventCd },
                     )
                     ExposedDropdownMenu(
                         expanded = expanded,
@@ -175,9 +213,9 @@ internal fun RecordEventDialog(
                 OutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
-                    label = { Text("Note (optional)") },
+                    label = { Text(stringResource(Res.string.dialog_event_note_label)) },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Event details") },
+                    placeholder = { Text(stringResource(Res.string.dialog_event_note_placeholder)) },
                 )
             }
         },
@@ -188,12 +226,12 @@ internal fun RecordEventDialog(
                     onConfirm(selectedType, noteValue)
                 },
             ) {
-                Text("Record")
+                Text(stringResource(Res.string.dialog_action_record))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.dialog_action_cancel))
             }
         },
     )
@@ -207,17 +245,18 @@ internal fun UpdateFitScoreDialog(
     modifier: Modifier = Modifier,
 ): Unit {
     var score by remember(currentScore) { mutableIntStateOf(currentScore ?: 50) }
+    val sliderCd: String = stringResource(Res.string.dialog_fit_slider_cd)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Update Fit Score") },
+        title = { Text(stringResource(Res.string.dialog_fit_title)) },
         text = {
             Column(
                 modifier = modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             ) {
                 Text(
-                    text = "Score: $score",
+                    text = stringResource(Res.string.dialog_fit_score_label, score),
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
@@ -228,25 +267,25 @@ internal fun UpdateFitScoreDialog(
                     steps = 99,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .semantics { contentDescription = "Fit score slider" },
+                        .semantics { contentDescription = sliderCd },
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Text("0", style = MaterialTheme.typography.bodySmall)
-                    Text("100", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(Res.string.dialog_fit_min), style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(Res.string.dialog_fit_max), style = MaterialTheme.typography.bodySmall)
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = { onConfirm(score) }) {
-                Text("Update")
+                Text(stringResource(Res.string.dialog_action_update))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.dialog_action_cancel))
             }
         },
     )
@@ -279,13 +318,13 @@ internal fun MarkdownPreviewDialog(
                 ) {
                     Column(modifier = Modifier.padding(MaterialTheme.spacing.subMedium)) {
                         Text(
-                            text = "Kind: ${artifact.kind.displayName()}",
+                            text = stringResource(Res.string.dialog_md_kind, artifact.kind.displayName()),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                         )
                         artifact.localPath?.let {
                             Text(
-                                text = "Path: $it",
+                                text = stringResource(Res.string.dialog_md_path, it),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -294,7 +333,7 @@ internal fun MarkdownPreviewDialog(
                 }
 
                 Text(
-                    text = "Markdown Document Content",
+                    text = stringResource(Res.string.dialog_md_content_title),
                     style = MaterialTheme.typography.titleMedium,
                 )
 
@@ -313,7 +352,7 @@ internal fun MarkdownPreviewDialog(
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text("Close")
+                Text(stringResource(Res.string.dialog_action_close))
             }
         },
     )
@@ -324,11 +363,12 @@ internal fun EventDetailDialog(
     event: TrackerEvent,
     onDismiss: () -> Unit,
 ): Unit {
+    val naText: String = stringResource(Res.string.dialog_event_na)
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Event: ${event.type.displayName()}",
+                text = stringResource(Res.string.dialog_event_detail_title, event.type.displayName()),
                 style = MaterialTheme.typography.titleLarge,
             )
         },
@@ -350,22 +390,22 @@ internal fun EventDetailDialog(
                         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
                     ) {
                         Text(
-                            text = "Timestamp: ${event.createdAt?.toString() ?: "N/A"}",
+                            text = stringResource(Res.string.dialog_event_timestamp, event.createdAt?.toString() ?: naText),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                         Text(
-                            text = "Actor: ${event.actor}",
+                            text = stringResource(Res.string.dialog_event_actor, event.actor),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                         Text(
-                            text = "Source: ${event.derivedFrom}",
+                            text = stringResource(Res.string.dialog_event_source, event.derivedFrom),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                         Text(
-                            text = "Confidence: ${event.confidence}",
+                            text = stringResource(Res.string.dialog_event_confidence, event.confidence.toString()),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
@@ -374,6 +414,8 @@ internal fun EventDetailDialog(
 
                 // Status transition if applicable
                 if (event.statusFrom != null || event.statusTo != null) {
+                    val initialText: String = stringResource(Res.string.dialog_event_transition_initial)
+                    val unchangedText: String = stringResource(Res.string.dialog_event_transition_unchanged)
                     Surface(
                         shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -381,12 +423,16 @@ internal fun EventDetailDialog(
                     ) {
                         Column(modifier = Modifier.padding(MaterialTheme.spacing.subMedium)) {
                             Text(
-                                text = "Affected State Transition",
+                                text = stringResource(Res.string.dialog_event_transition_title),
                                 style = MaterialTheme.typography.titleSmall,
                             )
                             Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
                             Text(
-                                text = "${event.statusFrom?.displayName() ?: "Initial"} → ${event.statusTo?.displayName() ?: "Unchanged"}",
+                                text = stringResource(
+                                    Res.string.dialog_event_transition_value,
+                                    event.statusFrom?.displayName() ?: initialText,
+                                    event.statusTo?.displayName() ?: unchangedText,
+                                ),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -403,7 +449,7 @@ internal fun EventDetailDialog(
                     ) {
                         Column(modifier = Modifier.padding(MaterialTheme.spacing.subMedium)) {
                             Text(
-                                text = "Linked Email Message",
+                                text = stringResource(Res.string.dialog_event_email_title),
                                 style = MaterialTheme.typography.titleSmall,
                             )
                             Spacer(modifier = Modifier.height(MaterialTheme.spacing.micro))
@@ -425,7 +471,7 @@ internal fun EventDetailDialog(
                     ) {
                         Column(modifier = Modifier.padding(MaterialTheme.spacing.subMedium)) {
                             Text(
-                                text = "Note / Event Payload",
+                                text = stringResource(Res.string.dialog_event_payload_title),
                                 style = MaterialTheme.typography.titleSmall,
                             )
                             Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
@@ -440,7 +486,7 @@ internal fun EventDetailDialog(
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text("Close")
+                Text(stringResource(Res.string.dialog_action_close))
             }
         },
     )
