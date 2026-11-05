@@ -74,6 +74,9 @@ Build scripts must apply the local convention plugins declared in `gradle/libs.v
 - Concern plugins: `local.dependencies.compose`, `local.dependencies.koin`, `local.dependencies.ktor`, `local.dependencies.serialization`.
 - Do not configure target SDKs, compiler options, or toolchains manually in module build scripts.
 
+### Rule 6: Architecture & Design Plans in `.agents/plans/`
+- All technical architecture, design, and migration plans oriented to `ui/kmp` must be housed in `.agents/plans/` and indexed in `ui/kmp/.agents/plans/README.md`.
+
 ---
 
 ## 3. Key Gradle & Mise Execution Commands

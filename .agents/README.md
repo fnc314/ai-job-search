@@ -5,6 +5,7 @@ Everything that more than one agent needs lives here, once:
 - `AGENTS.md` (repo root) — the workspace role, candidate profile, and shared rules.
 - `.agents/skills/` — canonical skills. Start with `job-tracker/SKILL.md` for the
   application record (Firestore via `mise run tracker`, Gmail review queue, Sheets).
+- `.agents/plans/` — repository and subsystem architecture plans. Subsystem-specific plans are housed within their project's `.agents/plans/` (e.g. `ui/kmp/.agents/plans/`).
 - `.claude/commands/` — the single implementation of the workflow commands
   (`/apply`, `/outcome`, `/gmail-sync`, …). Other agents read these files; they
   are not copied per agent.
