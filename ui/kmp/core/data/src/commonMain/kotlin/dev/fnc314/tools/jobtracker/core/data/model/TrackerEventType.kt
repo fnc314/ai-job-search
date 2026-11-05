@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
@@ -17,101 +18,145 @@ import androidx.compose.ui.graphics.vector.ImageVector
 /**
  * Event classification defining the nature of a milestone or touchpoint in a [TrackerEvent].
  *
- * Couples semantic event definitions with Material Design iconography for timeline rendering.
- *
- * @property icon Material Design vector icon [ImageVector] representing this event visually.
- * @property displayName Human-readable label for timeline entries.
- * @property firestoreValue Canonical namespaced Firestore identifier (e.g., `"event:applied"`).
+ * Implemented as a sealed interface hierarchy supporting Swift-style associated values:
+ * [Known] encapsulates canonical lifecycle events with Material iconography, while [Unrecognized]
+ * captures arbitrary or forward-compatible event strings without data loss.
  */
-public enum class TrackerEventType(
-    public val icon: ImageVector,
-    public val displayName: String,
-    public val firestoreValue: String,
-) {
-    /** Fallback when event kind is unspecified. */
-    UNSPECIFIED(Icons.Default.CheckCircle, "Unspecified", "event:unspecified"),
+public sealed interface TrackerEventType : WireContract {
 
-    /** Initial application submission to company. */
-    APPLY(Icons.AutoMirrored.Filled.Send, "Application Submitted", "event:applied"),
-
-    /** Automated or recruiter confirmation of application receipt. */
-    ACKNOWLEDGE(Icons.Default.Email, "Acknowledged", "event:acknowledged"),
-
-    /** Initial conversational phone or video screen with a technical recruiter. */
-    RECRUITER_SCREEN(Icons.Default.DateRange, "Recruiter Screen", "event:recruiter-screen"),
-
-    /** Technical or behavioral interview scheduled. */
-    SCHEDULE_INTERVIEW(Icons.Default.DateRange, "Interview Scheduled", "event:interview-scheduled"),
-
-    /** Scheduled interview round concluded. */
-    COMPLETE_INTERVIEW(Icons.Default.DateRange, "Interview Completed", "event:interview-completed"),
-
-    /** Take-home technical coding assessment or architectural assignment. */
-    ASSESS(Icons.Default.Edit, "Assessment", "event:assessment"),
-
-    /** Full loop or final onsite interview round. */
-    VISIT_ONSITE(Icons.Default.Place, "On-Site Interview", "event:onsite"),
-
-    /** Formal offer of employment extended. */
-    OFFER(Icons.Default.Star, "Offer Received", "event:offer"),
-
-    /** Offer formally accepted by candidate. */
-    ACCEPT_OFFER(Icons.Default.CheckCircle, "Offer Accepted", "event:offer-accepted"),
-
-    /** Candidate declined the employment offer. */
-    DECLINE_OFFER(Icons.Default.Close, "Offer Declined", "event:offer-declined"),
-
-    /** Candidate rejected by company. */
-    REJECT(Icons.Default.Close, "Rejected", "event:rejection"),
-
-    /** Application marked inactive after 30+ days of silence. */
-    GHOST(Icons.Default.Close, "No Response", "event:no-response"),
-
-    /** Candidate voluntarily withdrew from consideration. */
-    WITHDRAW(Icons.Default.Close, "Withdrawn", "event:withdrawn"),
-
-    /** Follow-up message sent by candidate or agent. */
-    SEND_FOLLOW_UP(Icons.Default.Email, "Follow-Up Sent", "event:follow-up-sent"),
-
-    /** Tailored LaTeX CV or Cover Letter compiled for this role. */
-    TAILOR_DOCUMENT(Icons.Default.Edit, "Document Tailored", "event:document-tailored"),
-
-    /** Candidate fit score recalculated against updated requirements. */
-    RECALCULATE_FIT(Icons.Default.Refresh, "Fit Recalculated", "event:fit-recalculated"),
-
-    /** New document or specification artifact attached. */
-    ADD_ARTIFACT(Icons.Default.Info, "Artifact Added", "event:artifact-added"),
-
-    /** Contextual strategy note added. */
-    ADD_NOTE(Icons.Default.Edit, "Note Added", "event:note-added"),
-
-    /** Record imported from external system or CSV archive. */
-    IMPORT(Icons.Default.Share, "Imported", "event:imported"),
-
-    /** Manual correction applied to status lifecycle. */
-    CORRECT_STATUS(Icons.Default.Refresh, "Status Corrected", "event:status-corrected");
+    /** Material Design vector icon representing this event visually. */
+    public val icon: ImageVector
 
     /** Returns the display name. */
     public fun displayName(): String = displayName
 
     /** Returns the canonical Firestore document string representation. */
-    public fun toFirestore(): String = firestoreValue
+    public fun toFirestore(): String = wireKey
+
+    /**
+     * Closed vocabulary of known timeline milestone events.
+     */
+    public enum class Known(
+        override val icon: ImageVector,
+        override val displayName: String,
+        override val wireKey: String,
+        override val wireTag: Int = -1,
+    ) : TrackerEventType {
+        /** Fallback when event kind is unspecified. */
+        UNSPECIFIED(Icons.Default.CheckCircle, "Unspecified", "event:unspecified", 0),
+
+        /** Initial application submission to company. */
+        APPLY(Icons.AutoMirrored.Filled.Send, "Application Submitted", "event:applied", 1),
+
+        /** Automated or recruiter confirmation of application receipt. */
+        ACKNOWLEDGE(Icons.Default.Email, "Acknowledged", "event:acknowledged", 2),
+
+        /** Initial conversational phone or video screen with a technical recruiter. */
+        RECRUITER_SCREEN(Icons.Default.DateRange, "Recruiter Screen", "event:recruiter-screen", 3),
+
+        /** Technical or behavioral interview scheduled. */
+        SCHEDULE_INTERVIEW(Icons.Default.DateRange, "Interview Scheduled", "event:interview-scheduled", 4),
+
+        /** Scheduled interview round concluded. */
+        COMPLETE_INTERVIEW(Icons.Default.DateRange, "Interview Completed", "event:interview-completed", 5),
+
+        /** Take-home technical coding assessment or architectural assignment. */
+        ASSESS(Icons.Default.Edit, "Assessment", "event:assessment", 6),
+
+        /** Full loop or final onsite interview round. */
+        VISIT_ONSITE(Icons.Default.Place, "On-Site Interview", "event:onsite", 7),
+
+        /** Formal offer of employment extended. */
+        OFFER(Icons.Default.Star, "Offer Received", "event:offer", 8),
+
+        /** Offer formally accepted by candidate. */
+        ACCEPT_OFFER(Icons.Default.CheckCircle, "Offer Accepted", "event:offer-accepted", 9),
+
+        /** Candidate declined the employment offer. */
+        DECLINE_OFFER(Icons.Default.Close, "Offer Declined", "event:offer-declined", 10),
+
+        /** Candidate rejected by company. */
+        REJECT(Icons.Default.Close, "Rejected", "event:rejection", 11),
+
+        /** Application marked inactive after 30+ days of silence. */
+        GHOST(Icons.Default.Close, "No Response", "event:no-response", 12),
+
+        /** Candidate voluntarily withdrew from consideration. */
+        WITHDRAW(Icons.Default.Close, "Withdrawn", "event:withdrawn", 13),
+
+        /** Follow-up message sent by candidate or agent. */
+        SEND_FOLLOW_UP(Icons.Default.Email, "Follow-Up Sent", "event:follow-up-sent", 14),
+
+        /** Tailored LaTeX CV or Cover Letter compiled for this role. */
+        TAILOR_DOCUMENT(Icons.Default.Edit, "Document Tailored", "event:document-tailored", 15),
+
+        /** Candidate fit score recalculated against updated requirements. */
+        RECALCULATE_FIT(Icons.Default.Refresh, "Fit Recalculated", "event:fit-recalculated", 16),
+
+        /** New document or specification artifact attached. */
+        ADD_ARTIFACT(Icons.Default.Info, "Artifact Added", "event:artifact-added", 17),
+
+        /** Contextual strategy note added. */
+        ADD_NOTE(Icons.Default.Edit, "Note Added", "event:note-added", 18),
+
+        /** Record imported from external system or CSV archive. */
+        IMPORT(Icons.Default.Share, "Imported", "event:imported", 19),
+
+        /** Manual correction applied to status lifecycle. */
+        CORRECT_STATUS(Icons.Default.Refresh, "Status Corrected", "event:status-corrected", 20),
+
+        /** Direct outreach initiated to recruiter or hiring team member. */
+        RECRUITER_OUTREACH(Icons.Default.Person, "Recruiter Outreach", "event:recruiter-outreach");
+    }
+
+    /**
+     * Associated-value carrier for unmapped, future, or custom event strings.
+     */
+    public data class Unrecognized(
+        override val wireKey: String
+    ) : TrackerEventType {
+        override val icon: ImageVector get() = Icons.Default.Info
+        override val displayName: String get() = "Unknown ($wireKey)"
+    }
 
     public companion object {
-        /**
-         * Resolves a raw or namespaced event string into a [TrackerEventType] enum.
-         *
-         * @param raw The raw string representation.
-         * @return The matched [TrackerEventType] or [UNSPECIFIED].
-         */
-        public fun fromFirestore(raw: String?): TrackerEventType {
-            if (raw.isNullOrBlank()) return UNSPECIFIED
-            val cleaned = raw.trim()
-            return entries.firstOrNull {
-                it.firestoreValue.equals(cleaned, ignoreCase = true) ||
-                it.name.equals(cleaned, ignoreCase = true) ||
-                it.firestoreValue.removePrefix("event:").equals(cleaned, ignoreCase = true)
-            } ?: UNSPECIFIED
+        public val DEFAULT: TrackerEventType = Known.UNSPECIFIED
+
+        private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
+            listOf(entry.wireKey.removePrefix("event:"))
         }
+
+        public val UNSPECIFIED: TrackerEventType = Known.UNSPECIFIED
+        public val APPLY: TrackerEventType = Known.APPLY
+        public val ACKNOWLEDGE: TrackerEventType = Known.ACKNOWLEDGE
+        public val RECRUITER_SCREEN: TrackerEventType = Known.RECRUITER_SCREEN
+        public val SCHEDULE_INTERVIEW: TrackerEventType = Known.SCHEDULE_INTERVIEW
+        public val COMPLETE_INTERVIEW: TrackerEventType = Known.COMPLETE_INTERVIEW
+        public val ASSESS: TrackerEventType = Known.ASSESS
+        public val VISIT_ONSITE: TrackerEventType = Known.VISIT_ONSITE
+        public val OFFER: TrackerEventType = Known.OFFER
+        public val ACCEPT_OFFER: TrackerEventType = Known.ACCEPT_OFFER
+        public val DECLINE_OFFER: TrackerEventType = Known.DECLINE_OFFER
+        public val REJECT: TrackerEventType = Known.REJECT
+        public val GHOST: TrackerEventType = Known.GHOST
+        public val WITHDRAW: TrackerEventType = Known.WITHDRAW
+        public val SEND_FOLLOW_UP: TrackerEventType = Known.SEND_FOLLOW_UP
+        public val TAILOR_DOCUMENT: TrackerEventType = Known.TAILOR_DOCUMENT
+        public val RECALCULATE_FIT: TrackerEventType = Known.RECALCULATE_FIT
+        public val ADD_ARTIFACT: TrackerEventType = Known.ADD_ARTIFACT
+        public val ADD_NOTE: TrackerEventType = Known.ADD_NOTE
+        public val IMPORT: TrackerEventType = Known.IMPORT
+        public val CORRECT_STATUS: TrackerEventType = Known.CORRECT_STATUS
+        public val RECRUITER_OUTREACH: TrackerEventType = Known.RECRUITER_OUTREACH
+
+        public val entries: List<TrackerEventType> = Known.entries
+
+        public fun fromWireKey(raw: String?): TrackerEventType {
+            if (raw.isNullOrBlank()) return DEFAULT
+            val cleaned = raw.trim().lowercase()
+            return lookup[cleaned] ?: Unrecognized(raw)
+        }
+
+        public fun fromFirestore(raw: String?): TrackerEventType = fromWireKey(raw)
     }
 }

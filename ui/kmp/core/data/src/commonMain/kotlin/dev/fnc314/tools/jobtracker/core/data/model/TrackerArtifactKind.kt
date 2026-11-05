@@ -3,51 +3,75 @@ package dev.fnc314.tools.jobtracker.core.data.model
 /**
  * Functional classification of an attached document or compiled asset.
  *
- * @property displayName Formatted name for UI presentation and badge rendering.
- * @property firestoreValue Canonical namespaced Firestore identifier (e.g., `"artifact:cv"`).
+ * Implemented as a sealed interface hierarchy supporting Swift-style associated values:
+ * [Known] encapsulates canonical artifact kinds, while [Unrecognized] captures unexpected strings.
  */
-public enum class TrackerArtifactKind(
-    public val displayName: String,
-    public val firestoreValue: String,
-) {
-    /** Fallback when artifact classification is unspecified. */
-    UNSPECIFIED(displayName = "Unspecified", firestoreValue = "artifact:unspecified"),
-
-    /** Tailored LaTeX Curriculum Vitae (PDF). */
-    CV(displayName = "CV", firestoreValue = "artifact:cv"),
-
-    /** Targeted LaTeX Cover Letter (PDF). */
-    COVER_LETTER(displayName = "Cover Letter", firestoreValue = "artifact:cover-letter"),
-
-    /** Application outcome summary or feedback document (`outcome.md`). */
-    OUTCOME(displayName = "Outcome", firestoreValue = "artifact:outcome"),
-
-    /** Archived raw HTML or text job posting specification. */
-    POSTING(displayName = "Posting", firestoreValue = "artifact:posting"),
-
-    /** Technical take-home assessment brief, code archive, or submission. */
-    ASSESSMENT(displayName = "Assessment", firestoreValue = "artifact:assessment");
+public sealed interface TrackerArtifactKind : WireContract {
 
     /** Returns the display name. */
     public fun displayName(): String = displayName
 
     /** Returns the canonical Firestore document string representation. */
-    public fun toFirestore(): String = firestoreValue
+    public fun toFirestore(): String = wireKey
+
+    /**
+     * Closed vocabulary of known artifact kinds.
+     */
+    public enum class Known(
+        override val displayName: String,
+        override val wireKey: String,
+        override val wireTag: Int = -1,
+    ) : TrackerArtifactKind {
+        /** Fallback when artifact classification is unspecified. */
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "artifact:unspecified", wireTag = 0),
+
+        /** Tailored LaTeX Curriculum Vitae (PDF). */
+        CV(displayName = "CV", wireKey = "artifact:cv", wireTag = 1),
+
+        /** Targeted LaTeX Cover Letter (PDF). */
+        COVER_LETTER(displayName = "Cover Letter", wireKey = "artifact:cover-letter", wireTag = 2),
+
+        /** Application outcome summary or feedback document (`outcome.md`). */
+        OUTCOME(displayName = "Outcome", wireKey = "artifact:outcome", wireTag = 3),
+
+        /** Archived raw HTML or text job posting specification. */
+        POSTING(displayName = "Posting", wireKey = "artifact:posting", wireTag = 4),
+
+        /** Technical take-home assessment brief, code archive, or submission. */
+        ASSESSMENT(displayName = "Assessment", wireKey = "artifact:assessment", wireTag = 5);
+    }
+
+    /**
+     * Associated-value carrier for unmapped, future, or custom artifact strings.
+     */
+    public data class Unrecognized(
+        override val wireKey: String
+    ) : TrackerArtifactKind {
+        override val displayName: String get() = "Unknown ($wireKey)"
+    }
 
     public companion object {
-        /**
-         * Resolves a raw or namespaced string into a [TrackerArtifactKind] enum.
-         *
-         * @param raw The raw string representation.
-         * @return The matched [TrackerArtifactKind] or [UNSPECIFIED].
-         */
-        public fun fromFirestore(raw: String?): TrackerArtifactKind {
-            if (raw.isNullOrBlank()) return UNSPECIFIED
-            val cleaned = raw.trim()
-            return entries.firstOrNull {
-                it.firestoreValue.equals(cleaned, ignoreCase = true) ||
-                it.name.equals(cleaned, ignoreCase = true)
-            } ?: UNSPECIFIED
+        public val DEFAULT: TrackerArtifactKind = Known.UNSPECIFIED
+
+        private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
+            listOf(entry.wireKey.removePrefix("artifact:"))
         }
+
+        public val UNSPECIFIED: TrackerArtifactKind = Known.UNSPECIFIED
+        public val CV: TrackerArtifactKind = Known.CV
+        public val COVER_LETTER: TrackerArtifactKind = Known.COVER_LETTER
+        public val OUTCOME: TrackerArtifactKind = Known.OUTCOME
+        public val POSTING: TrackerArtifactKind = Known.POSTING
+        public val ASSESSMENT: TrackerArtifactKind = Known.ASSESSMENT
+
+        public val entries: List<TrackerArtifactKind> = Known.entries
+
+        public fun fromWireKey(raw: String?): TrackerArtifactKind {
+            if (raw.isNullOrBlank()) return DEFAULT
+            val cleaned = raw.trim().lowercase()
+            return lookup[cleaned] ?: Unrecognized(raw)
+        }
+
+        public fun fromFirestore(raw: String?): TrackerArtifactKind = fromWireKey(raw)
     }
 }

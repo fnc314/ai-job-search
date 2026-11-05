@@ -31,23 +31,23 @@ public class DatabaseConverters {
     public fun toUuid(value: String?): Uuid? =
         if (value == null) null else runCatching { Uuid.parse(value) }.getOrNull()
 
-    /** Serializes a [TrackerStatus] enum to its name string or null. */
+    /** Serializes a [TrackerStatus] to its wire key string or null. */
     @ColumnTypeConverter
-    public fun fromTrackerStatus(status: TrackerStatus?): String? = status?.name
+    public fun fromTrackerStatus(status: TrackerStatus?): String? = status?.wireKey
 
-    /** Deserializes an enum name string to a [TrackerStatus] constant, defaulting to [TrackerStatus.DRAFTING]. */
+    /** Deserializes a string representation to a [TrackerStatus] constant, defaulting to [TrackerStatus.DRAFTING]. */
     @ColumnTypeConverter
     public fun toTrackerStatus(value: String?): TrackerStatus =
-        value?.let { runCatching { TrackerStatus.valueOf(it) }.getOrNull() } ?: TrackerStatus.DRAFTING
+        TrackerStatus.fromWireKey(value)
 
-    /** Serializes an [ApplicationChannel] enum to its name string or null. */
+    /** Serializes an [ApplicationChannel] to its wire key string or null. */
     @ColumnTypeConverter
-    public fun fromApplicationChannel(channel: ApplicationChannel?): String? = channel?.name
+    public fun fromApplicationChannel(channel: ApplicationChannel?): String? = channel?.wireKey
 
-    /** Deserializes an enum name string to an [ApplicationChannel] constant, defaulting to [ApplicationChannel.UNSPECIFIED]. */
+    /** Deserializes a string representation to an [ApplicationChannel] constant, defaulting to [ApplicationChannel.UNSPECIFIED]. */
     @ColumnTypeConverter
     public fun toApplicationChannel(value: String?): ApplicationChannel =
-        value?.let { runCatching { ApplicationChannel.valueOf(it) }.getOrNull() } ?: ApplicationChannel.UNSPECIFIED
+        ApplicationChannel.fromWireKey(value)
 
     /** Serializes a [kotlin.time.Instant] to epoch milliseconds integer or null. */
     @ColumnTypeConverter

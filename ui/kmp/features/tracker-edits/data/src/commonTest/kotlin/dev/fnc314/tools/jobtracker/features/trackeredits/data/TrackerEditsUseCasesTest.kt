@@ -29,7 +29,7 @@ class TrackerEditsUseCasesTest {
         applicationId = applicationId,
         kind = kind,
         state = state,
-        trigger = Trigger.EMAIL_SYNC,
+        trigger = Trigger.APPLICATION_CREATED,
         changes = emptyList(),
         unmatched = emptyList(),
         sourceEmail = null,

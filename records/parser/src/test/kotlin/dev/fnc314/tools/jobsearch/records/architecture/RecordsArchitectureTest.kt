@@ -39,4 +39,15 @@ class RecordsArchitectureTest {
             .filter { it.hasPublicModifier }
             .assertTrue { it.hasReturnType() }
     }
+
+    @Test
+    fun `no standalone ByString enum lookup maps or EnumMapping monolith exist in records`() {
+        recordsScope
+            .properties()
+            .assertTrue { prop -> !prop.name.endsWith("ByString") }
+
+        recordsScope
+            .objects()
+            .assertTrue { obj -> obj.name != "EnumMapping" }
+    }
 }

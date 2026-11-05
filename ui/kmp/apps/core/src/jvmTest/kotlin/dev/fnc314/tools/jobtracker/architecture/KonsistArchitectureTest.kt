@@ -48,4 +48,28 @@ class KonsistArchitectureTest {
                 }
             }
     }
+
+    @Test
+    fun `all sealed WireContract interfaces declare Known enum Unrecognized class and fromWireKey`() {
+        kmpScope
+            .interfaces()
+            .filter { it.hasSealedModifier && it.hasParentInterfaceWithName("WireContract") }
+            .assertTrue { iface ->
+                val hasKnownEnum = iface.classes().any { it.name == "Known" && it.hasEnumModifier }
+                val hasUnrecognized = iface.classes().any { it.name == "Unrecognized" && it.hasDataModifier }
+                val hasFromWireKey = iface.objects().any { obj ->
+                    obj.hasCompanionModifier && obj.functions().any { fn -> fn.name == "fromWireKey" }
+                }
+                hasKnownEnum && hasUnrecognized && hasFromWireKey
+            }
+    }
+
+    @Test
+    fun `no standalone ByString enum lookup maps exist`() {
+        kmpScope
+            .properties()
+            .assertTrue { prop ->
+                !prop.name.endsWith("ByString")
+            }
+    }
 }

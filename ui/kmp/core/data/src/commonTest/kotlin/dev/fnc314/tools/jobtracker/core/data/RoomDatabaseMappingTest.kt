@@ -49,11 +49,13 @@ public class RoomDatabaseMappingTest {
 
     @Test
     public fun testDatabaseConverters_EnumsAndLists(): Unit {
-        assertEquals("OFFER_EXPECTED", converters.fromTrackerStatus(TrackerStatus.OFFER_EXPECTED))
+        assertEquals("status:offer", converters.fromTrackerStatus(TrackerStatus.OFFER_EXPECTED))
+        assertEquals(TrackerStatus.OFFER_EXPECTED, converters.toTrackerStatus("status:offer"))
         assertEquals(TrackerStatus.OFFER_EXPECTED, converters.toTrackerStatus("OFFER_EXPECTED"))
-        assertEquals(TrackerStatus.DRAFTING, converters.toTrackerStatus("UNKNOWN_NON_EXISTENT"))
+        assertEquals(TrackerStatus.Unrecognized("UNKNOWN_NON_EXISTENT"), converters.toTrackerStatus("UNKNOWN_NON_EXISTENT"))
 
-        assertEquals("LINKEDIN", converters.fromApplicationChannel(ApplicationChannel.LINKEDIN))
+        assertEquals("channel:linkedin", converters.fromApplicationChannel(ApplicationChannel.LINKEDIN))
+        assertEquals(ApplicationChannel.LINKEDIN, converters.toApplicationChannel("channel:linkedin"))
         assertEquals(ApplicationChannel.LINKEDIN, converters.toApplicationChannel("LINKEDIN"))
         assertEquals(ApplicationChannel.UNSPECIFIED, converters.toApplicationChannel(null))
 

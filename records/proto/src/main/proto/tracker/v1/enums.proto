@@ -30,6 +30,8 @@ enum TrackerStatus {
   OFFER_DECLINED = 8;
   // status:withdrawn
   APPLICATION_WITHDRAWN = 9;
+  // status:lead
+  LEAD = 10;
 }
 
 // ============================================================================
@@ -79,6 +81,8 @@ enum TrackerEventType {
   IMPORT = 19;
   // event:status-corrected
   CORRECT_STATUS = 20;
+  // event:recruiter-outreach
+  RECRUITER_OUTREACH = 21;
 }
 
 // ============================================================================
@@ -106,6 +110,12 @@ enum ApplicationChannel {
   DIRECT = 8;
   // channel:other
   OTHER = 9;
+  // channel:outreach:linkedin
+  OUTREACH_LINKEDIN = 10;
+  // channel:outreach:email
+  OUTREACH_EMAIL = 11;
+  // channel:outreach:referral
+  OUTREACH_REFERRAL = 12;
 }
 
 // ============================================================================
@@ -189,6 +199,8 @@ enum TrackerEditKind {
   EDIT_KIND_EMAIL_SYNC = 1;
   // proposal:sheet-sync
   EDIT_KIND_SHEET_SYNC = 2;
+  // proposal:lead
+  EDIT_KIND_LEAD = 3;
 }
 
 // ============================================================================
@@ -317,4 +329,6 @@ enum Tag {
   PROCESS_INTERNAL_CONTACT = 17;
   // process:no-response-30d
   PROCESS_NO_RESPONSE_30D = 18;
+  // process:recruiter:outreach
+  PROCESS_RECRUITER_OUTREACH = 19;
 }

@@ -172,7 +172,7 @@ public object Factory {
      * @param applicationId Target application slug.
      * @param kind Proposal category [TrackerEditKind]. Defaults to [TrackerEditKind.STATUS].
      * @param state Initial review state [TrackerEditState]. Defaults to [TrackerEditState.PENDING].
-     * @param trigger Ingestion trigger [Trigger]. Defaults to [Trigger.EMAIL_SYNC].
+     * @param trigger Ingestion trigger [Trigger]. Defaults to [Trigger.APPLICATION_CREATED].
      * @param changes Proposed field mutations [EditChange].
      * @param unmatched Unmatched source fields [EditUnmatched].
      * @param sourceEmail Provenance email details [SourceEmail].
@@ -187,7 +187,7 @@ public object Factory {
         applicationId: String = "",
         kind: TrackerEditKind = TrackerEditKind.STATUS,
         state: TrackerEditState = TrackerEditState.PENDING,
-        trigger: Trigger = Trigger.EMAIL_SYNC,
+        trigger: Trigger = Trigger.APPLICATION_CREATED,
         changes: List<EditChange> = emptyList(),
         unmatched: List<EditUnmatched> = emptyList(),
         sourceEmail: SourceEmail? = null,

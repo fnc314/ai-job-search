@@ -80,7 +80,7 @@ public object LegacyRowProjector {
         row["company"] = app.company
         row["role"] = app.role
         row["location"] = app.location
-        row["status"] = EnumMapping.trackerStatusToString(app.status)
+        row["status"] = app.status.wireKey
         row["status_label"] = legacyStatus(row["status"])
         row["channel"] = app.channel.name.lowercase().replace("_", "-")
         row["job_url"] = app.jobUrl

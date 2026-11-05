@@ -7,125 +7,172 @@ import androidx.compose.ui.graphics.Color
 /**
  * Lifecycle states of a job application tracked within the system.
  *
- * Each status maps directly to a canonical namespaced string stored in Firestore (`firestoreValue`),
- * defines semantic presentation semantics (such as active vs. terminal state), and provides Material 3
- * container and content colors for UI badges.
- *
- * @property displayName Human-readable label suitable for UI buttons, badges, and filters.
- * @property firestoreValue Canonical namespaced Firestore identifier (e.g., `"status:applied"`).
+ * Implemented as a sealed interface hierarchy supporting Swift-style associated values:
+ * [Known] encapsulates all compile-time closed-vocabulary funnel states, while [Unrecognized]
+ * captures arbitrary or forward-compatible wire strings without data loss.
  */
-public enum class TrackerStatus(
-    public val displayName: String,
-    public val firestoreValue: String,
-) {
-    /** Sentinel value representing an unfiltered filter state matching all applications. */
-    NONE(displayName = "All", firestoreValue = "status:none"),
+public sealed interface TrackerStatus : WireContract {
 
-    /** Fallback status when the Firestore status string is missing or unrecognized. */
-    UNSPECIFIED(displayName = "Unspecified", firestoreValue = "status:unspecified"),
-
-    /** Initial opportunity lead captured prior to formal submission. */
-    DRAFTING(displayName = "Lead", firestoreValue = "status:drafting"),
-
-    /** Formal application submitted to company or hiring platform. */
-    APPLIED(displayName = "Applied", firestoreValue = "status:applied"),
-
-    /** Active interview process underway (screens, technical rounds, onsites). */
-    INTERVIEW(displayName = "Interview", firestoreValue = "status:interview"),
-
-    /** Candidate expecting or negotiating a formal compensation offer. */
-    OFFER_EXPECTED(displayName = "Offer Expected", firestoreValue = "status:offer"),
-
-    /** Candidate accepted offer and successfully completed hiring. */
-    HIRED(displayName = "Hired", firestoreValue = "status:hired"),
-
-    /** Application was rejected by employer. */
-    REJECTED(displayName = "Rejected", firestoreValue = "status:rejected"),
-
-    /** Employer did not respond within standard follow-up horizon (>30 days). */
-    NO_RESPONSE(displayName = "No Response", firestoreValue = "status:no-response"),
-
-    /** Candidate declined an offer extended by the company. */
-    OFFER_DECLINED(displayName = "Offer Declined", firestoreValue = "status:offer-declined"),
-
-    /** Candidate voluntarily withdrew application from consideration. */
-    APPLICATION_WITHDRAWN(displayName = "Application Withdrawn", firestoreValue = "status:withdrawn");
-
-    /**
-     * Returns the human-readable display label.
-     */
+    /** Returns the human-readable display label. */
     public fun displayName(): String = displayName
 
-    /**
-     * Returns the canonical Firestore document string representation.
-     */
-    public fun toFirestore(): String = firestoreValue
+    /** Returns the canonical Firestore document string representation. */
+    public fun toFirestore(): String = wireKey
 
-    /**
-     * Indicates whether this status represents a final terminal state where the pipeline has closed.
-     */
+    /** Indicates whether this status represents a final terminal state where the pipeline has closed. */
     public val isTerminal: Boolean
-        get() = when (this) {
-            HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> true
-            NONE, UNSPECIFIED, DRAFTING, APPLIED, INTERVIEW, OFFER_EXPECTED -> false
-        }
 
-    /**
-     * Indicates whether the application is currently active and requires ongoing monitoring or engagement.
-     */
+    /** Indicates whether the application is currently active and requires ongoing monitoring or engagement. */
     public val isActive: Boolean
-        get() = when (this) {
-            DRAFTING, APPLIED, INTERVIEW, OFFER_EXPECTED -> true
-            NONE, UNSPECIFIED, HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> false
-        }
+
+    /** Resolves the theme-aware Material 3 container background color for this status. */
+    @Composable
+    public fun containerColor(): Color
+
+    /** Resolves the theme-aware Material 3 content on-container text/icon color for this status. */
+    @Composable
+    public fun contentColor(): Color
 
     /**
-     * Resolves the theme-aware Material 3 container background color for this status.
-     *
-     * @return The [Color] instance matching the current [MaterialTheme.colorScheme].
+     * Closed vocabulary of known application lifecycle states.
      */
-    @Composable
-    public fun containerColor(): Color = when (this) {
-        DRAFTING -> MaterialTheme.colorScheme.surfaceVariant
-        APPLIED -> MaterialTheme.colorScheme.primaryContainer
-        INTERVIEW -> MaterialTheme.colorScheme.secondaryContainer
-        OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.tertiaryContainer
-        REJECTED -> MaterialTheme.colorScheme.errorContainer
-        NO_RESPONSE -> MaterialTheme.colorScheme.surfaceContainerHigh
-        OFFER_DECLINED, APPLICATION_WITHDRAWN -> MaterialTheme.colorScheme.surfaceVariant
-        NONE, UNSPECIFIED -> MaterialTheme.colorScheme.surfaceVariant
+    public enum class Known(
+        override val displayName: String,
+        override val wireKey: String,
+        override val wireTag: Int = -1,
+    ) : TrackerStatus {
+        /** Sentinel value representing an unfiltered filter state matching all applications. */
+        NONE(displayName = "All", wireKey = "status:none"),
+
+        /** Fallback status when the Firestore status string is missing or unspecified. */
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "status:unspecified", wireTag = 0),
+
+        /** Pre-funnel opportunity lead captured prior to active drafting. */
+        LEAD(displayName = "Lead", wireKey = "status:lead", wireTag = 10),
+
+        /** Initial opportunity drafting state prior to formal submission. */
+        DRAFTING(displayName = "Drafting", wireKey = "status:drafting", wireTag = 1),
+
+        /** Formal application submitted to company or hiring platform. */
+        APPLIED(displayName = "Applied", wireKey = "status:applied", wireTag = 2),
+
+        /** Active interview process underway (screens, technical rounds, onsites). */
+        INTERVIEW(displayName = "Interview", wireKey = "status:interview", wireTag = 3),
+
+        /** Candidate expecting or negotiating a formal compensation offer. */
+        OFFER_EXPECTED(displayName = "Offer Expected", wireKey = "status:offer", wireTag = 4),
+
+        /** Candidate accepted offer and successfully completed hiring. */
+        HIRED(displayName = "Hired", wireKey = "status:hired", wireTag = 5),
+
+        /** Application was rejected by employer. */
+        REJECTED(displayName = "Rejected", wireKey = "status:rejected", wireTag = 6),
+
+        /** Employer did not respond within standard follow-up horizon (>30 days). */
+        NO_RESPONSE(displayName = "No Response", wireKey = "status:no-response", wireTag = 7),
+
+        /** Candidate declined an offer extended by the company. */
+        OFFER_DECLINED(displayName = "Offer Declined", wireKey = "status:offer-declined", wireTag = 8),
+
+        /** Candidate voluntarily withdrew application from consideration. */
+        APPLICATION_WITHDRAWN(displayName = "Application Withdrawn", wireKey = "status:withdrawn", wireTag = 9);
+
+        override val isTerminal: Boolean
+            get() = when (this) {
+                HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> true
+                NONE, UNSPECIFIED, LEAD, DRAFTING, APPLIED, INTERVIEW, OFFER_EXPECTED -> false
+            }
+
+        override val isActive: Boolean
+            get() = when (this) {
+                LEAD, DRAFTING, APPLIED, INTERVIEW, OFFER_EXPECTED -> true
+                NONE, UNSPECIFIED, HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> false
+            }
+
+        @Composable
+        override fun containerColor(): Color = when (this) {
+            LEAD, DRAFTING -> MaterialTheme.colorScheme.surfaceVariant
+            APPLIED -> MaterialTheme.colorScheme.primaryContainer
+            INTERVIEW -> MaterialTheme.colorScheme.secondaryContainer
+            OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.tertiaryContainer
+            REJECTED -> MaterialTheme.colorScheme.errorContainer
+            NO_RESPONSE -> MaterialTheme.colorScheme.surfaceContainerHigh
+            OFFER_DECLINED, APPLICATION_WITHDRAWN -> MaterialTheme.colorScheme.surfaceVariant
+            NONE, UNSPECIFIED -> MaterialTheme.colorScheme.surfaceVariant
+        }
+
+        @Composable
+        override fun contentColor(): Color = when (this) {
+            LEAD, DRAFTING -> MaterialTheme.colorScheme.onSurfaceVariant
+            APPLIED -> MaterialTheme.colorScheme.onPrimaryContainer
+            INTERVIEW -> MaterialTheme.colorScheme.onSecondaryContainer
+            OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.onTertiaryContainer
+            REJECTED -> MaterialTheme.colorScheme.onErrorContainer
+            NO_RESPONSE -> MaterialTheme.colorScheme.outline
+            OFFER_DECLINED, APPLICATION_WITHDRAWN -> MaterialTheme.colorScheme.onSurfaceVariant
+            NONE, UNSPECIFIED -> MaterialTheme.colorScheme.onSurfaceVariant
+        }
     }
 
     /**
-     * Resolves the theme-aware Material 3 content on-container text/icon color for this status.
-     *
-     * @return The [Color] instance matching the current [MaterialTheme.colorScheme].
+     * Associated-value carrier for unmapped, future, or custom status strings.
+     * Preserves the verbatim incoming [wireKey] without loss of fidelity.
      */
-    @Composable
-    public fun contentColor(): Color = when (this) {
-        DRAFTING -> MaterialTheme.colorScheme.onSurfaceVariant
-        APPLIED -> MaterialTheme.colorScheme.onPrimaryContainer
-        INTERVIEW -> MaterialTheme.colorScheme.onSecondaryContainer
-        OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.onTertiaryContainer
-        REJECTED -> MaterialTheme.colorScheme.onErrorContainer
-        NO_RESPONSE -> MaterialTheme.colorScheme.outline
-        OFFER_DECLINED, APPLICATION_WITHDRAWN -> MaterialTheme.colorScheme.onSurfaceVariant
-        NONE, UNSPECIFIED -> MaterialTheme.colorScheme.onSurfaceVariant
+    public data class Unrecognized(
+        override val wireKey: String
+    ) : TrackerStatus {
+        override val displayName: String get() = "Unknown ($wireKey)"
+        override val isTerminal: Boolean get() = false
+        override val isActive: Boolean get() = false
+
+        @Composable
+        override fun containerColor(): Color = MaterialTheme.colorScheme.surfaceVariant
+
+        @Composable
+        override fun contentColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
     }
 
     public companion object {
+        public val DEFAULT: TrackerStatus = Known.UNSPECIFIED
+
+        // Static O(1) multi-key lookup map built using stdlib extension
+        private val lookup: Map<String, Known> = Known.entries.toWireLookupMap()
+
+        // Backward-compatible shortcut properties matching standard enum names
+        public val NONE: TrackerStatus = Known.NONE
+        public val UNSPECIFIED: TrackerStatus = Known.UNSPECIFIED
+        public val LEAD: TrackerStatus = Known.LEAD
+        public val DRAFTING: TrackerStatus = Known.DRAFTING
+        public val APPLIED: TrackerStatus = Known.APPLIED
+        public val INTERVIEW: TrackerStatus = Known.INTERVIEW
+        public val OFFER_EXPECTED: TrackerStatus = Known.OFFER_EXPECTED
+        public val HIRED: TrackerStatus = Known.HIRED
+        public val REJECTED: TrackerStatus = Known.REJECTED
+        public val NO_RESPONSE: TrackerStatus = Known.NO_RESPONSE
+        public val OFFER_DECLINED: TrackerStatus = Known.OFFER_DECLINED
+        public val APPLICATION_WITHDRAWN: TrackerStatus = Known.APPLICATION_WITHDRAWN
+
+        /** All known canonical entries for pickers, dropdowns, and filters. */
+        public val entries: List<TrackerStatus> = Known.entries
+
+        /**
+         * Resolves a raw wire string into its matching [TrackerStatus] instance.
+         *
+         * @param raw The raw string representation.
+         * @return The matched [Known] status or [Unrecognized] containing the raw string.
+         */
+        public fun fromWireKey(raw: String?): TrackerStatus {
+            if (raw.isNullOrBlank()) return DEFAULT
+            val cleaned = raw.trim().lowercase()
+            return lookup[cleaned] ?: Unrecognized(raw)
+        }
+
         /**
          * Resolves a raw Firestore document status string into its matching [TrackerStatus] constant.
          *
          * @param raw The raw string from Firestore or local storage.
-         * @return The resolved [TrackerStatus], or [UNSPECIFIED] if null, blank, or unmapped.
+         * @return The resolved [TrackerStatus], or [UNSPECIFIED] if null/blank, or [Unrecognized] if unmapped.
          */
-        public fun fromFirestore(raw: String?): TrackerStatus {
-            if (raw.isNullOrBlank()) return UNSPECIFIED
-            return entries.firstOrNull { 
-                it.firestoreValue.equals(raw, ignoreCase = true) ||
-                it.name.equals(raw, ignoreCase = true)
-            } ?: UNSPECIFIED
-        }
+        public fun fromFirestore(raw: String?): TrackerStatus = fromWireKey(raw)
     }
 }

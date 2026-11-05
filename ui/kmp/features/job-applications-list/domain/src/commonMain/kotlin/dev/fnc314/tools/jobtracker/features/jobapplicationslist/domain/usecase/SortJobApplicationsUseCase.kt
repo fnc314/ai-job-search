@@ -63,7 +63,7 @@ public interface SortJobApplicationsUseCase : UseCase<SortJobApplicationsUseCase
                 SortColumn.DATE_UPDATED -> compareBy<JobApplication> { it.updatedAt ?: it.createdAt ?: Instant.DISTANT_PAST }
                     .thenBy { it.company }
                 SortColumn.COMPANY -> compareBy { it.company.lowercase() }
-                SortColumn.STATUS -> compareBy { it.status.name }
+                SortColumn.STATUS -> compareBy { it.status.displayName }
                 SortColumn.FIT -> compareBy { it.fitScore ?: 0 }
                 SortColumn.ROLE -> compareBy { it.role?.lowercase() ?: "" }
             }

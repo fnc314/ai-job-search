@@ -43,7 +43,7 @@ core/data/src/
 │   │   ├── WorkMode.kt                       # Remote, Hybrid, On-site
 │   │   ├── Trigger.kt, Confidence.kt, etc.   # Audit and edit provenance enums
 │   │   ├── EnumDisplayExtensions.kt          # Generic display name fallback
-│   │   └── EnumParsing.kt                    # Firestore string parsing
+│   │   └── WireContract.kt                   # WireContract + toWireLookupMap helpers (sealed Known/Unrecognized enums)
 │   ├── database/                             # Room KMP Relational Persistence Engine
 │   │   ├── AppDatabase.kt                    # Room database definition
 │   │   ├── DatabaseBuilder.kt                # Expect/actual multiplatform database builder
@@ -81,11 +81,13 @@ core/data/src/
 - `Uuid7`: Type-safe inline value class wrapping standard library `kotlin.uuid.Uuid` (native `generateV7()`) providing time-ordered monotonicity and zero memory allocation overhead.
 - `AppDatabase`: Room 3.x multiplatform SQLite relational database with `@ColumnTypeConverters`, `JobApplicationDao`, `JobApplicationMapper`, and platform-specific builders (`androidMain`, `jvmMain`, `iosMain`, `wasmJsMain`, `jsMain`).
 
-### Self-Contained Enums (Zero External When)
-All enums encapsulate their own Firestore mappings, display strings, and semantic Material 3 tonal colors:
-- `TrackerStatus`: Contains `.displayName()`, `.toFirestore()`, `fromFirestore()`, `@Composable fun containerColor()`, `@Composable fun contentColor()`, `.isTerminal`, and `.isActive`.
-- `TrackerEventType`: Contains `.icon`, `.displayName()`, `.toFirestore()`, and `fromFirestore()`.
-- `ApplicationChannel`: Self-contained channel categorization and parsing.
+### Self-Contained Open Enums (`WireContract`)
+All domain enums implement `WireContract` as sealed interface hierarchies (`Known` enum + `Unrecognized(wireKey)` carrier for lossless forward-compatible wire parsing) with O(1) lookup maps built via `Iterable<E>.toWireLookupMap()`:
+- `TrackerStatus`: Contains `.displayName()`, `.toFirestore()`, `fromWireKey()` / `fromFirestore()`, `@Composable fun containerColor()`, `@Composable fun contentColor()`, `.isTerminal`, and `.isActive`.
+- `TrackerEventType`: Contains `.icon`, `.displayName()`, `.toFirestore()`, and `fromWireKey()` / `fromFirestore()`.
+- `ApplicationChannel`: Self-contained channel categorization and parsing (including outreach channels).
+- `WorkMode`, `Confidence`, `DerivedFrom`, `EventActor`, `TrackerArtifactKind`, `TrackerEditKind`, `TrackerEditState`, `Trigger`: Audit, provenance, and workflow sealed hierarchies.
+- `SyncKind`, `SyncState`, `Region`, `Tag`, `CompPeriod`, `CompVsTarget`: Synchronization, geographic region, controlled vocabulary tag, and compensation sub-enum sealed hierarchies.
 
 ### Data Source Engines
 - `LocalDataSource`: Suspend & synchronous key-value persistent storage engine contract.
