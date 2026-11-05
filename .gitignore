@@ -121,7 +121,7 @@ secrets/
 !.qwen/QWEN.md
 .composio/
 .recalc_queue
-plugins/
+/plugins/
 generated/
 
 # Scraped postings, intermediate HTML, text, and JSON debug dumps
