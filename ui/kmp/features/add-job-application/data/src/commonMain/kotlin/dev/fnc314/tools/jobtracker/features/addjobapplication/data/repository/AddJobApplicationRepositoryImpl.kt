@@ -13,13 +13,13 @@ internal class AddJobApplicationRepositoryImpl(
 
     override suspend fun saveJobApplication(application: JobApplication): String {
         val id = remoteDataSource.saveJobApplication(application)
-        localDataSource.saveJobApplication(application)
+        runCatching { localDataSource.saveJobApplication(application) }
         return id
     }
 
     override suspend fun recordEvent(event: TrackerEvent): String {
         val id = remoteDataSource.recordEvent(event)
-        localDataSource.recordEvent(event)
+        runCatching { localDataSource.recordEvent(event) }
         return id
     }
 }

@@ -8,6 +8,8 @@ import kotlin.time.Instant
 @Stable
 public data class JobApplication(
     public val id: String,
+    public val uuid: Uuid7? = null,
+    public val schemaVersion: Int = 7,
     public val company: String,
     public val role: String?,
     public val location: String?,

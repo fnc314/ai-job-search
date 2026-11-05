@@ -16,21 +16,21 @@ internal class JobApplicationsDetailsRepositoryImpl(
 ) : JobApplicationsDetailsRepository {
 
     override suspend fun getJobApplication(id: String): JobApplication? {
-        val cached = localDataSource.getJobApplication(id)
+        val cached = runCatching { localDataSource.getJobApplication(id) }.getOrNull()
         if (cached != null) return cached
-        val remote = remoteDataSource.getJobApplication(id)
+        val remote = runCatching { remoteDataSource.getJobApplication(id) }.getOrNull()
         if (remote != null) {
-            localDataSource.saveJobApplication(remote)
+            runCatching { localDataSource.saveJobApplication(remote) }
         }
         return remote
     }
 
     override suspend fun getCompanies(): List<Company> {
-        val cached = localDataSource.getCompanies()
+        val cached = runCatching { localDataSource.getCompanies() }.getOrDefault(emptyList())
         if (cached.isNotEmpty()) return cached
-        val remote = remoteDataSource.getCompanies()
+        val remote = runCatching { remoteDataSource.getCompanies() }.getOrDefault(emptyList())
         if (remote.isNotEmpty()) {
-            localDataSource.saveCompanies(remote)
+            runCatching { localDataSource.saveCompanies(remote) }
         }
         return remote
     }
@@ -42,7 +42,7 @@ internal class JobApplicationsDetailsRepositoryImpl(
         note: String?,
     ): JobApplication {
         val updated = remoteDataSource.updateStatus(id, status, date, note)
-        localDataSource.saveJobApplication(updated)
+        runCatching { localDataSource.saveJobApplication(updated) }
         return updated
     }
 
@@ -52,7 +52,7 @@ internal class JobApplicationsDetailsRepositoryImpl(
 
     override suspend fun updateFitScore(id: String, score: Int): JobApplication {
         val updated = remoteDataSource.updateFitScore(id, score)
-        localDataSource.saveJobApplication(updated)
+        runCatching { localDataSource.saveJobApplication(updated) }
         return updated
     }
 

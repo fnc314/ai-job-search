@@ -10,12 +10,15 @@ internal class JobApplicationsListRepositoryImpl(
     private val localDataSource: LocalJobApplicationsListDataSource,
 ) : JobApplicationsListRepository {
     override suspend fun getJobApplications(): List<JobApplication> {
-        val cached = localDataSource.getJobApplications()
-        if (cached.isNotEmpty()) return cached
-        val remote = remoteDataSource.getJobApplications()
-        if (remote.isNotEmpty()) {
-            localDataSource.saveJobApplications(remote)
+        val cached = runCatching { localDataSource.getJobApplications() }.getOrDefault(emptyList())
+        if (cached.isNotEmpty()) {
+            return cached
         }
-        return remote
+        val remote = runCatching { remoteDataSource.getJobApplications() }.getOrDefault(emptyList())
+        if (remote.isNotEmpty()) {
+            runCatching { localDataSource.saveJobApplications(remote) }
+            return remote
+        }
+        return cached
     }
 }

@@ -30,7 +30,8 @@ core/data/src/
 │   ├── factory/Factory.kt                    # Centralized factory for creating validated domain models
 │   ├── json/JsonProvider.kt                  # Standard globalJson instance for kotlinx.serialization
 │   ├── model/                                # Universal entities and encapsulated enums
-│   │   ├── JobApplication.kt                 # Core job application entity
+│   │   ├── JobApplication.kt                 # Core job application entity (schemaVersion 7, Uuid7)
+│   │   ├── Uuid7.kt                          # Strongly-typed RFC 4122 UUIDv7 value class
 │   │   ├── TrackerEvent.kt                   # Historical lifecycle event
 │   │   ├── TrackerArtifact.kt                # Associated file artifact (CV, cover letter)
 │   │   ├── TrackerEdit.kt                    # Proposed edit staging record
@@ -45,8 +46,12 @@ core/data/src/
 │   │   └── EnumParsing.kt                    # Firestore string parsing
 │   ├── database/                             # Room KMP Relational Persistence Engine
 │   │   ├── AppDatabase.kt                    # Room database definition
+│   │   ├── DatabaseBuilder.kt                # Expect/actual multiplatform database builder
+│   │   ├── DatabaseConverters.kt             # Room 3 ColumnTypeConverter implementations
+│   │   ├── DatabaseHolder.kt                 # Thread-safe database & DAO container
+│   │   ├── JobApplicationMapper.kt           # Bidirectional entity <-> domain mapper
 │   │   ├── dao/JobApplicationDao.kt          # DAO for querying and persisting applications
-│   │   └── entity/JobApplicationEntity.kt    # SQLite entity definition
+│   │   └── entity/JobApplicationEntity.kt    # SQLite entity definition (schemaVersion 7)
 │   ├── platform/PlatformFileOpener.kt        # Multiplatform file/PDF opener contract
 │   ├── repository/                           # Base domain abstractions
 │   │   └── UseCase.kt                        # Base functional use case interface
@@ -71,8 +76,10 @@ core/data/src/
 ## 4. Public API Surface & Significant Contributions
 
 ### Core Models & Factory
-- `Factory`: Central factory providing `createJobApplication()`, `createTrackerEvent()`, `createTrackerArtifact()`, and `createTrackerEdit()` with automated timestamping and ID assignment.
-- `JobApplication`: Complete immutable representation of an application record with fit score, status, channels, notes, and tags.
+- `Factory`: Central factory providing `createJobApplication()`, `createTrackerEvent()`, `createTrackerArtifact()`, and `createTrackerEdit()` with automated timestamping, default `schemaVersion = 7`, and ID/UUIDv7 assignment.
+- `JobApplication`: Complete immutable representation of an application record with `schemaVersion = 7`, monotonic `uuid: Uuid7`, slug `id`, fit score, status, channels, notes, and tags.
+- `Uuid7`: Type-safe inline value class wrapping standard library `kotlin.uuid.Uuid` (native `generateV7()`) providing time-ordered monotonicity and zero memory allocation overhead.
+- `AppDatabase`: Room 3.x multiplatform SQLite relational database with `@ColumnTypeConverters`, `JobApplicationDao`, `JobApplicationMapper`, and platform-specific builders (`androidMain`, `jvmMain`, `iosMain`, `wasmJsMain`, `jsMain`).
 
 ### Self-Contained Enums (Zero External When)
 All enums encapsulate their own Firestore mappings, display strings, and semantic Material 3 tonal colors:

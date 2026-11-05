@@ -29,6 +29,8 @@ public object Factory {
         createdAt: Instant? = Clock.System.now(),
         updatedAt: Instant? = Clock.System.now(),
         jobApplicationUrl: String? = null,
+        uuid: Uuid7? = null,
+        schemaVersion: Int = 7,
     ): JobApplication {
         val resolvedScore = fitRating ?: fitEvaluation?.score
         val resolvedFitEvaluation = fitEvaluation ?: resolvedScore?.let {
@@ -36,6 +38,8 @@ public object Factory {
         }
         return JobApplication(
             id = id,
+            uuid = uuid ?: Uuid7.generate(),
+            schemaVersion = schemaVersion,
             company = company,
             role = role,
             location = location,

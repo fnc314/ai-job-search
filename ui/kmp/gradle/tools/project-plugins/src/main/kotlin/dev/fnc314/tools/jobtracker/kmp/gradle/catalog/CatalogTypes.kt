@@ -54,7 +54,9 @@ internal sealed interface CatalogTypes<out T> {
         KTOR_CLIENT_DARWIN("ktor-client-darwin"),
         KTOR_CLIENT_JS("ktor-client-js"),
         COMPOSE_UI_TOOLING("compose-uiTooling"),
-        NAVIGATION_COMPOSE("navigation-compose");
+        NAVIGATION_COMPOSE("navigation-compose"),
+        ANDROIDX_ROOM3_COMPILER("androidx-room3-compiler"),
+        KSP_GRADLE_PLUGIN("ksp-gradle-plugin");
 
         override fun fromCatalog(project: Project): Provider<MinimalExternalModuleDependency> =
             project.versionCatalog.findLibrary(catalogKey).orElseThrow {
@@ -97,7 +99,8 @@ internal sealed interface CatalogTypes<out T> {
         ANDROID_APPLICATION("androidApplication"),
         ANDROID_MULTIPLATFORM_LIBRARY("androidMultiplatformLibrary"),
         COMPOSE_MULTIPLATFORM("composeMultiplatform"),
-        COMPOSE_COMPILER("composeCompiler");
+        COMPOSE_COMPILER("composeCompiler"),
+        KSP("ksp");
 
         override fun fromCatalog(project: Project): Provider<PluginDependency> =
             project.versionCatalog.findPlugin(catalogKey).orElseThrow {

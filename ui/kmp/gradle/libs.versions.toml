@@ -36,6 +36,7 @@
   jvm = "17"
   googlePlayServices = "4.5.0"
   node = "26.13.0"
+  ksp = "2.3.13"
 
 [libraries]
   kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -69,6 +70,8 @@
   wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
   androidx-room3-common = { module = "androidx.room3:room3-common", version.ref = "androidx-room3" }
   androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "androidx-room3" }
+  androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "androidx-room3" }
+  ksp-gradle-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
   androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "androidx-sqlite" }
   androidx-sqlite-web = { module = "androidx.sqlite:sqlite-web", version.ref = "androidx-sqlite" }
   compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "composeMaterialIcons" }
@@ -188,6 +191,7 @@
   kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
   googleServices = { id = "com.google.gms.google-services", version.ref = "googlePlayServices" }
   local-multiplatform-library = { id = "dev.fnc314.tools.jobtracker.multiplatform-library" }
+  ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
   # Local Functional Cause Plugins
   local-kotlin-multiplatform = { id = "dev.fnc314.tools.jobtracker.kotlin-multiplatform" }
