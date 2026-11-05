@@ -6,6 +6,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
+/**
+ * Concern convention plugin applying `kotlinx.serialization` compiler plugin and runtime JSON dependencies.
+ */
 public class SerializationDependenciesConventionPlugin : Plugin<Project>, BaseConventionPlugin {
     override fun apply(target: Project): Unit {
         target.configurePlugin()

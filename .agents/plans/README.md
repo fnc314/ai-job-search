@@ -11,6 +11,7 @@ This directory holds architecture, system design, and migration plans for the re
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`detekt-and-konsist-integration-plan.md`](./detekt-and-konsist-integration-plan.md) | In Review | Integration of Detekt 1.23.8 & Konsist 0.18.1 across `records` & `ui/kmp` |
 | [`plan-files-consolidation-and-gitignore-alignment.md`](./plan-files-consolidation-and-gitignore-alignment.md) | Completed | Plan files reorganization, duplicate cleanup, and universal `.gitignore` alignment |
 | [`kmp-proto-contracts.md`](./kmp-proto-contracts.md) | Completed | Top-level repo restructuring, Protobuf type contracts, and shared parsing module |
 | [`firestore-data-optimization.md`](./firestore-data-optimization.md) | Completed | Firestore schema optimization, projection queries, and index alignment |

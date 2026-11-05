@@ -1,8 +1,19 @@
 package dev.fnc314.tools.jobtracker.core.data.factory
 
 import dev.fnc314.tools.jobtracker.core.data.model.ApplicationChannel
-import dev.fnc314.tools.jobtracker.core.data.model.ApplicationUrl
+import dev.fnc314.tools.jobtracker.core.data.model.ArtifactStorage
+import dev.fnc314.tools.jobtracker.core.data.model.Company
+import dev.fnc314.tools.jobtracker.core.data.model.Compensation
+import dev.fnc314.tools.jobtracker.core.data.model.Confidence
+import dev.fnc314.tools.jobtracker.core.data.model.DerivedFrom
+import dev.fnc314.tools.jobtracker.core.data.model.EditChange
+import dev.fnc314.tools.jobtracker.core.data.model.EditScope
+import dev.fnc314.tools.jobtracker.core.data.model.EditUnmatched
+import dev.fnc314.tools.jobtracker.core.data.model.EventActor
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
+import dev.fnc314.tools.jobtracker.core.data.model.Location
+import dev.fnc314.tools.jobtracker.core.data.model.SourceEmail
+import dev.fnc314.tools.jobtracker.core.data.model.Timeline
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifactKind
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerCounts
@@ -13,6 +24,9 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerFit
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
+import dev.fnc314.tools.jobtracker.core.data.model.Trigger
+import dev.fnc314.tools.jobtracker.core.data.model.Uuid7
+import dev.fnc314.tools.jobtracker.core.data.model.WorkMode
 import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Clock
 import kotlin.time.Instant

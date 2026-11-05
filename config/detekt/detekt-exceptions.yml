@@ -1,0 +1,149 @@
+exceptions:
+  active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ExceptionRaisedInUnexpectedLocation
+  # ELI5: Forbids throwing exceptions from equals, hashCode, toString, or property getters.
+  # Type: Boolean / List<String> (methodNames)
+  # Docs: https://detekt.dev/docs/rules/exceptions#exceptionraisedinunexpectedlocation
+  # ─────────────────────────────────────────────────────────────────────────────
+  ExceptionRaisedInUnexpectedLocation:
+    active: true
+    methodNames:
+      - 'equals'
+      - 'finalize'
+      - 'hashCode'
+      - 'toString'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: InstanceOfCheckForException
+  # ELI5: Discourages 'if (e is SomeException)' inside catch blocks; use separate catch blocks instead.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/exceptions#instanceofcheckforexception
+  # ─────────────────────────────────────────────────────────────────────────────
+  InstanceOfCheckForException:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: NotImplementedDeclaration
+  # ELI5: Flags unfinished code containing 'TODO()' or 'NotImplementedError()' in production paths.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/exceptions#notimplementeddeclaration
+  # ─────────────────────────────────────────────────────────────────────────────
+  NotImplementedDeclaration:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ObjectExtendsThrowable
+  # ELI5: Forbids 'object' singletons extending Throwable; exceptions must be instantiated per occurrence.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/exceptions#objectextendsthrowable
+  # ─────────────────────────────────────────────────────────────────────────────
+  ObjectExtendsThrowable:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: PrintStackTrace
+  # ELI5: Forbids calling 'e.printStackTrace()'; use structured application logging instead.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/exceptions#printstacktrace
+  # ─────────────────────────────────────────────────────────────────────────────
+  PrintStackTrace:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: RethrowCaughtException
+  # ELI5: Flags catching an exception just to immediately rethrow it without any handling or logging.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/exceptions#rethrowcaughtexception
+  # ─────────────────────────────────────────────────────────────────────────────
+  RethrowCaughtException:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ReturnFromFinally
+  # ELI5: Forbids 'return' inside 'finally' blocks, which accidentally silences uncaught exceptions.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/exceptions#returnfromfinally
+  # ─────────────────────────────────────────────────────────────────────────────
+  ReturnFromFinally:
+    active: true
+    ignoreLabeled: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: SwallowedException
+  # ELI5: Flags catch blocks that do not log, rethrow, or wrap the caught exception.
+  # Type: List<String> (ignoredExceptionTypes)
+  # Docs: https://detekt.dev/docs/rules/exceptions#swallowedexception
+  # ─────────────────────────────────────────────────────────────────────────────
+  SwallowedException:
+    active: true
+    ignoredExceptionTypes:
+      - 'InterruptedException'
+      - 'MalformedURLException'
+      - 'NumberFormatException'
+      - 'ParseException'
+    allowedExceptionNameRegex: '_|(ignore|expected).*'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ThrowingExceptionFromFinally
+  # ELI5: Forbids throwing new exceptions inside 'finally' blocks, which masks any earlier exception.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/exceptions#throwingexceptionfromfinally
+  # ─────────────────────────────────────────────────────────────────────────────
+  ThrowingExceptionFromFinally:
+    active: true
+  ThrowingExceptionInMain:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ThrowingExceptionsWithoutMessageOrCause
+  # ELI5: Requires exceptions like IllegalArgumentException to provide an informative explanation message.
+  # Type: List<String> (exceptions)
+  # Docs: https://detekt.dev/docs/rules/exceptions#throwingexceptionswithoutmessageorcause
+  # ─────────────────────────────────────────────────────────────────────────────
+  ThrowingExceptionsWithoutMessageOrCause:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    exceptions:
+      - 'ArrayIndexOutOfBoundsException'
+      - 'Exception'
+      - 'IllegalArgumentException'
+      - 'IllegalMonitorStateException'
+      - 'IllegalStateException'
+      - 'IndexOutOfBoundsException'
+      - 'NullPointerException'
+      - 'RuntimeException'
+      - 'Throwable'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ThrowingNewInstanceOfSameException
+  # ELI5: Flags creating a new copy of a caught exception without passing the original cause.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/exceptions#throwingnewinstanceofsameexception
+  # ─────────────────────────────────────────────────────────────────────────────
+  ThrowingNewInstanceOfSameException:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: TooGenericExceptionCaught
+  # ELI5: Discourages catching raw 'Exception' or 'Throwable'; catch specific error types instead.
+  # Type: List<String> (exceptionNames)
+  # Docs: https://detekt.dev/docs/rules/exceptions#toogenericexceptioncaught
+  # ─────────────────────────────────────────────────────────────────────────────
+  TooGenericExceptionCaught:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/platform/**', '**/*ViewModel.kt', '**/PlatformSignInHandler*']
+    exceptionNames:
+      - 'ArrayIndexOutOfBoundsException'
+      - 'Error'
+      - 'Exception'
+      - 'IllegalMonitorStateException'
+      - 'IndexOutOfBoundsException'
+      - 'NullPointerException'
+      - 'RuntimeException'
+      - 'Throwable'
+    allowedExceptionNameRegex: '_|(ignore|expected).*'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: TooGenericExceptionThrown
+  # ELI5: Forbids throwing raw 'throw Exception()' or 'throw Throwable()'; throw specific subclasses.
+  # Type: List<String> (exceptionNames)
+  # Docs: https://detekt.dev/docs/rules/exceptions#toogenericexceptionthrown
+  # ─────────────────────────────────────────────────────────────────────────────
+  TooGenericExceptionThrown:
+    active: true
+    exceptionNames:
+      - 'Error'
+      - 'Exception'
+      - 'RuntimeException'
+      - 'Throwable'
+

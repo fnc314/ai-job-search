@@ -1,0 +1,218 @@
+Compose:
+  active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ComposableNaming
+  # ELI5: Enforces PascalCase for Composables returning Unit (UI widgets) and camelCase for Composables returning values.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/composable-naming
+  # ─────────────────────────────────────────────────────────────────────────────
+  ComposableNaming:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ComposableParamOrder
+  # ELI5: Requires parameters in Composables to be ordered: required first, then optional/modifiers, then trailing lambdas.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/composable-param-order
+  # ─────────────────────────────────────────────────────────────────────────────
+  ComposableParamOrder:
+    active: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: CompositionLocalAllowlist
+  # ELI5: Restricts creating new CompositionLocals to prevent abusing implicit global state.
+  # Type: List<String> (allowedCompositionLocals)
+  # Docs: https://mrmike.github.io/compose-rules/rules/composition-local-allowlist
+  # ─────────────────────────────────────────────────────────────────────────────
+  CompositionLocalAllowlist:
+    active: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: CompositionLocalNaming
+  # ELI5: Requires CompositionLocal names to start with 'Local' (e.g. 'LocalSpacing').
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/composition-local-naming
+  # ─────────────────────────────────────────────────────────────────────────────
+  CompositionLocalNaming:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ContentEmitterReturningValues
+  # ELI5: Prevents Composables that emit UI from also returning values, separating UI emission from calculations.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/content-emitter-returning-values
+  # ─────────────────────────────────────────────────────────────────────────────
+  ContentEmitterReturningValues:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: DefaultsVisibility
+  # ELI5: Ensures that default object/values of a Composable share the same visibility as the Composable itself.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/defaults-visibility
+  # ─────────────────────────────────────────────────────────────────────────────
+  DefaultsVisibility:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: LambdaParameterInRestartableEffect
+  # ELI5: Warns about passing lambda parameters directly as keys to LaunchedEffect without proper remember keys.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/lambda-parameter-in-restartable-effect
+  # ─────────────────────────────────────────────────────────────────────────────
+  LambdaParameterInRestartableEffect:
+    active: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: Material2
+  # ELI5: Forbids importing Material 2 libraries in Material 3 projects.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/material-2
+  # ─────────────────────────────────────────────────────────────────────────────
+  Material2:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ModifierClickableOrder
+  # ELI5: Ensures Modifier.clickable is placed after Modifier.clip so ripple effects are properly clipped to shapes.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/modifier-clickable-order
+  # ─────────────────────────────────────────────────────────────────────────────
+  ModifierClickableOrder:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ModifierMissing
+  # ELI5: Ensures every public/internal Composable emitting UI accepts a 'modifier: Modifier = Modifier' parameter.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/modifier-missing
+  # ─────────────────────────────────────────────────────────────────────────────
+  ModifierMissing:
+    active: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ModifierNaming
+  # ELI5: Requires the modifier parameter to be named exactly 'modifier'.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/modifier-naming
+  # ─────────────────────────────────────────────────────────────────────────────
+  ModifierNaming:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ModifierNotUsedAtRoot
+  # ELI5: Ensures the passed-in 'modifier' parameter is used on the root UI layout element of the Composable.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/modifier-not-used-at-root
+  # ─────────────────────────────────────────────────────────────────────────────
+  ModifierNotUsedAtRoot:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ModifierReused
+  # ELI5: Forbids applying the exact same modifier instance to multiple child elements in a layout.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/modifier-reused
+  # ─────────────────────────────────────────────────────────────────────────────
+  ModifierReused:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ModifierWithoutDefault
+  # ELI5: Requires the modifier parameter to provide a default value ('= Modifier').
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/modifier-without-default
+  # ─────────────────────────────────────────────────────────────────────────────
+  ModifierWithoutDefault:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MultipleEmitters
+  # ELI5: Warns when a single Composable emits multiple top-level layouts without wrapping them in a container.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/multiple-emitters
+  # ─────────────────────────────────────────────────────────────────────────────
+  MultipleEmitters:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MutableParams
+  # ELI5: Forbids passing mutable types (e.g. ArrayList, MutableState) into Composables; use immutable models instead.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/mutable-params
+  # ─────────────────────────────────────────────────────────────────────────────
+  MutableParams:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MutableStateAutoboxing
+  # ELI5: Suggests using mutableIntStateOf, mutableFloatStateOf instead of mutableStateOf<Int> to prevent autoboxing.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/mutable-state-autoboxing
+  # ─────────────────────────────────────────────────────────────────────────────
+  MutableStateAutoboxing:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MutableStateParam
+  # ELI5: Prevents passing MutableState instances as parameters; pass the plain value and an onValueChange lambda.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/mutable-state-param
+  # ─────────────────────────────────────────────────────────────────────────────
+  MutableStateParam:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ParameterOrder
+  # ELI5: Enforces standard parameter ordering: required parameters first, then optional parameters, then trailing lambda.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/parameter-order
+  # ─────────────────────────────────────────────────────────────────────────────
+  ParameterOrder:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: RememberContentMissing
+  # ELI5: Flags creating complex or heavy objects inside Composables without wrapping them in remember {}.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/remember-content-missing
+  # ─────────────────────────────────────────────────────────────────────────────
+  RememberContentMissing:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: RememberMissing
+  # ELI5: Flags calls to state-producing functions like derivedStateOf that are missing a wrapping remember {}.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/remember-missing
+  # ─────────────────────────────────────────────────────────────────────────────
+  RememberMissing:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnstableCollections
+  # ELI5: Discourages standard Java/Kotlin List, Set, Map parameters in Composables; recommends ImmutableList.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/unstable-collections
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnstableCollections:
+    active: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ViewModelForwarding
+  # ELI5: Forbids passing ViewModel instances down into reusable leaf UI components; pass state and lambdas instead.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/view-model-forwarding
+  # ─────────────────────────────────────────────────────────────────────────────
+  ViewModelForwarding:
+    active: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ViewModelInjection
+  # ELI5: Ensures ViewModels are only instantiated at the top-level route/screen composable.
+  # Type: Boolean
+  # Docs: https://mrmike.github.io/compose-rules/rules/view-model-injection
+  # ─────────────────────────────────────────────────────────────────────────────
+  ViewModelInjection:
+    active: true

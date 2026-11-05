@@ -2,6 +2,7 @@ package dev.fnc314.tools.jobtracker.kmp.gradle.plugins.functional
 
 import dev.fnc314.tools.jobtracker.kmp.gradle.catalog.CatalogTypes
 import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.BaseConventionPlugin
+import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DetektConventionPlugin
 import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DokkaConventionPlugin
 import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.internal.TestingConventionPlugin
 import org.gradle.api.Plugin
@@ -10,6 +11,13 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
+/**
+ * Base functional convention plugin for all Kotlin Multiplatform modules in the workspace.
+ *
+ * Enforces explicit API mode with warning severity, aligns the JVM toolchain, configures
+ * common compilation targets (JVM, JS, WasmJS, iOS), and applies shared linting ([DetektConventionPlugin]),
+ * documentation ([DokkaConventionPlugin]), and testing conventions.
+ */
 public class KotlinMultiplatformConventionPlugin : Plugin<Project>, BaseConventionPlugin {
     override fun apply(target: Project): Unit {
         target.configurePlugin()
@@ -52,5 +60,8 @@ public class KotlinMultiplatformConventionPlugin : Plugin<Project>, BaseConventi
 
         // 4. Dokka documentation conventions
         plugins.apply(DokkaConventionPlugin::class.java)
+
+        // 5. Detekt static analysis and formatting conventions
+        plugins.apply(DetektConventionPlugin::class.java)
     }
 }

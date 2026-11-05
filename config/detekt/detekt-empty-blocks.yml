@@ -1,0 +1,113 @@
+empty-blocks:
+  active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyCatchBlock
+  # ELI5: Catches empty 'catch (e: Exception) {}' blocks that silently hide errors without logging or handling.
+  # Type: Boolean / Regex (allowedExceptionNameRegex)
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptycatchblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyCatchBlock:
+    active: true
+    allowedExceptionNameRegex: '_|(ignore|expected).*'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyClassBlock
+  # ELI5: Flags class definitions with empty bodies like 'class Foo {}'; remove the curly braces.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptyclassblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyClassBlock:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyDefaultConstructor
+  # ELI5: Flags explicit empty default constructors like 'class Foo() {}'; they can be omitted entirely.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptydefaultconstructor
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyDefaultConstructor:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyDoWhileBlock
+  # ELI5: Flags do-while loops with an empty body.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptydowhileblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyDoWhileBlock:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyElseBlock
+  # ELI5: Flags empty 'else {}' blocks that serve no purpose.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptyelseblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyElseBlock:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyFinallyBlock
+  # ELI5: Flags empty 'finally {}' blocks that can be removed.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptyfinallyblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyFinallyBlock:
+    active: true
+  EmptyForBlock:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyFunctionBlock
+  # ELI5: Flags empty function bodies; either document why it is empty or implement it.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptyfunctionblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyFunctionBlock:
+    active: true
+    ignoreOverridden: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyIfBlock
+  # ELI5: Flags empty 'if (cond) {}' blocks.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptyifblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyIfBlock:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyInitBlock
+  # ELI5: Flags empty 'init {}' blocks that do nothing.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptyinitblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyInitBlock:
+    active: true
+  EmptyKtFile:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptySecondaryConstructor
+  # ELI5: Flags empty secondary constructors.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptysecondaryconstructor
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptySecondaryConstructor:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyTryBlock
+  # ELI5: Flags empty 'try {}' blocks.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptytryblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyTryBlock:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyWhenBlock
+  # ELI5: Flags empty 'when {}' expressions with no branches.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptywhenblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyWhenBlock:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EmptyWhileBlock
+  # ELI5: Flags while loops with an empty body.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/empty-blocks#emptywhileblock
+  # ─────────────────────────────────────────────────────────────────────────────
+  EmptyWhileBlock:
+    active: true
+

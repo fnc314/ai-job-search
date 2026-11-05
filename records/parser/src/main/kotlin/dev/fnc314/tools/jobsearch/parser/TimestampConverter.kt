@@ -45,7 +45,7 @@ public object TimestampConverter {
     public fun timestampToIso(ts: Timestamp): String {
         val epochDays = ts.seconds / SECONDS_IN_DAY
         val (year, month, day) = civilFromDays(epochDays)
-        return String.format("%04d-%02d-%02d", year, month, day)
+        return String.format(java.util.Locale.ROOT, "%04d-%02d-%02d", year, month, day)
     }
 
     /**
@@ -88,11 +88,13 @@ public object TimestampConverter {
         }
     }
 
+    @Suppress("MagicNumber")
     private fun daysFromCivil(y: Int, m: Int, d: Int): Long {
         val ym = 12L * y + maxOf(0, m - 3)
         return (365L * ym + ym / 4 - ym / 100 + ym / 400 + ((15L * (m + 9)) / 4) + d - 719469L)
     }
 
+    @Suppress("MagicNumber")
     private fun civilFromDays(z: Long): Triple<Int, Int, Int> {
         val adjustedZ = z + 719469L
         val era = if (adjustedZ >= 0) adjustedZ else (adjustedZ - 146096L) / 146097L

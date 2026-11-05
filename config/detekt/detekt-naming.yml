@@ -1,0 +1,193 @@
+naming:
+  active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: BooleanPropertyNaming
+  # ELI5: Enforces standard boolean prefixes like 'is', 'has', 'should' for boolean variables.
+  # Type: List<String> (allowedPrefixes)
+  # Docs: https://detekt.dev/docs/rules/naming#booleanpropertynaming
+  # ─────────────────────────────────────────────────────────────────────────────
+  BooleanPropertyNaming:
+    active: false
+    allowedPattern: '^(is|has|are)'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ClassNaming
+  # ELI5: Requires class and interface names to follow PascalCase (e.g., 'MyAwesomeClass').
+  # Type: Regex (classPattern)
+  # Docs: https://detekt.dev/docs/rules/naming#classnaming
+  # ─────────────────────────────────────────────────────────────────────────────
+  ClassNaming:
+    active: true
+    classPattern: '[A-Z][a-zA-Z0-9]*'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ConstructorParameterNaming
+  # ELI5: Requires constructor parameters to follow camelCase conventions.
+  # Type: Regex (parameterPattern)
+  # Docs: https://detekt.dev/docs/rules/naming#constructorparameternaming
+  # ─────────────────────────────────────────────────────────────────────────────
+  ConstructorParameterNaming:
+    active: true
+    parameterPattern: '[a-z][A-Za-z0-9]*'
+    privateParameterPattern: '[a-z][A-Za-z0-9]*'
+    excludeClassPattern: '$^'
+  EnumNaming:
+    active: true
+    enumEntryPattern: '[A-Z][_a-zA-Z0-9]*'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ForbiddenClassName
+  # ELI5: Allows banning specific generic or forbidden class names like 'Manager' or 'Helper'.
+  # Type: List<String> (forbiddenNames)
+  # Docs: https://detekt.dev/docs/rules/naming#forbiddenclassname
+  # ─────────────────────────────────────────────────────────────────────────────
+  ForbiddenClassName:
+    active: false
+    forbiddenName: []
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: FunctionMaxLength
+  # ELI5: Flags function names that are excessively long and verbose.
+  # Type: Int (maximum character count)
+  # Docs: https://detekt.dev/docs/rules/naming#functionmaxlength
+  # ─────────────────────────────────────────────────────────────────────────────
+  FunctionMaxLength:
+    active: false
+    maximumFunctionNameLength: 30
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: FunctionMinLength
+  # ELI5: Flags function names that are too short to be descriptive (e.g., single-letter functions).
+  # Type: Int (minimum character count)
+  # Docs: https://detekt.dev/docs/rules/naming#functionminlength
+  # ─────────────────────────────────────────────────────────────────────────────
+  FunctionMinLength:
+    active: false
+    minimumFunctionNameLength: 3
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: FunctionNaming
+  # ELI5: Requires function names to follow camelCase (except allowing PascalCase for @Composable returning Unit).
+  # Type: Regex (functionPattern) / Boolean (ignoreAnnotated)
+  # Docs: https://detekt.dev/docs/rules/naming#functionnaming
+  # ─────────────────────────────────────────────────────────────────────────────
+  FunctionNaming:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    excludeClassPattern: '$^'
+    ignoreAnnotated:
+      - 'Composable'
+      - 'Preview'
+  FunctionParameterNaming:
+    active: true
+    parameterPattern: '[a-z][A-Za-z0-9]*'
+    excludeClassPattern: '$^'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: InvalidPackageDeclaration
+  # ELI5: Ensures the 'package ...' declaration in code matches the actual filesystem folder path.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/naming#invalidpackagedeclaration
+  # ─────────────────────────────────────────────────────────────────────────────
+  InvalidPackageDeclaration:
+    active: true
+    rootPackage: ''
+    requireRootInDeclaration: false
+  LambdaParameterNaming:
+    active: false
+    parameterPattern: '[a-z][A-Za-z0-9]*|_'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MatchingDeclarationName
+  # ELI5: Ensures the top-level class name matches the filename (e.g., 'Foo.kt' declares 'class Foo').
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/naming#matchingdeclarationname
+  # ─────────────────────────────────────────────────────────────────────────────
+  MatchingDeclarationName:
+    active: true
+    excludes: ['**/JPypeBridge.kt', '**/Color.kt', '**/*Navigation.kt']
+    mustBeFirst: true
+    multiplatformTargets:
+      - 'ios'
+      - 'android'
+      - 'js'
+      - 'jvm'
+      - 'native'
+      - 'iosArm64'
+      - 'iosX64'
+      - 'macosX64'
+      - 'mingwX64'
+      - 'linuxX64'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MemberNameEqualsClassName
+  # ELI5: Flags members (functions/properties) with the exact same name as their enclosing class.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/naming#membernameequalsclassname
+  # ─────────────────────────────────────────────────────────────────────────────
+  MemberNameEqualsClassName:
+    active: true
+    ignoreOverridden: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: NoNameShadowing
+  # ELI5: Prevents local variables or lambda arguments from shadowing variables declared in an outer scope.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/naming#nonameshadowing
+  # ─────────────────────────────────────────────────────────────────────────────
+  NoNameShadowing:
+    active: true
+  NonBooleanPropertyPrefixedWithIs:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ObjectPropertyNaming
+  # ELI5: Requires object properties to adhere to standard camelCase or CONSTANT naming.
+  # Type: Regex (constantPattern / propertyPattern)
+  # Docs: https://detekt.dev/docs/rules/naming#objectpropertynaming
+  # ─────────────────────────────────────────────────────────────────────────────
+  ObjectPropertyNaming:
+    active: true
+    constantPattern: '[A-Za-z][_A-Za-z0-9]*'
+    propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
+    privatePropertyPattern: '(_)?[A-Za-z][_A-Za-z0-9]*'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: PackageNaming
+  # ELI5: Requires package names to be all lowercase words separated by dots, without underscores.
+  # Type: Regex (packagePattern)
+  # Docs: https://detekt.dev/docs/rules/naming#packagenaming
+  # ─────────────────────────────────────────────────────────────────────────────
+  PackageNaming:
+    active: true
+    packagePattern: '[a-z]+(\.[a-z][A-Za-z0-9]*)*'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: TopLevelPropertyNaming
+  # ELI5: Enforces naming rules for top-level constants and variables.
+  # Type: Regex (constantPattern / propertyPattern)
+  # Docs: https://detekt.dev/docs/rules/naming#toplevelpropertynaming
+  # ─────────────────────────────────────────────────────────────────────────────
+  TopLevelPropertyNaming:
+    active: true
+    constantPattern: '[A-Z][_A-Z0-9]*'
+    propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
+    privatePropertyPattern: '_?[A-Za-z][_A-Za-z0-9]*'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: VariableMaxLength
+  # ELI5: Flags variable names that are unreasonably long.
+  # Type: Int (maximum character count)
+  # Docs: https://detekt.dev/docs/rules/naming#variablemaxlength
+  # ─────────────────────────────────────────────────────────────────────────────
+  VariableMaxLength:
+    active: false
+    maximumVariableNameLength: 64
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: VariableMinLength
+  # ELI5: Flags variable names that are too brief to explain what data they hold.
+  # Type: Int (minimum character count)
+  # Docs: https://detekt.dev/docs/rules/naming#variableminlength
+  # ─────────────────────────────────────────────────────────────────────────────
+  VariableMinLength:
+    active: false
+    minimumVariableNameLength: 1
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: VariableNaming
+  # ELI5: Requires standard local and member variables to follow camelCase.
+  # Type: Regex (variablePattern)
+  # Docs: https://detekt.dev/docs/rules/naming#variablenaming
+  # ─────────────────────────────────────────────────────────────────────────────
+  VariableNaming:
+    active: true
+    variablePattern: '[a-z][A-Za-z0-9]*'
+    privateVariablePattern: '(_)?[a-z][A-Za-z0-9]*'
+    excludeClassPattern: '$^'
+

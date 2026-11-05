@@ -1,0 +1,184 @@
+complexity:
+  active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: CognitiveComplexMethod
+  # ELI5: Measures how hard a function is to mentally simulate; flags functions requiring high mental effort.
+  # Type: Int (cognitive complexity threshold)
+  # Docs: https://detekt.dev/docs/rules/complexity#cognitivecomplexmethod
+  # ─────────────────────────────────────────────────────────────────────────────
+  CognitiveComplexMethod:
+    active: false
+    threshold: 15
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ComplexCondition
+  # ELI5: Stops if-statements from chaining too many '&&' and '||' conditions together into unreadable logic.
+  # Type: Int (max number of conditions)
+  # Docs: https://detekt.dev/docs/rules/complexity#complexcondition
+  # ─────────────────────────────────────────────────────────────────────────────
+  ComplexCondition:
+    active: true
+    threshold: 4
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ComplexInterface
+  # ELI5: Warns when an interface has too many methods or properties, violating the Interface Segregation Principle.
+  # Type: Int (max interface members)
+  # Docs: https://detekt.dev/docs/rules/complexity#complexinterface
+  # ─────────────────────────────────────────────────────────────────────────────
+  ComplexInterface:
+    active: false
+    threshold: 10
+    includeStaticDeclarations: false
+    includePrivateDeclarations: false
+    ignoreOverloaded: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: CyclomaticComplexMethod
+  # ELI5: Measures the number of independent execution paths through a method; flags overly branchy functions.
+  # Type: Int (cyclomatic complexity threshold)
+  # Docs: https://detekt.dev/docs/rules/complexity#cyclomaticcomplexmethod
+  # ─────────────────────────────────────────────────────────────────────────────
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 15
+    ignoreSingleWhenExpression: true
+    ignoreSimpleWhenEntries: true
+    ignoreNestingFunctions: false
+    ignoreAnnotated:
+      - 'Composable'
+    nestingFunctions:
+      - 'also'
+      - 'apply'
+      - 'forEach'
+      - 'isNotNull'
+      - 'ifNull'
+      - 'let'
+      - 'run'
+      - 'use'
+      - 'with'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: LabeledExpression
+  # ELI5: Discourages labeled break/continue jumps (e.g., 'break@loop') that create confusing spaghetti flow.
+  # Type: List<String> (ignored labels)
+  # Docs: https://detekt.dev/docs/rules/complexity#labeledexpression
+  # ─────────────────────────────────────────────────────────────────────────────
+  LabeledExpression:
+    active: false
+    ignoredLabels: []
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: LargeClass
+  # ELI5: Flags massive 'god classes' that contain too many lines of code and should be broken down.
+  # Type: Int (max lines of code)
+  # Docs: https://detekt.dev/docs/rules/complexity#largeclass
+  # ─────────────────────────────────────────────────────────────────────────────
+  LargeClass:
+    active: true
+    threshold: 600
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: LongMethod
+  # ELI5: Flags functions that are too long, encouraging extraction of smaller single-purpose helpers.
+  # Type: Int (max lines of code)
+  # Docs: https://detekt.dev/docs/rules/complexity#longmethod
+  # ─────────────────────────────────────────────────────────────────────────────
+  LongMethod:
+    active: true
+    excludes: ['**/PlatformSignInHandler*']
+    threshold: 60
+    ignoreAnnotated:
+      - 'Composable'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: LongParameterList
+  # ELI5: Flags functions or constructors taking too many parameters, which should be grouped into a parameter object.
+  # Type: Int (max parameter count) / Boolean (ignoreDefaultParameters, ignoreDataClasses)
+  # Docs: https://detekt.dev/docs/rules/complexity#longparameterlist
+  # ─────────────────────────────────────────────────────────────────────────────
+  LongParameterList:
+    active: true
+    functionThreshold: 10
+    constructorThreshold: 10
+    ignoreDefaultParameters: true
+    ignoreDataClasses: true
+    ignoreAnnotatedParameter: []
+    ignoreAnnotated:
+      - 'Composable'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MethodOverloading
+  # ELI5: Warns when a class has too many overloaded versions of the same function name.
+  # Type: Int (max overload count)
+  # Docs: https://detekt.dev/docs/rules/complexity#methodoverloading
+  # ─────────────────────────────────────────────────────────────────────────────
+  MethodOverloading:
+    active: false
+    threshold: 6
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: NamedArguments
+  # ELI5: Requires callers to use named arguments when calling functions with many parameters to avoid ambiguity.
+  # Type: Int (threshold count) / Boolean
+  # Docs: https://detekt.dev/docs/rules/complexity#namedarguments
+  # ─────────────────────────────────────────────────────────────────────────────
+  NamedArguments:
+    active: false
+    threshold: 3
+    ignoreArgumentsMatchingNames: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: NestedBlockDepth
+  # ELI5: Stops deep indentation pyramids where loops and conditionals are nested inside other loops and conditionals.
+  # Type: Int (max nesting depth)
+  # Docs: https://detekt.dev/docs/rules/complexity#nestedblockdepth
+  # ─────────────────────────────────────────────────────────────────────────────
+  NestedBlockDepth:
+    active: true
+    threshold: 4
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: NestedScopeFunctions
+  # ELI5: Discourages nesting scope functions (let inside apply inside run), which makes 'it' and 'this' confusing.
+  # Type: List<String> (functions) / Int (threshold)
+  # Docs: https://detekt.dev/docs/rules/complexity#nestedscopefunctions
+  # ─────────────────────────────────────────────────────────────────────────────
+  NestedScopeFunctions:
+    active: false
+    threshold: 1
+    functions:
+      - 'kotlin.apply'
+      - 'kotlin.run'
+      - 'kotlin.with'
+      - 'kotlin.let'
+      - 'kotlin.also'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ReplaceSafeCallChainWithRun
+  # ELI5: Suggests replacing repeated long safe call chains like 'x?.a?.b?.c' with a cleaner 'x?.run { ... }'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/complexity#replacesafecallchainwithrun
+  # ─────────────────────────────────────────────────────────────────────────────
+  ReplaceSafeCallChainWithRun:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: StringLiteralDuplication
+  # ELI5: Flags the same string literal repeated in multiple places; extract it to a constant instead.
+  # Type: Int (threshold repetitions) / List<String> (excludes)
+  # Docs: https://detekt.dev/docs/rules/complexity#stringliteralduplication
+  # ─────────────────────────────────────────────────────────────────────────────
+  StringLiteralDuplication:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    threshold: 3
+    ignoreAnnotation: true
+    excludeStringsWithLessThan5Characters: true
+    ignoreStringsRegex: '$^'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: TooManyFunctions
+  # ELI5: Flags files or classes that declare an excessive number of functions, indicating bloated responsibilities.
+  # Type: Int (threshold count)
+  # Docs: https://detekt.dev/docs/rules/complexity#toomanyfunctions
+  # ─────────────────────────────────────────────────────────────────────────────
+  TooManyFunctions:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    thresholdInFiles: 15
+    thresholdInClasses: 15
+    thresholdInInterfaces: 15
+    thresholdInObjects: 20
+    thresholdInEnums: 15
+    ignoreDeprecated: false
+    ignorePrivate: false
+    ignoreOverridden: false
+    ignoreAnnotatedFunctions: []
+

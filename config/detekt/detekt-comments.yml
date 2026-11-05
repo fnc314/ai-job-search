@@ -1,0 +1,101 @@
+comments:
+  active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: AbsentOrWrongFileLicense
+  # ELI5: Ensures every source file starts with the designated copyright or open-source license header.
+  # Type: String (path to license header file)
+  # Docs: https://detekt.dev/docs/rules/comments#absentorwrongfilelicense
+  # ─────────────────────────────────────────────────────────────────────────────
+  AbsentOrWrongFileLicense:
+    active: false
+    licenseTemplateFile: 'license.template'
+    licenseTemplateIsRegex: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: CommentOverPrivateFunction
+  # ELI5: Discourages comments over private functions; name the function clearly instead of explaining it.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/comments#commentoverprivatefunction
+  # ─────────────────────────────────────────────────────────────────────────────
+  CommentOverPrivateFunction:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: CommentOverPrivateProperty
+  # ELI5: Discourages comments over private properties; self-explanatory property names are preferred.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/comments#commentoverprivateproperty
+  # ─────────────────────────────────────────────────────────────────────────────
+  CommentOverPrivateProperty:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: DeprecatedBlockTag
+  # ELI5: Stops using '@deprecated' in KDoc text; use the official '@Deprecated' code annotation instead.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/comments#deprecatedblocktag
+  # ─────────────────────────────────────────────────────────────────────────────
+  DeprecatedBlockTag:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EndOfSentenceFormat
+  # ELI5: Requires the first sentence in every KDoc block to end with proper punctuation (period, exclamation, etc.).
+  # Type: Regex (pattern for end of sentence)
+  # Docs: https://detekt.dev/docs/rules/comments#endofsentenceformat
+  # ─────────────────────────────────────────────────────────────────────────────
+  EndOfSentenceFormat:
+    active: false
+    endOfSentenceFormat: '([.?!][ \t\n\r\f<])|([.?!:]$)'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: KDocReferencesNonPublicProperty
+  # ELI5: Warns when public KDoc refers to private/internal properties that external callers cannot see.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/comments#kdocreferencesnonpublicproperty
+  # ─────────────────────────────────────────────────────────────────────────────
+  KDocReferencesNonPublicProperty:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: OutdatedDocumentation
+  # ELI5: Catches KDoc @param or @return tags that no longer match the function arguments or return type.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/comments#outdateddocumentation
+  # ─────────────────────────────────────────────────────────────────────────────
+  OutdatedDocumentation:
+    active: false
+    matchTypeParameters: true
+    matchDeclarationsOrder: true
+    allowParamOnConstructorProperties: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UndocumentedPublicClass
+  # ELI5: Requires all public classes and interfaces to have descriptive KDoc documentation.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/comments#undocumentedpublicclass
+  # ─────────────────────────────────────────────────────────────────────────────
+  UndocumentedPublicClass:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    searchInNestedClass: true
+    searchInInnerClass: true
+    searchInInnerObject: true
+    searchInInnerInterface: true
+    searchInProtectedClass: false
+    ignoreDefaultCompanionObject: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UndocumentedPublicFunction
+  # ELI5: Requires all public functions to have descriptive KDoc documentation.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/comments#undocumentedpublicfunction
+  # ─────────────────────────────────────────────────────────────────────────────
+  UndocumentedPublicFunction:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    searchProtectedFunction: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UndocumentedPublicProperty
+  # ELI5: Requires all public variables and properties to have descriptive KDoc documentation.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/comments#undocumentedpublicproperty
+  # ─────────────────────────────────────────────────────────────────────────────
+  UndocumentedPublicProperty:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    searchProtectedProperty: false
+

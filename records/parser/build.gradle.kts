@@ -11,5 +11,8 @@ kotlin {
 dependencies {
     implementation(project(":records-proto"))
     implementation(libs.protobuf.kotlin)
+
+    testImplementation(kotlin("test"))
+    testImplementation(libs.konsist)
 }
 

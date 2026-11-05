@@ -1,0 +1,767 @@
+style:
+  active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: AlsoCouldBeApply
+  # ELI5: Suggests using 'apply' instead of 'also' when code modifies properties of the receiver.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#alsocouldbeapply
+  # ─────────────────────────────────────────────────────────────────────────────
+  AlsoCouldBeApply:
+    active: false
+  BracesOnIfStatements:
+    active: false
+    singleLine: 'never'
+    multiLine: 'always'
+  BracesOnWhenStatements:
+    active: false
+    singleLine: 'necessary'
+    multiLine: 'consistent'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: CanBeNonNullable
+  # ELI5: Flags variables marked nullable that are never assigned null or can safely be made non-null.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#canbenonnullable
+  # ─────────────────────────────────────────────────────────────────────────────
+  CanBeNonNullable:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: CascadingCallWrapping
+  # ELI5: Requires chained method calls to be consistently wrapped onto new lines.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#cascadingcallwrapping
+  # ─────────────────────────────────────────────────────────────────────────────
+  CascadingCallWrapping:
+    active: false
+    includeElvis: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ClassOrdering
+  # ELI5: Enforces a consistent member ordering inside classes (properties first, constructors, methods, companion).
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#classordering
+  # ─────────────────────────────────────────────────────────────────────────────
+  ClassOrdering:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: CollapsibleIfStatements
+  # ELI5: Combines nested 'if (a) { if (b) {} }' into a single clean 'if (a && b) {}'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#collapsibleifstatements
+  # ─────────────────────────────────────────────────────────────────────────────
+  CollapsibleIfStatements:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: DataClassContainsFunctions
+  # ELI5: Flags functions in data classes; data classes should be simple data holders, not logic containers.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#dataclasscontainsfunctions
+  # ─────────────────────────────────────────────────────────────────────────────
+  DataClassContainsFunctions:
+    active: false
+    conversionFunctionPrefix:
+      - 'to'
+    allowOperators: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: DataClassShouldBeImmutable
+  # ELI5: Forbids 'var' properties in data classes; all data class fields should be immutable 'val'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#dataclassshouldbeimmutable
+  # ─────────────────────────────────────────────────────────────────────────────
+  DataClassShouldBeImmutable:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: DestructuringDeclarationWithTooManyEntries
+  # ELI5: Discourages destructuring more than 3 entries from a tuple or data class at once.
+  # Type: Int (threshold count)
+  # Docs: https://detekt.dev/docs/rules/style#destructuringdeclarationwithtoomanyentries
+  # ─────────────────────────────────────────────────────────────────────────────
+  DestructuringDeclarationWithTooManyEntries:
+    active: true
+    maxDestructuringEntries: 3
+  DoubleNegativeLambda:
+    active: false
+    negativeFunctions:
+      - reason: 'Use `takeIf` instead.'
+        value: 'takeUnless'
+      - reason: 'Use `all` instead.'
+        value: 'none'
+    negativeFunctionNameParts:
+      - 'not'
+      - 'non'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: EqualsNullCall
+  # ELI5: Flags 'x.equals(null)'; use 'x == null' instead.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#equalsnullcall
+  # ─────────────────────────────────────────────────────────────────────────────
+  EqualsNullCall:
+    active: true
+  EqualsOnSignatureLine:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ExplicitCollectionElementAccessMethod
+  # ELI5: Encourages indexing operator 'map[key]' or 'list[idx]' instead of 'map.get(key)'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#explicitcollectionelementaccessmethod
+  # ─────────────────────────────────────────────────────────────────────────────
+  ExplicitCollectionElementAccessMethod:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ExplicitItLambdaParameter
+  # ELI5: Flags explicitly writing '{ it -> ... }' when 'it' is already the implicit default name.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#explicititlambdaparameter
+  # ─────────────────────────────────────────────────────────────────────────────
+  ExplicitItLambdaParameter:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ExpressionBodySyntax
+  # ELI5: Encourages single-expression functions to use '= expression' instead of '{ return expression }'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#expressionbodysyntax
+  # ─────────────────────────────────────────────────────────────────────────────
+  ExpressionBodySyntax:
+    active: false
+    includeLineWrapping: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ForbiddenAnnotation
+  # ELI5: Allows forbidding specific annotations across the codebase.
+  # Type: List<String> (annotations)
+  # Docs: https://detekt.dev/docs/rules/style#forbiddenannotation
+  # ─────────────────────────────────────────────────────────────────────────────
+  ForbiddenAnnotation:
+    active: false
+    annotations:
+      - reason: 'it is a java annotation. Use `Suppress` instead.'
+        value: 'java.lang.SuppressWarnings'
+      - reason: 'it is a java annotation. Use `kotlin.Deprecated` instead.'
+        value: 'java.lang.Deprecated'
+      - reason: 'it is a java annotation. Use `kotlin.annotation.MustBeDocumented` instead.'
+        value: 'java.lang.annotation.Documented'
+      - reason: 'it is a java annotation. Use `kotlin.annotation.Target` instead.'
+        value: 'java.lang.annotation.Target'
+      - reason: 'it is a java annotation. Use `kotlin.annotation.Retention` instead.'
+        value: 'java.lang.annotation.Retention'
+      - reason: 'it is a java annotation. Use `kotlin.annotation.Repeatable` instead.'
+        value: 'java.lang.annotation.Repeatable'
+      - reason: 'Kotlin does not support @Inherited annotation, see https://youtrack.jetbrains.com/issue/KT-22265'
+        value: 'java.lang.annotation.Inherited'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ForbiddenComment
+  # ELI5: Flags forbidden comment patterns such as FIXME, STOPSHIP, or unresolved author notes.
+  # Type: List<String> (values)
+  # Docs: https://detekt.dev/docs/rules/style#forbiddencomment
+  # ─────────────────────────────────────────────────────────────────────────────
+  ForbiddenComment:
+    active: true
+    comments:
+      - reason: 'Forbidden FIXME todo marker in comment, please fix the problem.'
+        value: 'FIXME:'
+      - reason: 'Forbidden STOPSHIP todo marker in comment, please address the problem before shipping the code.'
+        value: 'STOPSHIP:'
+      - reason: 'Forbidden TODO todo marker in comment, please do the changes.'
+        value: 'TODO:'
+    allowedPatterns: ''
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ForbiddenImport
+  # ELI5: Forbids importing specific disallowed packages or classes.
+  # Type: List<String> (imports)
+  # Docs: https://detekt.dev/docs/rules/style#forbiddenimport
+  # ─────────────────────────────────────────────────────────────────────────────
+  ForbiddenImport:
+    active: false
+    imports: []
+    forbiddenPatterns: ''
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ForbiddenMethodCall
+  # ELI5: Forbids calling specific dangerous or banned methods across the codebase.
+  # Type: List<String> (methods)
+  # Docs: https://detekt.dev/docs/rules/style#forbiddenmethodcall
+  # ─────────────────────────────────────────────────────────────────────────────
+  ForbiddenMethodCall:
+    active: false
+    methods:
+      - reason: 'print does not allow you to configure the output stream. Use a logger instead.'
+        value: 'kotlin.io.print'
+      - reason: 'println does not allow you to configure the output stream. Use a logger instead.'
+        value: 'kotlin.io.println'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ForbiddenSuppress
+  # ELI5: Forbids using @Suppress on specific critical rules that should never be ignored.
+  # Type: List<String> (rules)
+  # Docs: https://detekt.dev/docs/rules/style#forbiddensuppress
+  # ─────────────────────────────────────────────────────────────────────────────
+  ForbiddenSuppress:
+    active: false
+    rules: []
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ForbiddenVoid
+  # ELI5: Forbids using java.lang.Void in Kotlin code; use Unit or Nothing instead.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#forbiddenvoid
+  # ─────────────────────────────────────────────────────────────────────────────
+  ForbiddenVoid:
+    active: true
+    ignoreOverridden: false
+    ignoreUsageInGenerics: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: FunctionOnlyReturningConstant
+  # ELI5: Flags functions that only return a constant value; use a 'val' property instead.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#functiononlyreturningconstant
+  # ─────────────────────────────────────────────────────────────────────────────
+  FunctionOnlyReturningConstant:
+    active: true
+    ignoreOverridableFunction: true
+    ignoreActualFunction: true
+    excludedFunctions: []
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: LoopWithTooManyJumpStatements
+  # ELI5: Flags loops containing too many break/continue jumps that make flow control unreadable.
+  # Type: Int (threshold count)
+  # Docs: https://detekt.dev/docs/rules/style#loopwithtoomanyjumpstatements
+  # ─────────────────────────────────────────────────────────────────────────────
+  LoopWithTooManyJumpStatements:
+    active: true
+    maxJumpCount: 1
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MagicNumber
+  # ELI5: Flags unexplained raw numeric constants in code; extract them to named constants.
+  # Type: Boolean / List<Int> (ignoreNumbers)
+  # Docs: https://detekt.dev/docs/rules/style#magicnumber
+  # ─────────────────────────────────────────────────────────────────────────────
+  MagicNumber:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts', '**/core/design-system/**', '**/designsystem/**']
+    ignoreNumbers:
+      - '-1'
+      - '0'
+      - '1'
+      - '2'
+      - '8'
+      - '16'
+      - '24'
+      - '32'
+      - '48'
+      - '60'
+      - '100'
+      - '500'
+      - '1000'
+      - '5000'
+    ignoreHashCodeFunction: true
+    ignorePropertyDeclaration: false
+    ignoreLocalVariableDeclaration: false
+    ignoreConstantDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreAnnotated:
+      - 'Composable'
+      - 'Preview'
+    ignoreAnnotation: false
+    ignoreNamedArgument: true
+    ignoreEnums: false
+    ignoreRanges: false
+    ignoreExtensionFunctions: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MandatoryBracesLoops
+  # ELI5: Requires curly braces on all for, while, and do-while loops.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#mandatorybracesloops
+  # ─────────────────────────────────────────────────────────────────────────────
+  MandatoryBracesLoops:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MaxChainedCallsOnSameLine
+  # ELI5: Limits the number of chained method calls written on a single line of code.
+  # Type: Int (threshold count)
+  # Docs: https://detekt.dev/docs/rules/style#maxchainedcallsonsameline
+  # ─────────────────────────────────────────────────────────────────────────────
+  MaxChainedCallsOnSameLine:
+    active: false
+    maxChainedCalls: 5
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MaxLineLength
+  # ELI5: Enforces a maximum line length limit for code readability.
+  # Type: Int (max line length)
+  # Docs: https://detekt.dev/docs/rules/style#maxlinelength
+  # ─────────────────────────────────────────────────────────────────────────────
+  MaxLineLength:
+    active: true
+    maxLineLength: 220
+    excludePackageStatements: true
+    excludeImportStatements: true
+    excludeCommentStatements: true
+    excludeRawStrings: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MayBeConst
+  # ELI5: Suggests adding 'const' modifier to top-level or object val properties with primitive literals.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#maybeconst
+  # ─────────────────────────────────────────────────────────────────────────────
+  MayBeConst:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ModifierOrder
+  # ELI5: Enforces standard Kotlin modifier order (e.g., 'public override suspend fun').
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#modifierorder
+  # ─────────────────────────────────────────────────────────────────────────────
+  ModifierOrder:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: MultilineLambdaItParameter
+  # ELI5: Discourages using implicit 'it' parameter in long multiline lambdas; explicitly name the parameter.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#multilinelambdaitparameter
+  # ─────────────────────────────────────────────────────────────────────────────
+  MultilineLambdaItParameter:
+    active: false
+  MultilineRawStringIndentation:
+    active: false
+    indentSize: 4
+    trimmingMethods:
+      - 'trimIndent'
+      - 'trimMargin'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: NestedClassesVisibility
+  # ELI5: Flags public nested classes inside internal classes; they should be internal as well.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#nestedclassesvisibility
+  # ─────────────────────────────────────────────────────────────────────────────
+  NestedClassesVisibility:
+    active: true
+  NewLineAtEndOfFile:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: NoTabs
+  # ELI5: Forbids tab characters in source files; enforces spaces for indentation.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#notabs
+  # ─────────────────────────────────────────────────────────────────────────────
+  NoTabs:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: NullableBooleanCheck
+  # ELI5: Catches confusing 'if (boolean == true)' checks on nullable booleans.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#nullablebooleancheck
+  # ─────────────────────────────────────────────────────────────────────────────
+  NullableBooleanCheck:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ObjectLiteralToLambda
+  # ELI5: Encourages replacing anonymous SAM object expressions with a clean trailing lambda.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#objectliteraltolambda
+  # ─────────────────────────────────────────────────────────────────────────────
+  ObjectLiteralToLambda:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: OptionalAbstractKeyword
+  # ELI5: Flags redundant 'abstract' keyword on interface methods where methods are abstract by default.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#optionalabstractkeyword
+  # ─────────────────────────────────────────────────────────────────────────────
+  OptionalAbstractKeyword:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: OptionalUnit
+  # ELI5: Flags redundant ': Unit' return types on standard block functions.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#optionalunit
+  # ─────────────────────────────────────────────────────────────────────────────
+  OptionalUnit:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: PreferToOverPairSyntax
+  # ELI5: Encourages writing 'a to b' instead of verbose 'Pair(a, b)'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#prefertooverpairsyntax
+  # ─────────────────────────────────────────────────────────────────────────────
+  PreferToOverPairSyntax:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ProtectedMemberInFinalClass
+  # ELI5: Flags 'protected' visibility in final classes where members cannot be overridden; use private/internal.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#protectedmemberinfinalclass
+  # ─────────────────────────────────────────────────────────────────────────────
+  ProtectedMemberInFinalClass:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: RedundantExplicitType
+  # ELI5: Flags explicit type declarations like 'val x: String = "hello"' that the compiler infers cleanly.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#redundantexplicittype
+  # ─────────────────────────────────────────────────────────────────────────────
+  RedundantExplicitType:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: RedundantHigherOrderMapUsage
+  # ELI5: Flags redundant map calls like 'list.map { it }'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#redundanthigherordermapusage
+  # ─────────────────────────────────────────────────────────────────────────────
+  RedundantHigherOrderMapUsage:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: RedundantVisibilityModifierRule
+  # ELI5: Flags redundant 'public' modifiers when explicit API mode is disabled.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#redundantvisibilitymodifierrule
+  # ─────────────────────────────────────────────────────────────────────────────
+  RedundantVisibilityModifierRule:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ReturnCount
+  # ELI5: Restricts the number of return statements in a function to keep control flow straightforward.
+  # Type: Int (max count) / Boolean (excludeGuardClauses)
+  # Docs: https://detekt.dev/docs/rules/style#returncount
+  # ─────────────────────────────────────────────────────────────────────────────
+  ReturnCount:
+    active: true
+    max: 5
+    excludedFunctions:
+      - 'equals'
+    excludeLabeled: false
+    excludeReturnFromLambda: true
+    excludeGuardClauses: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: SafeCast
+  # ELI5: Suggests replacing manual 'if (x is Foo) x as Foo else null' with idiomatic 'x as? Foo'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#safecast
+  # ─────────────────────────────────────────────────────────────────────────────
+  SafeCast:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: SerialVersionUIDInSerializableClass
+  # ELI5: Flags serialVersionUID properties with improper modifiers or values in Serializable classes.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#serialversionuidinserializableclass
+  # ─────────────────────────────────────────────────────────────────────────────
+  SerialVersionUIDInSerializableClass:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: SpacingBetweenPackageAndImports
+  # ELI5: Enforces exactly one empty line between package declaration and import statements.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#spacingbetweenpackageandimports
+  # ─────────────────────────────────────────────────────────────────────────────
+  SpacingBetweenPackageAndImports:
+    active: false
+  StringShouldBeRawString:
+    active: false
+    maxEscapedCharacterCount: 2
+    ignoredCharacters: []
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ThrowsCount
+  # ELI5: Limits the number of throw statements inside a single method.
+  # Type: Int (max count)
+  # Docs: https://detekt.dev/docs/rules/style#throwscount
+  # ─────────────────────────────────────────────────────────────────────────────
+  ThrowsCount:
+    active: true
+    max: 2
+    excludeGuardClauses: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: TrailingWhitespace
+  # ELI5: Forbids invisible trailing spaces at the end of lines.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#trailingwhitespace
+  # ─────────────────────────────────────────────────────────────────────────────
+  TrailingWhitespace:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: TrimMultilineRawString
+  # ELI5: Enforces calling .trimIndent() or .trimMargin() on multiline raw strings.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#trimmultilinerawstring
+  # ─────────────────────────────────────────────────────────────────────────────
+  TrimMultilineRawString:
+    active: false
+    trimmingMethods:
+      - 'trimIndent'
+      - 'trimMargin'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnderscoresInNumericLiterals
+  # ELI5: Encourages separating long numbers with underscores (e.g., '1_000_000') for readability.
+  # Type: Int (threshold digits)
+  # Docs: https://detekt.dev/docs/rules/style#underscoresinnumericliterals
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnderscoresInNumericLiterals:
+    active: false
+    acceptableLength: 4
+    allowNonStandardGrouping: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryAbstractClass
+  # ELI5: Flags abstract classes that contain no abstract members and can be concrete.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unnecessaryabstractclass
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryAbstractClass:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryAnnotationUseSiteTarget
+  # ELI5: Flags redundant use-site targets like '@property:Foo' when '@Foo' directly applies.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unnecessaryannotationusesitetarget
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryAnnotationUseSiteTarget:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryApply
+  # ELI5: Flags 'apply' blocks that do not configure anything on the receiver.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unnecessaryapply
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryApply:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryBackticks
+  # ELI5: Flags identifiers wrapped in backticks (``foo``) when they are not reserved keywords.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unnecessarybackticks
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryBackticks:
+    active: false
+  UnnecessaryBracesAroundTrailingLambda:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryFilter
+  # ELI5: Flags redundant collection filtering before operations that already filter (e.g. filter().count()).
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unnecessaryfilter
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryFilter:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryInheritance
+  # ELI5: Flags redundant inheritance like 'class Foo : Any()'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unnecessaryinheritance
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryInheritance:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryInnerClass
+  # ELI5: Suggests removing 'inner' modifier from nested classes that never reference the outer class instance.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unnecessaryinnerclass
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryInnerClass:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryLet
+  # ELI5: Flags 'x.let { it.foo() }' that can be replaced with direct call 'x.foo()'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unnecessarylet
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryLet:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryParentheses
+  # ELI5: Removes redundant parentheses around expressions that do not affect operator precedence.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unnecessaryparentheses
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryParentheses:
+    active: false
+    allowForUnclearPrecedence: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UntilInsteadOfRangeTo
+  # ELI5: Suggests using '0 until n' instead of '0..(n - 1)'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#untilinsteadofrangeto
+  # ─────────────────────────────────────────────────────────────────────────────
+  UntilInsteadOfRangeTo:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnusedImports
+  # ELI5: Detects and removes unused import statements.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unusedimports
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnusedImports:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnusedParameter
+  # ELI5: Flags function parameters that are never referenced in the function body.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unusedparameter
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnusedParameter:
+    active: true
+    allowedNames: 'ignored|expected|settings|.*Settings.*|.*External.*'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnusedPrivateClass
+  # ELI5: Flags private classes that are never instantiated or referenced anywhere.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unusedprivateclass
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnusedPrivateClass:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnusedPrivateMember
+  # ELI5: Flags private functions or properties that are never used.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unusedprivatemember
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnusedPrivateMember:
+    active: true
+    allowedNames: ''
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnusedPrivateProperty
+  # ELI5: Flags private properties that are declared but never read.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#unusedprivateproperty
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnusedPrivateProperty:
+    active: true
+    allowedNames: '_|ignored|expected|serialVersionUID|.*DataSource|.*Holder|.*Database'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseAnyOrNoneInsteadOfFind
+  # ELI5: Suggests 'any { ... }' instead of 'find { ... } != null'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#useanyornoneinsteadoffind
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseAnyOrNoneInsteadOfFind:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseArrayLiteralsInAnnotations
+  # ELI5: Encourages writing '[A::class, B::class]' instead of 'arrayOf(A::class, B::class)' in annotations.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#usearrayliteralsinannotations
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseArrayLiteralsInAnnotations:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseCheckNotNull
+  # ELI5: Suggests using 'checkNotNull(x)' instead of 'check(x != null)'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#usechecknotnull
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseCheckNotNull:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseCheckOrError
+  # ELI5: Suggests using 'check(cond)' or 'error(msg)' instead of throwing IllegalStateException manually.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#usecheckorerror
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseCheckOrError:
+    active: true
+    excludes: ['**/PlatformSignInHandler*']
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseDataClass
+  # ELI5: Flags classes that only contain public properties and no logic; they should be declared as 'data class'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#usedataclass
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseDataClass:
+    active: false
+    allowVars: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseEmptyCounterpart
+  # ELI5: Suggests using 'emptyList()' / 'emptyMap()' instead of 'listOf()' / 'mapOf()'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#useemptycounterpart
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseEmptyCounterpart:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseIfEmptyOrIfBlank
+  # ELI5: Suggests using string '.ifEmpty { ... }' or '.ifBlank { ... }' instead of manual ternary or if statements.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#useifemptyorifblank
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseIfEmptyOrIfBlank:
+    active: false
+  UseIfInsteadOfWhen:
+    active: false
+    ignoreWhenContainingVariableDeclaration: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseIsNullOrEmpty
+  # ELI5: Suggests using '.isNullOrEmpty()' instead of 'x == null || x.isEmpty()'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#useisnullorempty
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseIsNullOrEmpty:
+    active: true
+  UseLet:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseOrEmpty
+  # ELI5: Suggests using 'list.orEmpty()' instead of 'list ?: emptyList()'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#useorempty
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseOrEmpty:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseRequire
+  # ELI5: Suggests using 'require(cond)' instead of manually throwing IllegalArgumentException.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#userequire
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseRequire:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseRequireNotNull
+  # ELI5: Suggests using 'requireNotNull(x)' instead of 'require(x != null)'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#userequirenotnull
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseRequireNotNull:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UseSumOfInsteadOfFlatMapSize
+  # ELI5: Suggests 'sumOf { it.list.size }' instead of allocating intermediate lists with 'flatMap { ... }.size'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#usesumofinsteadofflatmapsize
+  # ─────────────────────────────────────────────────────────────────────────────
+  UseSumOfInsteadOfFlatMapSize:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UselessCallOnNotNull
+  # ELI5: Flags calling '.orEmpty()' on a collection or string that is already non-nullable.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#uselesscallonnotnull
+  # ─────────────────────────────────────────────────────────────────────────────
+  UselessCallOnNotNull:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UtilityClassWithPublicConstructor
+  # ELI5: Flags utility classes with only static/companion methods having a public constructor; declare as 'object' instead.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#utilityclasswithpublicconstructor
+  # ─────────────────────────────────────────────────────────────────────────────
+  UtilityClassWithPublicConstructor:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: VarCouldBeVal
+  # ELI5: Flags 'var' variables that are never reassigned and should be immutable 'val'.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#varcouldbeval
+  # ─────────────────────────────────────────────────────────────────────────────
+  VarCouldBeVal:
+    active: true
+    ignoreLateinitVar: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: WildcardImport
+  # ELI5: Forbids wildcard imports ('import foo.*'); import explicit declarations to avoid namespace pollution.
+  # Type: Boolean / List<String> (excludeImports)
+  # Docs: https://detekt.dev/docs/rules/style#wildcardimport
+  # ─────────────────────────────────────────────────────────────────────────────
+  WildcardImport:
+    active: true
+    excludeImports:
+      - 'java.util.*'
+      - 'androidx.compose.foundation.layout.*'
+      - 'androidx.compose.material3.*'
+      - 'androidx.compose.runtime.*'
+      - 'androidx.compose.ui.input.key.*'
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# COMPOSE RULES (io.nlopez.compose.rules:detekt)
+# Official compose-rules enforcing Jetpack / Multiplatform Compose best practices
+# ═════════════════════════════════════════════════════════════════════════════

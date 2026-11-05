@@ -7,6 +7,9 @@ import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.kotlinMultiplatform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/**
+ * Concern convention plugin providing Room 3 runtime and SQLite platform-specific driver bundles across all targets.
+ */
 public class DataSourceDependenciesConventionPlugin : Plugin<Project>, BaseConventionPlugin {
     override fun apply(target: Project): Unit {
         target.configurePlugin()

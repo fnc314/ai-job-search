@@ -1,0 +1,54 @@
+performance:
+  active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ArrayPrimitive
+  # ELI5: Encourages using specialized primitive arrays like IntArray instead of boxed Array<Int>.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/performance#arrayprimitive
+  # ─────────────────────────────────────────────────────────────────────────────
+  ArrayPrimitive:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: CouldBeSequence
+  # ELI5: Suggests turning chained collection transformations (filter, map) into a lazy Sequence for efficiency.
+  # Type: Int (threshold operations)
+  # Docs: https://detekt.dev/docs/rules/performance#couldbesequence
+  # ─────────────────────────────────────────────────────────────────────────────
+  CouldBeSequence:
+    active: false
+    threshold: 3
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: ForEachOnRange
+  # ELI5: Encourages standard for-loops over '(0..10).forEach {}' to avoid allocating an iterator.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/performance#foreachonrange
+  # ─────────────────────────────────────────────────────────────────────────────
+  ForEachOnRange:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: SpreadOperator
+  # ELI5: Warns about the spread operator (*array) in function calls because it copies the entire array behind the scenes.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/performance#spreadoperator
+  # ─────────────────────────────────────────────────────────────────────────────
+  SpreadOperator:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryPartOfBinaryExpression
+  # ELI5: Flags unnecessary binary checks that can be simplified.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/performance#unnecessarypartofbinaryexpression
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryPartOfBinaryExpression:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UnnecessaryTemporaryInstantiation
+  # ELI5: Flags temporary object allocations like '123.toString()' instead of direct conversions.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/performance#unnecessarytemporaryinstantiation
+  # ─────────────────────────────────────────────────────────────────────────────
+  UnnecessaryTemporaryInstantiation:
+    active: true
+

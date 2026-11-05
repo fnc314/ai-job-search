@@ -295,7 +295,11 @@ flag "--documents <documents>" help="Path to job-applications/ directory"
   "ui:kmp:web:wasm:dist" = { description = "Assemble Web Wasm distribution bundle", run = "cd ui/kmp && ./gradlew :apps-web:wasmJsBrowserDistribution" }
   "ui:kmp:web:js:dev" = { description = "Run Web application in browser using JS development server", run = "cd ui/kmp && ./gradlew :apps-web:jsBrowserDevelopmentRun" }
   "ui:kmp:web:js:dist" = { description = "Assemble Web JS distribution bundle", run = "cd ui/kmp && ./gradlew :apps-web:jsBrowserDistribution" }
+  detekt = { description = "Run Detekt static analysis across records and ui/kmp", run = "cd records && ./gradlew detekt; cd ../ui/kmp && ./gradlew detekt" }
+  konsist = { description = "Run Konsist architectural test suites across records and ui/kmp", run = "cd records && ./gradlew :records-parser:test && cd ../ui/kmp && ./gradlew :apps-core:jvmTest" }
+  lint = { description = "Run unified static analysis and architectural linting (Detekt + Konsist)", depends = ["detekt", "konsist"] }
   "ui:kmp:docs:readmes" = { description = "Verify all ui/kmp core and feature modules have valid README.md documentation", run = "bash scripts/check-kmp-readmes.sh" }
+  "ui:kmp:docs:generate" = { description = "Generate unified multi-module Dokka API documentation HTML for ui/kmp", run = "cd ui/kmp && ./gradlew :dokkaGenerate" }
   "mise:docs:tasks" = {
     description = "Regenerates docs/mise (lints Usage specs, generates Markdown, and runs mise task-docs)",
     sources = "[mise.toml, scripts/specs/*.usage.kdl, records/proto/src/main/proto/tracker/v1/application.proto]",

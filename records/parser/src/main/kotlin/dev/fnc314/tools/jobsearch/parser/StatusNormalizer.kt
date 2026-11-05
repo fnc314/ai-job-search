@@ -28,6 +28,7 @@ public object StatusNormalizer {
     /**
      * Numerical sort ranking assigned to each canonical status key, with active progressing states ranked highest.
      */
+    @Suppress("MagicNumber")
     public val statusRank: Map<String, Int> = mapOf(
         "status:drafting" to 0,
         "status:applied" to 1,
@@ -63,6 +64,8 @@ public object StatusNormalizer {
         return legacyStatusMap[trimmed] ?: "status:applied"
     }
 
+    private const val DEFAULT_STATUS_RANK: Int = 99
+
     /**
      * Computes derived presentation properties for a given canonical status.
      *
@@ -71,7 +74,7 @@ public object StatusNormalizer {
      */
     public fun deriveStatusFields(status: String): Map<String, Any> {
         return mapOf(
-            "statusRank" to (statusRank[status] ?: 99),
+            "statusRank" to (statusRank[status] ?: DEFAULT_STATUS_RANK),
             "isOpen" to (status !in terminalStatuses),
         )
     }

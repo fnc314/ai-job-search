@@ -7,6 +7,9 @@ import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.kotlinMultiplatform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/**
+ * Concern convention plugin providing Koin core and Compose multiplatform dependency injection bundles.
+ */
 public class DIDependenciesConventionPlugin : Plugin<Project>, BaseConventionPlugin {
     override fun apply(target: Project): Unit {
         target.configurePlugin()

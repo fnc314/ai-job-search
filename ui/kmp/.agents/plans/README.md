@@ -10,7 +10,8 @@ This directory contains design and implementation plans for the `ui/kmp` project
 | [`compose-resources-migration-plan.md`](./compose-resources-migration-plan.md) | Completed | Migration of all UI literals to `composeResources` |
 | [`create-core-modules-and-notes-widget.md`](./create-core-modules-and-notes-widget.md) | Completed | Core widget extraction (`NotesWidget`, `StatusBadge`, `FitBadge`) |
 | [`custom-gradle-plugins-architecture-plan.md`](./custom-gradle-plugins-architecture-plan.md) | Completed | Custom convention plugins in `gradle/tools/project-plugins` |
-| [`dokka-and-comprehensive-kdocs-plan.md`](./dokka-and-comprehensive-kdocs-plan.md) | In Progress | Dokka 2.3.0 unified multi-project setup & exhaustive KDocs |
+| [`dokka-and-comprehensive-kdocs-plan.md`](./dokka-and-comprehensive-kdocs-plan.md) | Completed | Dokka 2.3.0 unified multi-project setup & exhaustive KDocs |
+| [`DRAFT-code-refactor.md`](./DRAFT-code-refactor.md) | Draft | Self-contained Enum relationships & companion lookup map refactor proposal |
 | [`firebase-android-and-multiplatform-integration.md`](./firebase-android-and-multiplatform-integration.md) | Completed | GitLive Firebase SDK multiplatform data store implementation |
 | [`fix-android-defects.md`](./fix-android-defects.md) | Completed | Android runtime, build, and edge-to-edge UI defect fixes |
 | [`integrate-records-fix-icons.md`](./integrate-records-fix-icons.md) | Completed | Protobuf records integration and Material icon fixes |

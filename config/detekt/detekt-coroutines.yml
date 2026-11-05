@@ -1,0 +1,63 @@
+coroutines:
+  active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: GlobalCoroutineUsage
+  # ELI5: Forbids using GlobalScope, which bypasses structured concurrency and creates unmanaged background leaks.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/coroutines#globalcoroutineusage
+  # ─────────────────────────────────────────────────────────────────────────────
+  GlobalCoroutineUsage:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: InjectDispatcher
+  # ELI5: Requires injecting CoroutineDispatcher instead of hardcoding Dispatchers.IO/Default, enabling clean unit testing.
+  # Type: List<String> (dispatcher names)
+  # Docs: https://detekt.dev/docs/rules/coroutines#injectdispatcher
+  # ─────────────────────────────────────────────────────────────────────────────
+  InjectDispatcher:
+    active: true
+    dispatcherNames:
+      - 'IO'
+      - 'Default'
+      - 'Unconfined'
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: RedundantSuspendModifier
+  # ELI5: Flags 'suspend' functions that never call any suspending functions, removing unnecessary coroutine overhead.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/coroutines#redundantsuspendmodifier
+  # ─────────────────────────────────────────────────────────────────────────────
+  RedundantSuspendModifier:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: SleepInsteadOfDelay
+  # ELI5: Forbids calling Thread.sleep() inside coroutines; use non-blocking 'delay()' instead to avoid blocking threads.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/coroutines#sleepinsteadofdelay
+  # ─────────────────────────────────────────────────────────────────────────────
+  SleepInsteadOfDelay:
+    active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: SuspendFunSwallowedCancellation
+  # ELI5: Prevents catch blocks from swallowing CancellationException, which breaks coroutine cancellation hierarchies.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/coroutines#suspendfunswallowedcancellation
+  # ─────────────────────────────────────────────────────────────────────────────
+  SuspendFunSwallowedCancellation:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: SuspendFunWithCoroutineScopeReceiver
+  # ELI5: Forbids suspend functions having a CoroutineScope receiver, preventing confusing nested scope concurrency.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/coroutines#suspendfunwithcoroutinescopereceiver
+  # ─────────────────────────────────────────────────────────────────────────────
+  SuspendFunWithCoroutineScopeReceiver:
+    active: false
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: SuspendFunWithFlowReturnType
+  # ELI5: Flags suspend functions returning Flow; Flows are already cold streams so the suspend keyword is redundant.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/coroutines#suspendfunwithflowreturntype
+  # ─────────────────────────────────────────────────────────────────────────────
+  SuspendFunWithFlowReturnType:
+    active: true
+

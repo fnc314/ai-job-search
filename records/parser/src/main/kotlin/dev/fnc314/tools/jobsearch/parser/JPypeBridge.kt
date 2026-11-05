@@ -117,6 +117,7 @@ public object TrackerParser {
      * @see LegacyRowProjector.rowFromStore
      */
     @JvmStatic
+    @Suppress("UnusedParameter")
     public fun rowFromStore(
         appMap: Map<String, Any>,
         artifactsList: List<Any> = emptyList(),

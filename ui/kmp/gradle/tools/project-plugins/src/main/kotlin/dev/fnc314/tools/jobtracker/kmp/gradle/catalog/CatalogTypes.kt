@@ -26,14 +26,18 @@ internal sealed interface CatalogTypes<out T> {
         ANDROID_TARGET_SDK("android-targetSdk"),
         KOTLIN("kotlin"),
         AGP("agp"),
-        NODE("node");
+        NODE("node"),
+        DETEKT("detekt");
 
         override fun fromCatalog(project: Project): VersionConstraint =
             project.versionCatalog.findVersion(catalogKey).orElseThrow {
                 IllegalArgumentException("Missing version '$catalogKey' in catalog")
             }
 
+        /** Returns the version string defined in the catalog. */
         public fun asString(project: Project): String = fromCatalog(project).requiredVersion
+
+        /** Returns the version parsed as an integer (e.g. for compileSdk, JVM target). */
         public fun asInt(project: Project): Int = asString(project).toInt()
     }
 
@@ -57,7 +61,10 @@ internal sealed interface CatalogTypes<out T> {
         NAVIGATION_COMPOSE("navigation-compose"),
         ANDROIDX_ROOM3_COMPILER("androidx-room3-compiler"),
         KSP_GRADLE_PLUGIN("ksp-gradle-plugin"),
-        DOKKA_GRADLE_PLUGIN("dokka-gradle-plugin");
+        DOKKA_GRADLE_PLUGIN("dokka-gradle-plugin"),
+        DETEKT_FORMATTING("detekt-formatting"),
+        COMPOSE_RULES_DETEKT("compose-rules-detekt"),
+        KONSIST("konsist");
 
         override fun fromCatalog(project: Project): Provider<MinimalExternalModuleDependency> =
             project.versionCatalog.findLibrary(catalogKey).orElseThrow {
@@ -103,7 +110,9 @@ internal sealed interface CatalogTypes<out T> {
         COMPOSE_COMPILER("composeCompiler"),
         KSP("ksp"),
         DOKKA("dokka"),
-        LOCAL_DOKKA("local-dokka");
+        LOCAL_DOKKA("local-dokka"),
+        DETEKT("detekt"),
+        LOCAL_DETEKT("local-detekt");
 
         override fun fromCatalog(project: Project): Provider<PluginDependency> =
             project.versionCatalog.findPlugin(catalogKey).orElseThrow {

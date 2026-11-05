@@ -9,6 +9,12 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
+/**
+ * Functional convention plugin configuring Android target support within a Kotlin Multiplatform library module.
+ *
+ * Configures `compileSdk` and `minSdk` versions from the version catalog, computes package namespaces
+ * from directory structure if omitted, and applies Android unit testing harnesses.
+ */
 public class AndroidKmpLibraryConventionPlugin : Plugin<Project>, BaseConventionPlugin {
     override fun apply(target: Project): Unit {
         target.configurePlugin()
