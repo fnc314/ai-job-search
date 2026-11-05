@@ -76,16 +76,6 @@ fun JobApplicationsListScreen(
                         icon = Icons.Default.Refresh,
                         onClick = { viewModel.refresh() },
                     )
-                    TooltipIconButton(
-                        tooltip = "Pending edits",
-                        icon = Icons.Default.Edit,
-                        onClick = onEditsClick,
-                    )
-                    TooltipIconButton(
-                        tooltip = "Preferences",
-                        icon = Icons.Default.Settings,
-                        onClick = onSettingsClick,
-                    )
                 },
             )
         },
