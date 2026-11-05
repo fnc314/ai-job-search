@@ -18,6 +18,33 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
+/**
+ * Decoupled UI presentation model encapsulating the complete detail view state for a single application.
+ *
+ * Formats structured location, compensation boundaries, timeline events, and attached artifacts.
+ *
+ * @property id Unique application identifier.
+ * @property companyName Display name of the hiring organization.
+ * @property role Position title.
+ * @property status Current lifecycle status [TrackerStatus].
+ * @property statusDisplayText Human-readable status label.
+ * @property formattedCompensation Formatted salary range string (e.g. `"$180,000 - $220,000 USD / year"`).
+ * @property formattedLocation Formatted office and remote work location string.
+ * @property channel Originating ATS channel [ApplicationChannel].
+ * @property channelDisplayText Formatted channel name.
+ * @property fitScore Numerical fit score (0..100) or null.
+ * @property fitScoreDisplayText Formatted fit rating text.
+ * @property fitGaps Identified alignment gaps.
+ * @property tags Categorization tags.
+ * @property notesList Structured list of strategy notes.
+ * @property notesRendered Rendered markdown text.
+ * @property jobUrl Live posting URL.
+ * @property jobApplicationUrl Direct candidate portal link.
+ * @property formattedLastUpdated Semantic relative update timestamp.
+ * @property company Associated employer profile [Company].
+ * @property timelineEvents Ordered list of audit events [TrackerEvent] forming the timeline.
+ * @property artifacts Attached document artifacts [TrackerArtifact].
+ */
 @Immutable
 public data class JobApplicationDetailUiModel(
     public val id: String,

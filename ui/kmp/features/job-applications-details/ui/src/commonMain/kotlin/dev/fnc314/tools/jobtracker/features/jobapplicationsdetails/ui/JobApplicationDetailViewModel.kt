@@ -25,6 +25,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * Presentation ViewModel driving the application detail screen.
+ *
+ * Coordinates loading comprehensive record information, executing status and fit-score updates,
+ * recording timeline events, and requesting signed download URLs for candidate artifacts.
+ *
+ * @param loadApplicationUseCase Use case fetching a specific application record.
+ * @param loadCompaniesUseCase Use case loading company metadata and aliases.
+ * @param updateStatusUseCase Use case mutating the application lifecycle status.
+ * @param recordEventUseCase Use case appending a new timeline event.
+ * @param updateFitScoreUseCase Use case adjusting the candidate fit score and confidence.
+ * @param getSignedUrlUseCase Use case resolving download URLs for stored artifacts.
+ */
 public class JobApplicationDetailViewModel(
     private val loadApplicationUseCase: LoadJobApplicationUseCase,
     private val loadCompaniesUseCase: LoadCompaniesUseCase,
@@ -35,6 +48,11 @@ public class JobApplicationDetailViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<JobApplicationDetailUiState>(JobApplicationDetailUiState.Loading)
+
+    /**
+     * Observable stream of [JobApplicationDetailUiState] reflecting the loaded detail record,
+     * transient update indicators, or error states.
+     */
     public val uiState: StateFlow<JobApplicationDetailUiState> = _uiState.asStateFlow()
 
     private var currentApplication: JobApplication? = null
@@ -42,6 +60,11 @@ public class JobApplicationDetailViewModel(
     private var currentEvents: List<TrackerEvent> = emptyList()
     private var currentArtifacts: List<TrackerArtifact> = emptyList()
 
+    /**
+     * Dispatches a user intent to be processed by this ViewModel.
+     *
+     * @param intent The [JobApplicationDetailUiIntent] to process.
+     */
     public fun onIntent(intent: JobApplicationDetailUiIntent): Unit {
         when (intent) {
             is JobApplicationDetailUiIntent.Load -> handleLoad(intent.id)

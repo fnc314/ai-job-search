@@ -12,6 +12,7 @@ public interface LocalAddJobApplicationDataSource {
     public suspend fun recordEvent(event: TrackerEvent): Unit
 }
 
+@Suppress("UnusedPrivateProperty")
 internal class LocalAddJobApplicationDataSourceImpl(
     private val databaseHolder: DatabaseHolder? = null,
     private val localDataSource: LocalDataSource? = null,

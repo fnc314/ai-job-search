@@ -9,6 +9,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * Presentation ViewModel managing form input, field validation, and lead creation.
+ *
+ * @param createLead Use case responsible for constructing and persisting new lead entities.
+ */
 public class AddLeadViewModel(
     private val createLead: CreateLeadUseCase,
 ) : ViewModel() {
@@ -17,8 +22,17 @@ public class AddLeadViewModel(
 
     private val _uiState: MutableStateFlow<AddLeadUiState> =
         MutableStateFlow(AddLeadUiState.Editing(currentForm))
+
+    /**
+     * Observable stream of [AddLeadUiState] reflecting lead form edits, submission progress, and outcomes.
+     */
     public val uiState: StateFlow<AddLeadUiState> = _uiState.asStateFlow()
 
+    /**
+     * Dispatches a user intent to be processed by this ViewModel.
+     *
+     * @param intent The [AddLeadUiIntent] to process.
+     */
     public fun onIntent(intent: AddLeadUiIntent): Unit {
         when (intent) {
             is AddLeadUiIntent.UpdateCompany -> updateForm { it.copy(company = intent.value) }

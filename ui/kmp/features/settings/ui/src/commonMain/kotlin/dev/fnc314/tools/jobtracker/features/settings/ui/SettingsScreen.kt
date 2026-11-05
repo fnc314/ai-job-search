@@ -64,6 +64,16 @@ import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Top-level Stateful composable hosting the application settings screen.
+ *
+ * Connects [SettingsViewModel] to presentation rendering and handles navigation callbacks.
+ *
+ * @param onNavigateBack Callback invoked when the user exits the settings view.
+ * @param modifier Composable layout modifier.
+ * @param viewModel [SettingsViewModel] providing preferences state and mutations.
+ * @param signInViewModel Optional [SignInViewModel] to provide account sign-out actions.
+ */
 @Composable
 public fun SettingsScreen(
     onNavigateBack: () -> Unit,
@@ -87,6 +97,14 @@ public fun SettingsScreen(
     )
 }
 
+/**
+ * Stateless composable displaying settings configuration options (theme, seed color, account).
+ *
+ * @param uiState Current [SettingsUiState] to render.
+ * @param onIntent Event handler for user interaction intents.
+ * @param modifier Composable layout modifier.
+ * @param signInViewModel Optional [SignInViewModel] for handling user account sessions.
+ */
 @Composable
 public fun SettingsScreen(
     uiState: SettingsUiState,

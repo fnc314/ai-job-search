@@ -7,6 +7,18 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/**
+ * Standardized icon dimensions across navigation bars, list rows, badges, and avatars.
+ *
+ * @property extraSmall Tiny badge or counter icon (`12.dp`).
+ * @property small Small indicator icon (`16.dp`).
+ * @property medium Medium chip icon (`18.dp`).
+ * @property standard Action bar and list item icon (`20.dp`).
+ * @property default Standard interactive icon (`24.dp`).
+ * @property large Prominent section icon (`32.dp`).
+ * @property extraLarge Hero icon (`48.dp`).
+ * @property avatar Profile avatar dimension (`72.dp`).
+ */
 public data class IconSizes(
     public val extraSmall: Dp = 12.dp,
     public val small: Dp = 16.dp,
@@ -18,6 +30,24 @@ public data class IconSizes(
     public val avatar: Dp = 72.dp,
 )
 
+/**
+ * Structural sizing tokens for complex widgets, responsive forms, and drag-and-drop cards.
+ *
+ * @property hairline Hairline divider line (`1.dp`).
+ * @property timelineLineWidth Vertical connecting line width for timeline events (`2.dp`).
+ * @property badgePaddingHorizontal Horizontal padding for status and fit badges (`8.dp`).
+ * @property badgePaddingVertical Vertical padding for status and fit badges (`3.dp`).
+ * @property iconButtonSize Standard icon button dimension (`36.dp`).
+ * @property actionTargetSize Minimum touch target size for interactive elements (`44.dp`).
+ * @property timelineNodeSize Node circle size on event timelines (`32.dp`).
+ * @property elevationDraggingTonal Tonal elevation applied during card drag operations (`6.dp`).
+ * @property elevationDraggingShadow Shadow elevation applied during card drag operations (`8.dp`).
+ * @property elevationDraggingCard Card elevation applied during drag operations (`12.dp`).
+ * @property listCardAdaptiveMin Minimum adaptive width for multi-column grid cards (`360.dp`).
+ * @property formMaxWidth Maximum centered width for data entry forms (`760.dp`).
+ * @property detailMaxWidth Maximum centered width for detail view layouts (`1200.dp`).
+ * @property formBottomClearance Bottom scrolling clearance for keyboard and action buttons (`280.dp`).
+ */
 public data class ComponentSizes(
     public val hairline: Dp = 1.dp,
     public val timelineLineWidth: Dp = 2.dp,
@@ -35,25 +65,28 @@ public data class ComponentSizes(
     public val formBottomClearance: Dp = 280.dp,
 )
 
-public val LocalIconSizes: androidx.compose.runtime.ProvidableCompositionLocal<IconSizes> = staticCompositionLocalOf { IconSizes() }
-public val LocalComponentSizes: androidx.compose.runtime.ProvidableCompositionLocal<ComponentSizes> = staticCompositionLocalOf { ComponentSizes() }
+/** CompositionLocal providing active [IconSizes] values down the hierarchy. */
+public val LocalIconSizes: androidx.compose.runtime.ProvidableCompositionLocal<IconSizes> =
+    staticCompositionLocalOf { IconSizes() }
 
+/** CompositionLocal providing active [ComponentSizes] values down the hierarchy. */
+public val LocalComponentSizes: androidx.compose.runtime.ProvidableCompositionLocal<ComponentSizes> =
+    staticCompositionLocalOf { ComponentSizes() }
+
+/** Resolves active [IconSizes] from ambient [MaterialTheme]. */
 public val MaterialTheme.iconSizes: IconSizes
     @Composable
     @ReadOnlyComposable
     get() = LocalIconSizes.current
 
+/** Alias resolving active [IconSizes] from ambient [MaterialTheme]. */
 public val MaterialTheme.iconSize: IconSizes
     @Composable
     @ReadOnlyComposable
     get() = LocalIconSizes.current
 
+/** Resolves active [ComponentSizes] from ambient [MaterialTheme]. */
 public val MaterialTheme.componentSizes: ComponentSizes
-    @Composable
-    @ReadOnlyComposable
-    get() = LocalComponentSizes.current
-
-public val MaterialTheme.componentSize: ComponentSizes
     @Composable
     @ReadOnlyComposable
     get() = LocalComponentSizes.current

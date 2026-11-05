@@ -4,12 +4,17 @@ import dev.fnc314.tools.jobsearch.tracker.v1.JobApplication
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerArtifact
 
 /**
- * Migrated from reader.py: rowFromStore() and legacyStatus().
- * Projects a typed JobApplication to the legacy flat row shape for TUI display.
+ * Transforms typed [JobApplication] protobuf messages and associated [TrackerArtifact] collections
+ * into flat key-value dictionaries matching legacy table column layouts.
+ *
+ * Used by the curses-based terminal UI (TUI) and reporting tools that consume tabular row representations.
  */
-object LegacyRowProjector {
+public object LegacyRowProjector {
 
-    val LEGACY_KEYS = listOf(
+    /**
+     * The canonical list of legacy column keys supported in exported tabular rows and CSV archives.
+     */
+    public val LEGACY_KEYS: List<String> = listOf(
         "id", "company", "role", "location", "status", "status_label",
         "channel", "job_url", "description", "tags", "contact_ids",
         "compensation_min", "compensation_max", "compensation_currency",
@@ -21,9 +26,12 @@ object LegacyRowProjector {
     )
 
     /**
-     * Convert namespaced status back to legacy label for display.
+     * Converts a namespaced status string (e.g. `"status:interview"`) into its legacy display label (e.g. `"interview"`).
+     *
+     * @param value The raw namespaced status string or null.
+     * @return The legacy presentation label string, defaulting to `"applied"` if null or unmapped.
      */
-    fun legacyStatus(value: String?): String {
+    public fun legacyStatus(value: String?): String {
         if (value.isNullOrBlank()) return "applied"
         return when (value) {
             "status:drafting" -> "drafting"
@@ -40,18 +48,29 @@ object LegacyRowProjector {
     }
 
     /**
-     * Find an artifact by kind and return its path.
+     * Extracts the path or external URL of an artifact matching a specific kind from an artifact list.
+     *
+     * @param artifacts The collection of [TrackerArtifact] items to query.
+     * @param kind The string name of the artifact kind (e.g. `"ARTIFACT_CV"`).
+     * @return The local file path or external URL if found, or null otherwise.
      */
-    fun artifactValue(artifacts: List<TrackerArtifact>, kind: String): String? {
+    public fun artifactValue(artifacts: List<TrackerArtifact>, kind: String): String? {
         return artifacts
             .firstOrNull { it.kind.name == kind }
-            .let { it?.localPath ?: it?.externalUrl }
+            ?.let { if (it.localPath.isNotBlank()) it.localPath else it.externalUrl.ifBlank { null } }
     }
 
     /**
-     * Project a JobApplication to the legacy flat row shape.
+     * Projects a strongly typed protobuf [JobApplication] message and optional artifact list into a flat string-keyed row dictionary.
+     *
+     * Extracts scalar properties, formats nested compensation boundaries, serializes timeline dates to ISO strings,
+     * computes legacy status labels, and embeds CV/cover letter file references.
+     *
+     * @param app The [JobApplication] protobuf instance to project.
+     * @param artifacts The list of [TrackerArtifact] instances linked to this application.
+     * @return A map associating column names to stringified values.
      */
-    fun rowFromStore(
+    public fun rowFromStore(
         app: JobApplication,
         artifacts: List<TrackerArtifact> = emptyList(),
     ): Map<String, String> {

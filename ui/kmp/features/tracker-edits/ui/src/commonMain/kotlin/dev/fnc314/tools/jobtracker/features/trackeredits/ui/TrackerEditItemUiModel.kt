@@ -5,6 +5,13 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerEdit
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 
+/**
+ * Presentation model capturing a specific field mutation within a proposed edit.
+ *
+ * @property field Targeted entity property name.
+ * @property changeDescription Human-readable summary formatted as `oldValue → newValue`.
+ * @property reason Explanatory rationale or automated heuristic justification.
+ */
 @Immutable
 public data class TrackerEditChangeUiModel(
     public val field: String,
@@ -12,12 +19,32 @@ public data class TrackerEditChangeUiModel(
     public val reason: String?,
 )
 
+/**
+ * Presentation model displaying metadata for the email message that triggered this proposed edit.
+ *
+ * @property from Sender address or display name.
+ * @property subject Email subject line.
+ */
 @Immutable
 public data class TrackerEditSourceEmailUiModel(
     public val from: String,
     public val subject: String,
 )
 
+/**
+ * Presentation model representing an individual proposed edit card.
+ *
+ * @property id Unique identifier of the pending edit proposal.
+ * @property applicationId Unique Firestore identifier of the parent job application.
+ * @property kindDisplayName Human-readable name of the edit category ([dev.fnc314.tools.jobtracker.core.data.model.TrackerEditKind]).
+ * @property confidenceDisplayName Confidence rating label ([dev.fnc314.tools.jobtracker.core.data.model.Confidence]).
+ * @property changeSummary Concise overview string summarizing all affected fields.
+ * @property changes List of detailed field mutations in this proposal.
+ * @property timestamp Human-readable formatted creation or expiration time.
+ * @property sourceEmail Originating email communication metadata, if applicable.
+ * @property approveIntent Pre-configured [TrackerEditsUiIntent.ApproveEdit] intent.
+ * @property rejectIntent Pre-configured [TrackerEditsUiIntent.RejectEdit] intent.
+ */
 @Immutable
 public data class TrackerEditItemUiModel(
     public val id: String,

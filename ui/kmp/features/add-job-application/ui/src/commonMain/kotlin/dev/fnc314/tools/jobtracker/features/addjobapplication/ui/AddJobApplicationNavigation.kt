@@ -10,18 +10,30 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
 
+/**
+ * Navigation destination route for creating a formal job application entry.
+ */
 @Serializable
 public data object AddApplicationRoute : NavKeyRoute {
     @Transient
     override val titleRes: StringResource = Res.string.add_app_route_title
 }
 
+/**
+ * Navigation destination route for recording an early-stage prospective lead.
+ */
 @Serializable
 public data object AddLeadRoute : NavKeyRoute {
     @Transient
     override val titleRes: StringResource = Res.string.add_lead_route_title
 }
 
+/**
+ * Creates the [FeatureNavigationHook] for the add application and add lead destinations.
+ *
+ * @param onNavigateBack Callback invoked when the user exits or finishes the creation flow.
+ * @return Configured [FeatureNavigationHook] ready for graph registration.
+ */
 public fun addJobApplicationNavHook(
     onNavigateBack: () -> Unit,
 ): FeatureNavigationHook = FeatureNavigationHook { navGraphBuilder, _ ->

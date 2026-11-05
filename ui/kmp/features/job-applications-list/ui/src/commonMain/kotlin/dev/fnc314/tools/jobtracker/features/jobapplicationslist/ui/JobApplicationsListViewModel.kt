@@ -17,6 +17,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * Architecture ViewModel coordinating state and intents for the Job Applications List dashboard.
+ *
+ * Implements MVI unidirectional data flow: processes [JobApplicationsListUiIntent] actions,
+ * executes domain use cases ([LoadAllJobApplicationsUseCase], [FilterJobApplicationsUseCase], [SortJobApplicationsUseCase]),
+ * and exposes reactive UI state via [uiState].
+ */
 public class JobApplicationsListViewModel(
     private val loadAll: LoadAllJobApplicationsUseCase,
     private val filterApplications: FilterJobApplicationsUseCase,
@@ -25,6 +32,10 @@ public class JobApplicationsListViewModel(
 
     private val _uiState: MutableStateFlow<JobApplicationsListUiState> =
         MutableStateFlow(JobApplicationsListUiState.Loading)
+
+    /**
+     * Observable stream emitting current [JobApplicationsListUiState] updates.
+     */
     public val uiState: StateFlow<JobApplicationsListUiState> = _uiState.asStateFlow()
 
     private var rawApplications: List<JobApplication> = emptyList()
@@ -37,6 +48,11 @@ public class JobApplicationsListViewModel(
         loadApplications(isRefresh = false)
     }
 
+    /**
+     * Processes user interaction intents dispatched from the UI.
+     *
+     * @param intent The [JobApplicationsListUiIntent] to handle.
+     */
     public fun onIntent(intent: JobApplicationsListUiIntent): Unit {
         when (intent) {
             is JobApplicationsListUiIntent.SelectApplication -> {

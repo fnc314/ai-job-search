@@ -16,8 +16,15 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 
 /**
- * Standard Material 3 Icon Button that exposes clear accessibility descriptions
- * and displays an M3 PlainTooltip on hover and keyboard focus.
+ * Accessible Material 3 icon button wrapping a [PlainTooltip] displayed upon pointer hover and accessibility focus.
+ *
+ * Enforces accessibility standards by attaching the tooltip text to the button's semantic [contentDescription].
+ *
+ * @param tooltip Descriptive text shown in the tooltip and read by accessibility screen readers.
+ * @param icon The [ImageVector] rendered inside the button.
+ * @param onClick Invoked when the user clicks or taps the button.
+ * @param modifier Layout modifier applied to the button.
+ * @param enabled Whether the button is interactive. Defaults to `true`.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

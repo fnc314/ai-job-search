@@ -12,12 +12,21 @@ import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Navigation destination route for the application settings screen.
+ */
 @Serializable
 public data object SettingsRoute : NavKeyRoute {
     @Transient
     override val titleRes: StringResource = Res.string.settings_route_title
 }
 
+/**
+ * Creates the [FeatureNavigationHook] for the settings destination.
+ *
+ * @param onNavigateBack Callback invoked when the user exits the settings screen.
+ * @return Configured [FeatureNavigationHook] ready for graph registration.
+ */
 public fun settingsNavHook(
     onNavigateBack: () -> Unit,
 ): FeatureNavigationHook = FeatureNavigationHook { navGraphBuilder, _ ->
@@ -30,6 +39,14 @@ public fun settingsNavHook(
     }
 }
 
+/**
+ * Creates the [FeatureNavigationHook] for the settings destination with explicit settings listeners.
+ *
+ * @param settings Current [AppSettings] values.
+ * @param onSettingsChange Callback receiving updated settings instances.
+ * @param onNavigateBack Callback invoked when exiting the settings screen.
+ * @return Configured [FeatureNavigationHook] ready for graph registration.
+ */
 public fun settingsNavHook(
     settings: AppSettings,
     onSettingsChange: (AppSettings) -> Unit,

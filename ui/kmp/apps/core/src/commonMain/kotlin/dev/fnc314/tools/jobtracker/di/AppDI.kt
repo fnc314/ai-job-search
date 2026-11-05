@@ -11,6 +11,9 @@ import dev.fnc314.tools.jobtracker.features.trackeredits.ui.trackerEditsFeatureM
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
+/**
+ * Master Koin module assembling all core, data, network, and feature modules for the application runtime.
+ */
 public val appModule: Module = module {
     includes(
         coreDataModule,

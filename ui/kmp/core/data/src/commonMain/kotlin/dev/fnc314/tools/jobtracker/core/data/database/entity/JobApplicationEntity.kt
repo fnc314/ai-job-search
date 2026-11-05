@@ -9,10 +9,29 @@ import dev.fnc314.tools.jobtracker.core.data.model.Uuid7
 import kotlin.time.Instant
 
 /**
- * Room 3 entity representing a tracked job application in the local SQLite database.
+ * Room 3 entity representing a tracked job application in the local SQLite relational database cache.
  *
  * Conforms to `tracker.schema.json` (schemaVersion = 7).
- * Uses canonical [uuid] as the primary key with [slugId] indexed for human-readable query lookup.
+ * Uses canonical time-ordered [uuid] as the primary key with [slugId] uniquely indexed for fast lookups.
+ *
+ * @property uuid Primary key [Uuid7] ensuring monotonic sorting and unique entity identity.
+ * @property slugId Canonical slug identifier (e.g. `"stripe-staff-android"`), indexed uniquely.
+ * @property schemaVersion Document schema version number (defaults to `7`).
+ * @property company Hiring organization name.
+ * @property role Position title.
+ * @property location Work location summary string.
+ * @property status Current lifecycle status [TrackerStatus].
+ * @property channel Originating ATS channel [ApplicationChannel].
+ * @property jobId External posting requisition identifier.
+ * @property jobUrl Live web posting URL.
+ * @property description Detailed role overview or job description.
+ * @property tags Categorization tags serialized as a comma-separated column.
+ * @property contactIds Linked recruiter or referrer identifiers serialized as a comma-separated column.
+ * @property fitScore Calculated alignment rating (0..100).
+ * @property notesRendered Markdown notes content.
+ * @property createdAt Timestamp when the record was initially created.
+ * @property updatedAt Timestamp when the record was last modified.
+ * @property jobApplicationUrl Direct candidate portal link.
  */
 @Entity(
     tableName = "job_applications",

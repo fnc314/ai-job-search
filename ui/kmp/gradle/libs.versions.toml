@@ -38,6 +38,9 @@
   node = "26.13.0"
   ksp = "2.3.13"
   dokka = "2.3.0"
+  detekt = "1.23.8"
+  compose-rules = "0.4.22"
+  konsist = "0.18.1"
 
 [libraries]
   kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -100,6 +103,10 @@
   kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
   compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "composeMultiplatform" }
   dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
+  detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+  detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+  compose-rules-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "compose-rules" }
+  konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
   project-plugins = { module = "dev.fnc314.tools.jobtracker.tools:project-plugins", version = "1.0.0" }
 
 [bundles]
@@ -197,6 +204,8 @@
   ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
   dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
   local-dokka = { id = "dev.fnc314.tools.jobtracker.dokka" }
+  detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+  local-detekt = { id = "dev.fnc314.tools.jobtracker.detekt" }
 
   # Local Functional Cause Plugins
   local-kotlin-multiplatform = { id = "dev.fnc314.tools.jobtracker.kotlin-multiplatform" }

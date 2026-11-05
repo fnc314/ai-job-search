@@ -78,6 +78,14 @@ import fnc314jobsearchtracker.features_add_job_application_ui.generated.resource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Screen providing an interactive form to create and submit a new job application record.
+ *
+ * Captures employer name, role, work mode, lifecycle status, URL links, notes, and tags.
+ *
+ * @param onNavigateBack Callback invoked when canceling or completing form submission.
+ * @param viewModel [AddJobApplicationViewModel] driving state transitions and creation logic.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun AddJobApplicationScreen(

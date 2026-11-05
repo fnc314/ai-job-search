@@ -12,6 +12,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
+/**
+ * Presentation ViewModel managing user appearance preferences and theme customization.
+ *
+ * @param observeSettingsUseCase Use case streaming persisted application configuration.
+ * @param updateSettingsUseCase Use case persisting modified user settings.
+ */
 public class SettingsViewModel(
     private val observeSettingsUseCase: ObserveSettingsUseCase,
     private val updateSettingsUseCase: UpdateSettingsUseCase,
@@ -19,6 +25,9 @@ public class SettingsViewModel(
 
     private val _isNavigatingBack: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
+    /**
+     * Observable stream of [SettingsUiState] emitting the current UI theme, color choices, and navigation triggers.
+     */
     public val uiState: StateFlow<SettingsUiState> = combine(
         observeSettingsUseCase(),
         _isNavigatingBack,
@@ -40,6 +49,11 @@ public class SettingsViewModel(
         initialValue = SettingsUiState.Loading,
     )
 
+    /**
+     * Dispatches a user intent to be processed by this ViewModel.
+     *
+     * @param intent The [SettingsUiIntent] to process.
+     */
     public fun onIntent(intent: SettingsUiIntent): Unit {
         when (intent) {
             is SettingsUiIntent.ChangeTheme -> handleChangeTheme(intent.isDark)

@@ -13,6 +13,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/**
+ * Presentation ViewModel managing authentication flows and session monitoring.
+ *
+ * @param signInUseCase Use case triggering authentication.
+ * @param signOutUseCase Use case clearing authenticated credentials.
+ * @param observeAuthStateUseCase Use case observing realtime session states.
+ */
 public class SignInViewModel(
     private val signInUseCase: SignInUseCase,
     private val signOutUseCase: SignOutUseCase,
@@ -22,6 +29,9 @@ public class SignInViewModel(
     private val _isSigningIn: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _errorMessage: MutableStateFlow<String?> = MutableStateFlow(null)
 
+    /**
+     * Observable stream of [SignInUiState] reflecting current session credentials, in-progress signs, and errors.
+     */
     public val uiState: StateFlow<SignInUiState> = combine(
         observeAuthStateUseCase(),
         _isSigningIn,
@@ -41,6 +51,11 @@ public class SignInViewModel(
         initialValue = SignInUiState.Unauthenticated,
     )
 
+    /**
+     * Dispatches a user intent to be processed by this ViewModel.
+     *
+     * @param intent The [SignInUiIntent] to process.
+     */
     public fun onIntent(intent: SignInUiIntent): Unit {
         when (intent) {
             is SignInUiIntent.ClickSignIn -> handleSignIn()

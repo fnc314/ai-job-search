@@ -12,6 +12,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * Presentation ViewModel driving the review and resolution of proposed tracker edits.
+ *
+ * @param loadPendingEdits Use case fetching unresolved edits from the pending queue.
+ * @param approveEdit Use case executing edit application and audit logging.
+ * @param rejectEdit Use case dismissing proposals.
+ * @param expireStaleEdits Use case marking past-deadline edits expired.
+ */
 public class TrackerEditsViewModel(
     private val loadPendingEdits: LoadPendingEditsUseCase,
     private val approveEdit: ApproveEditUseCase,
@@ -20,12 +28,21 @@ public class TrackerEditsViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<TrackerEditsUiState>(TrackerEditsUiState.Loading)
+
+    /**
+     * Observable stream of [TrackerEditsUiState] reflecting pending edit items, processing indicators, and errors.
+     */
     public val uiState: StateFlow<TrackerEditsUiState> = _uiState.asStateFlow()
 
     init {
         loadEdits()
     }
 
+    /**
+     * Dispatches a user intent to be processed by this ViewModel.
+     *
+     * @param intent The [TrackerEditsUiIntent] to process.
+     */
     public fun onIntent(intent: TrackerEditsUiIntent): Unit {
         when (intent) {
             is TrackerEditsUiIntent.Refresh -> loadEdits()

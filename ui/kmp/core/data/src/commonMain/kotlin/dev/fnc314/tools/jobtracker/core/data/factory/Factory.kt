@@ -1,12 +1,58 @@
 package dev.fnc314.tools.jobtracker.core.data.factory
 
-import dev.fnc314.tools.jobtracker.core.data.model.*
+import dev.fnc314.tools.jobtracker.core.data.model.ApplicationChannel
+import dev.fnc314.tools.jobtracker.core.data.model.ApplicationUrl
+import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifactKind
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerCounts
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEdit
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEditKind
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEditState
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerFit
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Clock
 import kotlin.time.Instant
 
+/**
+ * Central domain object factory synthesizing default-initialized, validated, and immutable domain models.
+ *
+ * Enforces schema v7 invariants, monotonic UUIDv7 synthesis via [Uuid7.generate], timestamp defaults via [Clock.System.now],
+ * and defensive conversion from standard [List] instances to [kotlinx.collections.immutable.ImmutableList].
+ */
 public object Factory {
 
+    /**
+     * Constructs a new [JobApplication] entity with defensive list copies and automatic UUIDv7 synthesis.
+     *
+     * @param id Slug identifier (e.g., `"stripe-staff-android"`).
+     * @param company Hiring organization name.
+     * @param role Title of the position.
+     * @param location Textual summary of office/remote location.
+     * @param status Current lifecycle state [TrackerStatus]. Defaults to [TrackerStatus.DRAFTING].
+     * @param channel Sourcing channel [ApplicationChannel]. Defaults to [ApplicationChannel.UNSPECIFIED].
+     * @param jobId Requisition or external job portal ID.
+     * @param jobUrl URL of the live posting.
+     * @param description Full job description or summary.
+     * @param tags Categorization tags. Converted defensively to [kotlinx.collections.immutable.ImmutableList].
+     * @param contactIds Contact references. Converted defensively to [kotlinx.collections.immutable.ImmutableList].
+     * @param compensation Structured compensation boundaries [Compensation].
+     * @param locationDetail Structured location parameters [Location].
+     * @param fitRating Integer fit score (0..100).
+     * @param fitEvaluation Structured rubric fit assessment [TrackerFit].
+     * @param counters Aggregated metric counters [TrackerCounts].
+     * @param timeline Milestone timeline timestamps [Timeline].
+     * @param notesRendered Markdown notes content.
+     * @param createdAt Initial creation timestamp. Defaults to [Clock.System.now].
+     * @param updatedAt Last update timestamp. Defaults to [Clock.System.now].
+     * @param jobApplicationUrl Direct candidate portal link.
+     * @param uuid Primary key [Uuid7]. Automatically synthesized via [Uuid7.generate] if null.
+     * @param schemaVersion Schema version number. Defaults to `7`.
+     * @return Fully constructed and immutable [JobApplication] instance.
+     */
     public fun createJobApplication(
         id: String,
         company: String,
@@ -63,6 +109,22 @@ public object Factory {
         )
     }
 
+    /**
+     * Constructs a new [TrackerEvent] instance.
+     *
+     * @param id Unique event identifier.
+     * @param applicationId Associated application slug.
+     * @param type Event kind [TrackerEventType]. Defaults to [TrackerEventType.UNSPECIFIED].
+     * @param statusFrom Previous application status [TrackerStatus].
+     * @param statusTo Resulting application status [TrackerStatus].
+     * @param note Contextual notes or feedback.
+     * @param emailMessageId Originating message identifier.
+     * @param actor Initiating actor [EventActor]. Defaults to [EventActor.USER].
+     * @param derivedFrom Source derivation mechanism [DerivedFrom]. Defaults to [DerivedFrom.MANUAL].
+     * @param confidence Extraction confidence [Confidence]. Defaults to [Confidence.HIGH].
+     * @param createdAt Creation timestamp. Defaults to [Clock.System.now].
+     * @return A constructed [TrackerEvent] instance.
+     */
     public fun createTrackerEvent(
         id: String,
         applicationId: String,
@@ -89,6 +151,23 @@ public object Factory {
         createdAt = createdAt,
     )
 
+    /**
+     * Constructs a new [TrackerEdit] proposal.
+     *
+     * @param id Unique proposal identifier.
+     * @param applicationId Target application slug.
+     * @param kind Proposal category [TrackerEditKind]. Defaults to [TrackerEditKind.STATUS].
+     * @param state Initial review state [TrackerEditState]. Defaults to [TrackerEditState.PENDING].
+     * @param trigger Ingestion trigger [Trigger]. Defaults to [Trigger.EMAIL_SYNC].
+     * @param changes Proposed field mutations [EditChange].
+     * @param unmatched Unmatched source fields [EditUnmatched].
+     * @param sourceEmail Provenance email details [SourceEmail].
+     * @param scope Target document scope [EditScope].
+     * @param confidence Extraction confidence [Confidence]. Defaults to [Confidence.HIGH].
+     * @param createdAt Staging timestamp. Defaults to [Clock.System.now].
+     * @param expiresAt Optional expiration timestamp.
+     * @return A constructed [TrackerEdit] instance.
+     */
     public fun createTrackerEdit(
         id: String,
         applicationId: String = "",
@@ -117,6 +196,22 @@ public object Factory {
         expiresAt = expiresAt,
     )
 
+    /**
+     * Constructs a new [TrackerArtifact] instance.
+     *
+     * @param id Unique artifact identifier.
+     * @param applicationId Associated application slug.
+     * @param kind Functional artifact classification [TrackerArtifactKind]. Defaults to [TrackerArtifactKind.UNSPECIFIED].
+     * @param filename Document filename with extension.
+     * @param contentType MIME content type.
+     * @param size Size in bytes.
+     * @param sha256 Content hash.
+     * @param storage Cloud Storage bucket coordinates [ArtifactStorage].
+     * @param localPath Local filesystem path.
+     * @param externalUrl Remote access URL.
+     * @param createdAt Creation timestamp. Defaults to [Clock.System.now].
+     * @return A constructed [TrackerArtifact] instance.
+     */
     public fun createTrackerArtifact(
         id: String,
         applicationId: String,
@@ -143,6 +238,18 @@ public object Factory {
         createdAt = createdAt,
     )
 
+    /**
+     * Constructs a new [Company] entity.
+     *
+     * @param id Slug identifier.
+     * @param name Official company name.
+     * @param aliases Alternate trade names or abbreviations.
+     * @param website Corporate URL.
+     * @param industry Industry sector.
+     * @param createdAt Creation timestamp. Defaults to [Clock.System.now].
+     * @param updatedAt Last update timestamp. Defaults to [Clock.System.now].
+     * @return A constructed [Company] instance.
+     */
     public fun createCompany(
         id: String,
         name: String,
@@ -161,6 +268,17 @@ public object Factory {
         updatedAt = updatedAt,
     )
 
+    /**
+     * Constructs a new [Compensation] specification.
+     *
+     * @param min Minimum compensation boundary.
+     * @param max Maximum compensation boundary.
+     * @param currency Three-letter currency code (e.g. `"USD"`).
+     * @param period Payment frequency (e.g. `"year"`).
+     * @param bandSource Attribution source.
+     * @param vsTarget Floor evaluation string.
+     * @return A constructed [Compensation] instance.
+     */
     public fun createCompensation(
         min: Double? = null,
         max: Double? = null,
@@ -177,6 +295,17 @@ public object Factory {
         vsTarget = vsTarget,
     )
 
+    /**
+     * Constructs a new [Location] specification.
+     *
+     * @param city City or metropolitan area.
+     * @param region State or administrative region.
+     * @param country Country code or name.
+     * @param workMode Remote policy [WorkMode]. Defaults to [WorkMode.UNSPECIFIED].
+     * @param relocation Relocation requirement flag. Defaults to `false`.
+     * @param superCommuter Super-commuting eligibility flag. Defaults to `false`.
+     * @return A constructed [Location] instance.
+     */
     public fun createLocation(
         city: String? = null,
         region: String? = null,
@@ -193,6 +322,15 @@ public object Factory {
         superCommuter = superCommuter,
     )
 
+    /**
+     * Constructs a new [TrackerFit] rubric evaluation.
+     *
+     * @param rubricVersion Algorithm version. Defaults to `1`.
+     * @param score Fit rating (0..100).
+     * @param evaluatedAt Evaluation timestamp. Defaults to [Clock.System.now].
+     * @param gaps Identified alignment gaps. Converted to [kotlinx.collections.immutable.ImmutableList].
+     * @return A constructed [TrackerFit] instance.
+     */
     public fun createTrackerFit(
         rubricVersion: Int = 1,
         score: Int? = null,
@@ -205,6 +343,15 @@ public object Factory {
         gaps = gaps.toImmutableList(),
     )
 
+    /**
+     * Constructs a new [TrackerCounts] metric summary.
+     *
+     * @param events Count of logged events. Defaults to `0`.
+     * @param followUpsSent Count of follow-up communications. Defaults to `0`.
+     * @param interviews Count of interview rounds. Defaults to `0`.
+     * @param rejections Count of rejections. Defaults to `0`.
+     * @return A constructed [TrackerCounts] instance.
+     */
     public fun createTrackerCounts(
         events: Int = 0,
         followUpsSent: Int = 0,
@@ -217,6 +364,15 @@ public object Factory {
         rejections = rejections,
     )
 
+    /**
+     * Constructs a new [Timeline] milestone schedule.
+     *
+     * @param firstActivityAt First recorded interaction timestamp.
+     * @param lastActivityAt Most recent interaction timestamp.
+     * @param daysSinceActivity Days elapsed since last activity. Defaults to `0`.
+     * @param nextFollowUpAt Scheduled next follow-up communication timestamp.
+     * @return A constructed [Timeline] instance.
+     */
     public fun createTimeline(
         firstActivityAt: Instant? = null,
         lastActivityAt: Instant? = null,

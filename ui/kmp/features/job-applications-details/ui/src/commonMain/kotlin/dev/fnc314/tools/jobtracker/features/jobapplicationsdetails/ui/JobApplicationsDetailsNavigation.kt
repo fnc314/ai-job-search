@@ -11,12 +11,26 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
 
+/**
+ * Navigation destination route for viewing detailed information about a specific job application.
+ *
+ * @property applicationId Unique Firestore identifier of the job application.
+ */
 @Serializable
 public data class DetailRoute(public val applicationId: String) : NavKeyRoute {
     @Transient
     override val titleRes: StringResource = Res.string.detail_route_title
 }
 
+/**
+ * Creates the [FeatureNavigationHook] for the application details destination.
+ *
+ * Registers the [DetailRoute] composable within the root navigation graph.
+ *
+ * @param settings Current [AppSettings] controlling visual and regional preferences.
+ * @param onNavigateBack Callback invoked when the user requests returning to the prior screen.
+ * @return Configured [FeatureNavigationHook] ready for graph registration.
+ */
 public fun jobApplicationsDetailsNavHook(
     settings: AppSettings = AppSettings(),
     onNavigateBack: () -> Unit,

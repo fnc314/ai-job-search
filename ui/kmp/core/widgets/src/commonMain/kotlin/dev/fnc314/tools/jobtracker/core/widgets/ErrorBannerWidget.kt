@@ -24,6 +24,15 @@ import fnc314jobsearchtracker.core_widgets.generated.resources.widget_error_defa
 import fnc314jobsearchtracker.core_widgets.generated.resources.widget_retry_action
 import org.jetbrains.compose.resources.stringResource
 
+/**
+ * Prominent Material 3 error card alerting the user to operation failures or network disconnects.
+ *
+ * Utilizes [MaterialTheme.colorScheme.errorContainer] and provides an optional retry action button.
+ *
+ * @param message Descriptive error message describing the failure.
+ * @param modifier Layout modifier applied to the card.
+ * @param onRetry Optional callback invoked when the user taps the retry button.
+ */
 @Composable
 public fun ErrorBannerWidget(
     message: String,
@@ -51,7 +60,7 @@ public fun ErrorBannerWidget(
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
                 )
                 Text(
                     text = message.ifBlank { stringResource(Res.string.widget_error_default) },
@@ -65,7 +74,7 @@ public fun ErrorBannerWidget(
                     onClick = onRetry,
                     modifier = Modifier.align(Alignment.End),
                 ) {
-                    Text(text = stringResource(Res.string.widget_retry_action))
+                    Text(stringResource(Res.string.widget_retry_action))
                 }
             }
         }

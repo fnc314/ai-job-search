@@ -10,12 +10,18 @@ import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Navigation destination route for the authentication screen.
+ */
 @Serializable
 public data object SignInRoute : NavKeyRoute {
     @Transient
     override val titleRes: StringResource = Res.string.sign_in_route_title
 }
 
+/**
+ * Navigation hook registering the [SignInRoute] composable in the root navigation graph.
+ */
 public val signInNavHook: FeatureNavigationHook = FeatureNavigationHook { navGraphBuilder, _ ->
     navGraphBuilder.composable<SignInRoute> {
         val viewModel = koinViewModel<SignInViewModel>()

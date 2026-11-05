@@ -65,6 +65,22 @@ import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resour
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Main dashboard screen displaying the collection of tracked job applications in an adaptive list or grid.
+ *
+ * Automatically adapts between single-column lists on [WindowWidthSizeClass.Compact] viewports and multi-column
+ * responsive grids on [WindowWidthSizeClass.Medium] and [WindowWidthSizeClass.Expanded] displays.
+ *
+ * @param viewModel Backing [JobApplicationsListViewModel] instance resolved via Koin.
+ * @param onApplicationClick Callback invoked when user selects an application card, passing its slug/UUID.
+ * @param onAddApplicationClick Callback invoked to navigate to the Add Application screen.
+ * @param onAddLeadClick Callback invoked to navigate to the Add Lead screen.
+ * @param onEditsClick Callback invoked to navigate to the Pending Edits screen.
+ * @param onSettingsClick Callback invoked to open application preferences.
+ * @param settings Active user preferences [AppSettings].
+ * @param onSettingsChange Callback invoked when settings are modified.
+ * @param modifier Layout modifier applied to the screen root.
+ */
 @Composable
 public fun JobApplicationsListScreen(
     viewModel: JobApplicationsListViewModel = koinViewModel(),

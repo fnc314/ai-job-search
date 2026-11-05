@@ -9,6 +9,7 @@ public interface RemoteAddJobApplicationDataSource {
     public suspend fun recordEvent(event: TrackerEvent): String
 }
 
+@Suppress("UnusedPrivateProperty")
 internal class RemoteAddJobApplicationDataSourceImpl(
     private val remoteDataSource: RemoteDataSource? = null,
 ) : RemoteAddJobApplicationDataSource {

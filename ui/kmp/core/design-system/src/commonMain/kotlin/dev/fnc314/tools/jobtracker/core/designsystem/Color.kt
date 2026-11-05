@@ -6,16 +6,36 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 
+/**
+ * Predefined palette of canonical seed colors used for Material 3 dynamic color scheme derivation.
+ *
+ * Adheres strictly to Architecture Rule 3: Zero rogue `Color()` calls outside this file.
+ */
 public object SeedColors {
+    /** The default primary theme seed hexadecimal color code (`"#2F5597"`). */
     public const val DEFAULT_SEED_HEX: String = "#2F5597"
 
+    /** Canonical Professional Blue seed color (`#2F5597`). */
     public val ProfessionalBlue: Color = Color(0xFF2F5597)
+
+    /** Standard Material 3 purple seed color (`#6750A4`). */
     public val MaterialPurple: Color = Color(0xFF6750A4)
+
+    /** Forest Teal seed color (`#006A6A`). */
     public val ForestTeal: Color = Color(0xFF006A6A)
+
+    /** Slate Indigo seed color (`#3C5BA9`). */
     public val SlateIndigo: Color = Color(0xFF3C5BA9)
+
+    /** Nordic Sage seed color (`#386A20`). */
     public val NordicSage: Color = Color(0xFF386A20)
+
+    /** Warm Amber seed color (`#825500`). */
     public val WarmAmber: Color = Color(0xFF825500)
 
+    /**
+     * Complete list of available seed colors paired with their human-readable preset names.
+     */
     public val All: List<Pair<String, Color>> = listOf(
         "Professional Blue" to ProfessionalBlue,
         "Material Purple" to MaterialPurple,
@@ -27,7 +47,10 @@ public object SeedColors {
 }
 
 /**
- * Parses a hex string (e.g. "#2F5597" or "2F5597") into a Compose [Color], or null if invalid.
+ * Parses a 6-digit hex string (e.g. `"#2F5597"` or `"2F5597"`) into a Compose [Color], or null if invalid.
+ *
+ * @receiver The hexadecimal string to parse.
+ * @return The parsed [Color] or null if the input format is invalid.
  */
 public fun String.toColorOrNull(): Color? {
     return try {
@@ -46,7 +69,10 @@ public fun String.toColorOrNull(): Color? {
 }
 
 /**
- * Formats a Compose [Color] into a standard 6-digit hex string (e.g. "#2f5597").
+ * Formats a Compose [Color] into a standard 6-digit lower-case hex string prefixed with `#` (e.g. `"#2f5597"`).
+ *
+ * @receiver The [Color] instance to format.
+ * @return Canonical hex code string.
  */
 public fun Color.toHexString(): String {
     val r = (this.red * 255).toInt().coerceIn(0, 255)
@@ -59,16 +85,16 @@ public fun Color.toHexString(): String {
 }
 
 /**
- * Derives a full M3 Light ColorScheme using the provided seed color.
+ * Derives a full Material 3 Light [ColorScheme] dynamically using the provided [seed] color.
+ *
+ * Computes harmonious primary, secondary, and container tonal variations while ensuring WCAG accessibility contrast.
+ *
+ * @param seed The base anchor [Color].
+ * @return The generated light [ColorScheme].
  */
 public fun buildLightColorScheme(seed: Color): ColorScheme {
-    // Generate harmonious tonal shifts based on seed
     val isLightSeed = seed.luminance() > 0.5f
     val onPrimary = if (isLightSeed) Color.Black else Color.White
-    
-    // Tonal containers
-    val primaryContainer = seed.copy(alpha = 0.16f)
-    val onPrimaryContainer = seed
 
     return lightColorScheme(
         primary = seed,
@@ -116,7 +142,12 @@ public fun buildLightColorScheme(seed: Color): ColorScheme {
 }
 
 /**
- * Derives a full M3 Dark ColorScheme using the provided seed color.
+ * Derives a full Material 3 Dark [ColorScheme] dynamically using the provided [seed] color.
+ *
+ * Lightens the primary hue for dark surfaces and derives elevated container tones.
+ *
+ * @param seed The base anchor [Color].
+ * @return The generated dark [ColorScheme].
  */
 public fun buildDarkColorScheme(seed: Color): ColorScheme {
     val primaryLightened = Color(

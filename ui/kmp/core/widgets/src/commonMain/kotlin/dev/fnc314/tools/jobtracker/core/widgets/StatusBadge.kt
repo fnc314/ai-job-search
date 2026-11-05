@@ -11,16 +11,25 @@ import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.model.displayName
 
+/**
+ * Material 3 pill badge rendering an application lifecycle [TrackerStatus].
+ *
+ * Uses the status's theme-aware [TrackerStatus.containerColor] and [TrackerStatus.contentColor]
+ * to convey semantic progression states (e.g. green for offer/hired, red for rejected, blue for applied).
+ *
+ * @param status The [TrackerStatus] to display.
+ * @param modifier Layout modifier applied to the outer badge [Surface].
+ * @param textAlign Text alignment within the badge container. Defaults to [TextAlign.Start].
+ * @param maxLines Maximum text lines. Defaults to `1`.
+ */
 @Composable
 public fun StatusBadge(
     status: TrackerStatus,
     modifier: Modifier = Modifier,
     textAlign: TextAlign = TextAlign.Start,
     maxLines: Int = 1,
-) {
+): Unit {
     val displayName = status.displayName()
-
-    // Determine standard M3 semantic container and content colors
     val containerColor = status.containerColor()
     val contentColor = status.contentColor()
 
@@ -37,7 +46,7 @@ public fun StatusBadge(
             maxLines = maxLines,
             modifier = Modifier.padding(
                 horizontal = MaterialTheme.componentSizes.badgePaddingHorizontal,
-                vertical = MaterialTheme.componentSizes.badgePaddingVertical
+                vertical = MaterialTheme.componentSizes.badgePaddingVertical,
             ),
         )
     }

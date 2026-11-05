@@ -71,6 +71,18 @@ import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edit
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Screen displaying the inbox of pending candidate updates and proposed edits.
+ *
+ * Provides review controls to approve individual changes, reject proposals with optional feedback notes,
+ * and purge stale edits.
+ *
+ * @param onNavigateBack Callback invoked when exiting the review screen.
+ * @param onEditClick Callback invoked when an individual edit card is clicked.
+ * @param settings Application configuration controlling formatting.
+ * @param onSettingsChange Callback receiving settings adjustments.
+ * @param viewModel [TrackerEditsViewModel] providing UI state and handling approvals/rejections.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun TrackerEditsScreen(

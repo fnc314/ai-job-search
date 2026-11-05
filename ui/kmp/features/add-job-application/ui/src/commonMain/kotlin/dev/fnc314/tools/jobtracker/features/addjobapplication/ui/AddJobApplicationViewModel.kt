@@ -11,6 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
+/**
+ * Presentation ViewModel managing form input, field validation, and application creation.
+ *
+ * @param createApplication Use case responsible for constructing and persisting new application entities.
+ */
 public class AddJobApplicationViewModel(
     private val createApplication: CreateJobApplicationUseCase,
 ) : ViewModel() {
@@ -19,8 +24,17 @@ public class AddJobApplicationViewModel(
 
     private val _uiState: MutableStateFlow<AddJobApplicationUiState> =
         MutableStateFlow(AddJobApplicationUiState.Editing(currentForm))
+
+    /**
+     * Observable stream of [AddJobApplicationUiState] reflecting form edits, loading states, and outcomes.
+     */
     public val uiState: StateFlow<AddJobApplicationUiState> = _uiState.asStateFlow()
 
+    /**
+     * Dispatches a user intent to be processed by this ViewModel.
+     *
+     * @param intent The [AddJobApplicationUiIntent] to process.
+     */
     public fun onIntent(intent: AddJobApplicationUiIntent): Unit {
         when (intent) {
             is AddJobApplicationUiIntent.UpdateCompany -> updateForm { it.copy(company = intent.value) }

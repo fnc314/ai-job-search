@@ -19,6 +19,15 @@ import androidx.compose.ui.text.style.TextAlign
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 
+/**
+ * Centered empty state placeholder composable displayed when a list, filter query, or section yields zero items.
+ *
+ * @param title Primary heading message (e.g. `"No Applications Found"`).
+ * @param modifier Layout modifier applied to the container.
+ * @param subtitle Secondary explanatory text providing guidance on how to populate data.
+ * @param icon Optional decorative hero icon [ImageVector].
+ * @param action Optional action button slot (e.g., `"Reset Filters"` or `"Add Application"`).
+ */
 @Composable
 public fun EmptyStateWidget(
     title: String,
@@ -48,21 +57,21 @@ public fun EmptyStateWidget(
             }
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             if (subtitle != null) {
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             if (action != null) {
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
                 action()
             }
         }

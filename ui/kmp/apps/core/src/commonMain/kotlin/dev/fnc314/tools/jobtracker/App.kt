@@ -41,8 +41,14 @@ import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.dsl.koinConfiguration
 
+/**
+ * Root multiplatform application entry composable.
+ *
+ * Bootstraps Koin dependency injection via [appModule], loads visual appearance settings,
+ * monitors authentication status, and coordinates navigation across all feature modules.
+ */
 @Composable
-public fun App() {
+public fun App(): Unit {
     KoinApplication(
         configuration = koinConfiguration(
             declaration = {

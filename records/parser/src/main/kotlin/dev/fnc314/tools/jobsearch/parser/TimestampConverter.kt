@@ -3,25 +3,30 @@ package dev.fnc314.tools.jobsearch.parser
 import com.google.protobuf.Timestamp
 
 /**
- * Migrated from contract.py: toFirestore() / fromFirestore().
- * Converts between ISO date strings and google.protobuf.Timestamp recursively.
+ * Utility for converting between ISO-8601 calendar date strings and Google Protocol Buffer [Timestamp] objects.
+ *
+ * Implements civil calendar arithmetic algorithms to perform zero-dependency conversions between epoch seconds
+ * and year/month/day components. Supports recursive map and collection traversal for batch document serialization.
  */
-object TimestampConverter {
+public object TimestampConverter {
 
-    private const val SECONDS_IN_DAY = 86400L
+    private const val SECONDS_IN_DAY: Long = 86400L
 
     /**
-     * Convert an ISO date string to a google.protobuf.Timestamp.
+     * Parses an ISO-8601 calendar date or timestamp string into a protobuf [Timestamp].
+     *
+     * Handles formats such as `"YYYY-MM-DD"` and `"YYYY-MM-DDTHH:MM:SS"`.
+     *
+     * @param iso The ISO date/time string.
+     * @return The corresponding protobuf [Timestamp] with seconds resolution.
      */
-    fun isoToTimestamp(iso: String): Timestamp {
-        // Parse "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM:SS" format
+    public fun isoToTimestamp(iso: String): Timestamp {
         val datePart = iso.substringBefore('T')
         val parts = datePart.split("-")
         val year = parts[0].toInt()
         val month = parts[1].toInt()
         val day = parts[2].toInt()
         
-        // Approximate epoch seconds (good enough for proto conversion)
         val epochDays = daysFromCivil(year, month, day)
         val seconds = epochDays * SECONDS_IN_DAY
         
@@ -32,21 +37,28 @@ object TimestampConverter {
     }
 
     /**
-     * Convert a google.protobuf.Timestamp to an ISO date string.
+     * Formats a protobuf [Timestamp] into an ISO-8601 date string (`"YYYY-MM-DD"`).
+     *
+     * @param ts The protobuf [Timestamp] instance.
+     * @return The formatted calendar date string.
      */
-    fun timestampToIso(ts: Timestamp): String {
+    public fun timestampToIso(ts: Timestamp): String {
         val epochDays = ts.seconds / SECONDS_IN_DAY
         val (year, month, day) = civilFromDays(epochDays)
         return String.format("%04d-%02d-%02d", year, month, day)
     }
 
     /**
-     * Recursively convert values: ISO strings → Timestamp, preserving maps and lists.
+     * Recursively transforms data structures, replacing ISO date strings with protobuf [Timestamp] instances.
+     *
+     * Traverses [Map] and [List] containers recursively, leaving non-date scalar values unchanged.
+     *
+     * @param value The object, collection, or scalar to transform.
+     * @return The transformed structure suitable for protobuf consumption.
      */
-    fun toFirestore(value: Any?): Any? {
+    public fun toFirestore(value: Any?): Any? {
         return when (value) {
             is String -> {
-                // Check if it looks like a date
                 if (value.matches(Regex("\\d{4}-\\d{2}-\\d{2}.*"))) {
                     isoToTimestamp(value)
                 } else {
@@ -60,9 +72,14 @@ object TimestampConverter {
     }
 
     /**
-     * Recursively convert values: Timestamp → ISO strings, preserving maps and lists.
+     * Recursively transforms data structures, replacing protobuf [Timestamp] instances with ISO date strings.
+     *
+     * Traverses [Map] and [List] containers recursively, converting timestamps for JSON / Python serialization.
+     *
+     * @param value The object, collection, or scalar to transform.
+     * @return The transformed structure with ISO date strings.
      */
-    fun fromFirestore(value: Any?): Any? {
+    public fun fromFirestore(value: Any?): Any? {
         return when (value) {
             is Timestamp -> timestampToIso(value)
             is Map<*, *> -> value.mapValues { fromFirestore(it.value) }
@@ -71,17 +88,15 @@ object TimestampConverter {
         }
     }
 
-    // ── Date arithmetic helpers (from Howard Hinnant's date library) ──
-
     private fun daysFromCivil(y: Int, m: Int, d: Int): Long {
         val ym = 12L * y + maxOf(0, m - 3)
         return (365L * ym + ym / 4 - ym / 100 + ym / 400 + ((15L * (m + 9)) / 4) + d - 719469L)
     }
 
     private fun civilFromDays(z: Long): Triple<Int, Int, Int> {
-        val z = z + 719469L
-        val era = if (z >= 0) z else (z - 146096L) / 146097L
-        val doe = z - era * 146097L
+        val adjustedZ = z + 719469L
+        val era = if (adjustedZ >= 0) adjustedZ else (adjustedZ - 146096L) / 146097L
+        val doe = adjustedZ - era * 146097L
         val yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
         val y = yoe + era * 400
         val doy = doe - (365 * yoe + yoe / 4 - yoe / 100)

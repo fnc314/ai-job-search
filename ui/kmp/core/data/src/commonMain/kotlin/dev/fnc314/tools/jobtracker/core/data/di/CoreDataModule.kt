@@ -14,6 +14,17 @@ import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
+/**
+ * Koin dependency injection module providing foundational core data singletons.
+ *
+ * Registers:
+ * - [Json] ([globalJson])
+ * - [SettingsStorage] ([createSettingsStorage])
+ * - [PlatformFileOpener]
+ * - [DatabaseHolder] ([createRoomDatabase])
+ * - [LocalDataSource] ([LocalDataSourceImpl])
+ * - [NetworkDataSource] ([NetworkDataSourceImpl])
+ */
 public val coreDataModule: Module = module {
     single<Json> { globalJson }
     single<SettingsStorage> { createSettingsStorage() }

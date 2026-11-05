@@ -54,6 +54,12 @@ import fnc314jobsearchtracker.features_add_job_application_ui.generated.resource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Screen providing an interactive form to record an early-stage prospective lead.
+ *
+ * @param onNavigateBack Callback invoked when canceling or completing lead submission.
+ * @param viewModel [AddLeadViewModel] driving state transitions and lead creation.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun AddLeadScreen(

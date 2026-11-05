@@ -60,6 +60,17 @@ private data class NoteItem(
     val text: String = ""
 )
 
+/**
+ * Interactive list-based notes widget supporting adding, editing, reordering, and deleting notes.
+ *
+ * Supports drag-to-reorder, keyboard shortcuts (Enter to commit and insert a new note, Backspace on empty to delete),
+ * and automatic trailing-empty item creation for rapid entry.
+ *
+ * @param onNotesChanged Callback invoked with the updated list of non-empty notes whenever content changes.
+ * @param modifier Layout modifier applied to the outer container.
+ * @param initialNotes Seed collection of existing notes strings.
+ * @param label Optional section header label overriding the default "Notes" string.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun NotesWidget(
@@ -122,7 +133,7 @@ public fun NotesWidget(
     }
 
     var draggingIndex by remember { mutableStateOf<Int?>(null) }
-    var draggingItemYOffset by remember { mutableStateOf(0f) }
+    var draggingItemYOffset by remember { mutableFloatStateOf(0f) }
     val itemHeights = remember { mutableStateMapOf<Int, Int>() }
 
     Column(
@@ -269,6 +280,8 @@ private fun NoteRow(
     var isFocused by remember { mutableStateOf(false) }
     var isVisible by remember { mutableStateOf(true) }
     val focusRequester = remember { FocusRequester() }
+    val currentOnFocusRequested by rememberUpdatedState(onFocusRequested)
+    val currentOnDelete by rememberUpdatedState(onDelete)
 
     LaunchedEffect(requestFocus) {
         if (requestFocus) {
@@ -282,7 +295,7 @@ private fun NoteRow(
                     attempts++
                 }
             }
-            onFocusRequested()
+            currentOnFocusRequested()
         }
     }
 
@@ -353,7 +366,12 @@ private fun NoteRow(
                                     }
                                 },
                             label = {
-                                Text(if (isDrafting && item.text.isEmpty()) stringResource(Res.string.notes_placeholder_add) else stringResource(Res.string.notes_label_note, index + 1))
+                                val labelText = if (isDrafting && item.text.isEmpty()) {
+                                    stringResource(Res.string.notes_placeholder_add)
+                                } else {
+                                    stringResource(Res.string.notes_label_note, index + 1)
+                                }
+                                Text(labelText)
                             },
                             singleLine = !isFocused,
                             maxLines = if (isFocused) Int.MAX_VALUE else 1,
@@ -398,10 +416,15 @@ private fun NoteRow(
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
+                                val indicatorColor = if (isDragging) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                }
                                 Text(
                                     text = "⠿",
                                     style = MaterialTheme.typography.titleMedium,
-                                    color = if (isDragging) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = indicatorColor
                                 )
                             }
                         }
@@ -414,7 +437,7 @@ private fun NoteRow(
     LaunchedEffect(isVisible) {
         if (!isVisible) {
             delay(260)
-            onDelete()
+            currentOnDelete()
         }
     }
 }

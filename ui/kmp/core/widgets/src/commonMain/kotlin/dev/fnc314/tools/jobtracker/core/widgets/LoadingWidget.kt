@@ -19,6 +19,12 @@ import fnc314jobsearchtracker.core_widgets.generated.resources.Res
 import fnc314jobsearchtracker.core_widgets.generated.resources.widget_loading_default
 import org.jetbrains.compose.resources.stringResource
 
+/**
+ * Centered progress indicator composable rendered during asynchronous network loads or data fetching.
+ *
+ * @param modifier Layout modifier applied to the container.
+ * @param message Optional message displayed beneath the circular progress spinner (defaults to localized "Loading...").
+ */
 @Composable
 public fun LoadingWidget(
     modifier: Modifier = Modifier,

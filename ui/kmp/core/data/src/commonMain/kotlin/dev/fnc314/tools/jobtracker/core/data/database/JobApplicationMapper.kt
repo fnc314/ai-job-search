@@ -5,8 +5,19 @@ import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.Uuid7
 
+/**
+ * Bidirectional mapper converting between domain [JobApplication] instances and SQLite [JobApplicationEntity] records.
+ */
 public object JobApplicationMapper {
 
+    /**
+     * Maps a domain [JobApplication] entity into a Room [JobApplicationEntity] suitable for SQLite persistence.
+     *
+     * Synthesizes a new [Uuid7] if [JobApplication.uuid] is null.
+     *
+     * @param domain The domain model to convert.
+     * @return The resulting database entity.
+     */
     public fun toEntity(domain: JobApplication): JobApplicationEntity {
         return JobApplicationEntity(
             uuid = domain.uuid ?: Uuid7.generate(),
@@ -30,6 +41,14 @@ public object JobApplicationMapper {
         )
     }
 
+    /**
+     * Maps a Room [JobApplicationEntity] from SQLite into a rich domain [JobApplication] instance.
+     *
+     * Preserves primary key [JobApplicationEntity.uuid] and schema migration version.
+     *
+     * @param entity The database entity to convert.
+     * @return The resulting domain model.
+     */
     public fun toDomain(entity: JobApplicationEntity): JobApplication {
         return Factory.createJobApplication(
             id = entity.slugId,
@@ -53,9 +72,21 @@ public object JobApplicationMapper {
         )
     }
 
+    /**
+     * Maps a list of [JobApplicationEntity] records into domain [JobApplication] entities.
+     *
+     * @param entities Collection of database entities.
+     * @return List of domain models.
+     */
     public fun toDomainList(entities: List<JobApplicationEntity>): List<JobApplication> =
         entities.map { toDomain(it) }
 
+    /**
+     * Maps a list of domain [JobApplication] entities into Room [JobApplicationEntity] records.
+     *
+     * @param domains Collection of domain models.
+     * @return List of database entities.
+     */
     public fun toEntityList(domains: List<JobApplication>): List<JobApplicationEntity> =
         domains.map { toEntity(it) }
 }

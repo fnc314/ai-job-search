@@ -40,6 +40,13 @@ import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.sign_in_pr
 import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.sign_in_subtitle
 import org.jetbrains.compose.resources.stringResource
 
+/**
+ * Top-level Stateful composable hosting the user sign-in screen.
+ *
+ * @param viewModel [SignInViewModel] managing session authentication.
+ * @param onSignInSuccess Callback invoked upon successful authentication.
+ * @param modifier Composable layout modifier.
+ */
 @Composable
 public fun SignInScreen(
     viewModel: SignInViewModel,
@@ -55,6 +62,14 @@ public fun SignInScreen(
     )
 }
 
+/**
+ * Stateless composable displaying authentication controls and status indicators.
+ *
+ * @param uiState Current [SignInUiState] to render.
+ * @param onIntent Event handler for user authentication actions.
+ * @param onSignInSuccess Callback triggered when the state transitions to authenticated.
+ * @param modifier Composable layout modifier.
+ */
 @Composable
 public fun SignInScreen(
     uiState: SignInUiState,

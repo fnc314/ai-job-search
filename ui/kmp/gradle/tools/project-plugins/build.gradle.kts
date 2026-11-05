@@ -28,6 +28,7 @@ dependencies {
   implementation(libs.compose.gradle.plugin)
   implementation(libs.ksp.gradle.plugin)
   implementation(libs.dokka.gradle.plugin)
+  implementation(libs.detekt.gradle.plugin)
 }
 
 gradlePlugin {
@@ -97,6 +98,12 @@ gradlePlugin {
       description = "Applies Dokka documentation generation conventions"
       implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DokkaConventionPlugin"
       displayName = "Dokka Documentation Convention"
+    }
+    create("detekt") {
+      id = libs.plugins.local.detekt.map { it.pluginId }.get()
+      description = "Applies Detekt static analysis and formatting conventions"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DetektConventionPlugin"
+      displayName = "Detekt Static Analysis Convention"
     }
   }
 }

@@ -61,6 +61,18 @@ import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_settings_cd
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
+/**
+ * Responsive application scaffold adapting navigation chrome between mobile (bottom navigation bar)
+ * and tablet/desktop (navigation rail).
+ *
+ * @param navController Navigation host controller tracking active destination.
+ * @param isAuthenticated Whether a valid authenticated user session is active.
+ * @param snackbarHostState State manager for displaying transient snackbar alerts.
+ * @param modifier Composable layout modifier.
+ * @param onSearchClick Callback triggered when the search top bar action is pressed.
+ * @param onCalendarClick Callback triggered when the calendar top bar action is pressed.
+ * @param content Slot rendering screen content with appropriate scaffold padding.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun AppScaffold(
@@ -71,7 +83,7 @@ public fun AppScaffold(
     onSearchClick: () -> Unit = {},
     onCalendarClick: () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
-) {
+): Unit {
     val windowSizeClass = LocalWindowSizeClass.current
     val isCompact = windowSizeClass.isCompact
 

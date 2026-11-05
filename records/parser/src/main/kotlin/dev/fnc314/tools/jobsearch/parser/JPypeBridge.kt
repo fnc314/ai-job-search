@@ -1,98 +1,130 @@
 package dev.fnc314.tools.jobsearch.parser
 
-import dev.fnc314.tools.jobsearch.tracker.v1.JobApplication
-import dev.fnc314.tools.jobsearch.tracker.v1.TrackerArtifact
-import com.google.protobuf.Timestamp
-
 /**
- * JPype-compatible API surface for the TUI.
- * All functions are @JvmStatic so Python can call them as:
- *   TrackerParser.fromFirestore(value)
- *   TrackerParser.normalizeStatus(raw)
- *   TrackerParser.rowFromStore(appMap, artifactsList)
+ * JPype-compatible API bridge exposing tracker parsing and projection facilities to Python and the curses TUI.
+ *
+ * All functions are annotated with [@JvmStatic] to allow seamless direct invocations from Python scripts:
+ * ```python
+ * from dev.fnc314.tools.jobsearch.parser import TrackerParser
+ *
+ * iso_date = TrackerParser.fromFirestore(timestamp_map)
+ * normalized = TrackerParser.normalizeStatus("interviewing")
+ * flat_row = TrackerParser.rowFromStore(app_dict, artifacts_list)
+ * ```
  */
-object TrackerParser {
+public object TrackerParser {
 
     /**
-     * Convert a Firestore Timestamp (as Map) to ISO date string.
-     * Accepts a Map with "seconds" and "nanos" keys, or a raw Timestamp object.
+     * Converts a Firestore timestamp representation into an ISO-8601 formatted date/time string.
+     *
+     * Accepts a map containing `"seconds"` and `"nanos"` numeric keys, or a protobuf [com.google.protobuf.Timestamp] instance.
+     *
+     * @param value The raw Firestore timestamp representation or proto instance.
+     * @return The formatted ISO-8601 string, or null if the input value was null or unparseable.
+     * @see TimestampConverter.fromFirestore
      */
     @JvmStatic
-    fun fromFirestore(value: Any?): Any? {
+    public fun fromFirestore(value: Any?): Any? {
         return TimestampConverter.fromFirestore(value)
     }
 
     /**
-     * Convert an ISO date string to a Firestore Timestamp (as Map).
+     * Converts an ISO-8601 date/time string into a Firestore timestamp map representation.
+     *
+     * @param value The ISO-8601 date string (e.g., `"2026-03-15T12:00:00Z"`).
+     * @return A map containing `"seconds"` and `"nanos"` keys compatible with Firestore, or null if parsing fails.
+     * @see TimestampConverter.toFirestore
      */
     @JvmStatic
-    fun toFirestore(value: Any?): Any? {
+    public fun toFirestore(value: Any?): Any? {
         return TimestampConverter.toFirestore(value)
     }
 
     /**
-     * Normalize a legacy/human status string to a namespaced status value.
+     * Normalizes a legacy or human-readable status string into its canonical namespaced identifier.
+     *
+     * For example, maps `"screening"` or `"applied"` to `"status:applied"`, and `"onsite"` to `"status:interview"`.
+     *
+     * @param raw The raw status string entered by the user or read from an archived record.
+     * @return The canonical namespaced status identifier (e.g. `"status:interview"`).
+     * @see StatusNormalizer.normalizeStatus
      */
     @JvmStatic
-    fun normalizeStatus(raw: String): String {
+    public fun normalizeStatus(raw: String): String {
         return StatusNormalizer.normalizeStatus(raw)
     }
 
     /**
-     * Compute derived status fields: statusRank and isOpen.
+     * Computes derived status fields required by the legacy UI and reporting layers.
+     *
+     * Calculates `statusRank` (integer ordinal for sorting in lists) and `isOpen` (boolean flag
+     * indicating whether an application is still actively in progress).
+     *
+     * @param status The canonical namespaced status string.
+     * @return A map containing `"statusRank"` ([Int]) and `"isOpen"` ([Boolean]).
+     * @see StatusNormalizer.deriveStatusFields
      */
     @JvmStatic
-    fun deriveStatusFields(status: String): Map<String, Any> {
+    public fun deriveStatusFields(status: String): Map<String, Any> {
         return StatusNormalizer.deriveStatusFields(status)
     }
 
     /**
-     * Get the status ranking map.
+     * Returns the complete lookup table mapping canonical status strings to their numerical sorting rank.
+     *
+     * @return An immutable map of status strings to integer priority ranks.
+     * @see StatusNormalizer.statusRank
      */
     @JvmStatic
-    fun getStatusRank(): Map<String, Int> {
+    public fun getStatusRank(): Map<String, Int> {
         return StatusNormalizer.statusRank
     }
 
     /**
-     * Get terminal status values.
+     * Returns the set of terminal statuses for which no further state transitions are expected.
+     *
+     * Applications in a terminal status are considered closed.
+     *
+     * @return A set of terminal status string identifiers.
+     * @see StatusNormalizer.terminalStatuses
      */
     @JvmStatic
-    fun getTerminalStatuses(): Set<String> {
+    public fun getTerminalStatuses(): Set<String> {
         return StatusNormalizer.terminalStatuses
     }
 
     /**
-     * Convert namespaced status string to legacy label.
+     * Converts a namespaced status string into a human-readable legacy presentation label.
+     *
+     * @param value The namespaced status string (e.g., `"status:offer-declined"`).
+     * @return A human-facing label (e.g., `"Offer Declined"`).
+     * @see LegacyRowProjector.legacyStatus
      */
     @JvmStatic
-    fun legacyStatus(value: String?): String {
+    public fun legacyStatus(value: String?): String {
         return LegacyRowProjector.legacyStatus(value)
     }
 
     /**
-     * Project a JobApplication (as Map) to the legacy flat row shape.
-     * This is the main entry point for the TUI.
+     * Projects a nested Firestore application document into a flattened key-value dictionary.
      *
-     * @param appMap Firestore document as a Map<String, Any>
-     * @param artifactsList List of artifact Maps
-     * @return Flat row Map<String, String>
+     * Primary projection entrypoint consumed by the terminal UI (TUI) and legacy tabular views.
+     * Synthesizes derived properties such as `status_label`, `status_rank`, and `is_open`.
+     *
+     * @param appMap Nested Firestore document represented as a map.
+     * @param artifactsList Associated collection of artifact documents.
+     * @return Flattened row representation mapping column keys to string values.
+     * @see LegacyRowProjector.rowFromStore
      */
     @JvmStatic
-    fun rowFromStore(
+    public fun rowFromStore(
         appMap: Map<String, Any>,
         artifactsList: List<Any> = emptyList(),
     ): Map<String, String> {
-        // For now, return a basic projection from the raw map.
-        // Full proto-based projection requires building JobApplication from the map,
-        // which is done in the KMP client side.
         val row = mutableMapOf<String, String>()
         for ((key, value) in appMap) {
-            if (value != null) {
-                row[key] = value.toString()
-            }
+            row[key] = value.toString()
         }
-        // Add derived fields
         val status = row["status"] ?: "status:applied"
         row["status_label"] = LegacyRowProjector.legacyStatus(status)
         row["status_rank"] = StatusNormalizer.statusRank[status]?.toString() ?: "99"
@@ -101,10 +133,13 @@ object TrackerParser {
     }
 
     /**
-     * Get the list of legacy column keys.
+     * Returns the list of standard column keys expected by legacy CSV export and terminal table renderers.
+     *
+     * @return Ordered list of column key strings.
+     * @see LegacyRowProjector.LEGACY_KEYS
      */
     @JvmStatic
-    fun getLegacyKeys(): List<String> {
+    public fun getLegacyKeys(): List<String> {
         return LegacyRowProjector.LEGACY_KEYS
     }
 }

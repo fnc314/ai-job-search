@@ -76,6 +76,19 @@ import fnc314jobsearchtracker.features_job_applications_details_ui.generated.res
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
+/**
+ * Primary detail screen displaying comprehensive information about a single job application.
+ *
+ * Renders company profile, role metadata, compensation ranges, historical timeline events,
+ * generated artifacts, and interactive actions (status transition, fit-score calibration, event creation).
+ *
+ * @param applicationId Unique identifier of the application record to display.
+ * @param viewModel [JobApplicationDetailViewModel] managing state and business operations.
+ * @param onNavigateBack Callback invoked when the user selects back navigation.
+ * @param onArtifactClick Callback invoked when an artifact item is clicked.
+ * @param settings Application configuration controlling formatting and density.
+ * @param modifier Composable layout modifier.
+ */
 @Composable
 public fun JobApplicationsDetailsScreen(
     applicationId: String,

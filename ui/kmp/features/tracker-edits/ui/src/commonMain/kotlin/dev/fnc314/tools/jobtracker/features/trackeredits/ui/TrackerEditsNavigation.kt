@@ -10,12 +10,24 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
 
+/**
+ * Navigation destination route for the proposed edits review dashboard.
+ */
 @Serializable
 public data object EditsRoute : NavKeyRoute {
     @Transient
     override val titleRes: StringResource = Res.string.edits_route_title
 }
 
+/**
+ * Creates the [FeatureNavigationHook] for the proposed edits inbox destination.
+ *
+ * @param onNavigateBack Callback invoked when exiting the review dashboard.
+ * @param onEditClick Callback invoked when an individual edit item is selected.
+ * @param settings Current [AppSettings] controlling visual preferences.
+ * @param onSettingsChange Callback receiving settings updates.
+ * @return Configured [FeatureNavigationHook] ready for graph registration.
+ */
 public fun trackerEditsNavHook(
     onNavigateBack: () -> Unit,
     onEditClick: (String) -> Unit = {},

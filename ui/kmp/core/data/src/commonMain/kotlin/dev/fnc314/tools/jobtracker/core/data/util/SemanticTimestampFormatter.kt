@@ -4,15 +4,20 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 
 /**
- * Formats a semantic timestamp following the precedence:
- * updatedAt -> createdAt -> null
+ * Formats a semantic relative timestamp following precedence:
+ * `updatedAt` -> `createdAt` -> `null`.
  *
  * Rules:
- *  - X hours until 24
- *  - X days until 7
+ *  - X hours until 24 hours
+ *  - X days until 7 days
  *  - X Weeks and Y days until 4 Weeks
  *  - X Months, Y Weeks, and Z Days until 2 Months
  *  - YYYY-MM-DD (X Months ago) thereafter
+ *
+ * @param updatedAt Last modified timestamp.
+ * @param createdAt Initial creation timestamp.
+ * @param now Reference evaluation timestamp. Defaults to [Clock.System.now].
+ * @return Formatted human-friendly relative string prefixed with `"Updated "` or `"Created "`, or null if both inputs are null.
  */
 public fun formatSemanticTimestamp(
     updatedAt: Instant?,
@@ -26,8 +31,13 @@ public fun formatSemanticTimestamp(
 }
 
 /**
- * Formats a single Instant into semantic human-friendly relative duration text.
+ * Formats a single [Instant] into human-friendly relative duration text.
+ *
+ * @param instant The past timestamp to format.
+ * @param now Reference evaluation timestamp. Defaults to [Clock.System.now].
+ * @return Semantic relative time description (e.g., `"2 hours ago"`, `"3 days ago"`, `"1 week and 2 days ago"`).
  */
+@Suppress("CyclomaticComplexMethod", "MagicNumber")
 public fun formatSemanticInstant(
     instant: Instant,
     now: Instant = Clock.System.now(),
@@ -48,38 +58,40 @@ public fun formatSemanticInstant(
         totalDays < 7 -> {
             if (totalDays == 1L) "1 day ago" else "$totalDays days ago"
         }
-        totalDays < 28 -> { // Until 4 Weeks
+        totalDays < 28 -> {
             val weeks = totalDays / 7
-            val days = totalDays % 7
+            val remainingDays = totalDays % 7
             val weekPart = if (weeks == 1L) "1 week" else "$weeks weeks"
-            if (days == 0L) {
-                "$weekPart ago"
-            } else {
-                val dayPart = if (days == 1L) "1 day" else "$days days"
-                "$weekPart and $dayPart ago"
+            val dayPart = when (remainingDays) {
+                0L -> ""
+                1L -> " and 1 day"
+                else -> " and $remainingDays days"
             }
+            "$weekPart$dayPart ago"
         }
-        totalDays < 60 -> { // Until 2 Months (~60 days)
-            val months = (totalDays / 30).coerceAtLeast(1)
-            val remainingDaysAfterMonths = totalDays % 30
-            val weeks = remainingDaysAfterMonths / 7
-            val days = remainingDaysAfterMonths % 7
+        totalDays < 60 -> {
+            val months = totalDays / 30
+            val remDaysAfterMonth = totalDays % 30
+            val weeks = remDaysAfterMonth / 7
+            val remDaysAfterWeek = remDaysAfterMonth % 7
 
-            val parts = mutableListOf<String>()
-            parts.add(if (months == 1L) "1 month" else "$months months")
-            if (weeks > 0) {
-                parts.add(if (weeks == 1L) "1 week" else "$weeks weeks")
+            val monthPart = if (months == 1L) "1 month" else "$months months"
+            val weekPart = when (weeks) {
+                0L -> ""
+                1L -> ", 1 week"
+                else -> ", $weeks weeks"
             }
-            if (days > 0) {
-                parts.add(if (days == 1L) "1 day" else "$days days")
+            val dayPart = when (remDaysAfterWeek) {
+                0L -> ""
+                1L -> ", and 1 day"
+                else -> ", and $remDaysAfterWeek days"
             }
-            parts.joinToString(", ") + " ago"
+            "$monthPart$weekPart$dayPart ago"
         }
         else -> {
-            // YYYY-MM-DD (X months ago) thereafter
-            val months = (totalDays / 30.4375).toInt().coerceAtLeast(2)
-            val dateStr = instant.toString().take(10)
-            "$dateStr ($months months ago)"
+            val months = totalDays / 30
+            val monthText = if (months == 1L) "1 month ago" else "$months months ago"
+            "${instant.toString().substringBefore('T')} ($monthText)"
         }
     }
 }
