@@ -2,23 +2,15 @@ package dev.fnc314.tools.jobtracker.features.trackeredits.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerEdit
 import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.ApproveEditUseCase
 import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.ExpireStaleEditsUseCase
 import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.LoadPendingEditsUseCase
 import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.RejectEditUseCase
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-public data class TrackerEditsUiState(
-    val edits: List<TrackerEdit> = emptyList(),
-    val loading: Boolean = false,
-    val error: String? = null,
-    val actionInProgress: Boolean = false,
-)
 
 public class TrackerEditsViewModel(
     private val loadPendingEdits: LoadPendingEditsUseCase,
@@ -27,68 +19,88 @@ public class TrackerEditsViewModel(
     private val expireStaleEdits: ExpireStaleEditsUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(TrackerEditsUiState())
+    private val _uiState = MutableStateFlow<TrackerEditsUiState>(TrackerEditsUiState.Loading)
     public val uiState: StateFlow<TrackerEditsUiState> = _uiState.asStateFlow()
 
     init {
         loadEdits()
     }
 
-    public fun loadEdits() {
+    public fun onIntent(intent: TrackerEditsUiIntent): Unit {
+        when (intent) {
+            is TrackerEditsUiIntent.Refresh -> loadEdits()
+            is TrackerEditsUiIntent.ApproveEdit -> handleApprove(intent.id, intent.note)
+            is TrackerEditsUiIntent.RejectEdit -> handleReject(intent.id, intent.note)
+            is TrackerEditsUiIntent.ExpireStaleEdits -> handleExpireStaleEdits()
+            is TrackerEditsUiIntent.ClickBack -> handleClickBack()
+        }
+    }
+
+    private fun loadEdits(): Unit {
         viewModelScope.launch {
-            _uiState.update { it.copy(loading = true, error = null) }
+            _uiState.value = TrackerEditsUiState.Loading
             try {
                 val edits = loadPendingEdits(LoadPendingEditsUseCase.Params(forceRefresh = true))
-                _uiState.update { it.copy(edits = edits, loading = false) }
+                val uiModels = edits.map { it.toUiModel() }.toPersistentList()
+                _uiState.value = TrackerEditsUiState.Content(edits = uiModels, isActionInProgress = false)
             } catch (e: Exception) {
-                _uiState.update { it.copy(loading = false, error = e.message ?: "Failed to load edits") }
+                _uiState.value = TrackerEditsUiState.Error(message = e.message ?: "Failed to load edits")
             }
         }
     }
 
-    public fun approveEdit(id: String, note: String? = null) {
+    private fun handleApprove(id: String, note: String?): Unit {
+        val currentContent = _uiState.value as? TrackerEditsUiState.Content
         viewModelScope.launch {
-            _uiState.update { it.copy(actionInProgress = true) }
+            if (currentContent != null) {
+                _uiState.value = currentContent.copy(isActionInProgress = true)
+            }
             try {
                 approveEdit(ApproveEditUseCase.Params(id = id, note = note))
-                _uiState.update {
-                    it.copy(
-                        edits = it.edits.filter { edit -> edit.id != id },
-                        actionInProgress = false,
-                    )
-                }
+                val updatedEdits = currentContent?.edits?.filter { it.id != id }?.toPersistentList()
+                    ?: emptyList<TrackerEditItemUiModel>().toPersistentList()
+                _uiState.value = TrackerEditsUiState.Content(edits = updatedEdits, isActionInProgress = false)
             } catch (e: Exception) {
-                _uiState.update { it.copy(actionInProgress = false, error = e.message ?: "Failed to approve edit") }
+                _uiState.value = TrackerEditsUiState.Error(message = e.message ?: "Failed to approve edit")
             }
         }
     }
 
-    public fun rejectEdit(id: String, reason: String) {
+    private fun handleReject(id: String, note: String?): Unit {
+        val currentContent = _uiState.value as? TrackerEditsUiState.Content
         viewModelScope.launch {
-            _uiState.update { it.copy(actionInProgress = true) }
+            if (currentContent != null) {
+                _uiState.value = currentContent.copy(isActionInProgress = true)
+            }
             try {
-                rejectEdit(RejectEditUseCase.Params(id = id, reason = reason))
-                _uiState.update {
-                    it.copy(
-                        edits = it.edits.filter { edit -> edit.id != id },
-                        actionInProgress = false,
-                    )
-                }
+                rejectEdit(RejectEditUseCase.Params(id = id, reason = note ?: "Rejected by user"))
+                val updatedEdits = currentContent?.edits?.filter { it.id != id }?.toPersistentList()
+                    ?: emptyList<TrackerEditItemUiModel>().toPersistentList()
+                _uiState.value = TrackerEditsUiState.Content(edits = updatedEdits, isActionInProgress = false)
             } catch (e: Exception) {
-                _uiState.update { it.copy(actionInProgress = false, error = e.message ?: "Failed to reject edit") }
+                _uiState.value = TrackerEditsUiState.Error(message = e.message ?: "Failed to reject edit")
             }
         }
     }
 
-    public fun expireStaleEdits() {
+    private fun handleExpireStaleEdits(): Unit {
+        val currentContent = _uiState.value as? TrackerEditsUiState.Content
         viewModelScope.launch {
-            _uiState.update { it.copy(actionInProgress = true) }
+            if (currentContent != null) {
+                _uiState.value = currentContent.copy(isActionInProgress = true)
+            }
             try {
                 expireStaleEdits(ExpireStaleEditsUseCase.Params())
-                loadEdits()
+                val edits = loadPendingEdits(LoadPendingEditsUseCase.Params(forceRefresh = true))
+                val uiModels = edits.map { it.toUiModel() }.toPersistentList()
+                _uiState.value = TrackerEditsUiState.Content(edits = uiModels, isActionInProgress = false)
             } catch (e: Exception) {
-                _uiState.update { it.copy(actionInProgress = false, error = e.message ?: "Failed to expire stale edits") }
+                _uiState.value = TrackerEditsUiState.Error(message = e.message ?: "Failed to expire stale edits")
             }
         }
+    }
+
+    private fun handleClickBack(): Unit {
+        _uiState.value = TrackerEditsUiState.NavigateBack
     }
 }

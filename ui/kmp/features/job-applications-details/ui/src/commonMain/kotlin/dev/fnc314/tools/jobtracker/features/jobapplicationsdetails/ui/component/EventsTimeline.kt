@@ -2,29 +2,45 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
+import dev.fnc314.tools.jobtracker.core.data.model.displayName
+import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticInstant
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
-import dev.fnc314.tools.jobtracker.core.data.model.*
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.EventDetailDialog
-import dev.fnc314.tools.jobtracker.core.data.model.displayName
-import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticInstant
 
 @Composable
 internal fun EventsTimeline(
     events: List<TrackerEvent>,
-    application: JobApplication? = null,
     modifier: Modifier = Modifier,
-) {
+): Unit {
     var selectedEvent by remember { mutableStateOf<TrackerEvent?>(null) }
 
     if (selectedEvent != null) {
@@ -34,53 +50,7 @@ internal fun EventsTimeline(
         )
     }
 
-    // Populate events: if empty, derive synthetic lifecycle events from application
-    val displayEvents = remember(events, application) {
-        if (events.isNotEmpty()) {
-            events
-        } else if (application != null) {
-            buildList {
-                application.createdAt?.let { created ->
-                    add(
-                        TrackerEvent(
-                            id = "evt_created",
-                            applicationId = application.id,
-                            type = TrackerEventType.APPLY,
-                            statusFrom = null,
-                            statusTo = application.status,
-                            note = "Application initiated for ${application.company}",
-                            emailMessageId = null,
-                            actor = EventActor.USER,
-                            derivedFrom = DerivedFrom.MANUAL,
-                            confidence = Confidence.HIGH,
-                            createdAt = created,
-                        )
-                    )
-                }
-                if (application.updatedAt != null && application.updatedAt != application.createdAt) {
-                    add(
-                        TrackerEvent(
-                            id = "evt_updated",
-                            applicationId = application.id,
-                            type = TrackerEventType.CORRECT_STATUS,
-                            statusFrom = TrackerStatus.DRAFTING,
-                            statusTo = application.status,
-                            note = "Application updated to ${application.status.displayName()}",
-                            emailMessageId = null,
-                            actor = EventActor.AGENT,
-                            derivedFrom = DerivedFrom.MANUAL,
-                            confidence = Confidence.HIGH,
-                            createdAt = application.updatedAt,
-                        )
-                    )
-                }
-            }
-        } else {
-            emptyList()
-        }
-    }
-
-    if (displayEvents.isEmpty()) {
+    if (events.isEmpty()) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
@@ -100,8 +70,8 @@ internal fun EventsTimeline(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.none),
     ) {
-        displayEvents.forEachIndexed { index, event ->
-            val isLast = index == displayEvents.lastIndex
+        events.forEachIndexed { index, event ->
+            val isLast = index == events.lastIndex
 
             Row(
                 modifier = Modifier

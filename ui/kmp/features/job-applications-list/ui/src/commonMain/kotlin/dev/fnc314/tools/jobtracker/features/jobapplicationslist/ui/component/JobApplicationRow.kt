@@ -1,41 +1,45 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.component
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
-import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.widgets.FitBadge
 import dev.fnc314.tools.jobtracker.core.widgets.StatusBadge
-import dev.fnc314.tools.jobtracker.core.data.model.displayName
-import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticTimestamp
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationItemUiModel
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationsListUiIntent
 
 @Composable
 internal fun JobApplicationRow(
-    application: JobApplication,
-    onClick: () -> Unit,
+    model: JobApplicationItemUiModel,
+    onIntent: (JobApplicationsListUiIntent) -> Unit,
     modifier: Modifier = Modifier,
-) {
-    val statusName = application.status.displayName()
-    val fitScore = application.fitScore
-
+): Unit {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clickable(
-                onClick = onClick,
-                onClickLabel = "View ${application.company} details",
+                onClick = { onIntent(model.onClickIntent) },
+                onClickLabel = "View ${model.companyName} details",
             )
             .padding(MaterialTheme.spacing.medium)
             .semantics {
-                contentDescription = "${application.company}, ${application.role ?: "No role"}, $statusName${fitScore?.let { ", Fit $it" } ?: ""}"
+                val roleDesc = if (model.roleTitle.isNotEmpty()) model.roleTitle else "No role"
+                val fitDesc = model.fitScoreText?.let { ", $it" } ?: ""
+                contentDescription = "${model.companyName}, $roleDesc, ${model.statusDisplayName}$fitDesc"
             },
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
     ) {
@@ -46,7 +50,7 @@ internal fun JobApplicationRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = application.company,
+                text = model.companyName,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f, fill = false),
@@ -54,7 +58,7 @@ internal fun JobApplicationRow(
             )
             Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
             StatusBadge(
-                status = application.status,
+                status = model.status,
                 textAlign = TextAlign.End,
                 maxLines = 1,
             )
@@ -66,15 +70,17 @@ internal fun JobApplicationRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            application.role?.let { role ->
+            if (model.roleTitle.isNotEmpty()) {
                 Text(
-                    text = role,
+                    text = model.roleTitle,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f, fill = false),
                     maxLines = 1,
                 )
-            } ?: Spacer(modifier = Modifier.weight(1f))
+            } else {
+                Spacer(modifier = Modifier.weight(1f))
+            }
 
             Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
 
@@ -82,17 +88,13 @@ internal fun JobApplicationRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             ) {
-                if (fitScore != null) {
-                    FitBadge(score = fitScore)
+                if (model.fitScore != null) {
+                    FitBadge(score = model.fitScore)
                 }
 
-                val timeLabel = formatSemanticTimestamp(
-                    updatedAt = application.updatedAt,
-                    createdAt = application.createdAt,
-                )
-                if (timeLabel != null) {
+                if (model.formattedCreatedDate.isNotEmpty()) {
                     Text(
-                        text = timeLabel,
+                        text = model.formattedCreatedDate,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.outline,
                         maxLines = 1,

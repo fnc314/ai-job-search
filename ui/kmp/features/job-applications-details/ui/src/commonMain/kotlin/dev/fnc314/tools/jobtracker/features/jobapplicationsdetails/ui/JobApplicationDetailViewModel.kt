@@ -1,6 +1,7 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.Confidence
@@ -17,23 +18,12 @@ import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecas
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.RecordEventUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.UpdateApplicationStatusUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.UpdateFitScoreUseCase
+import kotlin.time.Clock
+import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
-import kotlin.uuid.Uuid
-
-public data class DetailUiState(
-    val application: JobApplication? = null,
-    val company: Company? = null,
-    val events: List<TrackerEvent> = emptyList(),
-    val artifacts: List<TrackerArtifact> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val isUpdating: Boolean = false,
-)
 
 public class JobApplicationDetailViewModel(
     private val loadApplicationUseCase: LoadJobApplicationUseCase,
@@ -43,100 +33,180 @@ public class JobApplicationDetailViewModel(
     private val updateFitScoreUseCase: UpdateFitScoreUseCase,
     private val getSignedUrlUseCase: GetArtifactSignedUrlUseCase,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(DetailUiState())
-    public val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
-    // Simple scope for synchronous calls from Compose
-    private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default)
+    private val _uiState = MutableStateFlow<JobApplicationDetailUiState>(JobApplicationDetailUiState.Loading)
+    public val uiState: StateFlow<JobApplicationDetailUiState> = _uiState.asStateFlow()
 
-    public fun loadApplication(id: String) {
-        scope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+    private var currentApplication: JobApplication? = null
+    private var currentCompany: Company? = null
+    private var currentEvents: List<TrackerEvent> = emptyList()
+    private var currentArtifacts: List<TrackerArtifact> = emptyList()
+
+    public fun onIntent(intent: JobApplicationDetailUiIntent): Unit {
+        when (intent) {
+            is JobApplicationDetailUiIntent.Load -> handleLoad(intent.id)
+            is JobApplicationDetailUiIntent.UpdateStatus -> handleUpdateStatus(intent.newStatus, intent.date, intent.note)
+            is JobApplicationDetailUiIntent.UpdateFitScore -> handleUpdateFitScore(intent.newScore)
+            is JobApplicationDetailUiIntent.RecordEvent -> handleRecordEvent(intent.type, intent.notes)
+            is JobApplicationDetailUiIntent.OpenArtifact -> handleOpenArtifact(intent.artifactId)
+            is JobApplicationDetailUiIntent.ClickBack -> handleClickBack()
+        }
+    }
+
+    private fun handleLoad(id: String): Unit {
+        viewModelScope.launch {
+            _uiState.value = JobApplicationDetailUiState.Loading
             try {
                 val app = loadApplicationUseCase(LoadJobApplicationUseCase.Params(id = id))
-                val companies = loadCompaniesUseCase(LoadCompaniesUseCase.Params(forceRefresh = false))
-                val company = companies.find { it.name.equals(app?.company ?: "", ignoreCase = true) }
-                _uiState.update {
-                    it.copy(
-                        application = app,
-                        company = company,
-                        isLoading = false,
-                        events = emptyList(),
-                        artifacts = emptyList(),
-                    )
+                if (app == null) {
+                    _uiState.value = JobApplicationDetailUiState.Error("Application not found")
+                    return@launch
                 }
+                val companies = loadCompaniesUseCase(LoadCompaniesUseCase.Params(forceRefresh = false))
+                val company = companies.find { it.name.equals(app.company, ignoreCase = true) }
+                currentApplication = app
+                currentCompany = company
+                currentEvents = emptyList()
+                currentArtifacts = emptyList()
+
+                val model = createJobApplicationDetailUiModel(
+                    app = app,
+                    company = company,
+                    events = currentEvents,
+                    artifacts = currentArtifacts,
+                )
+                currentEvents = model.timelineEvents
+                _uiState.value = JobApplicationDetailUiState.Content(
+                    model = model,
+                    isUpdating = false,
+                )
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, error = e.message ?: "Unknown error") }
+                _uiState.value = JobApplicationDetailUiState.Error(
+                    message = e.message ?: "Failed to load application"
+                )
             }
         }
     }
 
-    public fun updateStatus(status: TrackerStatus, date: String? = null, note: String? = null) {
-        val app = _uiState.value.application ?: return
-        scope.launch {
-            _uiState.update { it.copy(isUpdating = true) }
+    private fun handleUpdateStatus(newStatus: TrackerStatus, date: String?, note: String?): Unit {
+        val app = currentApplication ?: return
+        val currentContent = _uiState.value as? JobApplicationDetailUiState.Content ?: return
+        _uiState.value = currentContent.copy(isUpdating = true)
+        viewModelScope.launch {
             try {
-                val updated = updateStatusUseCase(UpdateApplicationStatusUseCase.Params(
-                    id = app.id,
-                    status = status,
-                    date = date,
-                    note = note,
-                ))
-                _uiState.update { it.copy(application = updated, isUpdating = false) }
+                val updated = updateStatusUseCase(
+                    UpdateApplicationStatusUseCase.Params(
+                        id = app.id,
+                        status = newStatus,
+                        date = date,
+                        note = note,
+                    )
+                )
+                currentApplication = updated
+                val updatedModel = createJobApplicationDetailUiModel(
+                    app = updated,
+                    company = currentCompany,
+                    events = currentEvents,
+                    artifacts = currentArtifacts,
+                )
+                _uiState.value = JobApplicationDetailUiState.Content(
+                    model = updatedModel,
+                    isUpdating = false,
+                )
             } catch (e: Exception) {
-                _uiState.update { it.copy(isUpdating = false, error = e.message ?: "Unknown error") }
+                _uiState.value = JobApplicationDetailUiState.Error(
+                    message = e.message ?: "Failed to update status"
+                )
             }
         }
     }
 
-    public fun recordEvent(type: TrackerEventType, note: String? = null) {
-        val app = _uiState.value.application ?: return
+    private fun handleUpdateFitScore(newScore: Int): Unit {
+        val app = currentApplication ?: return
+        val currentContent = _uiState.value as? JobApplicationDetailUiState.Content ?: return
+        _uiState.value = currentContent.copy(isUpdating = true)
+        viewModelScope.launch {
+            try {
+                val updated = updateFitScoreUseCase(
+                    UpdateFitScoreUseCase.Params(
+                        id = app.id,
+                        score = newScore,
+                    )
+                )
+                currentApplication = updated
+                val updatedModel = createJobApplicationDetailUiModel(
+                    app = updated,
+                    company = currentCompany,
+                    events = currentEvents,
+                    artifacts = currentArtifacts,
+                )
+                _uiState.value = JobApplicationDetailUiState.Content(
+                    model = updatedModel,
+                    isUpdating = false,
+                )
+            } catch (e: Exception) {
+                _uiState.value = JobApplicationDetailUiState.Error(
+                    message = e.message ?: "Failed to update fit score"
+                )
+            }
+        }
+    }
+
+    private fun handleRecordEvent(type: TrackerEventType, notes: String): Unit {
+        val app = currentApplication ?: return
+        val currentContent = _uiState.value as? JobApplicationDetailUiState.Content ?: return
+        _uiState.value = currentContent.copy(isUpdating = true)
         val event = Factory.createTrackerEvent(
             id = Uuid.random().toString(),
             applicationId = app.id,
             type = type,
             statusFrom = app.status,
             statusTo = null,
-            note = note,
+            note = notes.ifBlank { null },
             emailMessageId = null,
             actor = EventActor.USER,
             derivedFrom = DerivedFrom.MANUAL,
             confidence = Confidence.HIGH,
             createdAt = Clock.System.now(),
         )
-        scope.launch {
-            _uiState.update { it.copy(isUpdating = true) }
+        viewModelScope.launch {
             try {
                 recordEventUseCase(RecordEventUseCase.Params(event = event))
-                _uiState.update { it.copy(isUpdating = false) }
+                currentEvents = currentEvents + event
+                val updatedModel = createJobApplicationDetailUiModel(
+                    app = app,
+                    company = currentCompany,
+                    events = currentEvents,
+                    artifacts = currentArtifacts,
+                )
+                _uiState.value = JobApplicationDetailUiState.Content(
+                    model = updatedModel,
+                    isUpdating = false,
+                )
             } catch (e: Exception) {
-                _uiState.update { it.copy(isUpdating = false, error = e.message ?: "Unknown error") }
+                _uiState.value = JobApplicationDetailUiState.Error(
+                    message = e.message ?: "Failed to record event"
+                )
             }
         }
     }
 
-    public fun updateFitScore(score: Int) {
-        val app = _uiState.value.application ?: return
-        scope.launch {
-            _uiState.update { it.copy(isUpdating = true) }
-            try {
-                val updated = updateFitScoreUseCase(UpdateFitScoreUseCase.Params(id = app.id, score = score))
-                _uiState.update { it.copy(application = updated, isUpdating = false) }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(isUpdating = false, error = e.message ?: "Unknown error") }
+    private fun handleOpenArtifact(artifactId: String): Unit {
+        val currentContent = _uiState.value as? JobApplicationDetailUiState.Content ?: return
+        val artifact = currentContent.model.artifacts.find { it.id == artifactId } ?: return
+        val storagePath = artifact.storage?.path
+        if (storagePath != null) {
+            viewModelScope.launch {
+                try {
+                    getSignedUrlUseCase(GetArtifactSignedUrlUseCase.Params(path = storagePath))
+                } catch (_: Exception) {
+                    // Handled gracefully
+                }
             }
         }
     }
 
-    public suspend fun getArtifactSignedUrl(path: String): String? {
-        return try {
-            getSignedUrlUseCase(GetArtifactSignedUrlUseCase.Params(path = path))
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    public fun dismissError() {
-        _uiState.update { it.copy(error = null) }
+    private fun handleClickBack(): Unit {
+        _uiState.value = JobApplicationDetailUiState.NavigateBack
     }
 }

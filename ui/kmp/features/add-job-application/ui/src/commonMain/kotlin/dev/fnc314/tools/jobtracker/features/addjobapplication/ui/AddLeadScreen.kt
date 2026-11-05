@@ -1,15 +1,34 @@
 package dev.fnc314.tools.jobtracker.features.addjobapplication.ui
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
+import androidx.compose.ui.Modifier
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.widgets.NotesWidget
@@ -20,8 +39,28 @@ import org.koin.compose.viewmodel.koinViewModel
 public fun AddLeadScreen(
     onNavigateBack: () -> Unit,
     viewModel: AddLeadViewModel = koinViewModel(),
-) {
-    val formState by viewModel.formState.collectAsState()
+): Unit {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is AddLeadUiState.NavigateBack -> onNavigateBack()
+            is AddLeadUiState.Success -> onNavigateBack()
+            else -> Unit
+        }
+    }
+
+    var rememberedForm by remember { mutableStateOf(AddLeadFormUiModel()) }
+    if (uiState is AddLeadUiState.Editing) {
+        rememberedForm = (uiState as AddLeadUiState.Editing).form
+    }
+
+    val isSubmitting = uiState is AddLeadUiState.Submitting
+    val errorMessage = when (val state = uiState) {
+        is AddLeadUiState.Error -> state.message
+        is AddLeadUiState.Editing -> state.form.validationError
+        else -> null
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -50,90 +89,103 @@ public fun AddLeadScreen(
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    OutlinedButton(onClick = onNavigateBack) {
+                    OutlinedButton(
+                        onClick = { viewModel.onIntent(AddLeadUiIntent.ClickBack) },
+                    ) {
                         Text("Cancel")
                     }
                     Button(
-                        onClick = { viewModel.submit { onNavigateBack() } },
-                        enabled = !formState.submitting,
+                        onClick = { viewModel.onIntent(AddLeadUiIntent.Submit) },
+                        enabled = !isSubmitting,
                     ) {
-                        Text(if (formState.submitting) "Saving..." else "Save")
+                        Text(if (isSubmitting) "Saving..." else "Save")
                     }
                 }
             }
-                Text(
-                    text = "(*) Denotes a required field",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
 
-                // Error message
-                formState.error?.let { error ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                        ),
-                    ) {
-                        Text(
-                            text = error,
-                            modifier = Modifier.padding(MaterialTheme.spacing.subMedium),
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
+            Text(
+                text = "(*) Denotes a required field",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            // Error message
+            errorMessage?.let { error ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                    ),
+                ) {
+                    Text(
+                        text = error,
+                        modifier = Modifier.padding(MaterialTheme.spacing.subMedium),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                 }
-
-                // Company (required)
-                OutlinedTextField(
-                    value = formState.company,
-                    onValueChange = viewModel::updateCompany,
-                    label = { Text("Company (*)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("e.g. Acme Corp") },
-                    singleLine = true,
-                    supportingText = { Text("Required") },
-                )
-
-                // Contact name
-                OutlinedTextField(
-                    value = formState.contact,
-                    onValueChange = viewModel::updateContact,
-                    label = { Text("Contact Name") },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("e.g. Jane Smith") },
-                    singleLine = true,
-                )
-
-                // Channel
-                OutlinedTextField(
-                    value = formState.channel,
-                    onValueChange = viewModel::updateChannel,
-                    label = { Text("Channel") },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("e.g. LinkedIn, Referral, Direct") },
-                    singleLine = true,
-                )
-
-                // Notes
-                NotesWidget(
-                    initialNotes = formState.notes,
-                    onNotesChanged = viewModel::updateNotes,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                // Tags
-                OutlinedTextField(
-                    value = formState.tags,
-                    onValueChange = viewModel::updateTags,
-                    label = { Text("Tags") },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("recruiter, outbound, kotlin (comma-separated)") },
-                    singleLine = true,
-                )
-
-                // Spacing well below the last item for keyboard clearance
-                Spacer(modifier = Modifier.height(MaterialTheme.componentSizes.formBottomClearance))
             }
+
+            // Company (required)
+            OutlinedTextField(
+                value = rememberedForm.company,
+                onValueChange = { viewModel.onIntent(AddLeadUiIntent.UpdateCompany(it)) },
+                label = { Text("Company (*)") },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("e.g. Acme Corp") },
+                singleLine = true,
+                supportingText = { Text("Required") },
+            )
+
+            // Contact name
+            OutlinedTextField(
+                value = rememberedForm.contact,
+                onValueChange = { viewModel.onIntent(AddLeadUiIntent.UpdateContact(it)) },
+                label = { Text("Contact Name") },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("e.g. Jane Smith") },
+                singleLine = true,
+            )
+
+            // Role
+            OutlinedTextField(
+                value = rememberedForm.role,
+                onValueChange = { viewModel.onIntent(AddLeadUiIntent.UpdateRole(it)) },
+                label = { Text("Role") },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("e.g. Staff Android Engineer") },
+                singleLine = true,
+            )
+
+            // Channel
+            OutlinedTextField(
+                value = rememberedForm.channel,
+                onValueChange = { viewModel.onIntent(AddLeadUiIntent.UpdateChannel(it)) },
+                label = { Text("Channel") },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("e.g. LinkedIn, Referral, Direct") },
+                singleLine = true,
+            )
+
+            // Notes
+            NotesWidget(
+                initialNotes = rememberedForm.notes,
+                onNotesChanged = { viewModel.onIntent(AddLeadUiIntent.UpdateNotes(it)) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            // Tags
+            OutlinedTextField(
+                value = rememberedForm.tags,
+                onValueChange = { viewModel.onIntent(AddLeadUiIntent.UpdateTags(it)) },
+                label = { Text("Tags") },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("recruiter, outbound, kotlin (comma-separated)") },
+                singleLine = true,
+            )
+
+            // Spacing well below the last item for keyboard clearance
+            Spacer(modifier = Modifier.height(MaterialTheme.componentSizes.formBottomClearance))
         }
     }
+}

@@ -1,18 +1,42 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
+import dev.fnc314.tools.jobtracker.core.data.model.displayName
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
-import dev.fnc314.tools.jobtracker.core.data.model.*
-import dev.fnc314.tools.jobtracker.core.data.model.displayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,7 +45,7 @@ internal fun UpdateStatusDialog(
     onConfirm: (TrackerStatus, String?, String?) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-) {
+): Unit {
     var selectedStatus by remember { mutableStateOf(currentStatus ?: TrackerStatus.APPLIED) }
     var note by remember { mutableStateOf("") }
 
@@ -101,7 +125,7 @@ internal fun RecordEventDialog(
     onConfirm: (TrackerEventType, String?) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-) {
+): Unit {
     var selectedType by remember { mutableStateOf(TrackerEventType.APPLY) }
     var note by remember { mutableStateOf("") }
 
@@ -181,7 +205,7 @@ internal fun UpdateFitScoreDialog(
     onConfirm: (Int) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-) {
+): Unit {
     var score by remember(currentScore) { mutableIntStateOf(currentScore ?: 50) }
 
     AlertDialog(
@@ -232,7 +256,7 @@ internal fun UpdateFitScoreDialog(
 internal fun MarkdownPreviewDialog(
     artifact: TrackerArtifact,
     onDismiss: () -> Unit,
-) {
+): Unit {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -299,7 +323,7 @@ internal fun MarkdownPreviewDialog(
 internal fun EventDetailDialog(
     event: TrackerEvent,
     onDismiss: () -> Unit,
-) {
+): Unit {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {

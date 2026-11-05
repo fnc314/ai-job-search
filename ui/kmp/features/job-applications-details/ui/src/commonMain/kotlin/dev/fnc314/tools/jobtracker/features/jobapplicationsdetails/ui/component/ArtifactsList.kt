@@ -1,26 +1,46 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.component
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.data.model.displayName
+import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
+import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
-import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.MarkdownPreviewDialog
-import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
-import dev.fnc314.tools.jobtracker.core.data.model.displayName
 
 @Composable
 internal fun ArtifactsList(
@@ -29,7 +49,7 @@ internal fun ArtifactsList(
     modifier: Modifier = Modifier,
     settings: AppSettings = AppSettings(),
     fileOpener: PlatformFileOpener = remember { PlatformFileOpener() },
-) {
+): Unit {
     var previewMarkdownArtifact by remember { mutableStateOf<TrackerArtifact?>(null) }
 
     if (previewMarkdownArtifact != null) {
@@ -120,7 +140,7 @@ internal fun ArtifactItem(
     settings: AppSettings = AppSettings(),
     onViewInternal: () -> Unit = {},
     onOpenExternal: () -> Unit = {},
-) {
+): Unit {
     val kindLabel = artifact.kind.displayName()
     val isPdf = artifact.filename.endsWith(".pdf", ignoreCase = true) ||
             artifact.contentType?.contains("pdf", ignoreCase = true) == true

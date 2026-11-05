@@ -1,7 +1,17 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -10,25 +20,40 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.sharp.Edit
 import androidx.compose.material.icons.sharp.Notifications
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import dev.fnc314.tools.jobtracker.core.data.model.Company
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
-import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
 import dev.fnc314.tools.jobtracker.core.designsystem.WindowWidthSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
-import dev.fnc314.tools.jobtracker.core.data.model.*
 import dev.fnc314.tools.jobtracker.core.widgets.FitBadge
 import dev.fnc314.tools.jobtracker.core.widgets.StatusBadge
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.component.ArtifactsList
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.component.EventsTimeline
-import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
-import dev.fnc314.tools.jobtracker.core.data.model.displayName
-import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticTimestamp
 import org.koin.compose.koinInject
 
 @Composable
@@ -39,22 +64,91 @@ public fun JobApplicationsDetailsScreen(
     onArtifactClick: (TrackerArtifact) -> Unit = {},
     settings: AppSettings = AppSettings(),
     modifier: Modifier = Modifier,
-) {
-    val state by viewModel.uiState.collectAsState()
+): Unit {
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(applicationId) {
-        viewModel.loadApplication(applicationId)
+        viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
     }
 
+    when (val state = uiState) {
+        is JobApplicationDetailUiState.NavigateBack -> {
+            LaunchedEffect(state) {
+                onNavigateBack()
+            }
+        }
+        is JobApplicationDetailUiState.Loading -> {
+            Box(
+                modifier = modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+        is JobApplicationDetailUiState.Error -> {
+            Box(
+                modifier = modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                    modifier = Modifier.padding(MaterialTheme.spacing.medium),
+                ) {
+                    Text(
+                        text = "Error: ${state.message}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                    )
+                    Button(
+                        onClick = {
+                            viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
+                        }
+                    ) {
+                        Text("Retry")
+                    }
+                    TextButton(
+                        onClick = {
+                            viewModel.onIntent(JobApplicationDetailUiIntent.ClickBack)
+                        }
+                    ) {
+                        Text("Go Back")
+                    }
+                }
+            }
+        }
+        is JobApplicationDetailUiState.Content -> {
+            JobApplicationDetailContent(
+                state = state,
+                onIntent = viewModel::onIntent,
+                onArtifactClick = onArtifactClick,
+                settings = settings,
+                modifier = modifier,
+            )
+        }
+    }
+}
+
+@Composable
+private fun JobApplicationDetailContent(
+    state: JobApplicationDetailUiState.Content,
+    onIntent: (JobApplicationDetailUiIntent) -> Unit,
+    onArtifactClick: (TrackerArtifact) -> Unit,
+    settings: AppSettings,
+    modifier: Modifier = Modifier,
+): Unit {
+    val model = state.model
     var showStatusDialog by remember { mutableStateOf(false) }
     var showEventDialog by remember { mutableStateOf(false) }
     var showFitDialog by remember { mutableStateOf(false) }
+    var fabMenuExpanded by remember { mutableStateOf(false) }
 
     if (showStatusDialog) {
         UpdateStatusDialog(
-            currentStatus = state.application?.status,
+            currentStatus = model.status,
             onConfirm = { status, date, note ->
-                viewModel.updateStatus(status, date, note)
+                onIntent(JobApplicationDetailUiIntent.UpdateStatus(newStatus = status, date = date, note = note))
                 showStatusDialog = false
             },
             onDismiss = { showStatusDialog = false },
@@ -64,7 +158,7 @@ public fun JobApplicationsDetailsScreen(
     if (showEventDialog) {
         RecordEventDialog(
             onConfirm = { type, note ->
-                viewModel.recordEvent(type, note)
+                onIntent(JobApplicationDetailUiIntent.RecordEvent(type = type, notes = note.orEmpty()))
                 showEventDialog = false
             },
             onDismiss = { showEventDialog = false },
@@ -73,142 +167,53 @@ public fun JobApplicationsDetailsScreen(
 
     if (showFitDialog) {
         UpdateFitScoreDialog(
-            currentScore = state.application?.fitScore,
+            currentScore = model.fitScore,
             onConfirm = { score ->
-                viewModel.updateFitScore(score)
+                onIntent(JobApplicationDetailUiIntent.UpdateFitScore(newScore = score))
                 showFitDialog = false
             },
             onDismiss = { showFitDialog = false },
         )
     }
 
-    var fabMenuExpanded by remember { mutableStateOf(false) }
+    val windowSizeClass = LocalWindowSizeClass.current
+    val isWide = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
 
-    Box(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        when {
-            state.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            if (state.isUpdating) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            state.error != null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Error: ${state.error}")
-                        Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
-                        Button(onClick = { viewModel.dismissError() }) {
-                            Text("Dismiss")
-                        }
-                        Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
-                        TextButton(onClick = { viewModel.loadApplication(applicationId) }) {
-                            Text("Retry")
-                        }
-                    }
-                }
-            }
-            else -> {
-                val app = state.application
-                val company = state.company
-                val windowSizeClass = LocalWindowSizeClass.current
-                val isWide = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
 
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    if (isWide) {
-                        // 2-column layout for Medium and Expanded viewports
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .widthIn(max = MaterialTheme.componentSizes.detailMaxWidth)
-                                .padding(MaterialTheme.spacing.medium)
-                                .verticalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-                        ) {
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
-                            ) {
-                                ApplicationSummarySection(
-                                    application = app,
-                                    onAdjustFitClick = { showFitDialog = true },
-                                )
-                                company?.let { CompanyProfileSection(company = it) }
-                                app?.notesRendered?.let { notes ->
-                                    SectionHeader("Notes")
-                                    OutlinedCard(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = MaterialTheme.shapes.medium,
-                                    ) {
-                                        Text(
-                                            text = notes,
-                                            modifier = Modifier.padding(MaterialTheme.spacing.medium),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                        )
-                                    }
-                                }
-                            }
-
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
-                            ) {
-                                SectionHeader("Artifacts")
-                                ArtifactsList(
-                                    artifacts = state.artifacts,
-                                    onArtifactClick = onArtifactClick,
-                                    settings = settings,
-                                )
-
-                                SectionHeader("Events Timeline")
-                                EventsTimeline(
-                                    events = state.events,
-                                    application = state.application,
-                                )
-                            }
-                        }
-                    } else {
-                        // 1-column layout for Compact viewports
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f),
+                contentAlignment = Alignment.TopCenter,
+            ) {
+                if (isWide) {
+                    // 2-column layout for Medium and Expanded viewports
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .widthIn(max = MaterialTheme.componentSizes.detailMaxWidth)
+                            .padding(MaterialTheme.spacing.medium)
+                            .verticalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+                    ) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState()),
+                            modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
                         ) {
                             ApplicationSummarySection(
-                                application = app,
+                                model = model,
                                 onAdjustFitClick = { showFitDialog = true },
                             )
-                            company?.let { CompanyProfileSection(company = it) }
-
-                            SectionHeader("Artifacts")
-                            ArtifactsList(
-                                artifacts = state.artifacts,
-                                onArtifactClick = onArtifactClick,
-                                settings = settings,
-                            )
-
-                            SectionHeader("Events Timeline")
-                            EventsTimeline(
-                                events = state.events,
-                                application = state.application,
-                            )
-
-                            app?.notesRendered?.let { notes ->
+                            model.company?.let { CompanyProfileSection(company = it) }
+                            model.notesRendered?.let { notes ->
                                 SectionHeader("Notes")
                                 OutlinedCard(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = MaterialTheme.spacing.medium),
+                                    modifier = Modifier.fillMaxWidth(),
                                     shape = MaterialTheme.shapes.medium,
                                 ) {
                                     Text(
@@ -219,75 +224,132 @@ public fun JobApplicationsDetailsScreen(
                                 }
                             }
                         }
+
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+                        ) {
+                            SectionHeader("Artifacts")
+                            ArtifactsList(
+                                artifacts = model.artifacts,
+                                onArtifactClick = { artifact ->
+                                    onIntent(JobApplicationDetailUiIntent.OpenArtifact(artifact.id))
+                                    onArtifactClick(artifact)
+                                },
+                                settings = settings,
+                            )
+
+                            ApplicationTimelineSection(model = model)
+                        }
+                    }
+                } else {
+                    // 1-column layout for Compact viewports
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+                    ) {
+                        ApplicationSummarySection(
+                            model = model,
+                            onAdjustFitClick = { showFitDialog = true },
+                        )
+                        model.company?.let { CompanyProfileSection(company = it) }
+
+                        SectionHeader("Artifacts")
+                        ArtifactsList(
+                            artifacts = model.artifacts,
+                            onArtifactClick = { artifact ->
+                                onIntent(JobApplicationDetailUiIntent.OpenArtifact(artifact.id))
+                                onArtifactClick(artifact)
+                            },
+                            settings = settings,
+                        )
+
+                        ApplicationTimelineSection(model = model)
+
+                        model.notesRendered?.let { notes ->
+                            SectionHeader("Notes")
+                            OutlinedCard(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = MaterialTheme.spacing.medium),
+                                shape = MaterialTheme.shapes.medium,
+                            ) {
+                                Text(
+                                    text = notes,
+                                    modifier = Modifier.padding(MaterialTheme.spacing.medium),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
 
-        // Details MenuFAB
-        if (state.application != null) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(MaterialTheme.spacing.medium),
+        // Details Menu FAB
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(MaterialTheme.spacing.medium),
+        ) {
+            FloatingActionButton(
+                onClick = { fabMenuExpanded = true },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
             ) {
-                FloatingActionButton(
-                    onClick = { fabMenuExpanded = true },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ) {
-                    Icon(Icons.Default.Edit, contentDescription = "Application Actions")
-                }
-                DropdownMenu(
-                    expanded = fabMenuExpanded,
-                    onDismissRequest = { fabMenuExpanded = false },
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Update Status") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Sharp.Notifications,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-                            )
-                        },
-                        onClick = {
-                            fabMenuExpanded = false
-                            showStatusDialog = true
-                        },
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Record Event") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Sharp.Edit,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-                            )
-                        },
-                        onClick = {
-                            fabMenuExpanded = false
-                            showEventDialog = true
-                        },
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Update Fit Score") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Build,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.tertiary,
-                                modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-                            )
-                        },
-                        onClick = {
-                            fabMenuExpanded = false
-                            showFitDialog = true
-                        },
-                    )
-                }
+                Icon(Icons.Default.Edit, contentDescription = "Application Actions")
+            }
+            DropdownMenu(
+                expanded = fabMenuExpanded,
+                onDismissRequest = { fabMenuExpanded = false },
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Update Status") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Sharp.Notifications,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+                        )
+                    },
+                    onClick = {
+                        fabMenuExpanded = false
+                        showStatusDialog = true
+                    },
+                )
+                DropdownMenuItem(
+                    text = { Text("Record Event") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Sharp.Edit,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+                        )
+                    },
+                    onClick = {
+                        fabMenuExpanded = false
+                        showEventDialog = true
+                    },
+                )
+                DropdownMenuItem(
+                    text = { Text("Update Fit Score") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Build,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+                        )
+                    },
+                    onClick = {
+                        fabMenuExpanded = false
+                        showFitDialog = true
+                    },
+                )
             }
         }
     }
@@ -295,10 +357,10 @@ public fun JobApplicationsDetailsScreen(
 
 @Composable
 internal fun ApplicationSummarySection(
-    application: JobApplication?,
+    model: JobApplicationDetailUiModel,
     modifier: Modifier = Modifier,
     onAdjustFitClick: (() -> Unit)? = null,
-) {
+): Unit {
     OutlinedCard(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier
@@ -317,16 +379,14 @@ internal fun ApplicationSummarySection(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = application?.company ?: "",
+                    text = model.companyName,
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.weight(1f),
                 )
-                application?.status?.let { status ->
-                    StatusBadge(status = status, textAlign = TextAlign.End)
-                }
+                StatusBadge(status = model.status, textAlign = TextAlign.End)
             }
 
-            application?.role?.let { role ->
+            model.role?.let { role ->
                 Text(
                     text = role,
                     style = MaterialTheme.typography.bodyLarge,
@@ -337,21 +397,26 @@ internal fun ApplicationSummarySection(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             ) {
-                application?.location?.let { location ->
+                model.formattedLocation?.let { location ->
                     Text(
                         text = "📍 $location",
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
-                application?.channel?.let { channel ->
-                    Text(
-                        text = "📡 ${channel.displayName()}",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
+                Text(
+                    text = "📡 ${model.channelDisplayText}",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
 
-            val fitScore = application?.fitScore
+            model.formattedCompensation?.let { compensation ->
+                Text(
+                    text = "💰 $compensation",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            val fitScore = model.fitScore
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
@@ -365,7 +430,7 @@ internal fun ApplicationSummarySection(
                 },
             ) {
                 Text(
-                    text = "Fit Rating: ${fitScore ?: "N/A"}",
+                    text = "Fit Rating: ${model.fitScoreDisplayText}",
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 if (fitScore != null) {
@@ -381,17 +446,15 @@ internal fun ApplicationSummarySection(
                 }
             }
 
-            application?.fitEvaluation?.gaps?.let { gaps ->
-                if (gaps.isNotEmpty()) {
-                    Text(
-                        text = "Gaps: ${gaps.joinToString(", ")}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+            if (model.fitGaps.isNotEmpty()) {
+                Text(
+                    text = "Gaps: ${model.fitGaps.joinToString(", ")}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
 
-            application?.jobUrl?.let { url ->
+            model.jobUrl?.let { url ->
                 Text(
                     text = "🔗 Job URL: $url",
                     style = MaterialTheme.typography.bodySmall,
@@ -399,7 +462,7 @@ internal fun ApplicationSummarySection(
                 )
             }
 
-            application?.jobApplicationUrl?.let { url ->
+            model.jobApplicationUrl?.let { url ->
                 Text(
                     text = "📋 Application URL: $url",
                     style = MaterialTheme.typography.bodySmall,
@@ -407,17 +470,28 @@ internal fun ApplicationSummarySection(
                 )
             }
 
-            application?.let { app ->
-                val timeLabel = formatSemanticTimestamp(app.updatedAt, app.createdAt)
-                if (timeLabel != null) {
-                    Text(
-                        text = timeLabel,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+            model.formattedLastUpdated?.let { timeLabel ->
+                Text(
+                    text = timeLabel,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
+    }
+}
+
+@Composable
+internal fun ApplicationTimelineSection(
+    model: JobApplicationDetailUiModel,
+    modifier: Modifier = Modifier,
+): Unit {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.none),
+    ) {
+        SectionHeader("Events Timeline")
+        EventsTimeline(events = model.timelineEvents)
     }
 }
 
@@ -425,7 +499,7 @@ internal fun ApplicationSummarySection(
 internal fun CompanyProfileSection(
     company: Company,
     modifier: Modifier = Modifier,
-) {
+): Unit {
     OutlinedCard(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier
@@ -470,7 +544,7 @@ internal fun CompanyProfileSection(
 internal fun SectionHeader(
     title: String,
     modifier: Modifier = Modifier,
-) {
+): Unit {
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
@@ -478,7 +552,7 @@ internal fun SectionHeader(
             .fillMaxWidth()
             .padding(
                 horizontal = MaterialTheme.spacing.medium,
-                vertical = MaterialTheme.spacing.small
+                vertical = MaterialTheme.spacing.small,
             ),
         color = MaterialTheme.colorScheme.primary,
     )

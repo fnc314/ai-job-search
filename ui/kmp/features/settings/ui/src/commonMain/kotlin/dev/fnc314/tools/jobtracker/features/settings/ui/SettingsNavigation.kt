@@ -12,17 +12,21 @@ import org.koin.compose.viewmodel.koinViewModel
 public data object SettingsRoute : NavKeyRoute
 
 public fun settingsNavHook(
-    settings: AppSettings,
-    onSettingsChange: (AppSettings) -> Unit,
     onNavigateBack: () -> Unit,
 ): FeatureNavigationHook = FeatureNavigationHook { navGraphBuilder, _ ->
     navGraphBuilder.composable<SettingsRoute> {
-        val signInViewModel = koinViewModel<SignInViewModel>()
+        val signInViewModel: SignInViewModel = koinViewModel()
         SettingsScreen(
-            settings = settings,
-            onSettingsChange = onSettingsChange,
             onNavigateBack = onNavigateBack,
             signInViewModel = signInViewModel,
         )
     }
 }
+
+public fun settingsNavHook(
+    settings: AppSettings,
+    onSettingsChange: (AppSettings) -> Unit,
+    onNavigateBack: () -> Unit,
+): FeatureNavigationHook = settingsNavHook(
+    onNavigateBack = onNavigateBack,
+)

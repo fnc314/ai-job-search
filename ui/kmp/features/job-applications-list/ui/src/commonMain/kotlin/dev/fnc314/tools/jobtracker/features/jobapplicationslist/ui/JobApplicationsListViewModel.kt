@@ -4,9 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
+import dev.fnc314.tools.jobtracker.core.data.model.displayName
+import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticTimestamp
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.FilterJobApplicationsUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.FilterJobApplicationsUseCase.ApplicationAge
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.LoadAllJobApplicationsUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.SortJobApplicationsUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.SortJobApplicationsUseCase.SortColumn
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,88 +23,127 @@ public class JobApplicationsListViewModel(
     private val sortApplications: SortJobApplicationsUseCase,
 ) : ViewModel() {
 
-    private val _statusFilter = MutableStateFlow(TrackerStatus.NONE)
-    public val statusFilter: StateFlow<TrackerStatus> = _statusFilter.asStateFlow()
+    private val _uiState: MutableStateFlow<JobApplicationsListUiState> =
+        MutableStateFlow(JobApplicationsListUiState.Loading)
+    public val uiState: StateFlow<JobApplicationsListUiState> = _uiState.asStateFlow()
 
-    private val _ageFilter = MutableStateFlow(FilterJobApplicationsUseCase.ApplicationAge.NONE)
-    public val ageFilter: StateFlow<FilterJobApplicationsUseCase.ApplicationAge> = _ageFilter.asStateFlow()
-
-    private val _sortColumn = MutableStateFlow(SortJobApplicationsUseCase.SortColumn.DATE_CREATED)
-    public val sortColumn: StateFlow<SortJobApplicationsUseCase.SortColumn> = _sortColumn.asStateFlow()
-
-    private val _sortAscending = MutableStateFlow(false)
-    public val sortAscending: StateFlow<Boolean> = _sortAscending.asStateFlow()
-
-    private val _applications = MutableStateFlow<List<JobApplication>>(emptyList())
-    private val _filteredApplications = MutableStateFlow<List<JobApplication>>(emptyList())
-    public val filteredApplications: StateFlow<List<JobApplication>> = _filteredApplications.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    public val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    private val _error = MutableStateFlow<String?>(null)
-    public val error: StateFlow<String?> = _error.asStateFlow()
+    private var rawApplications: List<JobApplication> = emptyList()
+    private var currentStatusFilter: TrackerStatus = TrackerStatus.NONE
+    private var currentAgeFilter: ApplicationAge = ApplicationAge.NONE
+    private var currentSortColumn: SortColumn = SortColumn.DATE_CREATED
+    private var currentSortAscending: Boolean = false
 
     init {
-        loadApplications()
+        loadApplications(isRefresh = false)
     }
 
-    public fun setFilter(
-        status: TrackerStatus = _statusFilter.value,
-        age: FilterJobApplicationsUseCase.ApplicationAge = _ageFilter.value,
-    ) {
-        _statusFilter.value = status
-        _ageFilter.value = age
-        applyFilterAndSort()
-    }
-
-    public fun setSort(column: SortJobApplicationsUseCase.SortColumn, ascending: Boolean) {
-        _sortColumn.value = column
-        _sortAscending.value = ascending
-        applyFilterAndSort()
-    }
-
-    public fun refresh() {
-        // Reset to initial sort order: newest -> oldest createdAt
-        _sortColumn.value = SortJobApplicationsUseCase.SortColumn.DATE_CREATED
-        _sortAscending.value = false
-        loadApplications()
-    }
-
-    private fun loadApplications() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
-            try {
-                val apps = loadAll(LoadAllJobApplicationsUseCase.Params(forceRefresh = true))
-                _applications.value = apps
-                applyFilterAndSort()
-            } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to load applications"
-            } finally {
-                _isLoading.value = false
+    public fun onIntent(intent: JobApplicationsListUiIntent): Unit {
+        when (intent) {
+            is JobApplicationsListUiIntent.SelectApplication -> {
+                _uiState.value = JobApplicationsListUiState.NavigateToDetail(intent.id)
+            }
+            is JobApplicationsListUiIntent.ChangeFilter -> {
+                currentStatusFilter = intent.status
+                currentAgeFilter = intent.age
+                applyFilterAndSort(isRefreshing = false)
+            }
+            is JobApplicationsListUiIntent.ChangeSort -> {
+                currentSortColumn = intent.column
+                currentSortAscending = intent.ascending
+                applyFilterAndSort(isRefreshing = false)
+            }
+            JobApplicationsListUiIntent.Refresh -> {
+                currentSortColumn = SortColumn.DATE_CREATED
+                currentSortAscending = false
+                loadApplications(isRefresh = true)
+            }
+            JobApplicationsListUiIntent.ClickAddApplication -> {
+                _uiState.value = JobApplicationsListUiState.NavigateToAddApplication
+            }
+            JobApplicationsListUiIntent.ClickAddLead -> {
+                _uiState.value = JobApplicationsListUiState.NavigateToAddLead
+            }
+            JobApplicationsListUiIntent.ClickEdits -> {
+                _uiState.value = JobApplicationsListUiState.NavigateToEdits
+            }
+            JobApplicationsListUiIntent.ClickSettings -> {
+                _uiState.value = JobApplicationsListUiState.NavigateToSettings
             }
         }
     }
 
-    private fun applyFilterAndSort() {
+    private fun loadApplications(isRefresh: Boolean): Unit {
         viewModelScope.launch {
-            val apps = _applications.value
-            val filtered = filterApplications(
-                FilterJobApplicationsUseCase.Params(
-                    applications = apps,
-                    status = _statusFilter.value,
-                    age = _ageFilter.value,
+            if (!isRefresh) {
+                _uiState.value = JobApplicationsListUiState.Loading
+            } else {
+                val current = _uiState.value
+                if (current is JobApplicationsListUiState.Content) {
+                    _uiState.value = current.copy(isRefreshing = true)
+                }
+            }
+            try {
+                val apps = loadAll(LoadAllJobApplicationsUseCase.Params(forceRefresh = true))
+                rawApplications = apps
+                applyFilterAndSort(isRefreshing = false)
+            } catch (e: Exception) {
+                _uiState.value = JobApplicationsListUiState.Error(
+                    message = e.message ?: "Failed to load applications",
                 )
-            )
-            val sorted = sortApplications(
-                SortJobApplicationsUseCase.Params(
-                    applications = filtered,
-                    column = _sortColumn.value,
-                    ascending = _sortAscending.value,
-                )
-            )
-            _filteredApplications.value = sorted
+            }
         }
+    }
+
+    private fun applyFilterAndSort(isRefreshing: Boolean): Unit {
+        viewModelScope.launch {
+            try {
+                val filtered = filterApplications(
+                    FilterJobApplicationsUseCase.Params(
+                        applications = rawApplications,
+                        status = currentStatusFilter,
+                        age = currentAgeFilter,
+                    ),
+                )
+                val sorted = sortApplications(
+                    SortJobApplicationsUseCase.Params(
+                        applications = filtered,
+                        column = currentSortColumn,
+                        ascending = currentSortAscending,
+                    ),
+                )
+                val uiModels = sorted.map { it.toUiModel() }.toImmutableList()
+                _uiState.value = JobApplicationsListUiState.Content(
+                    applications = uiModels,
+                    statusFilter = currentStatusFilter,
+                    ageFilter = currentAgeFilter,
+                    sortColumn = currentSortColumn,
+                    sortAscending = currentSortAscending,
+                    isRefreshing = isRefreshing,
+                )
+            } catch (e: Exception) {
+                _uiState.value = JobApplicationsListUiState.Error(
+                    message = e.message ?: "Failed to filter applications",
+                )
+            }
+        }
+    }
+
+    private fun JobApplication.toUiModel(): JobApplicationItemUiModel {
+        val dateText = formatSemanticTimestamp(
+            updatedAt = updatedAt,
+            createdAt = createdAt,
+        ) ?: ""
+        return JobApplicationItemUiModel(
+            id = id,
+            companyName = company,
+            roleTitle = role ?: "",
+            locationText = location,
+            status = status,
+            statusDisplayName = status.displayName(),
+            fitScore = fitScore,
+            fitScoreText = fitScore?.let { "Fit $it" },
+            formattedCreatedDate = dateText,
+            onClickIntent = JobApplicationsListUiIntent.SelectApplication(id),
+        )
     }
 }
