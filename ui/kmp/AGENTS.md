@@ -75,7 +75,7 @@ Build scripts must apply the local convention plugins declared in `gradle/libs.v
 - Do not configure target SDKs, compiler options, or toolchains manually in module build scripts.
 
 ### Rule 6: Architecture & Design Plans in `.agents/plans/`
-- All technical architecture, design, and migration plans oriented to `ui/kmp` must be housed in `.agents/plans/` and indexed in `ui/kmp/.agents/plans/README.md`.
+- All technical architecture, design, and migration plans oriented to `ui/kmp` must be housed in `ui/kmp/.agents/plans/` and indexed in `ui/kmp/.agents/plans/README.md`.
 
 ### Rule 7: Zero-Warning Compilation & Clean Build Logs
 - Build logs must remain clean of compiler warnings and deprecations.

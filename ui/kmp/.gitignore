@@ -2,6 +2,8 @@
 .kotlin
 .gradle
 **/build/
+dokka/
+**/dokka/
 xcuserdata
 !src/**/build/
 local.properties
