@@ -3,10 +3,12 @@ kotlin = "2.4.21"
 androidGradlePlugin = "8.9.0"
 protobufGradlePlugin = "0.9.4"
 protobuf = "4.28.2"
+dokka = "2.3.0"
 
 [libraries]
 protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
 protobuf-bom = { module = "com.google.protobuf:protobuf-bom", version.ref = "protobuf" }
+dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -14,3 +16,4 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufGradlePlugin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

@@ -1,6 +1,17 @@
 plugins {
   alias(libs.plugins.kotlinJvm)
+  alias(libs.plugins.dokka)
   `java-gradle-plugin`
+}
+
+group = "dev.fnc314.tools.jobtracker.tools"
+version = "1.0.0"
+
+dokka {
+  dokkaPublications.html {
+    moduleName.set(":tools:project-plugins")
+    outputDirectory.set(layout.buildDirectory.dir("dokka/html"))
+  }
 }
 
 kotlin {
@@ -16,6 +27,7 @@ dependencies {
   implementation(libs.kotlin.gradle.plugin)
   implementation(libs.compose.gradle.plugin)
   implementation(libs.ksp.gradle.plugin)
+  implementation(libs.dokka.gradle.plugin)
 }
 
 gradlePlugin {
@@ -79,6 +91,12 @@ gradlePlugin {
       description = "Applies Room and SQLite data source dependency bundles across targets"
       implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DataSourceDependenciesConventionPlugin"
       displayName = "Data Source Dependencies Convention"
+    }
+    create("dokka") {
+      id = libs.plugins.local.dokka.map { it.pluginId }.get()
+      description = "Applies Dokka documentation generation conventions"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DokkaConventionPlugin"
+      displayName = "Dokka Documentation Convention"
     }
   }
 }

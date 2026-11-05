@@ -26,3 +26,4 @@ projectCollections {
 }
 
 includeBuild("../../records")
+includeBuild("./gradle/tools")

@@ -2,6 +2,7 @@ package dev.fnc314.tools.jobtracker.kmp.gradle.plugins.functional
 
 import dev.fnc314.tools.jobtracker.kmp.gradle.catalog.CatalogTypes
 import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.BaseConventionPlugin
+import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DokkaConventionPlugin
 import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.internal.TestingConventionPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -48,5 +49,8 @@ public class KotlinMultiplatformConventionPlugin : Plugin<Project>, BaseConventi
 
         // 3. Testing conventions (dependencies, logging, test tasks)
         plugins.apply(TestingConventionPlugin::class.java)
+
+        // 4. Dokka documentation conventions
+        plugins.apply(DokkaConventionPlugin::class.java)
     }
 }

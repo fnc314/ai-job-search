@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.protobuf)
+    alias(libs.plugins.dokka)
 }
 
 kotlin {

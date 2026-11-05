@@ -13,3 +13,5 @@ This directory contains design and implementation plans for the `ui/kmp` project
 | [`m3-theming-adaptive-layout-and-widgets.md`](./m3-theming-adaptive-layout-and-widgets.md) | Completed | Material 3 token system & adaptive layouts |
 | [`ui-flow-improvements-and-modularization.md`](./ui-flow-improvements-and-modularization.md) | Completed | UI screen flows and widget extractions |
 | [`build-logs-and-compiler-warnings-triage-plan.md`](./build-logs-and-compiler-warnings-triage-plan.md) | Completed | Build logs and compiler warnings triage & resolution |
+| [`room3-platform-support-and-caching-plan.md`](./room3-platform-support-and-caching-plan.md) | Completed | Room 3 multiplatform platform support, Uuid7 & caching |
+| [`dokka-and-comprehensive-kdocs-plan.md`](./dokka-and-comprehensive-kdocs-plan.md) | In Progress | Dokka 2.3.0 unified multi-project setup & exhaustive KDocs |
