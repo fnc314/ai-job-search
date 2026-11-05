@@ -73,5 +73,11 @@ gradlePlugin {
       implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.NavigationDependenciesConventionPlugin"
       displayName = "Navigation Dependencies Convention"
     }
+    create("dependencies-datasource") {
+      id = libs.plugins.local.dependencies.datasource.map { it.pluginId }.get()
+      description = "Applies Room and SQLite data source dependency bundles across targets"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DataSourceDependenciesConventionPlugin"
+      displayName = "Data Source Dependencies Convention"
+    }
   }
 }

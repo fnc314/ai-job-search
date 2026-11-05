@@ -3,12 +3,12 @@ package dev.fnc314.tools.jobtracker.features.addjobapplication.data
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.ApplicationChannel
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
-import dev.fnc314.tools.jobtracker.core.data.repository.JobApplicationRepository
+import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.repository.AddJobApplicationRepository
 import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.usecase.CreateLeadUseCase
 import kotlin.time.Clock
 
-internal class CreateLeadUseCaseImpl(
-    private val repository: JobApplicationRepository,
+public class CreateLeadUseCaseImpl(
+    private val repository: AddJobApplicationRepository,
 ) : CreateLeadUseCase {
     override suspend fun invoke(params: CreateLeadUseCase.Params): String {
         val channel = ApplicationChannel.fromRaw(params.channel).let {

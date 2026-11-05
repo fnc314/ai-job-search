@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.core.data.repository
+package dev.fnc314.tools.jobtracker.features.trackeredits.domain.repository
 
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEdit
 

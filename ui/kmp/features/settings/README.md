@@ -40,9 +40,10 @@ Defines contracts for observing and mutating user preferences:
 - [`UpdateSettingsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/domain/usecase/UpdateSettingsUseCase.kt): Dispatches setting mutations to the repository.
 
 ### 2. `:features-settings-data`
-Persists settings across app sessions:
-- [`SettingsRepositoryImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/SettingsRepositoryImpl.kt): Serializes `AppSettings` using `kotlinx.serialization` into `SettingsStorage` (backed by platform key-value stores such as NSUserDefaults, SharedPreferences, or localStorage).
-- [`settingsDataModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/SettingsDataModule.kt): Koin DI declarations.
+Provides concrete data source and repository implementations:
+- [`SettingsRepositoryImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/SettingsRepositoryImpl.kt): `internal` repository implementation coordinating `LocalSettingsDataSource`.
+- [`LocalSettingsDataSource`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/source/LocalSettingsDataSource.kt): Local data source interface and `internal class LocalSettingsDataSourceImpl` serializing `AppSettings` using `kotlinx.serialization` into `SettingsStorage` (backed by platform key-value stores such as NSUserDefaults, SharedPreferences, or localStorage).
+- [`settingsDataModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/SettingsDataModule.kt): Koin DI declarations registering `LocalSettingsDataSource` and `SettingsRepository`.
 
 ### 3. `:features-settings-ui`
 Renders the preference controls:

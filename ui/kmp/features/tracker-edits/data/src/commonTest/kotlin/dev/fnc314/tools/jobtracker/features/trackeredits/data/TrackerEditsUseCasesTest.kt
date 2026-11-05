@@ -5,7 +5,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerEdit
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEditKind
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEditState
 import dev.fnc314.tools.jobtracker.core.data.model.Trigger
-import dev.fnc314.tools.jobtracker.core.data.repository.TrackerEditsRepository
+import dev.fnc314.tools.jobtracker.features.trackeredits.domain.repository.TrackerEditsRepository
 import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.ApproveEditUseCase
 import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.ExpireStaleEditsUseCase
 import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.LoadPendingEditsUseCase

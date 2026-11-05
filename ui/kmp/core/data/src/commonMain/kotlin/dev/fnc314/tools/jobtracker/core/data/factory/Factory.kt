@@ -85,6 +85,34 @@ public object Factory {
         createdAt = createdAt,
     )
 
+    public fun createTrackerEdit(
+        id: String,
+        applicationId: String = "",
+        kind: TrackerEditKind = TrackerEditKind.STATUS,
+        state: TrackerEditState = TrackerEditState.PENDING,
+        trigger: Trigger = Trigger.EMAIL_SYNC,
+        changes: List<EditChange> = emptyList(),
+        unmatched: List<EditUnmatched> = emptyList(),
+        sourceEmail: SourceEmail? = null,
+        scope: EditScope? = null,
+        confidence: Confidence = Confidence.HIGH,
+        createdAt: Instant? = Clock.System.now(),
+        expiresAt: Instant? = null,
+    ): TrackerEdit = TrackerEdit(
+        id = id,
+        applicationId = applicationId,
+        kind = kind,
+        state = state,
+        trigger = trigger,
+        changes = changes,
+        unmatched = unmatched,
+        sourceEmail = sourceEmail,
+        scope = scope,
+        confidence = confidence,
+        createdAt = createdAt,
+        expiresAt = expiresAt,
+    )
+
     public fun createTrackerArtifact(
         id: String,
         applicationId: String,

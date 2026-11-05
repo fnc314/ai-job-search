@@ -35,19 +35,22 @@ graph TD
 
 ### 1. `:features-tracker-edits-domain`
 Defines contracts for reviewing and managing pending edits:
+- [`TrackerEditsRepository`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/domain/repository/TrackerEditsRepository.kt): Domain repository interface contract defining operations for loading pending edits, approving, rejecting, and expiring stale edits.
 - [`LoadPendingEditsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/domain/usecase/LoadPendingEditsUseCase.kt): Fetches all active pending proposal edits (`List<TrackerEdit>`).
 - [`ApproveEditUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/domain/usecase/ApproveEditUseCase.kt): Applies a proposed edit to the underlying application document.
 - [`RejectEditUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/domain/usecase/RejectEditUseCase.kt): Dismisses a proposed edit with a rejection reason.
 - [`ExpireStaleEditsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/domain/usecase/ExpireStaleEditsUseCase.kt): Automatically expires unreviewed edits beyond the retention window.
 
 ### 2. `:features-tracker-edits-data`
-Implements the domain contracts:
-- [`RemoteTrackerEditsRepository`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/RemoteTrackerEditsRepository.kt): Remote repository communicating with backend data collections.
-- [`LoadPendingEditsUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/LoadPendingEditsUseCaseImpl.kt)
-- [`ApproveEditUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/ApproveEditUseCaseImpl.kt)
-- [`RejectEditUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/RejectEditUseCaseImpl.kt)
-- [`ExpireStaleEditsUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/ExpireStaleEditsUseCaseImpl.kt)
-- [`trackerEditsDataModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/TrackerEditsDataModule.kt): Koin DI declarations.
+Provides concrete data sources and repository implementations:
+- [`TrackerEditsRepositoryImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/repository/TrackerEditsRepositoryImpl.kt): `internal` repository implementation coordinating `RemoteTrackerEditsDataSource` and `LocalTrackerEditsDataSource`.
+- [`RemoteTrackerEditsDataSource`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/source/RemoteTrackerEditsDataSource.kt): Remote data source interface and `internal class RemoteTrackerEditsDataSourceImpl` backed by `RemoteDataSource` / Firestore.
+- [`LocalTrackerEditsDataSource`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/source/LocalTrackerEditsDataSource.kt): Local data source interface and `internal class LocalTrackerEditsDataSourceImpl` backed by `LocalDataSource`.
+- [`LoadPendingEditsUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/LoadPendingEditsUseCaseImpl.kt): Queries `TrackerEditsRepository`.
+- [`ApproveEditUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/ApproveEditUseCaseImpl.kt): Delegates approval to `TrackerEditsRepository`.
+- [`RejectEditUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/RejectEditUseCaseImpl.kt): Delegates rejection to `TrackerEditsRepository`.
+- [`ExpireStaleEditsUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/ExpireStaleEditsUseCaseImpl.kt): Delegates expiration to `TrackerEditsRepository`.
+- [`trackerEditsDataModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/data/TrackerEditsDataModule.kt): Koin DI declarations registering data sources and repository.
 
 ### 3. `:features-tracker-edits-ui`
 Renders review queues, comparison cards, and action controls:

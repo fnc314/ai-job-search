@@ -8,7 +8,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
-import dev.fnc314.tools.jobtracker.core.data.repository.JobApplicationRepository
+import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.repository.JobApplicationsDetailsRepository
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.RecordEventUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.UpdateApplicationStatusUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.UpdateFitScoreUseCase
@@ -19,7 +19,7 @@ import kotlin.test.assertNull
 
 class DetailsUseCasesTest {
 
-    private class FakeJobApplicationRepository : JobApplicationRepository {
+    private class FakeJobApplicationsDetailsRepository : JobApplicationsDetailsRepository {
         var updatedFitScore: Pair<String, Int>? = null
         var updatedStatusCall: StatusCallParams? = null
         var lastRecordedEvent: TrackerEvent? = null
@@ -31,10 +31,9 @@ class DetailsUseCasesTest {
             val note: String?,
         )
 
-        override suspend fun getAllJobApplications(): List<JobApplication> = emptyList()
         override suspend fun getJobApplication(id: String): JobApplication? = null
         override suspend fun getCompanies(): List<Company> = emptyList()
-        override suspend fun saveJobApplication(app: JobApplication): String = app.id
+        override suspend fun getArtifactSignedUrl(path: String): String = "https://example.com/$path"
 
         override suspend fun updateStatus(
             id: String,
@@ -66,7 +65,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testUpdateStatus_StandardTransition() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = UpdateApplicationStatusUseCaseImpl(repo)
 
         val result = useCase(
@@ -84,7 +83,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testUpdateStatus_WithDateAndAuditNote() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = UpdateApplicationStatusUseCaseImpl(repo)
 
         val result = useCase(
@@ -104,7 +103,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testUpdateStatus_BlankNoteAndNullDate() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = UpdateApplicationStatusUseCaseImpl(repo)
 
         val result = useCase(
@@ -122,7 +121,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testUpdateStatus_IdempotentStatusWithNewNote() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = UpdateApplicationStatusUseCaseImpl(repo)
 
         val result = useCase(
@@ -139,7 +138,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testUpdateStatus_TerminalStatus() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = UpdateApplicationStatusUseCaseImpl(repo)
 
         val result = useCase(
@@ -157,7 +156,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testUpdateFitScore_StandardScore() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = UpdateFitScoreUseCaseImpl(repo)
 
         val result = useCase(UpdateFitScoreUseCase.Params(id = "app-fit-1", score = 85))
@@ -167,7 +166,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testUpdateFitScore_BoundaryZero() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = UpdateFitScoreUseCaseImpl(repo)
 
         val result = useCase(UpdateFitScoreUseCase.Params(id = "app-fit-zero", score = 0))
@@ -177,7 +176,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testUpdateFitScore_BoundaryHundred() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = UpdateFitScoreUseCaseImpl(repo)
 
         val result = useCase(UpdateFitScoreUseCase.Params(id = "app-fit-100", score = 100))
@@ -187,7 +186,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testUpdateFitScore_NegativeScoreEdgeCase() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = UpdateFitScoreUseCaseImpl(repo)
 
         val result = useCase(UpdateFitScoreUseCase.Params(id = "app-fit-neg", score = -5))
@@ -197,7 +196,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testUpdateFitScore_AboveHundredScoreEdgeCase() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = UpdateFitScoreUseCaseImpl(repo)
 
         val result = useCase(UpdateFitScoreUseCase.Params(id = "app-fit-150", score = 150))
@@ -209,7 +208,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testRecordEvent_StandardEventReturnsEventId() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = RecordEventUseCaseImpl(repo)
         val event = Factory.createTrackerEvent(
             id = "evt-standard",
@@ -225,7 +224,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testRecordEvent_WithEmailMessageId() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = RecordEventUseCaseImpl(repo)
         val event = Factory.createTrackerEvent(
             id = "evt-email",
@@ -241,7 +240,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testRecordEvent_StatusTransitionAudit() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = RecordEventUseCaseImpl(repo)
         val event = Factory.createTrackerEvent(
             id = "evt-transition",
@@ -260,7 +259,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testRecordEvent_NullOptionalFields() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = RecordEventUseCaseImpl(repo)
         val event = Factory.createTrackerEvent(
             id = "evt-nulls",
@@ -280,7 +279,7 @@ class DetailsUseCasesTest {
 
     @Test
     fun testRecordEvent_CustomActorAndConfidence() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeJobApplicationsDetailsRepository()
         val useCase = RecordEventUseCaseImpl(repo)
         val event = Factory.createTrackerEvent(
             id = "evt-actor",

@@ -76,7 +76,10 @@ internal sealed interface CatalogTypes<out T> {
         NAVIGATION3("navigation3"),
         TESTING("testing"),
         TESTING_JVM("testing-jvm"),
-        TESTING_ANDROID("testing-android");
+        TESTING_ANDROID("testing-android"),
+        ROOM("room"),
+        SQLITE_BUNDLED("sqlite-bundled"),
+        SQLITE_WEB("sqlite-web");
 
         override fun fromCatalog(project: Project): Provider<ExternalModuleDependencyBundle> =
             project.versionCatalog.findBundle(catalogKey).orElseThrow {

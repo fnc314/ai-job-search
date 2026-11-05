@@ -1,8 +1,9 @@
 package dev.fnc314.tools.jobtracker.features.settings.data
 
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
-import dev.fnc314.tools.jobtracker.core.data.settings.SettingsStorage
 import dev.fnc314.tools.jobtracker.core.data.settings.UiMode
+import dev.fnc314.tools.jobtracker.core.data.source.LocalDataSource
+import dev.fnc314.tools.jobtracker.features.settings.data.source.LocalSettingsDataSourceImpl
 import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.ObserveSettingsUseCase
 import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.UpdateSettingsUseCase
 import kotlin.test.Test
@@ -11,20 +12,31 @@ import kotlin.test.assertNotNull
 
 class SettingsRepositoryTest {
 
-    private class FakeSettingsStorage(
+    private class FakeLocalDataSource(
         initialValues: Map<String, String> = emptyMap(),
-    ) : SettingsStorage {
+    ) : LocalDataSource {
         val map = initialValues.toMutableMap()
         override fun getString(key: String): String? = map[key]
         override fun putString(key: String, value: String) {
             map[key] = value
         }
+        override fun remove(key: String) {
+            map.remove(key)
+        }
+        override fun clear() {
+            map.clear()
+        }
+    }
+
+    private fun createRepository(storage: FakeLocalDataSource): SettingsRepositoryImpl {
+        val localDataSource = LocalSettingsDataSourceImpl(storage)
+        return SettingsRepositoryImpl(localDataSource)
     }
 
     @Test
     fun testSettings_InitialEmptyStorageReturnsDefaults() {
-        val storage = FakeSettingsStorage()
-        val repo = SettingsRepositoryImpl(storage)
+        val storage = FakeLocalDataSource()
+        val repo = createRepository(storage)
         val observeUseCase = ObserveSettingsUseCase(repo)
 
         val settings = observeUseCase().value
@@ -34,8 +46,8 @@ class SettingsRepositoryTest {
 
     @Test
     fun testSettings_CorruptedJsonRecoversToDefaults() {
-        val storage = FakeSettingsStorage(mapOf("job_tracker_app_settings" to "{not valid json at all!"))
-        val repo = SettingsRepositoryImpl(storage)
+        val storage = FakeLocalDataSource(mapOf("job_tracker_app_settings" to "{not valid json at all!"))
+        val repo = createRepository(storage)
         val observeUseCase = ObserveSettingsUseCase(repo)
 
         val settings = observeUseCase().value
@@ -47,8 +59,8 @@ class SettingsRepositoryTest {
     @Test
     fun testSettings_PartialJsonWithMissingKeys() {
         // Only uiMode is specified; other fields must decode with defaults
-        val storage = FakeSettingsStorage(mapOf("job_tracker_app_settings" to "{\"uiMode\":\"DARK\"}"))
-        val repo = SettingsRepositoryImpl(storage)
+        val storage = FakeLocalDataSource(mapOf("job_tracker_app_settings" to "{\"uiMode\":\"DARK\"}"))
+        val repo = createRepository(storage)
         val observeUseCase = ObserveSettingsUseCase(repo)
 
         val settings = observeUseCase().value
@@ -58,8 +70,8 @@ class SettingsRepositoryTest {
 
     @Test
     fun testSettings_UpdateNotifiesObserverImmediately() {
-        val storage = FakeSettingsStorage()
-        val repo = SettingsRepositoryImpl(storage)
+        val storage = FakeLocalDataSource()
+        val repo = createRepository(storage)
         val observeUseCase = ObserveSettingsUseCase(repo)
         val updateUseCase = UpdateSettingsUseCase(repo)
 
@@ -75,15 +87,15 @@ class SettingsRepositoryTest {
 
     @Test
     fun testSettings_CustomSeedHexPersistence() {
-        val storage = FakeSettingsStorage()
-        val repo1 = SettingsRepositoryImpl(storage)
+        val storage = FakeLocalDataSource()
+        val repo1 = createRepository(storage)
         val updateUseCase = UpdateSettingsUseCase(repo1)
 
         val updated = AppSettings(uiMode = UiMode.DARK, seedColorHex = "#FF5722")
         updateUseCase(updated)
 
         // Instantiate new repository from same storage to verify roundtrip persistence
-        val repo2 = SettingsRepositoryImpl(storage)
+        val repo2 = createRepository(storage)
         val observeUseCase2 = ObserveSettingsUseCase(repo2)
 
         assertEquals(UiMode.DARK, observeUseCase2().value.uiMode)

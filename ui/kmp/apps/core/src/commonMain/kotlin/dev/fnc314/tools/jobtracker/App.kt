@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import dev.fnc314.tools.jobtracker.core.data.model.AuthState
-import dev.fnc314.tools.jobtracker.core.data.repository.AuthRepository
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository
+import dev.fnc314.tools.jobtracker.features.signin.domain.repository.AuthRepository
 import dev.fnc314.tools.jobtracker.core.designsystem.JobTrackerTheme
 import dev.fnc314.tools.jobtracker.core.designsystem.ProvideWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors

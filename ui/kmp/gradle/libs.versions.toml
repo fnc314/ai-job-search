@@ -11,6 +11,8 @@
   androidx-testExt = "1.3.0"
   androidx-testRunner = "1.7.0"
   androidx-credentials = "1.6.0"
+  androidx-room3 = "3.0.3"
+  androidx-sqlite = "2.7.1"
   google-id = "1.2.1"
   composeMultiplatform = "1.12.2"
   composeMaterialIcons = "1.7.3"
@@ -65,6 +67,10 @@
   kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
   kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
   wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
+  androidx-room3-common = { module = "androidx.room3:room3-common", version.ref = "androidx-room3" }
+  androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "androidx-room3" }
+  androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "androidx-sqlite" }
+  androidx-sqlite-web = { module = "androidx.sqlite:sqlite-web", version.ref = "androidx-sqlite" }
   compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "composeMaterialIcons" }
   firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
   firebase-firestore = { module = "com.google.firebase:firebase-firestore", version.ref = "firebase-firestore" }
@@ -160,6 +166,17 @@
     "androidx-testExt-junit",
     "androidx-testRunner",
   ]
+  room = [
+    "androidx-room3-runtime",
+    "androidx-room3-common",
+  ]
+  sqlite-bundled = [
+    "androidx-sqlite-bundled",
+  ]
+  sqlite-web = [
+    "androidx-sqlite-web",
+    "wrappers-browser",
+  ]
 
 [plugins]
   androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -186,3 +203,4 @@
   local-dependencies-ktor = { id = "dev.fnc314.tools.jobtracker.dependencies.ktor" }
   local-dependencies-serialization = { id = "dev.fnc314.tools.jobtracker.dependencies.serialization" }
   local-dependencies-navigation = { id = "dev.fnc314.tools.jobtracker.dependencies.navigation" }
+  local-dependencies-datasource = { id = "dev.fnc314.tools.jobtracker.dependencies.datasource" }

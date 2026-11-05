@@ -9,7 +9,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.Location
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.model.WorkMode
-import dev.fnc314.tools.jobtracker.core.data.repository.JobApplicationRepository
+import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.repository.AddJobApplicationRepository
 import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.usecase.CreateJobApplicationUseCase
 import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.usecase.CreateLeadUseCase
 import kotlinx.coroutines.test.runTest
@@ -20,36 +20,22 @@ import kotlin.test.assertNull
 
 class AddJobApplicationUseCasesTest {
 
-    private class FakeJobApplicationRepository : JobApplicationRepository {
+    private class FakeAddJobApplicationRepository : AddJobApplicationRepository {
         var savedApp: JobApplication? = null
 
-        override suspend fun getAllJobApplications(): List<JobApplication> = emptyList()
-        override suspend fun getJobApplication(id: String): JobApplication? = null
-        override suspend fun getCompanies(): List<Company> = emptyList()
-
-        override suspend fun saveJobApplication(app: JobApplication): String {
-            savedApp = app
-            return app.id
+        override suspend fun saveJobApplication(application: JobApplication): String {
+            savedApp = application
+            return application.id
         }
 
-        override suspend fun updateStatus(
-            id: String,
-            status: TrackerStatus,
-            date: String?,
-            note: String?,
-        ): JobApplication = savedApp ?: Factory.createJobApplication(id = id, company = "Test")
-
         override suspend fun recordEvent(event: TrackerEvent): String = event.id
-
-        override suspend fun updateFitScore(id: String, score: Int): JobApplication =
-            savedApp ?: Factory.createJobApplication(id = id, company = "Test")
     }
 
     // --- CreateJobApplicationUseCase Tests (5 Tests) ---
 
     @Test
     fun testCreateApplication_StandardWithGeneratedId() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeAddJobApplicationRepository()
         val useCase = CreateJobApplicationUseCaseImpl(repo)
         val app = Factory.createJobApplication(id = "new-app-1", company = "Acme Corp")
 
@@ -61,7 +47,7 @@ class AddJobApplicationUseCasesTest {
 
     @Test
     fun testCreateApplication_MinimalFields() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeAddJobApplicationRepository()
         val useCase = CreateJobApplicationUseCaseImpl(repo)
         val app = Factory.createJobApplication(
             id = "min-1",
@@ -81,7 +67,7 @@ class AddJobApplicationUseCasesTest {
 
     @Test
     fun testCreateApplication_RichMetadata() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeAddJobApplicationRepository()
         val useCase = CreateJobApplicationUseCaseImpl(repo)
         val app = Factory.createJobApplication(
             id = "rich-1",
@@ -116,7 +102,7 @@ class AddJobApplicationUseCasesTest {
 
     @Test
     fun testCreateApplication_NonDraftingInitialStatus() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeAddJobApplicationRepository()
         val useCase = CreateJobApplicationUseCaseImpl(repo)
         val app = Factory.createJobApplication(
             id = "applied-1",
@@ -132,7 +118,7 @@ class AddJobApplicationUseCasesTest {
 
     @Test
     fun testCreateApplication_CustomJobUrlAndDescription() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeAddJobApplicationRepository()
         val useCase = CreateJobApplicationUseCaseImpl(repo)
         val app = Factory.createJobApplication(
             id = "desc-1",
@@ -150,7 +136,7 @@ class AddJobApplicationUseCasesTest {
 
     @Test
     fun testCreateLead_DefaultStatusIsDrafting() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeAddJobApplicationRepository()
         val useCase = CreateLeadUseCaseImpl(repo)
 
         val resultId = useCase(
@@ -169,7 +155,7 @@ class AddJobApplicationUseCasesTest {
 
     @Test
     fun testCreateLead_ChannelNormalization() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeAddJobApplicationRepository()
         val useCase = CreateLeadUseCaseImpl(repo)
 
         useCase(
@@ -183,7 +169,7 @@ class AddJobApplicationUseCasesTest {
 
     @Test
     fun testCreateLead_UnknownChannelFallback() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeAddJobApplicationRepository()
         val useCase = CreateLeadUseCaseImpl(repo)
 
         useCase(
@@ -198,7 +184,7 @@ class AddJobApplicationUseCasesTest {
 
     @Test
     fun testCreateLead_NotesJoinedWithNewlines() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeAddJobApplicationRepository()
         val useCase = CreateLeadUseCaseImpl(repo)
 
         useCase(
@@ -212,7 +198,7 @@ class AddJobApplicationUseCasesTest {
 
     @Test
     fun testCreateLead_EmptyNotes() = runTest {
-        val repo = FakeJobApplicationRepository()
+        val repo = FakeAddJobApplicationRepository()
         val useCase = CreateLeadUseCaseImpl(repo)
 
         useCase(

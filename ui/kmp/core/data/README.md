@@ -43,24 +43,27 @@ core/data/src/
 │   │   ├── Trigger.kt, Confidence.kt, etc.   # Audit and edit provenance enums
 │   │   ├── EnumDisplayExtensions.kt          # Generic display name fallback
 │   │   └── EnumParsing.kt                    # Firestore string parsing
+│   ├── database/                             # Room KMP Relational Persistence Engine
+│   │   ├── AppDatabase.kt                    # Room database definition
+│   │   ├── dao/JobApplicationDao.kt          # DAO for querying and persisting applications
+│   │   └── entity/JobApplicationEntity.kt    # SQLite entity definition
 │   ├── platform/PlatformFileOpener.kt        # Multiplatform file/PDF opener contract
-│   ├── repository/                           # Storage and database abstractions
-│   │   ├── JobApplicationRepository.kt       # Application and event data store contract
-│   │   ├── StorageRepository.kt              # Artifact storage contract
-│   │   ├── RemoteJobApplicationRepository.kt # Remote repository stub implementation
-│   │   └── NetworkStorageRepository.kt       # Signed-URL artifact downloader
+│   ├── repository/                           # Base domain abstractions
+│   │   └── UseCase.kt                        # Base functional use case interface
 │   ├── settings/                             # Preferences persistence
 │   │   ├── AppSettings.kt                    # App configuration model (UiMode, seed colors, etc.)
 │   │   └── SettingsStorage.kt                # Multiplatform key-value settings storage
-│   ├── source/                               # Remote database abstractions
-│   │   ├── RemoteRecord.kt                   # Typed document record abstraction
+│   ├── source/                               # Data Source Engines
+│   │   ├── LocalDataSource.kt                # Key-value local engine contract & implementation
+│   │   ├── NetworkDataSource.kt              # Ktor HTTP network engine contract & implementation
 │   │   ├── RemoteDataSource.kt               # Provider-agnostic remote database contract
+│   │   ├── RemoteRecord.kt                   # Typed document record abstraction
 │   │   └── DataResult.kt                     # Success and Failure result wrapper
 │   └── util/                                 # Semantic timestamp formatting
-├── androidMain/kotlin/                       # Android Remote repository (RemoteJobApplicationRepository.android.kt) & ApplicationContextHolder.android.kt
-├── jvmMain/kotlin/                           # Desktop JVM Remote repository (RemoteJobApplicationRepository.jvm.kt) & RemotePlatform.jvm.kt
-├── iosMain/kotlin/                           # iOS Darwin storage & platform bindings
-└── webMain/kotlin/                           # Web JS/Wasm storage bindings
+├── androidMain/kotlin/                       # Android SharedPreferences & PlatformFileOpener bindings
+├── jvmMain/kotlin/                           # Desktop JVM Preferences & PlatformFileOpener bindings
+├── iosMain/kotlin/                           # iOS Darwin NSUserDefaults & PlatformFileOpener bindings
+└── webMain/kotlin/                           # Web LocalStorage & PlatformFileOpener bindings
 ```
 
 ---
@@ -77,9 +80,11 @@ All enums encapsulate their own Firestore mappings, display strings, and semanti
 - `TrackerEventType`: Contains `.icon`, `.displayName()`, `.toFirestore()`, and `fromFirestore()`.
 - `ApplicationChannel`: Self-contained channel categorization and parsing.
 
-### Repositories
-- `JobApplicationRepository`: Suspend contract for loading, querying, creating, and updating job applications and appending timeline events.
-- `StorageRepository`: Contract for retrieving signed URLs and downloading artifacts from Cloud Storage.
+### Data Source Engines
+- `LocalDataSource`: Suspend & synchronous key-value persistent storage engine contract.
+- `NetworkDataSource`: Ktor HTTP network engine wrapping JSON client.
+- `RemoteDataSource`: Provider-agnostic cloud document/collection observation and mutation engine contract.
+- `AppDatabase`: Room 3.x multiplatform SQLite relational database and DAO contract. Feature modules consume these engines through their own domain repositories and feature data sources.
 
 ---
 
