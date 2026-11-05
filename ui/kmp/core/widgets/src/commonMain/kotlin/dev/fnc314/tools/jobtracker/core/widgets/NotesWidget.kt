@@ -286,16 +286,13 @@ private fun NoteRow(
         }
     }
 
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = { dismissValue ->
-            if (dismissValue != SwipeToDismissBoxValue.Settled) {
-                isVisible = false
-                true
-            } else {
-                false
-            }
+    val dismissState = rememberSwipeToDismissBoxState()
+
+    LaunchedEffect(dismissState.targetValue) {
+        if (dismissState.targetValue != SwipeToDismissBoxValue.Settled) {
+            isVisible = false
         }
-    )
+    }
 
     AnimatedVisibility(
         visible = isVisible,

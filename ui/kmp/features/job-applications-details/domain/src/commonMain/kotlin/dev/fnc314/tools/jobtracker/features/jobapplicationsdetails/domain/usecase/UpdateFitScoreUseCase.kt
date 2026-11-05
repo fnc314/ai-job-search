@@ -3,6 +3,6 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.useca
 import dev.fnc314.tools.jobtracker.core.data.repository.UseCase
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 
-interface UpdateFitScoreUseCase : UseCase<UpdateFitScoreUseCase.Params, JobApplication> {
-    data class Params(val id: String, val score: Int)
+public interface UpdateFitScoreUseCase : UseCase<UpdateFitScoreUseCase.Params, JobApplication> {
+    public data class Params(public val id: String, public val score: Int)
 }

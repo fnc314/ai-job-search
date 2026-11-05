@@ -2,6 +2,6 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.useca
 
 import dev.fnc314.tools.jobtracker.core.data.repository.UseCase
 
-interface GetArtifactSignedUrlUseCase : UseCase<GetArtifactSignedUrlUseCase.Params, String> {
-    data class Params(val path: String)
+public interface GetArtifactSignedUrlUseCase : UseCase<GetArtifactSignedUrlUseCase.Params, String> {
+    public data class Params(public val path: String)
 }

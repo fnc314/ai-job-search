@@ -12,4 +12,4 @@ This directory contains design and implementation plans for the `ui/kmp` project
 | [`repackaging-shared-and-job-applications-modularization.md`](./repackaging-shared-and-job-applications-modularization.md) | Completed | Feature packaging and modularization |
 | [`m3-theming-adaptive-layout-and-widgets.md`](./m3-theming-adaptive-layout-and-widgets.md) | Completed | Material 3 token system & adaptive layouts |
 | [`ui-flow-improvements-and-modularization.md`](./ui-flow-improvements-and-modularization.md) | Completed | UI screen flows and widget extractions |
-| [`build-logs-and-compiler-warnings-triage-plan.md`](./build-logs-and-compiler-warnings-triage-plan.md) | Pending Review | Build logs and compiler warnings triage & resolution |
+| [`build-logs-and-compiler-warnings-triage-plan.md`](./build-logs-and-compiler-warnings-triage-plan.md) | Completed | Build logs and compiler warnings triage & resolution |

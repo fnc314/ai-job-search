@@ -7,8 +7,8 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 
-interface FilterJobApplicationsUseCase : UseCase<FilterJobApplicationsUseCase.Params, List<JobApplication>> {
-    enum class ApplicationAge(val displayName: String) {
+public interface FilterJobApplicationsUseCase : UseCase<FilterJobApplicationsUseCase.Params, List<JobApplication>> {
+    public enum class ApplicationAge(public val displayName: String) {
         NONE("All Time"),
         LESS_THAN_1_WEEK("Less than 1 Week"),
         LESS_THAN_1_MONTH("Less than 1 Month"),
@@ -18,7 +18,7 @@ interface FilterJobApplicationsUseCase : UseCase<FilterJobApplicationsUseCase.Pa
         LESS_THAN_1_YEAR("Less than 1 Year"),
         MORE_THAN_1_YEAR("More than 1 Year");
 
-        fun matches(createdAt: Instant?, now: Instant): Boolean {
+        public fun matches(createdAt: Instant?, now: Instant): Boolean {
             if (this == NONE) return true
             val date = createdAt ?: return false
             val elapsed = now - date
@@ -35,12 +35,12 @@ interface FilterJobApplicationsUseCase : UseCase<FilterJobApplicationsUseCase.Pa
         }
     }
 
-    data class Params(
-        val applications: List<JobApplication>,
-        val status: TrackerStatus = TrackerStatus.NONE,
-        val age: ApplicationAge = ApplicationAge.NONE,
+    public data class Params(
+        public val applications: List<JobApplication>,
+        public val status: TrackerStatus = TrackerStatus.NONE,
+        public val age: ApplicationAge = ApplicationAge.NONE,
     ) {
-        fun filter(now: Instant = Clock.System.now()): List<JobApplication> {
+        public fun filter(now: Instant = Clock.System.now()): List<JobApplication> {
             if (status == TrackerStatus.NONE && age == ApplicationAge.NONE) {
                 return applications
             }

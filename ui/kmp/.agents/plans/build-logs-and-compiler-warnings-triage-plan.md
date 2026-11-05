@@ -9,16 +9,16 @@ This plan categorizes each warning, diagnoses the root cause, and specifies the 
 
 ## Warning Inventory & Root Cause Analysis
 
-### Category 1: Gradle Build & Dependency Deprecations
+### Category 1: Gradle Build & Dependency Deprecations (External / Ignorable)
 1. **`The Configuration.setVisible(boolean) method has been deprecated. (Gradle 11 removal)`**
    - **Origin**: `:records:records-proto` via `com.google.protobuf` Gradle plugin 0.9.4.
-   - **Root Cause**: Protobuf plugin 0.9.4 calls deprecated `configuration.setVisible(false)` which Gradle 9.8.2 deprecates in preparation for Gradle 11 removal.
-   - **Solution**: Upgrade `com.google.protobuf` plugin to latest release (0.9.5+) in `records/gradle/libs.versions.toml`, or eliminate deprecated configuration mutation in `records/proto/build.gradle.kts`.
+   - **Root Cause**: Internal to Google's `protobuf-gradle-plugin` 0.9.4 when configuring tasks.
+   - **Triage Decision**: Marked as **External / Ignorable Dependency Warning**. Upgrades will be monitored in upstream protobuf plugin releases without hacking plugin internals.
 
 2. **`Declaring dependencies using multi-string notation has been deprecated. (Gradle 10 removal)`**
-   - **Origin**: `:records:records-proto` at `protoc { artifact = "com.google.protobuf:protoc:4.28.2" }`.
-   - **Root Cause**: Gradle 9.8.2 flags multi-string coordinate resolution used internally when resolving classifier artifacts (`:osx-aarch_64@exe`).
-   - **Solution**: Use single-string notation syntax or `DependencyFactory` / Version Catalog accessor for the protoc executable.
+   - **Origin**: `:records:records-proto` internal protoc artifact resolution.
+   - **Root Cause**: Internal to Google's `protobuf-gradle-plugin` coordinate resolution (`:osx-aarch_64@exe`).
+   - **Triage Decision**: Marked as **External / Ignorable Dependency Warning**. Upstream plugin responsibility.
 
 ---
 

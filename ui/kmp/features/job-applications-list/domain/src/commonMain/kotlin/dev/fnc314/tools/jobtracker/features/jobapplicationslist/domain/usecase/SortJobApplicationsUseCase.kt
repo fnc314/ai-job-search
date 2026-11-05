@@ -4,8 +4,8 @@ import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.repository.UseCase
 import kotlin.time.Instant
 
-interface SortJobApplicationsUseCase : UseCase<SortJobApplicationsUseCase.Params, List<JobApplication>> {
-    enum class SortColumn(val displayName: String) {
+public interface SortJobApplicationsUseCase : UseCase<SortJobApplicationsUseCase.Params, List<JobApplication>> {
+    public enum class SortColumn(public val displayName: String) {
         DATE_CREATED("Date Created"),
         DATE_UPDATED("Date Updated"),
         COMPANY("Company"),
@@ -13,17 +13,17 @@ interface SortJobApplicationsUseCase : UseCase<SortJobApplicationsUseCase.Params
         FIT("Fit Score"),
         ROLE("Role");
 
-        companion object {
-            val DATE = DATE_CREATED
+        public companion object {
+            public val DATE: SortColumn = DATE_CREATED
         }
     }
 
-    data class Params(
-        val applications: List<JobApplication>,
-        val column: SortColumn,
-        val ascending: Boolean,
+    public data class Params(
+        public val applications: List<JobApplication>,
+        public val column: SortColumn,
+        public val ascending: Boolean,
     ) {
-        fun sort(): List<JobApplication> {
+        public fun sort(): List<JobApplication> {
             val comparator = when (column) {
                 SortColumn.DATE_CREATED -> compareBy<JobApplication> { it.createdAt ?: Instant.DISTANT_PAST }
                     .thenBy { it.company }

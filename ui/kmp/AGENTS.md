@@ -77,6 +77,12 @@ Build scripts must apply the local convention plugins declared in `gradle/libs.v
 ### Rule 6: Architecture & Design Plans in `.agents/plans/`
 - All technical architecture, design, and migration plans oriented to `ui/kmp` must be housed in `.agents/plans/` and indexed in `ui/kmp/.agents/plans/README.md`.
 
+### Rule 7: Zero-Warning Compilation & Clean Build Logs
+- Build logs must remain clean of compiler warnings and deprecations.
+- Always use non-deprecated Material 3 APIs (e.g. `menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)` and `TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.Above)`).
+- Ensure all public interfaces, data classes, and properties in domain modules declare explicit visibility and explicit return types.
+- Pre-packaged vendor native binaries that lack NDK symbols must be excluded from stripping via `packaging.jniLibs.keepDebugSymbols` rather than emitting packaging warnings.
+
 ---
 
 ## 3. Key Gradle & Mise Execution Commands

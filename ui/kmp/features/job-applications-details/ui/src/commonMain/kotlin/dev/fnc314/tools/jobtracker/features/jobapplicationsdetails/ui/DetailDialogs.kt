@@ -13,6 +13,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -109,7 +110,7 @@ internal fun UpdateStatusDialog(
                         label = { Text(stringResource(Res.string.dialog_status_label)) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
+                            .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
                             .semantics { contentDescription = selectStatusCd },
                     )
                     ExposedDropdownMenu(
@@ -190,7 +191,7 @@ internal fun RecordEventDialog(
                         label = { Text(stringResource(Res.string.dialog_event_type_label)) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
+                            .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
                             .semantics { contentDescription = selectEventCd },
                     )
                     ExposedDropdownMenu(
