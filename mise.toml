@@ -300,6 +300,8 @@ flag "--documents <documents>" help="Path to job-applications/ directory"
   lint = { description = "Run unified static analysis and architectural linting (Detekt + Konsist)", depends = ["detekt", "konsist"] }
   "ui:kmp:docs:readmes" = { description = "Verify all ui/kmp core and feature modules have valid README.md documentation", run = "bash scripts/check-kmp-readmes.sh" }
   "ui:kmp:docs:generate" = { description = "Generate unified multi-module Dokka API documentation HTML for ui/kmp", run = "cd ui/kmp && ./gradlew :dokkaGenerate" }
+  "records:docs:generate" = { description = "Generate Dokka API documentation HTML for records", run = "cd records && ./gradlew :dokkaGenerate" }
+  "docs:all" = { description = "Generate all workspace documentation (Dokka, README validations, task docs)", run = "mise run ui:kmp:docs:generate && mise run records:docs:generate && mise run ui:kmp:docs:readmes && mise run mise:docs:tasks" }
   "mise:docs:tasks" = {
     description = "Regenerates docs/mise (lints Usage specs, generates Markdown, and runs mise task-docs)",
     sources = "[mise.toml, scripts/specs/*.usage.kdl, records/proto/src/main/proto/tracker/v1/application.proto]",
