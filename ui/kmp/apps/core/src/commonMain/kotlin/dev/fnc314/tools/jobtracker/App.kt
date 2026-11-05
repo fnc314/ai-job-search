@@ -19,6 +19,7 @@ import dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository
 import dev.fnc314.tools.jobtracker.core.designsystem.JobTrackerTheme
 import dev.fnc314.tools.jobtracker.core.designsystem.ProvideWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
+import dev.fnc314.tools.jobtracker.core.designsystem.toColorOrNull
 import dev.fnc314.tools.jobtracker.di.appModule
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddJobApplicationScreen
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadScreen
@@ -178,21 +179,5 @@ public fun App() {
                 }
             }
         }
-    }
-}
-
-private fun String.toColorOrNull(): Color? {
-    return try {
-        val hex = this.removePrefix("#")
-        if (hex.length == 6) {
-            val r = hex.substring(0, 2).toInt(16)
-            val g = hex.substring(2, 4).toInt(16)
-            val b = hex.substring(4, 6).toInt(16)
-            Color(red = r / 255f, green = g / 255f, blue = b / 255f)
-        } else {
-            null
-        }
-    } catch (_: Exception) {
-        null
     }
 }

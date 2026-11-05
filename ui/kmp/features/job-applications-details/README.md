@@ -1,0 +1,92 @@
+# Feature: Job Applications Details
+
+> [!NOTE]
+> **Quick Facts**
+> - **Gradle Project IDs**: `:features-job-applications-details-domain`, `:features-job-applications-details-data`, `:features-job-applications-details-ui`
+> - **Module Tier**: Feature / User Experience (Clean Architecture: Domain, Data, UI)
+> - **Package Base**: `dev.fnc314.tools.jobtracker.features.jobapplicationsdetails`
+> - **Target Platforms**: Android (`androidTarget`), Desktop JVM (`jvm`), iOS (`iosX64`, `iosArm64`, `iosSimulatorArm64`), Web (`js`, `wasmJs`)
+> - **Internal Project Dependencies**:
+>   - Domain: `:core-data`
+>   - Data: `:features-job-applications-details-domain`, `:core-data`
+>   - UI: `:features-job-applications-details-domain`, `:features-job-applications-details-data`, `:core-widgets`, `:core-data`
+
+---
+
+## Overview
+
+The `features/job-applications-details` module presents the deep-dive record of an individual job application. It enables inspecting metadata, tracking interview stages, modifying application statuses with notes, adjusting fit scores, viewing generated artifacts (CVs and cover letters via signed cloud storage URLs), recording audit events, and reviewing associated company details.
+
+---
+
+## Architectural Breakdown & Subprojects
+
+The feature is divided into three Clean Architecture layers:
+
+```mermaid
+graph TD
+    UI[":features-job-applications-details-ui"] --> Domain[":features-job-applications-details-domain"]
+    UI --> Data[":features-job-applications-details-data"]
+    UI --> Widgets[":core-widgets"]
+    Data --> Domain
+    Domain --> CoreData[":core-data"]
+    Data --> CoreData
+```
+
+### 1. `:features-job-applications-details-domain`
+Houses pure Kotlin business logic contracts:
+- [`LoadJobApplicationUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/domain/usecase/LoadJobApplicationUseCase.kt): Retrieves a single `JobApplication` by unique ID.
+- [`LoadCompaniesUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/domain/usecase/LoadCompaniesUseCase.kt): Fetches company profiles and metadata.
+- [`UpdateApplicationStatusUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/domain/usecase/UpdateApplicationStatusUseCase.kt): Transitions application status (`TrackerStatus`) with audit timestamps and optional notes.
+- [`UpdateFitScoreUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/domain/usecase/UpdateFitScoreUseCase.kt): Adjusts candidate-job fit rating.
+- [`RecordEventUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/domain/usecase/RecordEventUseCase.kt): Appends a timeline event (`TrackerEvent`) to the application record.
+- [`GetArtifactSignedUrlUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/domain/usecase/GetArtifactSignedUrlUseCase.kt): Generates signed URLs for cloud-stored documents (e.g. PDFs).
+
+### 2. `:features-job-applications-details-data`
+Implements the use cases backed by `:core-data` repositories:
+- [`LoadJobApplicationUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/data/LoadJobApplicationUseCaseImpl.kt)
+- [`UpdateApplicationStatusUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/data/UpdateApplicationStatusUseCaseImpl.kt)
+- [`UpdateFitScoreUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/data/UpdateFitScoreUseCaseImpl.kt)
+- [`RecordEventUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/data/RecordEventUseCaseImpl.kt)
+- [`GetArtifactSignedUrlUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/data/GetArtifactSignedUrlUseCaseImpl.kt)
+- [`JobApplicationsDetailsDataModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/data/JobApplicationsDetailsDataModule.kt): Koin DI declarations.
+
+### 3. `:features-job-applications-details-ui`
+Renders detail presentation, interactive editing dialogs, and artifact launchers:
+- [`JobApplicationsDetailsScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsScreen.kt): Comprehensive screen displaying company overview, status lifecycle progression, compensation benchmarks, artifact links, notes widget, and interactive event recording.
+- [`JobApplicationDetailViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsViewModel.kt): Coordinates loading, mutation calls, and UI state flows.
+- [`jobApplicationsDetailsUiModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsUiModule.kt): Koin factory for `JobApplicationDetailViewModel`.
+- [`jobApplicationsDetailsFeatureModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsUiModule.kt): Umbrella module uniting data and UI layers.
+
+---
+
+## Deep-Link Support
+
+The details destination requires a parameterized target application ID:
+
+| Route Type | URI Pattern | Description |
+| :--- | :--- | :--- |
+| `DetailRoute(val applicationId: String)` | `jobtracker://applications/{id}` | Direct deep link to a specific job application record. |
+
+When navigated via deep link, the `NavHost` extracts `applicationId`, instantiates `JobApplicationDetailViewModel`, and fetches the corresponding document from Firestore via `:core-data`.
+
+---
+
+## Key Gradle Tasks
+
+Run the following commands from the `ui/kmp` directory:
+
+```bash
+# Compile CommonMain Kotlin metadata across all 3 subprojects
+./gradlew :features-job-applications-details-domain:compileCommonMainKotlinMetadata \
+          :features-job-applications-details-data:compileCommonMainKotlinMetadata \
+          :features-job-applications-details-ui:compileCommonMainKotlinMetadata
+
+# Run unit tests
+./gradlew :features-job-applications-details-domain:allTests \
+          :features-job-applications-details-data:allTests \
+          :features-job-applications-details-ui:allTests
+
+# Assemble Android debug variant for UI module
+./gradlew :features-job-applications-details-ui:assembleDebug
+```

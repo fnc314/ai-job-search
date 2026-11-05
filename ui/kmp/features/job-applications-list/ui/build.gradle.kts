@@ -12,7 +12,6 @@ kotlin {
             implementation(projects.coreData)
             implementation(projects.featuresJobApplicationsListDomain)
             implementation(projects.featuresJobApplicationsListData)
-            implementation(projects.coreDesignSystem)
             implementation(projects.coreWidgets)
             implementation(libs.bundles.androidx.lifecycle.compose)
             implementation(libs.kotlinx.coroutines.core)

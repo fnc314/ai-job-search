@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.semantics
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.data.settings.UiMode
 import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
+import dev.fnc314.tools.jobtracker.core.designsystem.toHexString
 import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
@@ -309,14 +310,4 @@ private fun CheckboxRow(
             modifier = Modifier.weight(1f),
         )
     }
-}
-
-private fun Color.toHexString(): String {
-    val r = (this.red * 255).toInt().coerceIn(0, 255)
-    val g = (this.green * 255).toInt().coerceIn(0, 255)
-    val b = (this.blue * 255).toInt().coerceIn(0, 255)
-    return "#" +
-            r.toString(16).padStart(2, '0') +
-            g.toString(16).padStart(2, '0') +
-            b.toString(16).padStart(2, '0')
 }

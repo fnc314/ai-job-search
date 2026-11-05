@@ -49,7 +49,8 @@ internal sealed interface CatalogTypes<out T> {
         KTOR_CLIENT_CIO("ktor-client-cio"),
         KTOR_CLIENT_DARWIN("ktor-client-darwin"),
         KTOR_CLIENT_JS("ktor-client-js"),
-        COMPOSE_UI_TOOLING("compose-uiTooling");
+        COMPOSE_UI_TOOLING("compose-uiTooling"),
+        NAVIGATION_COMPOSE("navigation-compose");
 
         override fun fromCatalog(project: Project): Provider<MinimalExternalModuleDependency> =
             project.versionCatalog.findLibrary(catalogKey).orElseThrow {
@@ -67,7 +68,8 @@ internal sealed interface CatalogTypes<out T> {
         KOIN("koin"),
         ANDROIDX_LIFECYCLE_COMPOSE("androidx-lifecycle-compose"),
         FIREBASE_ANDROID("firebase-android"),
-        FIREBASE_JVM("firebase-jvm");
+        FIREBASE_JVM("firebase-jvm"),
+        NAVIGATION3("navigation3");
 
         override fun fromCatalog(project: Project): Provider<ExternalModuleDependencyBundle> =
             project.versionCatalog.findBundle(catalogKey).orElseThrow {

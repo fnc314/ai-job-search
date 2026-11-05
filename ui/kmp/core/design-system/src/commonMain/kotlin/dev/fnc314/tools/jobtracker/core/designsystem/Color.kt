@@ -7,6 +7,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 
 public object SeedColors {
+    public const val DEFAULT_SEED_HEX: String = "#2F5597"
+
     public val ProfessionalBlue: Color = Color(0xFF2F5597)
     public val MaterialPurple: Color = Color(0xFF6750A4)
     public val ForestTeal: Color = Color(0xFF006A6A)
@@ -22,6 +24,38 @@ public object SeedColors {
         "Nordic Sage" to NordicSage,
         "Warm Amber" to WarmAmber,
     )
+}
+
+/**
+ * Parses a hex string (e.g. "#2F5597" or "2F5597") into a Compose [Color], or null if invalid.
+ */
+public fun String.toColorOrNull(): Color? {
+    return try {
+        val hex = this.removePrefix("#")
+        if (hex.length == 6) {
+            val r = hex.substring(0, 2).toInt(16)
+            val g = hex.substring(2, 4).toInt(16)
+            val b = hex.substring(4, 6).toInt(16)
+            Color(red = r / 255f, green = g / 255f, blue = b / 255f)
+        } else {
+            null
+        }
+    } catch (_: Exception) {
+        null
+    }
+}
+
+/**
+ * Formats a Compose [Color] into a standard 6-digit hex string (e.g. "#2f5597").
+ */
+public fun Color.toHexString(): String {
+    val r = (this.red * 255).toInt().coerceIn(0, 255)
+    val g = (this.green * 255).toInt().coerceIn(0, 255)
+    val b = (this.blue * 255).toInt().coerceIn(0, 255)
+    return "#" +
+            r.toString(16).padStart(2, '0') +
+            g.toString(16).padStart(2, '0') +
+            b.toString(16).padStart(2, '0')
 }
 
 /**

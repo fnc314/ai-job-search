@@ -12,7 +12,7 @@ kotlin {
             implementation(projects.coreData)
             implementation(projects.featuresSignInDomain)
             implementation(projects.featuresSignInData)
-            implementation(projects.coreDesignSystem)
+            implementation(projects.coreWidgets)
             implementation(libs.bundles.androidx.lifecycle.compose)
             implementation(libs.kotlinx.coroutines.core)
         }

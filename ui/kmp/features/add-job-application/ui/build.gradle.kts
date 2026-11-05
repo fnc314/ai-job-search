@@ -10,7 +10,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.coreData)
-            implementation(projects.coreDesignSystem)
             implementation(projects.coreWidgets)
             implementation(projects.featuresAddJobApplicationDomain)
             implementation(projects.featuresAddJobApplicationData)

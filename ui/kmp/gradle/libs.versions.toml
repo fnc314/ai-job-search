@@ -141,6 +141,10 @@
   serialization = [
     "kotlinx-serialization-json",
   ]
+  navigation3 = [
+    "navigation3-runtime",
+    "navigation3-ui",
+  ]
 
 [plugins]
   androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -165,3 +169,4 @@
   local-dependencies-koin = { id = "dev.fnc314.tools.jobtracker.dependencies.koin" }
   local-dependencies-ktor = { id = "dev.fnc314.tools.jobtracker.dependencies.ktor" }
   local-dependencies-serialization = { id = "dev.fnc314.tools.jobtracker.dependencies.serialization" }
+  local-dependencies-navigation = { id = "dev.fnc314.tools.jobtracker.dependencies.navigation" }
