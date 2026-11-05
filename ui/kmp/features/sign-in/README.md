@@ -35,7 +35,7 @@ graph TD
 
 ### 1. `:features-sign-in-domain`
 Defines pure Kotlin business contracts and use cases with no UI or platform framework dependencies:
-- [`SignInWithGoogleUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/sign-in/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/signin/domain/usecase/SignInWithGoogleUseCase.kt): Triggers the Google Sign-In authentication flow.
+- [`SignInUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/sign-in/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/signin/domain/usecase/SignInUseCase.kt): Triggers the provider authentication flow.
 - [`ObserveAuthStateUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/sign-in/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/signin/domain/usecase/ObserveAuthStateUseCase.kt): Streams the reactive `StateFlow<AuthState>`.
 - [`GetCurrentUserUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/sign-in/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/signin/domain/usecase/GetCurrentUserUseCase.kt): Retrieves the currently signed-in `UserAccount?`.
 - [`SignOutUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/sign-in/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/signin/domain/usecase/SignOutUseCase.kt): Signs the candidate out and invalidates cached credentials.

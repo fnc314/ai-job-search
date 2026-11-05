@@ -1,10 +1,10 @@
 package dev.fnc314.tools.jobtracker.core.data.settings
 
 import android.content.Context
-import dev.fnc314.tools.jobtracker.core.data.AndroidApplicationContextHolder
+import dev.fnc314.tools.jobtracker.core.data.ApplicationContextHolder
 
 public actual fun createSettingsStorage(): SettingsStorage {
-    val context = AndroidApplicationContextHolder.application
+    val context = ApplicationContextHolder.application
     return if (context != null) {
         AndroidSettingsStorage(context)
     } else {

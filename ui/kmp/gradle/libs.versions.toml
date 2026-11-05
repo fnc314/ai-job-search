@@ -145,6 +145,21 @@
     "navigation3-runtime",
     "navigation3-ui",
   ]
+  testing = [
+    "kotlin-test",
+    "kotlinx-coroutines-test",
+    "kotlinx-serialization-json",
+    "kotlinx-collections-immutable",
+    "kotlinx-datetime",
+  ]
+  testing-jvm = [
+    "junit",
+    "kotlin-testJunit",
+  ]
+  testing-android = [
+    "androidx-testExt-junit",
+    "androidx-testRunner",
+  ]
 
 [plugins]
   androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -166,6 +181,7 @@
 
   # Local Configuration Concern Plugins
   local-dependencies-compose = { id = "dev.fnc314.tools.jobtracker.dependencies.compose" }
+  local-dependencies-di = { id = "dev.fnc314.tools.jobtracker.dependencies.di" }
   local-dependencies-koin = { id = "dev.fnc314.tools.jobtracker.dependencies.koin" }
   local-dependencies-ktor = { id = "dev.fnc314.tools.jobtracker.dependencies.ktor" }
   local-dependencies-serialization = { id = "dev.fnc314.tools.jobtracker.dependencies.serialization" }

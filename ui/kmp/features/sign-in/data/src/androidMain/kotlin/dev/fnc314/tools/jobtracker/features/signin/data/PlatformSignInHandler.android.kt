@@ -13,6 +13,7 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import dev.fnc314.tools.jobtracker.core.data.ApplicationContextHolder
 import dev.fnc314.tools.jobtracker.core.data.model.UserAccount
 import kotlinx.coroutines.tasks.await
 
@@ -134,7 +135,7 @@ public actual class PlatformSignInHandler(
 }
 
 public actual fun createPlatformSignInHandler(): PlatformSignInHandler {
-    val context = dev.fnc314.tools.jobtracker.core.data.AndroidApplicationContextHolder.application
+    val context = ApplicationContextHolder.application
         ?: throw IllegalStateException("Android application context must be initialized before using PlatformSignInHandler")
     return PlatformSignInHandler(context)
 }

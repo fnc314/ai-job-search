@@ -7,15 +7,16 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.FilterJobApplicationsUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.LoadAllJobApplicationsUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.SortJobApplicationsUseCase
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 
 public class JobApplicationsListViewModel(
     private val loadAll: LoadAllJobApplicationsUseCase,
     private val filterApplications: FilterJobApplicationsUseCase,
     private val sortApplications: SortJobApplicationsUseCase,
-) : ViewModel(), KoinComponent {
+) : ViewModel() {
 
     private val _statusFilter = MutableStateFlow(TrackerStatus.NONE)
     public val statusFilter: StateFlow<TrackerStatus> = _statusFilter.asStateFlow()

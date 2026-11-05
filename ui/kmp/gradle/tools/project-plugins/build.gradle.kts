@@ -55,10 +55,16 @@ gradlePlugin {
       implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.SerializationDependenciesConventionPlugin"
       displayName = "Serialization Dependencies Convention"
     }
+    create("dependencies-di") {
+      id = libs.plugins.local.dependencies.di.map { it.pluginId }.get()
+      description = "Applies DI dependency bundles"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DIDependenciesConventionPlugin"
+      displayName = "DI Dependencies Convention"
+    }
     create("dependencies-koin") {
       id = libs.plugins.local.dependencies.koin.map { it.pluginId }.get()
-      description = "Applies Koin dependency bundles"
-      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.KoinDependenciesConventionPlugin"
+      description = "Applies DI dependency bundles (legacy alias)"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DIDependenciesConventionPlugin"
       displayName = "Koin Dependencies Convention"
     }
     create("dependencies-navigation") {

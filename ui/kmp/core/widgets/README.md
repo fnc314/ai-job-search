@@ -47,8 +47,8 @@ core/widgets/src/
     - `>= 80`: Strong fit (`primaryContainer`)
     - `>= 60`: Moderate fit (`secondaryContainer`)
     - `< 60`: Low / stretch fit (`surfaceVariant`)
-- `NotesWidget(notes: List<String>, title: String, modifier: Modifier)`:
-  - Renders an ordered list of timestamped or freeform notes inside an elevated surface with semantic content descriptions.
+- `NotesWidget(onNotesChanged: (ImmutableList<String>) -> Unit, modifier: Modifier, initialNotes: ImmutableList<String>, label: String)`:
+  - Renders an interactive, reorderable, multi-note editor inside an elevated surface with semantic content descriptions. Accepts and emits stable `ImmutableList<String>` to prevent unnecessary Compose recomposition churn.
 - `TooltipIconButton(tooltip: String, icon: ImageVector, onClick: () -> Unit, modifier: Modifier, enabled: Boolean)`:
   - Cross-platform tooltip button wrapping M3 `TooltipBox` and `IconButton`.
 

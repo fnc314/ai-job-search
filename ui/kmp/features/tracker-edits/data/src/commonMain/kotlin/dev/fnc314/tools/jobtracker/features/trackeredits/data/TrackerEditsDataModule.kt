@@ -7,7 +7,7 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val trackerEditsDataModule = module {
-    single<TrackerEditsRepository> { FirestoreTrackerEditsRepository() }
+    single<TrackerEditsRepository> { RemoteTrackerEditsRepository() }
     factoryOf(::LoadPendingEditsUseCaseImpl) bind LoadPendingEditsUseCase::class
     factoryOf(::ApproveEditUseCaseImpl) bind ApproveEditUseCase::class
     factoryOf(::RejectEditUseCaseImpl) bind RejectEditUseCase::class

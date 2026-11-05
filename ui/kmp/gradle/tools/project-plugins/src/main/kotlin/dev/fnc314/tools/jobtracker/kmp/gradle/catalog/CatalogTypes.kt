@@ -73,7 +73,10 @@ internal sealed interface CatalogTypes<out T> {
         ANDROIDX_LIFECYCLE_COMPOSE("androidx-lifecycle-compose"),
         FIREBASE_ANDROID("firebase-android"),
         FIREBASE_JVM("firebase-jvm"),
-        NAVIGATION3("navigation3");
+        NAVIGATION3("navigation3"),
+        TESTING("testing"),
+        TESTING_JVM("testing-jvm"),
+        TESTING_ANDROID("testing-android");
 
         override fun fromCatalog(project: Project): Provider<ExternalModuleDependencyBundle> =
             project.versionCatalog.findBundle(catalogKey).orElseThrow {

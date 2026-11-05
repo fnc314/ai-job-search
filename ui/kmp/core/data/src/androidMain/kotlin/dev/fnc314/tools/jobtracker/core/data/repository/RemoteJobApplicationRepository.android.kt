@@ -17,7 +17,7 @@ private const val COLLECTION_COMPANIES = "companies"
 private const val SUBCOLLECTION_EVENTS = "events"
 private const val TAG = "FirestoreRepo"
 
-public class AndroidFirestoreJobApplicationRepository : JobApplicationRepository {
+public class AndroidRemoteJobApplicationRepository : JobApplicationRepository {
 
     private val db = FirebaseFirestore.getInstance()
 

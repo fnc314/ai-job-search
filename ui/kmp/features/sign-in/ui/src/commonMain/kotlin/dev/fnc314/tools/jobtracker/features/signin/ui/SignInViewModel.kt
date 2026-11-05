@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dev.fnc314.tools.jobtracker.core.data.model.AuthState
 import dev.fnc314.tools.jobtracker.core.data.model.UserAccount
 import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.ObserveAuthStateUseCase
-import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignInWithGoogleUseCase
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignInUseCase
 import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignOutUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,7 +22,7 @@ public sealed interface SignInUiState {
 }
 
 public class SignInViewModel(
-    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val signInUseCase: SignInUseCase,
     private val signOutUseCase: SignOutUseCase,
     observeAuthStateUseCase: ObserveAuthStateUseCase
 ) : ViewModel() {
@@ -49,22 +49,24 @@ public class SignInViewModel(
         initialValue = SignInUiState.Unauthenticated
     )
 
-    public fun onSignInWithGoogleClicked(): Unit {
-        println("[SignInViewModel] onSignInWithGoogleClicked: Starting sign-in")
+    public fun onSignInClicked(): Unit {
+        println("[SignInViewModel] onSignInClicked: Starting sign-in")
         viewModelScope.launch {
             _isSigningIn.value = true
             _errorMessage.value = null
-            val result = signInWithGoogleUseCase()
+            val result = signInUseCase()
             result.onSuccess { user ->
-                println("[SignInViewModel] onSignInWithGoogleClicked: Success - ${user.displayName ?: user.email}")
+                println("[SignInViewModel] onSignInClicked: Success - ${user.displayName ?: user.email}")
             }
             result.onFailure { error ->
-                println("[SignInViewModel] onSignInWithGoogleClicked: Failed - ${error.message}")
+                println("[SignInViewModel] onSignInClicked: Failed - ${error.message}")
                 _errorMessage.value = error.message ?: "Sign-in failed"
             }
             _isSigningIn.value = false
         }
     }
+
+    public fun onSignInWithGoogleClicked(): Unit = onSignInClicked()
 
     public fun onSignOutClicked(): Unit {
         println("[SignInViewModel] onSignOutClicked: Signing out")

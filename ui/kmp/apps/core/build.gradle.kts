@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.local.compose)
     alias(libs.plugins.local.dependencies.compose)
     alias(libs.plugins.local.dependencies.serialization)
-    alias(libs.plugins.local.dependencies.koin)
+    alias(libs.plugins.local.dependencies.di)
     alias(libs.plugins.local.dependencies.navigation)
 }
 

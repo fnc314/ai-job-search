@@ -1,12 +1,8 @@
 package dev.fnc314.tools.jobtracker.core.data.repository
 
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.utils.io.*
+import io.ktor.client.HttpClient
 
-public class KtorStorageRepository(
+public class NetworkStorageRepository(
     private val httpClient: HttpClient,
 ) : StorageRepository {
 

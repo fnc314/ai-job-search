@@ -1,9 +1,22 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui
 
 import androidx.lifecycle.ViewModel
-import dev.fnc314.tools.jobtracker.core.data.model.*
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
-import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.*
+import dev.fnc314.tools.jobtracker.core.data.model.Company
+import dev.fnc314.tools.jobtracker.core.data.model.Confidence
+import dev.fnc314.tools.jobtracker.core.data.model.DerivedFrom
+import dev.fnc314.tools.jobtracker.core.data.model.EventActor
+import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
+import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.GetArtifactSignedUrlUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.LoadCompaniesUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.LoadJobApplicationUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.RecordEventUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.UpdateApplicationStatusUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.usecase.UpdateFitScoreUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,8 +24,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 public data class DetailUiState(
     val application: JobApplication? = null,
@@ -24,13 +35,14 @@ public data class DetailUiState(
     val isUpdating: Boolean = false,
 )
 
-public class JobApplicationDetailViewModel : ViewModel(), KoinComponent {
-    private val loadApplicationUseCase: LoadJobApplicationUseCase by inject()
-    private val loadCompaniesUseCase: LoadCompaniesUseCase by inject()
-    private val updateStatusUseCase: UpdateApplicationStatusUseCase by inject()
-    private val recordEventUseCase: RecordEventUseCase by inject()
-    private val updateFitScoreUseCase: UpdateFitScoreUseCase by inject()
-    private val getSignedUrlUseCase: GetArtifactSignedUrlUseCase by inject()
+public class JobApplicationDetailViewModel(
+    private val loadApplicationUseCase: LoadJobApplicationUseCase,
+    private val loadCompaniesUseCase: LoadCompaniesUseCase,
+    private val updateStatusUseCase: UpdateApplicationStatusUseCase,
+    private val recordEventUseCase: RecordEventUseCase,
+    private val updateFitScoreUseCase: UpdateFitScoreUseCase,
+    private val getSignedUrlUseCase: GetArtifactSignedUrlUseCase,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(DetailUiState())
     public val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 

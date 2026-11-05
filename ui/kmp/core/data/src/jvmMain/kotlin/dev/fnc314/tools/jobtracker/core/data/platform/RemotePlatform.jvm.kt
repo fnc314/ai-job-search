@@ -5,10 +5,10 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 
 /**
- * Initializes remote backend SDK for JVM (Desktop).
+ * Initializes remote backend SDK for Desktop.
  * Uses Application Default Credentials (ADC).
  */
-internal object RemoteJVM {
+internal object RemotePlatform {
     private var initialized: Boolean = false
 
     fun initialize(): Unit {

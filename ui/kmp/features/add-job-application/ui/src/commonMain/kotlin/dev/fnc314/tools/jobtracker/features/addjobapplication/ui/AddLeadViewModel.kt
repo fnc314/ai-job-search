@@ -3,6 +3,8 @@ package dev.fnc314.tools.jobtracker.features.addjobapplication.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.usecase.CreateLeadUseCase
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +15,7 @@ public data class AddLeadFormState(
     val company: String = "",
     val contact: String = "",
     val channel: String = "",
-    val notes: List<String> = emptyList(),
+    val notes: ImmutableList<String> = persistentListOf(),
     val tags: String = "",
     val submitting: Boolean = false,
     val error: String? = null,
@@ -38,7 +40,7 @@ public class AddLeadViewModel(
         _formState.update { it.copy(channel = value, error = null) }
     }
 
-    public fun updateNotes(value: List<String>) {
+    public fun updateNotes(value: ImmutableList<String>) {
         _formState.update { it.copy(notes = value, error = null) }
     }
 

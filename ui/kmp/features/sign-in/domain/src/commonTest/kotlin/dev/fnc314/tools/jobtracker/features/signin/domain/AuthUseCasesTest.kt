@@ -5,6 +5,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.UserAccount
 import dev.fnc314.tools.jobtracker.core.data.repository.AuthRepository
 import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.GetCurrentUserUseCase
 import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.ObserveAuthStateUseCase
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignInUseCase
 import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignOutUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -95,5 +96,17 @@ class AuthUseCasesTest {
         val result = signOutUseCase()
         assertTrue(result.isSuccess)
         assertEquals(AuthState.Unauthenticated, observeUseCase().value)
+    }
+
+    @Test
+    fun testSignInUseCase_Success() = runTest {
+        val user = UserAccount(uid = "user-789", email = "signin@example.com")
+        val signInUseCase = object : SignInUseCase {
+            override suspend fun invoke(): Result<UserAccount> = Result.success(user)
+        }
+        val result = signInUseCase()
+        assertTrue(result.isSuccess)
+        assertEquals("user-789", result.getOrNull()?.uid)
+        assertEquals("signin@example.com", result.getOrNull()?.email)
     }
 }

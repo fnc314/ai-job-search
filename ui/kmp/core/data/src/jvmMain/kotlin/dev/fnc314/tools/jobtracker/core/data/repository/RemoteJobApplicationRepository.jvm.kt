@@ -11,10 +11,9 @@ import kotlinx.coroutines.withContext
 import kotlin.time.Instant
 
 /**
- * JVM implementation of JobApplicationRepository using Firebase Admin SDK.
- * This runs on the Desktop (JVM) target.
+ * JVM implementation of JobApplicationRepository for the Desktop target.
  */
-public class JVMJobApplicationRepository : JobApplicationRepository {
+public class JvmRemoteJobApplicationRepository : JobApplicationRepository {
 
     private val db = FirestoreClient.getFirestore(FirebaseApp.getInstance())
 

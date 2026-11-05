@@ -1,28 +1,30 @@
 package dev.fnc314.tools.jobtracker.core.data.repository
 
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
-import dev.fnc314.tools.jobtracker.core.data.model.*
-import kotlin.time.Instant
+import dev.fnc314.tools.jobtracker.core.data.model.Company
+import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 
-public class FirestoreJobApplicationRepository : JobApplicationRepository {
+public class RemoteJobApplicationRepository : JobApplicationRepository {
 
     override suspend fun getAllJobApplications(): List<JobApplication> {
-        // TODO: Implement Firestore query
+        // Default remote query stub
         return emptyList()
     }
 
     override suspend fun getJobApplication(id: String): JobApplication? {
-        // TODO: Implement Firestore document fetch
+        // Default remote document fetch stub
         return null
     }
 
     override suspend fun getCompanies(): List<Company> {
-        // TODO: Implement Firestore query
+        // Default remote query stub
         return emptyList()
     }
 
     override suspend fun saveJobApplication(app: JobApplication): String {
-        // TODO: Implement Firestore document write
+        // Default remote document write stub
         return app.id
     }
 
@@ -32,7 +34,7 @@ public class FirestoreJobApplicationRepository : JobApplicationRepository {
         date: String?,
         note: String?
     ): JobApplication {
-        // TODO: Implement Firestore update
+        // Default remote update stub
         return Factory.createJobApplication(
             id = id,
             company = "",
@@ -41,12 +43,12 @@ public class FirestoreJobApplicationRepository : JobApplicationRepository {
     }
 
     override suspend fun recordEvent(event: TrackerEvent): String {
-        // TODO: Implement Firestore subcollection write
+        // Default remote event write stub
         return event.id
     }
 
     override suspend fun updateFitScore(id: String, score: Int): JobApplication {
-        // TODO: Implement Firestore update
+        // Default remote update stub
         return Factory.createJobApplication(
             id = id,
             company = "",

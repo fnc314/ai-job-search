@@ -47,7 +47,8 @@ core/data/src/
 │   ├── repository/                           # Storage and database abstractions
 │   │   ├── JobApplicationRepository.kt       # Application and event data store contract
 │   │   ├── StorageRepository.kt              # Artifact storage contract
-│   │   └── KtorStorageRepository.kt          # Signed-URL artifact downloader
+│   │   ├── RemoteJobApplicationRepository.kt # Remote repository stub implementation
+│   │   └── NetworkStorageRepository.kt       # Signed-URL artifact downloader
 │   ├── settings/                             # Preferences persistence
 │   │   ├── AppSettings.kt                    # App configuration model (UiMode, seed colors, etc.)
 │   │   └── SettingsStorage.kt                # Multiplatform key-value settings storage
@@ -56,8 +57,8 @@ core/data/src/
 │   │   ├── RemoteDataSource.kt               # Provider-agnostic remote database contract
 │   │   └── DataResult.kt                     # Success and Failure result wrapper
 │   └── util/                                 # Semantic timestamp formatting
-├── androidMain/kotlin/                       # Android Firestore repository & Play Services bindings
-├── jvmMain/kotlin/                           # Desktop JVM Firestore repository & protobuf parser
+├── androidMain/kotlin/                       # Android Remote repository (RemoteJobApplicationRepository.android.kt) & ApplicationContextHolder.android.kt
+├── jvmMain/kotlin/                           # Desktop JVM Remote repository (RemoteJobApplicationRepository.jvm.kt) & RemotePlatform.jvm.kt
 ├── iosMain/kotlin/                           # iOS Darwin storage & platform bindings
 └── webMain/kotlin/                           # Web JS/Wasm storage bindings
 ```

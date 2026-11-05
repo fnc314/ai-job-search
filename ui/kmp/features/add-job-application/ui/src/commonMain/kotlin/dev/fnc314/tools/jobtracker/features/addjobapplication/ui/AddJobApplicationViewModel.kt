@@ -8,6 +8,8 @@ import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.model.WorkMode
 import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.usecase.CreateJobApplicationUseCase
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,7 +29,7 @@ public data class AddApplicationFormState(
     val jobApplicationUrl: String = "",
     val jobId: String = "",
     val location: String = "",
-    val notes: List<String> = emptyList(),
+    val notes: ImmutableList<String> = persistentListOf(),
     val tags: String = "",
     val submitting: Boolean = false,
     val error: String? = null,
@@ -84,7 +86,7 @@ public class AddJobApplicationViewModel(
         _formState.update { it.copy(location = value, error = null) }
     }
 
-    public fun updateNotes(value: List<String>) {
+    public fun updateNotes(value: ImmutableList<String>) {
         _formState.update { it.copy(notes = value, error = null) }
     }
 

@@ -15,7 +15,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 /**
  * Internal convention plugin configuring testing standards across all multiplatform projects:
- * - Test dependencies (`kotlin.test`, `kotlinx-coroutines-test`) in `commonTest`
+ * - Multiplatform test bundle (`kotlin.test`, coroutines-test, serialization, immutable collections, datetime) in `commonTest`
+ * - JVM test bundle (`junit`, `kotlin-test-junit`) in `jvmTest`
+ * - Android test bundle (`androidx-testExt-junit`, `androidx-testRunner`) in `androidHostTest`
  * - Consistent test logging and exception formatting on all Gradle [Test] tasks
  * - Host test integration for Android Kotlin Multiplatform library targets
  */
@@ -43,13 +45,17 @@ internal class TestingConventionPlugin : Plugin<Project>, BaseConventionPlugin {
             }
         }
 
-        // 2. Configure Kotlin Multiplatform test source set dependencies
+        // 2. Configure Kotlin Multiplatform test source set dependencies via bundles
         pluginManager.withPlugin(CatalogTypes.Plugins.KOTLIN_MULTIPLATFORM(this).get().pluginId) {
             kotlinMultiplatform {
                 commonTest {
                     dependencies {
-                        implementation(CatalogTypes.Libraries.KOTLIN_TEST(project))
-                        implementation(CatalogTypes.Libraries.KOTLINX_COROUTINES_TEST(project))
+                        implementation(CatalogTypes.Bundles.TESTING(project))
+                    }
+                }
+                sourceSets.matching { it.name == "jvmTest" }.configureEach { jvmTest ->
+                    jvmTest.dependencies {
+                        implementation(CatalogTypes.Bundles.TESTING_JVM(project))
                     }
                 }
             }
@@ -61,6 +67,11 @@ internal class TestingConventionPlugin : Plugin<Project>, BaseConventionPlugin {
             val extAware = kotlin as? ExtensionAware
             extAware?.extensions?.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) { android ->
                 android.withHostTest {}
+            }
+            kotlin?.sourceSets?.matching { it.name == "androidHostTest" }?.configureEach { hostTest ->
+                hostTest.dependencies {
+                    implementation(CatalogTypes.Bundles.TESTING_ANDROID(project))
+                }
             }
         }
     }

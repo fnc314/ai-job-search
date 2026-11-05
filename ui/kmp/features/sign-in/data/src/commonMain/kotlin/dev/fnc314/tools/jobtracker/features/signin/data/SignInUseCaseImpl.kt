@@ -1,12 +1,12 @@
 package dev.fnc314.tools.jobtracker.features.signin.data
 
 import dev.fnc314.tools.jobtracker.core.data.model.UserAccount
-import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignInWithGoogleUseCase
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignInUseCase
 
-public class SignInWithGoogleUseCaseImpl(
+public class SignInUseCaseImpl(
     private val authRepository: DefaultAuthRepository
-) : SignInWithGoogleUseCase {
+) : SignInUseCase {
     override suspend fun invoke(): Result<UserAccount> {
-        return authRepository.signInWithGoogle()
+        return authRepository.signIn()
     }
 }

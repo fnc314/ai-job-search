@@ -28,6 +28,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -51,9 +55,9 @@ private data class NoteItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun NotesWidget(
-    onNotesChanged: (List<String>) -> Unit,
+    onNotesChanged: (ImmutableList<String>) -> Unit,
     modifier: Modifier = Modifier,
-    initialNotes: List<String> = emptyList(),
+    initialNotes: ImmutableList<String> = persistentListOf(),
     label: String = "Notes",
 ) {
     val items = remember {
@@ -75,7 +79,7 @@ public fun NotesWidget(
     }
 
     fun notifyNotesChanged() {
-        val filled = items.map { it.text.trim() }.filter { it.isNotEmpty() }
+        val filled = items.map { it.text.trim() }.filter { it.isNotEmpty() }.toImmutableList()
         onNotesChanged(filled)
     }
 

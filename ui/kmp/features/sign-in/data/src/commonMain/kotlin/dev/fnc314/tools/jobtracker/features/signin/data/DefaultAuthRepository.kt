@@ -28,19 +28,19 @@ public class DefaultAuthRepository(
     override val currentUser: UserAccount?
         get() = (_authState.value as? AuthState.Authenticated)?.user
 
-    public suspend fun signInWithGoogle(): Result<UserAccount> {
-        println("[DefaultAuthRepository] signInWithGoogle: Setting state to Loading")
+    public suspend fun signIn(): Result<UserAccount> {
+        println("[DefaultAuthRepository] signIn: Setting state to Loading")
         _authState.value = AuthState.Loading
-        println("[DefaultAuthRepository] signInWithGoogle: Calling platform sign-in handler")
+        println("[DefaultAuthRepository] signIn: Calling platform sign-in handler")
         val result = signInHandler.signIn()
         return result.fold(
             onSuccess = { user ->
-                println("[DefaultAuthRepository] signInWithGoogle: Success - user ${user.uid}")
+                println("[DefaultAuthRepository] signIn: Success - user ${user.uid}")
                 _authState.value = AuthState.Authenticated(user)
                 Result.success(user)
             },
             onFailure = { error ->
-                println("[DefaultAuthRepository] signInWithGoogle: Failed - ${error.message}")
+                println("[DefaultAuthRepository] signIn: Failed - ${error.message}")
                 _authState.value = AuthState.Error(error.message ?: "Authentication failed", error)
                 Result.failure(error)
             }
