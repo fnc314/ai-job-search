@@ -4,12 +4,14 @@ plugins {
     alias(libs.plugins.local.compose)
     alias(libs.plugins.local.dependencies.compose)
     alias(libs.plugins.local.dependencies.koin)
+    alias(libs.plugins.local.dependencies.navigation)
 }
 
 kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.coreData)
+            implementation(projects.coreNavigation)
             implementation(projects.coreWidgets)
             implementation(projects.featuresAddJobApplicationDomain)
             implementation(projects.featuresAddJobApplicationData)

@@ -9,7 +9,7 @@
 > - **Internal Project Dependencies**:
 >   - Domain: `:core-data`
 >   - Data: `:features-settings-domain`, `:core-data`
->   - UI: `:features-settings-domain`, `:features-settings-data`, `:core-widgets`, `:core-data`
+>   - UI: `:features-settings-domain`, `:features-settings-data`, `:core-widgets`, `:core-navigation`, `:core-data`
 
 ---
 
@@ -48,6 +48,8 @@ Persists settings across app sessions:
 Renders the preference controls:
 - [`SettingsScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsScreen.kt): Composable view containing theme mode selectors (System/Light/Dark), seed color pickers (sourced centrally from `SeedColors` in `:core-design-system`), custom color hex input, and back navigation.
 - [`SettingsViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsViewModel.kt): Bridges the domain use cases to UI state.
+- [`SettingsRoute`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsNavigation.kt): Type-safe destination key implementing `NavKeyRoute`.
+- [`settingsNavHook`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsNavigation.kt): `FeatureNavigationHook` registering the `composable<SettingsRoute>` entry in the root `NavGraphBuilder`.
 - [`settingsUiModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiModule.kt): Koin DI factory for `SettingsViewModel`.
 - [`settingsFeatureModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiModule.kt): Umbrella DI module.
 

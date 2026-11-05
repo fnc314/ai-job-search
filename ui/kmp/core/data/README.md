@@ -26,7 +26,9 @@ All feature modules (`features/*`) depend on `:core-data` for data models and re
 ```
 core/data/src/
 ├── commonMain/kotlin/dev/fnc314/tools/jobtracker/core/data/
+│   ├── di/CoreDataModule.kt                  # Koin DI module providing globalJson, SettingsStorage, PlatformFileOpener
 │   ├── factory/Factory.kt                    # Centralized factory for creating validated domain models
+│   ├── json/JsonProvider.kt                  # Standard globalJson instance for kotlinx.serialization
 │   ├── model/                                # Universal entities and encapsulated enums
 │   │   ├── JobApplication.kt                 # Core job application entity
 │   │   ├── TrackerEvent.kt                   # Historical lifecycle event
@@ -49,6 +51,10 @@ core/data/src/
 │   ├── settings/                             # Preferences persistence
 │   │   ├── AppSettings.kt                    # App configuration model (UiMode, seed colors, etc.)
 │   │   └── SettingsStorage.kt                # Multiplatform key-value settings storage
+│   ├── source/                               # Remote database abstractions
+│   │   ├── RemoteRecord.kt                   # Typed document record abstraction
+│   │   ├── RemoteDataSource.kt               # Provider-agnostic remote database contract
+│   │   └── DataResult.kt                     # Success and Failure result wrapper
 │   └── util/                                 # Semantic timestamp formatting
 ├── androidMain/kotlin/                       # Android Firestore repository & Play Services bindings
 ├── jvmMain/kotlin/                           # Desktop JVM Firestore repository & protobuf parser

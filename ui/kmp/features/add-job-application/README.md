@@ -9,7 +9,7 @@
 > - **Internal Project Dependencies**:
 >   - Domain: `:core-data`
 >   - Data: `:features-add-job-application-domain`, `:core-data`
->   - UI: `:features-add-job-application-domain`, `:features-add-job-application-data`, `:core-widgets`, `:core-data`
+>   - UI: `:features-add-job-application-domain`, `:features-add-job-application-data`, `:core-widgets`, `:core-navigation`, `:core-data`
 
 ---
 
@@ -49,6 +49,9 @@ Implements intake use cases backed by `:core-data`:
 ### 3. `:features-add-job-application-ui`
 Supplies Compose screens, form states, and input validation:
 - [`AddJobApplicationScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/add-job-application/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/addjobapplication/ui/AddJobApplicationScreen.kt): Multi-field intake form with dropdown selectors for work mode, channel, and status, with dynamic note entry via `NotesWidget`.
+- [`AddApplicationRoute`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/add-job-application/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/addjobapplication/ui/AddJobApplicationNavigation.kt): Type-safe destination key implementing `NavKeyRoute`.
+- [`AddLeadRoute`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/add-job-application/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/addjobapplication/ui/AddJobApplicationNavigation.kt): Type-safe destination key implementing `NavKeyRoute`.
+- [`addJobApplicationNavHook`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/add-job-application/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/addjobapplication/ui/AddJobApplicationNavigation.kt): `FeatureNavigationHook` registering `composable<AddApplicationRoute>` and `composable<AddLeadRoute>` in the root `NavGraphBuilder`.
 - [`AddJobApplicationViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/add-job-application/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/addjobapplication/ui/AddJobApplicationViewModel.kt): Manages `AddApplicationFormState` and form submission.
 - [`AddLeadScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/add-job-application/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/addjobapplication/ui/AddLeadScreen.kt): Fast-entry screen optimized for rapid note-taking and lead logging.
 - [`AddLeadViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/add-job-application/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/addjobapplication/ui/AddLeadViewModel.kt): Manages `AddLeadFormState` and lead creation.

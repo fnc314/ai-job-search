@@ -9,7 +9,7 @@
 > - **Internal Project Dependencies**:
 >   - Domain: `:core-data`
 >   - Data: `:features-job-applications-list-domain`, `:core-data`
->   - UI: `:features-job-applications-list-domain`, `:features-job-applications-list-data`, `:core-widgets`, `:core-data`
+>   - UI: `:features-job-applications-list-domain`, `:features-job-applications-list-data`, `:core-widgets`, `:core-navigation`, `:core-data`
 
 ---
 
@@ -50,6 +50,8 @@ Provides concrete implementations of domain interfaces and binds them to DI:
 Delivers the Compose presentation and responsive UI components:
 - [`JobApplicationsListScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListScreen.kt): Adaptive screen switching between a single-column `LazyColumn` for compact screens and a multi-column `LazyVerticalGrid` for expanded displays based on `WindowWidthSizeClass`. Includes search bar, filter chips, action tooltips, pull-to-refresh, and FABs.
 - [`JobApplicationsListViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListViewModel.kt): Reactive ViewModel managing search query, status filter, age filter, sorting column, and combined list state flows.
+- [`ListRoute`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListNavigation.kt): Type-safe destination key implementing `NavKeyRoute`.
+- [`jobApplicationsListNavHook`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListNavigation.kt): `FeatureNavigationHook` registering the `composable<ListRoute>` entry in the root `NavGraphBuilder`.
 - [`jobApplicationsListUiModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListUiModule.kt): Koin DI module registering `JobApplicationsListViewModel`.
 - [`jobApplicationsListFeatureModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListUiModule.kt): Umbrella module including data and UI modules.
 

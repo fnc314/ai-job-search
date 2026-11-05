@@ -9,7 +9,7 @@
 > - **Internal Project Dependencies**:
 >   - Domain: `:core-data`
 >   - Data: `:features-job-applications-details-domain`, `:core-data`
->   - UI: `:features-job-applications-details-domain`, `:features-job-applications-details-data`, `:core-widgets`, `:core-data`
+>   - UI: `:features-job-applications-details-domain`, `:features-job-applications-details-data`, `:core-widgets`, `:core-navigation`, `:core-data`
 
 ---
 
@@ -55,6 +55,8 @@ Implements the use cases backed by `:core-data` repositories:
 Renders detail presentation, interactive editing dialogs, and artifact launchers:
 - [`JobApplicationsDetailsScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsScreen.kt): Comprehensive screen displaying company overview, status lifecycle progression, compensation benchmarks, artifact links, notes widget, and interactive event recording.
 - [`JobApplicationDetailViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsViewModel.kt): Coordinates loading, mutation calls, and UI state flows.
+- [`DetailRoute`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsNavigation.kt): Type-safe destination key (`applicationId: String`) implementing `NavKeyRoute`.
+- [`jobApplicationsDetailsNavHook`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsNavigation.kt): `FeatureNavigationHook` registering the `composable<DetailRoute>` entry in the root `NavGraphBuilder`.
 - [`jobApplicationsDetailsUiModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsUiModule.kt): Koin factory for `JobApplicationDetailViewModel`.
 - [`jobApplicationsDetailsFeatureModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsUiModule.kt): Umbrella module uniting data and UI layers.
 

@@ -43,6 +43,7 @@ core/network/src/
 
 ## 4. Public API Surface & Significant Contributions
 
+- `public val coreNetworkModule: Module`: Koin DI module providing a singleton `HttpClient` configured via `createJsonHttpClient()`.
 - `public fun createJsonHttpClient(): HttpClient`: Returns a preconfigured Ktor `HttpClient` with:
   - JSON Content Negotiation using `kotlinx.serialization.json.Json` configured with `ignoreUnknownKeys = true` and `isLenient = true`.
   - Configured request timeouts (15s connect, 30s request).

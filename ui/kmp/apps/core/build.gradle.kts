@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.local.dependencies.compose)
     alias(libs.plugins.local.dependencies.serialization)
     alias(libs.plugins.local.dependencies.koin)
+    alias(libs.plugins.local.dependencies.navigation)
 }
 
 kotlin {
@@ -18,16 +19,10 @@ kotlin {
         binaries.executable()
     }
     sourceSets {
-        androidMain.dependencies {
-            implementation(libs.navigation3.runtime)
-            implementation(libs.navigation3.ui)
-            implementation(libs.bundles.ktor.client.android)
-            implementation(libs.bundles.firebase.android)
-            implementation(libs.kotlinx.coroutinesPlayServices)
-        }
         commonMain.dependencies {
-            api(projects.coreData)
+            implementation(projects.coreData)
             implementation(projects.coreNetwork)
+            implementation(projects.coreNavigation)
             implementation(projects.coreDesignSystem)
             implementation(projects.coreWidgets)
 
@@ -40,28 +35,12 @@ kotlin {
 
             // Lifecycle
             implementation(libs.bundles.androidx.lifecycle.compose)
-
-            // Navigation
-            implementation(libs.navigation.compose)
-
-            // Ktor
-            implementation(libs.bundles.ktor.client)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
         jsMain.dependencies {
             implementation(libs.wrappers.browser)
-            implementation(libs.bundles.ktor.client.js)
-        }
-        jvmMain.dependencies {
-            implementation(libs.bundles.ktor.client.jvm)
-            implementation(libs.bundles.firebase.jvm)
-            implementation(libs.records.proto)
-            implementation(libs.records.parser)
-        }
-        iosMain.dependencies {
-            implementation(libs.bundles.ktor.client.ios)
         }
     }
 }

@@ -9,7 +9,7 @@
 > - **Internal Project Dependencies**:
 >   - Domain: `:core-data`
 >   - Data: `:features-tracker-edits-domain`, `:core-data`
->   - UI: `:features-tracker-edits-domain`, `:features-tracker-edits-data`, `:core-widgets`, `:core-data`
+>   - UI: `:features-tracker-edits-domain`, `:features-tracker-edits-data`, `:core-widgets`, `:core-navigation`, `:core-data`
 
 ---
 
@@ -53,6 +53,8 @@ Implements the domain contracts:
 Renders review queues, comparison cards, and action controls:
 - [`TrackerEditsScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/ui/TrackerEditsScreen.kt): Review queue screen displaying edit proposals, original vs proposed values, timestamp metadata, approve/reject dialogs, and refresh triggers.
 - [`TrackerEditsViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/ui/TrackerEditsViewModel.kt): Manages `TrackerEditsUiState` (`edits`, `loading`, `error`, `actionInProgress`).
+- [`EditsRoute`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/ui/TrackerEditsNavigation.kt): Type-safe destination key implementing `NavKeyRoute`.
+- [`trackerEditsNavHook`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/ui/TrackerEditsNavigation.kt): `FeatureNavigationHook` registering `composable<EditsRoute>` in the root `NavGraphBuilder`.
 - [`trackerEditsUiModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/ui/TrackerEditsUiModule.kt): Koin DI factory for `TrackerEditsViewModel`.
 - [`trackerEditsFeatureModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/tracker-edits/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/ui/TrackerEditsUiModule.kt): Umbrella DI module.
 

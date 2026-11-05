@@ -61,5 +61,11 @@ gradlePlugin {
       implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.KoinDependenciesConventionPlugin"
       displayName = "Koin Dependencies Convention"
     }
+    create("dependencies-navigation") {
+      id = libs.plugins.local.dependencies.navigation.map { it.pluginId }.get()
+      description = "Applies Compose Navigation and Serialization dependencies"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.NavigationDependenciesConventionPlugin"
+      displayName = "Navigation Dependencies Convention"
+    }
   }
 }

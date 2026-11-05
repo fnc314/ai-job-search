@@ -9,7 +9,7 @@
 > - **Internal Project Dependencies**:
 >   - Domain: `:core-data`
 >   - Data: `:features-sign-in-domain`, `:core-data`
->   - UI: `:features-sign-in-domain`, `:features-sign-in-data`, `:core-widgets`, `:core-data`
+>   - UI: `:features-sign-in-domain`, `:features-sign-in-data`, `:core-widgets`, `:core-navigation`, `:core-data`
 
 ---
 
@@ -48,6 +48,8 @@ Implements the domain use cases and delegates to platform-specific sign-in handl
 
 ### 3. `:features-sign-in-ui`
 Encapsulates the Jetpack Compose user interface and screen presentation logic:
+- [`SignInRoute`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/sign-in/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/signin/ui/SignInNavigation.kt): Type-safe `NavKeyRoute` destination object.
+- [`signInNavHook`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/sign-in/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/signin/ui/SignInNavigation.kt): `FeatureNavigationHook` registering `composable<SignInRoute>` into the application `NavHost`.
 - [`SignInScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/sign-in/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/signin/ui/SignInScreen.kt): Composable screen providing responsive branding, Google Sign-In call to action, loading indicators, and error snackbar notifications.
 - [`SignInViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/sign-in/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/signin/ui/SignInViewModel.kt): Manages `SignInUiState` (`Unauthenticated`, `SigningIn`, `Authenticated`, `Error`) and exposes actions.
 - [`signInUiModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/sign-in/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/signin/ui/SignInUiModule.kt): Koin DI factory for `SignInViewModel`.
