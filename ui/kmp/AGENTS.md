@@ -74,8 +74,11 @@ Build scripts must apply the local convention plugins declared in `gradle/libs.v
 - Concern plugins: `local.dependencies.compose`, `local.dependencies.koin`, `local.dependencies.ktor`, `local.dependencies.serialization`.
 - Do not configure target SDKs, compiler options, or toolchains manually in module build scripts.
 
-### Rule 6: Architecture & Design Plans in `.agents/plans/`
-- All technical architecture, design, and migration plans oriented to `ui/kmp` must be housed in `ui/kmp/.agents/plans/` and indexed in `ui/kmp/.agents/plans/README.md`.
+### Rule 6: Architecture & Design Plans in `.agents/plans/` (MANDATORY)
+All technical architecture, design, and migration plans for `ui/kmp` must adhere to these rules:
+- **Location**: Technical architecture and design plans oriented specifically to `ui/kmp` must be housed in `ui/kmp/.agents/plans/` and indexed in `ui/kmp/.agents/plans/README.md`. Any plan that spans across multiple subsystems (e.g. `records` + `ui/kmp`) belongs in root `.agents/plans/`.
+- **Date Subdirectory & 24-Hour Timestamp Filename**: Plans must **NEVER** be stored as flat files. Each plan must be placed in a `YYYY-MM-DD/` folder based on its creation date and prefixed with a 24-hour clock timestamp: `HHMMSS_<plan-name>.md` (using `00`-`23` for `HH`).
+- **Registry Synchronization**: Upon creating or updating any plan, the agent must immediately update `ui/kmp/.agents/plans/README.md` with the link (`./YYYY-MM-DD/HHMMSS_<plan-name>.md`), status, and scope description.
 
 ### Rule 7: Zero-Warning Compilation & Clean Build Logs
 - Build logs must remain clean of compiler warnings and deprecations.
