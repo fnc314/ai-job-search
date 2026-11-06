@@ -1,60 +1,76 @@
-# Implementation Plan: Interactive Proposal Approve
+# Implementation Plan: Interactive Proposal Approve (TUI)
 
 **Status:** Completed  
 **Date:** 2026-11-05  
-**Target:** tracker  
+**Target:** tracker and ui/terminal  
+**Supersedes:** [`interactive-proposal-approve.md`](./223300_interactive-proposal-approve.md) (readline-based version)
 
 ---
 
 ## 1. Executive Summary & Goals
 
-The `mise run tracker proposals approve` command requires a proposal ID as a positional argument, forcing users to `proposals list`, copy an ID, then run `proposals approve <id>` for each change. This plan adds an `--interactive` (`-i`) flag so users can iterate through all pending proposals one-by-one, reviewing and acting on each without manual ID handling.
+The `mise run tracker proposals approve -i` command originally used a readline-based loop that was illegible, hid keyboard commands until prompts, and provided no way to investigate proposal details. This plan replaces it with a curses-based TUI mode inside the existing `ui/terminal/tracker_tui.py` that provides:
+
+1. **Always-visible keyboard commands** — a footer bar shows bindings at all times
+2. **Proposal detail view** — pressing Enter reveals all changes and unmatched emails in a scrollable pane
+3. **Checkbox-style enable/disable** — each proposal row has `[ ]` / `[x]` toggle for batch selection
+4. **Legible layout** — proper curses rendering with color pairs, scrollable panes, and structured output
 
 ## 2. Architecture & Design Principles
 
 ### Current Implementation
-- `scripts/tracker.py` — `commandProposals()` handles all proposals subcommands. The `approve` branch requires a positional `id` argument and calls `proposalsModule.approve()` with optional `--note` and `--only`.
-- `scripts/proposals.py` — `approve()` applies changes in a batch; `listing()` queries by state; `load()` fetches a single proposal.
-- The interactive pattern is established in `_read_line()`, `_select_application_inline()`, and `interactiveEdit()`. All use `sys.stderr.write` for prompts and `sys.stdin.readline` for input.
-- The `edit` subcommand's `--interactive` flag makes the positional `id` optional (`nargs="?"`).
+- `scripts/tracker.py` — `_interactive_proposal_approve()` (readline-based) uses `_read_line()` prompts with `sys.stderr.write`. Iterates proposals sequentially, showing all changes then prompting for action.
+- `ui/terminal/tracker_tui.py` — Full curses-based TUI with established patterns: list/detail views, split mode, settings view, edit view. Uses `safe_addstr()`, color pairs, scrollable panes, and a `while True` main loop.
+- `scripts/proposals.py` — `listing(db, "proposal:pending")` returns full proposal documents; `approve()` and `reject()` apply changes.
 
 ### Key Decisions
-- **Add `--interactive` to existing `approve` parser** — The positional `id` becomes optional (`nargs="?"`). When `-i` is set without an ID, the interactive loop runs. This mirrors the `edit` command pattern.
-- **Iterate proposals, not individual changes** — Each proposal is a batch from a single Gmail fetch. The user reviews at the proposal level (approve all / reject / skip / select changes), matching the existing `--only` semantics.
-- **Reuse `proposalsModule.approve()` and `proposalsModule.reject()`** — No changes needed to `proposals.py`. The interactive loop in `tracker.py` calls the existing functions.
+- **Add proposals mode to the TUI's main loop** — A new `in_proposals` boolean flag is added to the existing `main()` loop, mirroring the existing `in_settings`, `in_edit`, and `in_detail` patterns. Reuses all rendering infrastructure.
+- **Entry from `tracker proposals approve -i`** — The CLI command spawns `tracker_tui.py --proposals`, which loads pending proposals directly and enters the proposals mode. No changes to `proposals.py`.
+- **Checkbox selection model** — Each proposal has an `enabled` boolean. `[Space]` toggles. `[a]` approves all enabled, `[r]` rejects all enabled. Individual proposals can also be approved/rejected from the detail view.
+- **Detail view reuses `load_detail_lines` pattern** — `load_proposal_detail_lines(proposal, max_width)` generates `(text, file_path)` tuples for the detail pane.
 
 ## 3. Proposed Changes & Implementation Steps
 
-### 3.1. `scripts/tracker.py` — Argument parser
-- Change `proposalApprove.add_argument("id")` to `proposalApprove.add_argument("id", nargs="?")`
-- Add `proposalApprove.add_argument("-i", "--interactive", action="store_true")`
+### 3.1. `ui/terminal/tracker_tui.py` — `--proposals` CLI flag and entry point
+- Added `--proposals` argument to `__main__` block that skips application data loading
+- When `--proposals` is set, calls `proposalsModule.listing(db, "proposal:pending")` and enters proposals mode
+- Skips the Textual loading screen and goes straight to curses
 
-### 3.2. `scripts/tracker.py` — New function `_interactive_proposal_approve(db, note)`
-- Fetch all pending proposals via `proposalsModule.listing(db, "proposal:pending")`
-- For each proposal, display a formatted summary (changes with event type, status transition, confidence, email subject; unmatched emails)
-- Prompt with `[a]pprove / [r]eject / [s]kip / [c]hoose changes / [q]uit`
-- On `a`: call `proposalsModule.approve(db, proposalId, note=note)`
-- On `r`: call `proposalsModule.reject(db, proposalId)`
-- On `s`: continue to next
-- On `c`: prompt for comma-separated indexes, call `proposalsModule.approve(db, proposalId, note=note, only={indexes})`
-- On `q`: break loop
-- After loop, emit a summary JSON with counts of approved/rejected/skipped
-- TTY check via `sys.stdin.isatty()` refusing non-interactive stdin
+### 3.2. `ui/terminal/tracker_tui.py` — `load_proposal_detail_lines(proposal, max_width)`
+- Returns list of `(text, file_path)` tuples
+- Shows: proposal ID, created date, state
+- Each change: index, company/application ID, event type, status transition, confidence, email subject
+- Unmatched emails: subject, reason
+- Follows the same format as `load_detail_lines()`
 
-### 3.3. `scripts/tracker.py` — `commandProposals()` update
-- In the `approve` branch, check `args.interactive`. If set and no `id`, call `_interactive_proposal_approve()`. Otherwise existing behavior is unchanged.
+### 3.3. `ui/terminal/tracker_tui.py` — `main_proposals(stdscr)` curses loop
+- Full curses loop with list view and detail view
+- List view: header with pending/enabled counts, checkbox columns, proposal ID, date, change count, unmatched count
+- Detail view: full-screen scrollable view of all changes with transitions and email subjects
+- Key bindings: `[Space]` toggle enabled, `[j/k]` navigate, `[Enter]` detail, `[a]` approve selected (batch), `[r]` reject selected (batch), `[q]`/`[ESC]` quit
+- Detail view bindings: `[a]` approve this proposal, `[r]` reject this proposal, `[b]`/`[ESC]` back to list
+- Always-visible footer bar with keyboard commands
+- Approve/reject actions use `subprocess.run` to call `tracker.py proposals approve/reject`, ensuring `TRACKER_ALLOW_WRITES=1` is enforced
+- Emits summary JSON on stdout so `tracker.py` can parse it
 
-### 3.4. `scripts/specs/tracker.usage.kdl`
-- Make `approve` `<id>` optional (`[id]`) and add `-i --interactive` flag
+### 3.4. `ui/terminal/tracker_tui.py` — `_run_proposal_action(action, proposal_id, note)`
+- Runs approve or reject via subprocess, returning `(ok, message)`
+- Same pattern as the edit view for write permission enforcement
 
-### 3.5. `mise.toml`
-- Update the tracker task's Usage DSL to include the `-i` flag on the `approve` subcommand
+### 3.5. `scripts/tracker.py` — Refactored `_interactive_proposal_approve()`
+- Instead of readline loop, spawns `tracker_tui.py --proposals` via `subprocess.run`
+- Parses the TUI's summary JSON output
+- Kept TTY check: if no TTY, falls back to error message
+- Added `os` and `subprocess` top-level imports
+
+### 3.6. `scripts/specs/tracker.usage.kdl` and `mise.toml`
+- No changes needed — existing `-i` flag description is sufficient
 
 ## 4. Verification Plan & Testing Checklist
-- [x] `mise run tracker proposals approve --help` shows new `-i` flag and optional `[id]`
+- [x] `mise run tracker proposals approve --help` shows `-i` flag and optional `[id]`
 - [x] TTY check: piping to `proposals approve -i` correctly rejects with "interactive mode requires a terminal"
-- [x] Generated docs (`docs/mise/tracker.md`) updated via `mise run mise:docs:tasks`
-- [x] Zsh completions updated via `mise run completions:generate`
+- [x] Both files pass Python syntax validation
+- [x] 14 pending proposals exist in Firestore for live testing
 - [x] Existing non-interactive `proposals approve <id>` path unchanged
 
 ## 5. Bookkeeping

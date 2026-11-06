@@ -23,7 +23,9 @@ import csv
 import datetime as dt
 import io
 import json
+import os
 import pathlib
+import subprocess
 import sys
 
 SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
@@ -75,7 +77,7 @@ def _format_location(doc: dict) -> str:
         parts.append(loc["city"])
     if loc.get("region"):
         parts.append(loc["region"])
-    mode = _strip_namespace(loc.get("workMode"))
+    mode = _strip_namespace(loc.get("roleLocation") or loc.get("workMode"))
     if mode:
         parts.append(f"({mode})")
     return ", ".join(parts) if parts else ""
@@ -2456,119 +2458,28 @@ def commandSheet(args) -> int:
 
 
 def _interactive_proposal_approve(db, note: str | None = None) -> int:
-    """Walk through all pending proposals and prompt the user to approve/reject/skip."""
+    """Launch the TUI proposals review mode instead of readline-based interaction."""
     if not sys.stdin.isatty():
         raise contract.ContractError("interactive mode requires a terminal.")
 
-    pending = proposalsModule.listing(db, "proposal:pending")
-    if not pending:
-        sys.stderr.write("No pending proposals to review.\n")
-        emit({"ok": True, "approved": 0, "rejected": 0, "skipped": 0, "summary": "no pending proposals"})
-        return EXIT_OK
+    tui_path = client.REPO_ROOT / "ui" / "terminal" / "tracker_tui.py"
+    cmd = [sys.executable, str(tui_path), "--proposals"]
 
-    sys.stderr.write(f"\nFound {len(pending)} pending proposal(s).\n\n")
+    proc = subprocess.run(cmd, capture_output=True, text=True, env=os.environ.copy())
 
-    approved_count = 0
-    rejected_count = 0
-    skipped_count = 0
+    # Parse the summary JSON the TUI emits on stdout
+    if proc.returncode == 0:
+        try:
+            summary = json.loads(proc.stdout.strip())
+            emit(summary)
+        except (json.JSONDecodeError, ValueError):
+            emit({"ok": True, "summary": "proposals review complete"})
+    else:
+        err = proc.stderr.strip()
+        if err:
+            sys.stderr.write(err + "\n")
+        raise contract.ContractError(f"proposals TUI failed with exit code {proc.returncode}")
 
-    for idx, proposal in enumerate(pending, 1):
-        pid = proposal["proposalId"]
-        created = proposal.get("createdAt", "")[:19].replace("T", " ")
-        changes = proposal.get("changes", [])
-        unmatched = proposal.get("unmatched", [])
-
-        sys.stderr.write(f"--- Proposal {idx}/{len(pending)}: {pid} (created {created}) ---\n")
-        sys.stderr.write(f"  {len(changes)} change(s), {len(unmatched)} unmatched email(s)\n\n")
-
-        # Display each change
-        for ci, change in enumerate(changes, 1):
-            app_id = change.get("applicationId") or change.get("leadCompany") or "(unknown)"
-            event_type = _strip_namespace(change.get("eventType", ""))
-            status_from = _strip_namespace(change.get("statusFrom", ""))
-            status_to = _strip_namespace(change.get("statusTo", ""))
-            confidence = change.get("confidence", "medium")
-            source_email = change.get("sourceEmail") or {}
-            subject = source_email.get("subject", "")
-
-            transition = ""
-            if status_from and status_to:
-                transition = f" {status_from} → {status_to}"
-            elif status_to:
-                transition = f" → {status_to}"
-
-            sys.stderr.write(f"  {ci}. [{event_type}] {app_id}{transition}\n")
-            sys.stderr.write(f"     Confidence: {confidence}")
-            if subject:
-                sys.stderr.write(f"\n     Email: {subject}")
-            sys.stderr.write("\n")
-
-        # Display unmatched emails
-        if unmatched:
-            sys.stderr.write("\n  Unmatched emails:\n")
-            for ui, um in enumerate(unmatched, 1):
-                subject = (um.get("sourceEmail") or {}).get("subject", "(no subject)")
-                reason = um.get("reason", "")
-                sys.stderr.write(f"    {ui}. {subject}\n")
-                if reason:
-                    sys.stderr.write(f"       Reason: {reason}\n")
-
-        # Prompt for action
-        sys.stderr.write("\n")
-        choice = _read_line("  [a]pprove / [r]eject / [s]kip / [c]hoose changes / [q]uit: ")
-        choice = choice.lower().strip()
-
-        if choice == "q":
-            sys.stderr.write("Quitting interactive session.\n")
-            break
-        elif choice == "a":
-            client.assertWritesAllowed("approved proposal changes")
-            result = proposalsModule.approve(db, pid, note=note)
-            approved_count += 1
-            sys.stderr.write(f"  ✓ Approved {pid} ({len(result.get('approved', []))} change(s) applied).\n")
-        elif choice == "r":
-            client.assertWritesAllowed("rejected proposal changes")
-            reason = None
-            if note:
-                reason = note
-            result = proposalsModule.reject(db, pid, reason=reason)
-            rejected_count += 1
-            sys.stderr.write(f"  ✗ Rejected {pid}.\n")
-        elif choice == "s":
-            skipped_count += 1
-            sys.stderr.write(f"  ⊘ Skipped {pid}.\n")
-        elif choice == "c":
-            if not changes:
-                sys.stderr.write("  No changes to select from.\n")
-                skipped_count += 1
-                continue
-            indexes_str = _read_line("  Enter comma-separated change indexes to approve: ")
-            only_set = {
-                int(part)
-                for part in indexes_str.replace(" ", "").split(",")
-                if part.isdigit()
-            }
-            if not only_set:
-                sys.stderr.write("  No valid indexes entered, skipping.\n")
-                skipped_count += 1
-                continue
-            client.assertWritesAllowed("approved proposal changes")
-            result = proposalsModule.approve(db, pid, note=note, only=only_set)
-            approved_count += 1
-            sys.stderr.write(f"  ✓ Approved {pid} ({len(result.get('approved', []))} change(s) applied).\n")
-        else:
-            sys.stderr.write("  Invalid choice. Skipping.\n")
-            skipped_count += 1
-
-        sys.stderr.write("\n")
-
-    emit({
-        "ok": True,
-        "approved": approved_count,
-        "rejected": rejected_count,
-        "skipped": skipped_count,
-        "summary": f"approved {approved_count}, rejected {rejected_count}, skipped {skipped_count}",
-    })
     return EXIT_OK
 
 

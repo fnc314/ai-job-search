@@ -1870,10 +1870,369 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                     detail_scroll = 0
                     detail_idx = 0
 
+def load_proposal_detail_lines(proposal, max_width):
+    """Generate detail lines for a proposal, returning (text, file_path) tuples."""
+    lines = []
+    pid = proposal.get("proposalId", "")
+    created = proposal.get("createdAt", "")[:19].replace("T", " ")
+    state = proposal.get("state", "")
+    changes = proposal.get("changes", [])
+    unmatched = proposal.get("unmatched", [])
+
+    lines.append((f"PROPOSAL: {pid}", None))
+    lines.append((f"CREATED: {created}", None))
+    lines.append((f"STATE:   {state}", None))
+    lines.append(("", None))
+
+    lines.append((f"--- {len(changes)} CHANGE(S) ---", None))
+    for ci, change in enumerate(changes, 1):
+        app_id = change.get("applicationId") or change.get("leadCompany") or "(unknown)"
+        event_type = change.get("eventType", "").replace("event:", "")
+        status_from = change.get("statusFrom", "").replace("status:", "")
+        status_to = change.get("statusTo", "").replace("status:", "")
+        confidence = change.get("confidence", "medium")
+        source_email = change.get("sourceEmail") or {}
+        subject = source_email.get("subject", "")
+
+        transition = ""
+        if status_from and status_to:
+            transition = f" {status_from} → {status_to}"
+        elif status_to:
+            transition = f" → {status_to}"
+
+        lines.append((f"{ci}. [{event_type}] {app_id}{transition}", None))
+        lines.append((f"   Confidence: {confidence}", None))
+        if subject:
+            lines.append((f"   Email: {subject}", None))
+        received = source_email.get("receivedAt", "")
+        if received:
+            lines.append((f"   Received: {received[:19].replace('T', ' ')}", None))
+        message_id = source_email.get("messageId", "")
+        if message_id:
+            lines.append((f"   Message ID: {message_id}", None))
+        lines.append(("", None))
+
+    if unmatched:
+        lines.append((f"--- {len(unmatched)} UNMATCHED EMAIL(S) ---", None))
+        for ui, um in enumerate(unmatched, 1):
+            subject = (um.get("sourceEmail") or {}).get("subject", "(no subject)")
+            reason = um.get("reason", "")
+            lines.append((f"{ui}. {subject}", None))
+            if reason:
+                lines.append((f"   Reason: {reason}", None))
+            received = (um.get("sourceEmail") or {}).get("receivedAt", "")
+            if received:
+                lines.append((f"   Received: {received[:19].replace('T', ' ')}", None))
+            lines.append(("", None))
+
+    return lines
+
+
+def _strip_ns(value: str) -> str:
+    """Strip namespace prefixes for display."""
+    for prefix in ("event:", "status:", "channel:"):
+        if value.startswith(prefix):
+            return value[len(prefix):]
+    return value
+
+
+def _run_proposal_action(action: str, proposal_id: str, note: str | None = None) -> tuple:
+    """Run approve or reject via subprocess, returning (ok, message)."""
+    cmd = [
+        sys.executable,
+        str(REPO_ROOT / "scripts" / "tracker.py"),
+        "proposals", action, proposal_id,
+    ]
+    if note:
+        cmd.extend(["--note", note])
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, env=os.environ.copy())
+        if proc.returncode == 0:
+            return True, f"{action.capitalize()}d {proposal_id}"
+        else:
+            err = proc.stderr.strip() or proc.stdout.strip() or f"Failed to {action}"
+            return False, err
+    except Exception as ex:
+        return False, f"Error: {ex}"
+
+
+def main_proposals(stdscr):
+    """Curses loop for reviewing pending proposals.
+
+    Loads proposals from Firestore, shows a list with checkbox toggles,
+    detail view, and batch approve/reject actions.
+    """
+    log("main_proposals() entered")
+    curses.curs_set(0)
+    stdscr.nodelay(False)
+
+    no_color = os.environ.get("NO_COLOR", "").strip() != ""
+    if curses.has_colors() and not no_color:
+        curses.start_color()
+        init_colors(False, no_color)
+
+    # Load pending proposals
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    import client as client_mod  # noqa: PLC0415
+    import proposals as proposals_mod  # noqa: PLC0415
+
+    db = client_mod.getDb()
+    pending = proposals_mod.listing(db, "proposal:pending")
+    log("Loaded %d pending proposals", len(pending))
+
+    # Add enabled flag to each proposal for checkbox toggling
+    for p in pending:
+        p["enabled"] = True
+
+    current_row = 0
+    list_scroll = 0
+    in_detail = False
+    detail_lines = []
+    detail_scroll = 0
+    detail_idx = 0
+    status_msg = ""
+    status_msg_color = 0
+
+    while True:
+        stdscr.clear()
+        h, w = stdscr.getmaxyx()
+
+        if h < 3 or w < 10:
+            stdscr.refresh()
+            stdscr.getch()
+            continue
+
+        c_header = curses.color_pair(1) | curses.A_BOLD if curses.has_colors() else curses.A_REVERSE
+        c_selected = curses.color_pair(2) if curses.has_colors() else curses.A_REVERSE
+        c_highlight = curses.color_pair(3) | curses.A_BOLD if curses.has_colors() else curses.A_BOLD
+        c_footer = curses.color_pair(1) if curses.has_colors() else curses.A_REVERSE
+        c_default = curses.color_pair(4) if curses.has_colors() else 0
+
+        enabled_count = sum(1 for p in pending if p.get("enabled"))
+
+        if in_detail and detail_lines:
+            # --- PROPOSAL DETAIL VIEW ---
+            pid = pending[current_row]["proposalId"] if current_row < len(pending) else ""
+            header_text = f" PROPOSAL DETAIL | {pid[:40]} "
+            safe_addstr(stdscr, 0, 0, header_text.ljust(w)[:w-1], c_header)
+
+            max_disp = h - 3
+            if detail_idx < detail_scroll:
+                detail_scroll = detail_idx
+            elif detail_idx >= detail_scroll + max_disp:
+                detail_scroll = detail_idx - max_disp + 1
+
+            for i in range(max_disp):
+                idx = detail_scroll + i
+                if idx >= len(detail_lines):
+                    break
+                line_text, _ = detail_lines[idx]
+                line_text = line_text[:w-2]
+
+                attr = c_default
+                if line_text.startswith("---") or line_text.startswith("PROPOSAL:") or line_text.startswith("CREATED:"):
+                    attr = c_highlight
+                if idx == detail_idx:
+                    attr = c_selected
+
+                safe_addstr(stdscr, 2 + i, 1, line_text, attr)
+
+            progress = int((detail_scroll / max(1, len(detail_lines) - max_disp)) * 100) if len(detail_lines) > max_disp else 100
+            footer_text = f" [j/k]: Scroll | [a]: Approve | [r]: Reject | [b, ESC]: Back | {progress}% "
+            safe_addstr(stdscr, h - 1, 0, footer_text.ljust(w)[:w-1], c_footer)
+
+        else:
+            # --- PROPOSALS LIST VIEW ---
+            header_text = f" PROPOSALS REVIEW | {len(pending)} pending | {enabled_count} enabled "
+            safe_addstr(stdscr, 0, 0, header_text.ljust(w)[:w-1], c_header)
+
+            # Status message
+            if status_msg:
+                safe_addstr(stdscr, 1, 2, status_msg[:w-4], status_msg_color)
+
+            # Column headers
+            if pending:
+                col_header = f" {'[ ]':<4} {'ID':<30} {'Date':<20} {'Changes':<9} {'Unmatched':<10}"
+                safe_addstr(stdscr, 2, 0, col_header[:w-1], c_highlight)
+                safe_addstr(stdscr, 3, 0, ("-" * min(w-1, len(col_header))), c_default)
+
+            max_disp = h - 5
+            if current_row < list_scroll:
+                list_scroll = current_row
+            elif current_row >= list_scroll + max_disp:
+                list_scroll = current_row - max_disp + 1
+
+            if not pending:
+                safe_addstr(stdscr, 4, 2, "No pending proposals.", c_highlight)
+            else:
+                for i in range(max_disp):
+                    idx = list_scroll + i
+                    if idx >= len(pending):
+                        break
+                    proposal = pending[idx]
+                    pid = proposal.get("proposalId", "")[:28]
+                    created = proposal.get("createdAt", "")[:19].replace("T", " ")
+                    changes = proposal.get("changes", [])
+                    unmatched = proposal.get("unmatched", [])
+                    checkbox = "[x]" if proposal.get("enabled") else "[ ]"
+
+                    line = f" {checkbox} {pid:<28} {created:<20} {len(changes):<9} {len(unmatched):<10}"
+                    attr = c_selected if idx == current_row else c_default
+                    safe_addstr(stdscr, 4 + i, 0, line[:w-1], attr)
+
+            # Footer with always-visible keyboard commands
+            footer_text = " [Space]: Toggle | [j/k]: Nav | [Enter]: Detail | [a]: Approve Selected | [r]: Reject Selected | [q]: Quit "
+            safe_addstr(stdscr, h - 1, 0, footer_text.ljust(w)[:w-1], c_footer)
+
+        stdscr.refresh()
+        key = stdscr.getch()
+
+        # Clear status message after a key press
+        if key != -1:
+            status_msg = ""
+
+        if in_detail and detail_lines:
+            # --- DETAIL VIEW KEY HANDLING ---
+            if key in [ord('b'), ord('q'), 27]:
+                in_detail = False
+            elif key in [curses.KEY_DOWN, ord('j')]:
+                detail_idx = min(max(0, len(detail_lines) - 1), detail_idx + 1)
+            elif key in [curses.KEY_UP, ord('k')]:
+                detail_idx = max(0, detail_idx - 1)
+            elif key == ord('a'):
+                if current_row < len(pending):
+                    pid = pending[current_row]["proposalId"]
+                    ok, msg = _run_proposal_action("approve", pid)
+                    if ok:
+                        status_msg = msg
+                        status_msg_color = c_highlight
+                        pending.pop(current_row)
+                        if current_row >= len(pending):
+                            current_row = max(0, len(pending) - 1)
+                        in_detail = False
+                        detail_lines = []
+                    else:
+                        status_msg = msg
+                        status_msg_color = curses.A_BOLD | curses.color_pair(3) if curses.has_colors() else curses.A_BOLD
+            elif key == ord('r'):
+                if current_row < len(pending):
+                    pid = pending[current_row]["proposalId"]
+                    ok, msg = _run_proposal_action("reject", pid)
+                    if ok:
+                        status_msg = msg
+                        status_msg_color = c_highlight
+                        pending.pop(current_row)
+                        if current_row >= len(pending):
+                            current_row = max(0, len(pending) - 1)
+                        in_detail = False
+                        detail_lines = []
+                    else:
+                        status_msg = msg
+                        status_msg_color = curses.A_BOLD | curses.color_pair(3) if curses.has_colors() else curses.A_BOLD
+
+        else:
+            # --- LIST VIEW KEY HANDLING ---
+            if key in [ord('q'), 27]:
+                # Quit — emit summary JSON
+                break
+            elif key == ord(' ') and pending:
+                # Toggle enabled checkbox
+                pending[current_row]["enabled"] = not pending[current_row].get("enabled")
+            elif key in [curses.KEY_DOWN, ord('j')]:
+                if pending:
+                    current_row = min(len(pending) - 1, current_row + 1)
+            elif key in [curses.KEY_UP, ord('k')]:
+                current_row = max(0, current_row - 1)
+            elif key in [10, 13] and pending:
+                # Enter — open detail view
+                detail_lines = load_proposal_detail_lines(pending[current_row], w - 2)
+                in_detail = True
+                detail_scroll = 0
+                detail_idx = 0
+            elif key == ord('a'):
+                # Batch approve all enabled
+                enabled = [p for p in pending if p.get("enabled")]
+                if not enabled:
+                    status_msg = "No proposals enabled for approval."
+                    status_msg_color = c_highlight
+                    continue
+                approved = 0
+                failed = 0
+                to_remove = []
+                for idx, p in enumerate(pending):
+                    if p.get("enabled"):
+                        ok, msg = _run_proposal_action("approve", p["proposalId"])
+                        if ok:
+                            approved += 1
+                            to_remove.append(idx)
+                        else:
+                            failed += 1
+                            status_msg = msg
+                            status_msg_color = curses.A_BOLD | curses.color_pair(3) if curses.has_colors() else curses.A_BOLD
+                # Remove in reverse order to preserve indices
+                for idx in reversed(to_remove):
+                    pending.pop(idx)
+                if current_row >= len(pending):
+                    current_row = max(0, len(pending) - 1)
+                status_msg = f"Approved {approved}, failed {failed}"
+                status_msg_color = c_highlight
+            elif key == ord('r'):
+                # Batch reject all enabled
+                enabled = [p for p in pending if p.get("enabled")]
+                if not enabled:
+                    status_msg = "No proposals enabled for rejection."
+                    status_msg_color = c_highlight
+                    continue
+                rejected = 0
+                failed = 0
+                to_remove = []
+                for idx, p in enumerate(pending):
+                    if p.get("enabled"):
+                        ok, msg = _run_proposal_action("reject", p["proposalId"])
+                        if ok:
+                            rejected += 1
+                            to_remove.append(idx)
+                        else:
+                            failed += 1
+                            status_msg = msg
+                            status_msg_color = curses.A_BOLD | curses.color_pair(3) if curses.has_colors() else curses.A_BOLD
+                for idx in reversed(to_remove):
+                    pending.pop(idx)
+                if current_row >= len(pending):
+                    current_row = max(0, len(pending) - 1)
+                status_msg = f"Rejected {rejected}, failed {failed}"
+                status_msg_color = c_highlight
+
+    # Emit summary JSON on stdout so tracker.py can parse it
+    summary = {
+        "ok": True,
+        "remaining_pending": len(pending),
+        "summary": "proposals review complete",
+    }
+    print(json.dumps(summary))
+    log("Proposals review complete, remaining: %d", len(pending))
+
+
 if __name__ == "__main__":
     # Initialize persistent logging before anything else
     _setup_logging()
     log("TUI starting, textual available: %s", TEXTUAL_AVAILABLE)
+
+    # Check for proposals mode
+    if "--proposals" in sys.argv:
+        log("Starting in proposals review mode")
+        try:
+            curses.wrapper(main_proposals)
+        except KeyboardInterrupt:
+            log("Proposals TUI interrupted by user (Ctrl+C)")
+        except Exception as e:
+            log_crash(e)
+            error_msg = f"\nProposals TUI crashed with an error.\nCrash log: {crash_log_file_path}"
+            print(error_msg, file=sys.stderr)
+            traceback.print_exc()
+        finally:
+            log("Proposals TUI shutdown complete")
+        sys.exit(0)
 
     # Only use the Textual loading screen when we have a real TTY.
     # Textual and curses cannot share the terminal, and the handoff

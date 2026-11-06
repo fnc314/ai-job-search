@@ -192,6 +192,8 @@ def definition(name: str) -> dict:
 
 def enums(name: str) -> list[str]:
     """Return the values of a named enum, e.g. enums("eventType")."""
+    if name == "workMode":
+        return list(definition("roleLocationValue")["enum"])
     return list(definition(f"{name}Value")["enum"])
 
 

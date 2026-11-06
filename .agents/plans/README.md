@@ -24,7 +24,10 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`migration-execution-and-rollback-plan.md`](./2026-11-05/224500_migration-execution-and-rollback-plan.md) | Completed | Execution and rollback procedure for live Firestore migration to Enum.name matches (Schema v8) |
 | [`recorded-values-to-enum-name-migration-plan.md`](./2026-11-05/220500_recorded-values-to-enum-name-migration-plan.md) | Completed | Strategy and roadmap for migrating recorded values to exact Enum.name matches (Schema v8) |
+| [`interactive-proposal-approve.md`](./2026-11-05/223300_interactive-proposal-approve.md) | Completed | Curses TUI proposals review mode replacing readline-based interactive loop |
+| [`firestore-scraped-postings-collection.md`](./2026-11-05/215800_firestore-scraped-postings-collection.md) | Completed | Firestore collection for scraped postings, replacing static seen_jobs.json |
 | [`commit-reconciliation-and-frontmatter-completion-plan.md`](./2026-11-05/185500_commit-reconciliation-and-frontmatter-completion-plan.md) | Completed | Split bundled commit into per-plan commits, finish frontmatter templating, remove draft plan, and log commit SHAs |
 | [`plan-frontmatter-standardization-and-templating.md`](./2026-11-05/183738_plan-frontmatter-standardization-and-templating.md) | Completed | Universal Markdown plan frontmatter standardization, `TEMPLATE.md`, and tracker migration plan relocation |
 | [`mark-detekt-and-konsist-plan-completed.md`](./2026-11-05/181232_mark-detekt-and-konsist-plan-completed.md) | Completed | In-repo plan relocation, registry status synchronization, and bookkeeping enforcement |
@@ -39,6 +42,4 @@ Every architecture plan created by any agent must strictly adhere to these parad
 | [`tui-log-rotation-and-cleanup.md`](./2026-11-01/174503_tui-log-rotation-and-cleanup.md) | Completed | Curses TUI session log rotation, retention limit, and disk cleanup |
 | [`firestore-data-optimization.md`](./2026-10-31/135442_firestore-data-optimization.md) | Completed | Firestore schema optimization, projection queries, and index alignment |
 | [`tracker-migration-plan.md`](./2026-10-31/021052_tracker-migration-plan.md) | Completed | 10-phase authoritative migration from CSV tracker to Firestore store |
-| [`firestore-scraped-postings-collection.md`](./2026-11-05/215800_firestore-scraped-postings-collection.md) | Completed | Firestore collection for scraped postings, replacing static seen_jobs.json |
-| [`interactive-proposal-approve.md`](./2026-11-05/223300_interactive-proposal-approve.md) | Completed | Interactive review loop for `proposals approve` CLI subcommand |
 | [`ai-job-search-plan.md`](../../ai-job-search-plan.md) | Canonical | Universal multi-agent architecture and single source of truth specifications |
