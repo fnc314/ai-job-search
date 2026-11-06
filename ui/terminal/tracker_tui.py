@@ -1163,6 +1163,7 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
     log("main() entered, preloaded_rows: %s", "yes" if preloaded_rows is not None else "no")
     curses.curs_set(0)
     stdscr.nodelay(False)
+    stdscr.keypad(True)
 
     no_color = os.environ.get("NO_COLOR", "").strip() != ""
     config = load_config()
@@ -1287,7 +1288,7 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
     file_view_title = ""
 
     while True:
-        stdscr.clear()
+        stdscr.erase()
         h, w = stdscr.getmaxyx()
         
         # Guard against zero-sized windows (resize edge case)
@@ -1780,7 +1781,7 @@ def main(stdscr, preloaded_rows=None, preloaded_error=None):
                     current_row = max(0, current_row-1)
                 elif detail_lines:
                     detail_idx = max(0, detail_idx-1)
-            elif key in [ord('1'), ord('2'), ord('3'), ord('4'), ord('5')]:
+            elif key in [ord('1'), ord('2'), ord('3'), ord('4'), ord('5'), ord('6')]:
                 v_cols = [c for c in cols_config if c.get("visible", True)]
                 idx = (key - ord('1'))
                 if idx < len(v_cols):
@@ -1965,6 +1966,7 @@ def main_proposals(stdscr):
     log("main_proposals() entered")
     curses.curs_set(0)
     stdscr.nodelay(False)
+    stdscr.keypad(True)
 
     no_color = os.environ.get("NO_COLOR", "").strip() != ""
     if curses.has_colors() and not no_color:
@@ -1994,7 +1996,7 @@ def main_proposals(stdscr):
     status_msg_color = 0
 
     while True:
-        stdscr.clear()
+        stdscr.erase()
         h, w = stdscr.getmaxyx()
 
         if h < 3 or w < 10:
