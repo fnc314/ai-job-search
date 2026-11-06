@@ -489,9 +489,9 @@ def main() -> int:
         help="Explicit query (repeatable); overrides search-queries.md",
     )
     parser.add_argument(
-        "--save-seen",
+        "--no-save-seen",
         action="store_true",
-        help="Write updated seen postings to Firestore after search",
+        help="Skip writing seen postings to Firestore (default: saves to Firestore)",
     )
     parser.add_argument(
         "--migrate-seen",
@@ -499,9 +499,9 @@ def main() -> int:
         help="Seed existing seen_jobs.json into Firestore, then exit",
     )
     parser.add_argument(
-        "--table",
+        "--json",
         action="store_true",
-        help="Output as a Markdown table instead of JSON",
+        help="Output as JSON instead of a Markdown table",
     )
     parser.add_argument(
         "--summary",
@@ -541,9 +541,9 @@ def main() -> int:
         print(f"Migrated {count} entries from seen_jobs.json to Firestore.", file=sys.stderr)
         return 0
 
-    # Initialize Firestore DB if --save-seen is requested
+    # Initialize Firestore DB by default (skip only with --no-save-seen)
     db = None
-    if args.save_seen:
+    if not args.no_save_seen:
         try:
             db = _get_db()
         except Exception as e:
@@ -552,29 +552,21 @@ def main() -> int:
 
     report = run_searches(queries=queries, limit=args.limit, priority=args.priority, focus=args.focus, db=db)
 
-    # Save seen postings to Firestore if requested
-    if args.save_seen and db is not None:
+    # Save seen postings to Firestore by default (skip only with --no-save-seen)
+    if not args.no_save_seen and db is not None:
         count = _save_seen_to_firestore(db, report.get("seen", {}))
         print(f"Saved {count} postings to Firestore.", file=sys.stderr)
 
-    if args.table:
-        # Markdown table output
-        results = report["results"]
-        if not results:
-            print("No new jobs found.")
-            return 0
-        print(f"\n## New Job Matches - {report['meta']['date']}")
-        print(f"\nFound {report['meta']['total']} new positions across {len(report['portals'])} portals.\n")
-        print("| # | Title | Company | Location | Portal | URL |")
-        print("|---|-------|---------|----------|--------|-----|")
-        for i, job in enumerate(results, 1):
-            title = (job.get("title") or "").replace("|", "\\|")
-            company = (job.get("company") or "").replace("|", "\\|")
-            location = (job.get("location") or "").replace("|", "\\|")
-            portal = job.get("portal", "")
-            url = job.get("url", "")
-            url_cell = f"[Link]({url})" if url else ""
-            print(f"| {i} | {title} | {company} | {location} | {portal} | {url_cell} |")
+    if args.json:
+        # JSON output (opt-in)
+        output = {
+            "portals": report["portals"],
+            "queries": report["queries"],
+            "results": report["results"],
+            "portal_stats": report.get("portal_stats", {}),
+            "meta": report["meta"],
+        }
+        print(json.dumps(output, indent=2, ensure_ascii=False))
         return 0
 
     if args.summary:
@@ -586,16 +578,23 @@ def main() -> int:
             print(f"  {portal}: {st['new']} new, {st['skipped']} skipped, {st['total']} total")
         return 0
 
-    # Default: JSON output
-    # We don't persist the internal seen dict in the output
-    output = {
-        "portals": report["portals"],
-        "queries": report["queries"],
-        "results": report["results"],
-        "portal_stats": report.get("portal_stats", {}),
-        "meta": report["meta"],
-    }
-    print(json.dumps(output, indent=2, ensure_ascii=False))
+    # Default: Markdown table output
+    results = report["results"]
+    if not results:
+        print("No new jobs found.")
+        return 0
+    print(f"\n## New Job Matches - {report['meta']['date']}")
+    print(f"\nFound {report['meta']['total']} new positions across {len(report['portals'])} portals.\n")
+    print("| # | Title | Company | Location | Portal | URL |")
+    print("|---|-------|---------|----------|--------|-----|")
+    for i, job in enumerate(results, 1):
+        title = (job.get("title") or "").replace("|", "\\|")
+        company = (job.get("company") or "").replace("|", "\\|")
+        location = (job.get("location") or "").replace("|", "\\|")
+        portal = job.get("portal", "")
+        url = job.get("url", "")
+        url_cell = f"[Link]({url})" if url else ""
+        print(f"| {i} | {title} | {company} | {location} | {portal} | {url_cell} |")
     return 0
 
 

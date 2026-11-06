@@ -5,7 +5,8 @@
   Usage:
     1. Copy to `<plans-dir>/YYYY-MM-DD/HHMMSS_<plan-name>.md` (24-hour clock).
     2. Fill the frontmatter block. `Status`, `Date`, `Target` are MANDATORY.
-       Delete optional lines you don't need (Evaluates / Schema Authority / Depends On / Supersedes / Author).
+       Delete optional lines you don't need (Model / Session / Evaluates / Schema Authority / Depends On / Supersedes).
+       When an AI model creates the plan, include `Model` (the model identifier) and `Session` (the session ID).
     3. Each metadata line ends with two trailing spaces (Markdown hard line break).
     4. Register the plan in that directory's `README.md` table; its Status MUST match the registry row.
     5. No YAML `sessionId` blocks. Delete this comment.
@@ -15,13 +16,15 @@
 -->
 # Implementation Plan: <Plan Title>
 
-**Status:** Draft / Proposed  
-**Date:** YYYY-MM-DD  
-**Target:** <`records` | `ui/kmp` | `records` and `ui/kmp` (cross-subsystem) | tracker | ui/terminal | repository-wide>  
-**Evaluates:** [`<draft>.md`](<relative-path>)  
-**Schema Authority:** [`tracker.schema.json`](<relative-path>)  
-**Depends On:** [`<plan>.md`](<relative-path>)  
-**Supersedes:** [`<plan>.md`](<relative-path>)  
+**Status:** Draft / Proposed
+**Date:** YYYY-MM-DD
+**Target:** <`records` | `ui/kmp` | `records` and `ui/kmp` (cross-subsystem) | tracker | ui/terminal | repository-wide>
+**Model:** <model-name>
+**Session:** <session-id>
+**Evaluates:** [`<draft>.md`](<relative-path>)
+**Schema Authority:** [`tracker.schema.json`](<relative-path>)
+**Depends On:** [`<plan>.md`](<relative-path>)
+**Supersedes:** [`<plan>.md`](<relative-path>)
 
 ---
 
@@ -36,3 +39,6 @@
 ## 5. Bookkeeping
 - [ ] Plan persisted at `<plans-dir>/YYYY-MM-DD/HHMMSS_<plan-name>.md`
 - [ ] Registry `README.md` row added / status synchronized
+- [ ] Craft a single commit of all changed files
+- [ ] Stage changed files and craft a commit message based on the name of this file
+- [ ] Push `git push origin main`

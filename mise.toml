@@ -225,24 +225,41 @@ flag "--validate" help="Validate salary_data.json and print a report"
     run = ".venv/bin/python scripts/salary_lookup.py{% if usage.company %} {{ usage.company }}{% endif %}{% if usage.city %} --city {{ usage.city }}{% endif %}{% if usage.json %} --json{% endif %}{% if usage.list_all %} --list-all{% endif %}{% if usage.validate %} --validate{% endif %}"
   }
   scrape = {
-    description = "Search job portals and collect new listings, deduplicated against seen jobs and the tracker",
+    description = "Search job portals and collect new listings (markdown output, save-seen to Firestore by default)",
     raw = true,
     usage = """
 flag "-q --query" help="Explicit query (repeatable); overrides search-queries.md"
 flag "--limit <limit>" help="Max results per portal per query (default: 20)"
 flag "--priority <priority>" help="Priority categories to run, 0 = all (default: 3)"
 flag "--focus <focus>" help="Focus area to prioritize queries (e.g. Android)"
-flag "--save-seen" help="Write updated seen postings to Firestore after search"
+flag "--no-save-seen" help="Skip writing seen postings to Firestore (default: saves)"
 flag "--migrate-seen" help="Seed existing seen_jobs.json into Firestore, then exit"
-flag "--table" help="Output as a Markdown table instead of JSON"
+flag "--json" help="Output as JSON instead of a Markdown table"
 flag "--summary" help="Only show summary stats, not individual results"
 flag "--health" help="Only check portal health (probe each portal)"
 """,
-    run = '.venv/bin/python scripts/scrape.py{% if usage.query %}{% for q in usage.query %} -q "{{ q }}"{% endfor %}{% endif %}{% if usage.limit %} --limit {{ usage.limit }}{% endif %}{% if usage.priority %} --priority {{ usage.priority }}{% endif %}{% if usage.focus %} --focus "{{ usage.focus }}"{% endif %}{% if usage.save_seen %} --save-seen{% endif %}{% if usage.migrate_seen %} --migrate-seen{% endif %}{% if usage.table %} --table{% endif %}{% if usage.summary %} --summary{% endif %}{% if usage.health %} --health{% endif %}'
+    run = '.venv/bin/python scripts/scrape.py{% if usage.query %}{% for q in usage.query %} -q "{{ q }}"{% endfor %}{% endif %}{% if usage.limit %} --limit {{ usage.limit }}{% endif %}{% if usage.priority %} --priority {{ usage.priority }}{% endif %}{% if usage.focus %} --focus "{{ usage.focus }}"{% endif %}{% if usage.no_save_seen %} --no-save-seen{% endif %}{% if usage.migrate_seen %} --migrate-seen{% endif %}{% if usage.json %} --json{% endif %}{% if usage.summary %} --summary{% endif %}{% if usage.health %} --health{% endif %}'
   }
   "scrape:migrate" = {
     description = "One-time migration: seed existing seen_jobs.json into Firestore",
     run = ".venv/bin/python scripts/scrape.py --migrate-seen"
+  }
+  apply = {
+    description = "Manage job applications — check status or manage drafts interactively",
+    raw = true,
+    usage = """
+arg "[url-or-jd]" help="Job URL or job description text (optional; omit for interactive draft management)"
+""",
+    run = '.venv/bin/python scripts/apply.py{% if usage.url_or_jd %} "{{ usage.url_or_jd }}"{% endif %}'
+  }
+  rank = {
+    description = "Evaluate a job posting against the candidate profile (single-job fit score)",
+    raw = true,
+    usage = """
+arg "url-or-jd" help="Job URL or job description text (required)"
+flag "--json" help="Output as JSON instead of markdown"
+""",
+    run = '.venv/bin/python scripts/rank.py "{{ usage.url_or_jd }}"{% if usage.json %} --json{% endif %}'
   }
   # ── Gmail sync ─────────────────────────────────────────────────────────────
   # Each step is independent so a scheduler or agent can run only what it needs.
