@@ -1,7 +1,8 @@
-# Architectural Plan: Repackaging `shared` into `apps/core` & Relocating Job Applications Feature Modules
+# Architecture Plan: Repackaging shared into apps/core & Job Applications Modularization
 
-**Status:** Completed & Verified  
+**Status:** Completed  
 **Date:** 2026-11-04  
+**Target:** ui/kmp:apps:core, ui/kmp:features  
 **Author:** Antigravity  
 
 ---

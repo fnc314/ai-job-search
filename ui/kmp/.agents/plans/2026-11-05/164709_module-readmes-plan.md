@@ -1,4 +1,10 @@
-# Implementation Plan: Module `README.md` Documentation
+# Implementation Plan: Module README.md Documentation Standard
+
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** ui/kmp:core, ui/kmp:features  
+
+---
 
 ## Goal Description
 Establish clear, comprehensive, and consistent `README.md` documentation for all contributing modules under `core/` and `features/` within the `ui/kmp` project. These documents will explain the architectural purpose of each module, how it integrates into the overarching multiplatform application, its public API surface, deep-link capabilities, and significant technical implementation details.

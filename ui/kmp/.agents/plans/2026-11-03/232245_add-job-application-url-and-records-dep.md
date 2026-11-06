@@ -1,5 +1,9 @@
----
-sessionId: session-261104-004147-c2e2
+# Implementation Plan: Job Application URL Flow & Records Composite Dependency
+
+**Status:** Completed  
+**Date:** 2026-11-03  
+**Target:** ui/kmp  
+
 ---
 
 # Requirements

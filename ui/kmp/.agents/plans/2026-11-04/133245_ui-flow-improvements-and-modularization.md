@@ -1,8 +1,11 @@
-# UI Flow Enhancements, Navigation, Formatting & Modularization Plan
+# Architecture Plan: UI Flow Enhancements, Navigation & Modularization
 
 **Status:** Completed  
-**Author:** Antigravity  
 **Date:** 2026-11-04  
+**Target:** ui/kmp:features  
+**Author:** Antigravity  
+
+---
 
 ## Objective
 Implement a suite of user experience, design system, and navigation upgrades to the KMP Job Tracker:

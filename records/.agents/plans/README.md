@@ -11,6 +11,7 @@ This directory contains technical design and implementation plans oriented speci
 1. **Date Subdirectory**: Plans must be saved in a `YYYY-MM-DD/` subdirectory matching the creation date.
 2. **24-Hour Timestamp Prefix**: File names must be formatted as `HHMMSS_<plan-name>.md` using a 24-hour clock (`00`-`23` for `HH`).
 3. **Registry Synchronization**: Register the plan in the table below with its relative path, status, and scope.
+4. **Mandatory Opening Frontmatter**: Start every plan from [`TEMPLATE.md`](../../.agents/plans/TEMPLATE.md) (`Status`, `Date`, `Target` block); `Status` must match the registry row.
 
 ---
 

@@ -79,6 +79,8 @@ All technical architecture, design, and migration plans for `ui/kmp` must adhere
 - **Location**: Technical architecture and design plans oriented specifically to `ui/kmp` must be housed in `ui/kmp/.agents/plans/` and indexed in `ui/kmp/.agents/plans/README.md`. Any plan that spans across multiple subsystems (e.g. `records` + `ui/kmp`) belongs in root `.agents/plans/`.
 - **Date Subdirectory & 24-Hour Timestamp Filename**: Plans must **NEVER** be stored as flat files. Each plan must be placed in a `YYYY-MM-DD/` folder based on its creation date and prefixed with a 24-hour clock timestamp: `HHMMSS_<plan-name>.md` (using `00`-`23` for `HH`).
 - **Registry Synchronization**: Upon creating or updating any plan, the agent must immediately update `ui/kmp/.agents/plans/README.md` with the link (`./YYYY-MM-DD/HHMMSS_<plan-name>.md`), status, and scope description.
+- **Mandatory Opening Frontmatter**: Every plan must start from the canonical template [`.agents/plans/TEMPLATE.md`](../../.agents/plans/TEMPLATE.md): an H1 `# <Type> Plan: <Title>`, then `**Status:**`, `**Date:**`, `**Target:**` (plus optional `Evaluates` / `Schema Authority` / `Depends On` / `Supersedes`), then `---`. No YAML `sessionId` blocks.
+- **Repository Root Execution**: Always execute `git` and `mise` commands from the repository root (`/Users/fnc314/Work/Search/waleedtarbosh-ai-job-search`) so pre-commit hooks and `mise.toml` task sources resolve properly.
 
 ### Rule 7: Zero-Warning Compilation & Clean Build Logs
 - Build logs must remain clean of compiler warnings and deprecations.

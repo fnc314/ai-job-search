@@ -1,5 +1,11 @@
 # Architecture Plan: Complete Compose Resources Migration
 
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** ui/kmp:core:design-system, ui/kmp:features  
+
+---
+
 ## Goal Description
 Eradicate all hardcoded string literals across the presentation layer (`@Composable` functions, tooltips, dialogs, button labels, content descriptions, and form placeholders) by migrating static and template UI text into Compose Multiplatform `composeResources` (`values/strings.xml`).
 

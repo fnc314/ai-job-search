@@ -1,10 +1,19 @@
-# Tracker Migration Plan — CSV → Firestore
+# Migration Plan: Tracker Migration — CSV → Firestore
 
-**Status:** complete — Phases 0–8, 9a, 9b, and 10 landed. Firestore holds the record (84 imported applications), every writer goes through `tracker.py`, the Sheet and dashboard are generated views, the CSV lives in `archive/`, and a 12-hour `launchd` job fetches Gmail and stages proposals for review
-**Owner:** Franco N. Colaizzi
-**Supersedes:** `job_search_tracker.schema.json` v1 (CSV contract), `scripts/export_tracker_json.py`
-**Last updated:** 2026-10-31 (post-migration setup/mock-data follow-on)
-**Update rule:** this file and `docs/tracker-migration.md` are revised at the end of **every phase**, including when an implementation decision changes the approved scope (§16 records those).
+**Status:** Completed  
+**Date:** 2026-10-31  
+**Target:** tracker (CLI, schema, Firestore, Sheet/dashboard views)  
+**Schema Authority:** [`tracker.schema.json`](../../../tracker.schema.json)  
+**Supersedes:** `job_search_tracker.schema.json` v1 (CSV contract), `scripts/export_tracker_json.py`  
+**Companion:** [`docs/tracker-migration.md`](../../../docs/tracker-migration.md)  
+**Owner:** Franco N. Colaizzi  
+**Last updated:** 2026-10-31 (post-migration setup/mock-data follow-on)  
+
+> **Completion detail:** Phases 0–8, 9a, 9b, and 10 landed. Firestore holds the record (84 imported applications), every writer goes through `tracker.py`, the Sheet and dashboard are generated views, the CSV lives in `archive/`, and a 12-hour `launchd` job fetches Gmail and stages proposals for review.
+>
+> **Update rule:** this file and `docs/tracker-migration.md` are revised at the end of **every phase**, including when an implementation decision changes the approved scope (§16 records those).
+
+---
 
 ## Progress
 

@@ -1,5 +1,9 @@
----
-sessionId: session-261031-193405-86ds
+# Implementation Plan: TUI Session Log Rotation & Disk Cleanup
+
+**Status:** Completed  
+**Date:** 2026-11-01  
+**Target:** ui/terminal (Curses TUI)  
+
 ---
 
 # Technical Design

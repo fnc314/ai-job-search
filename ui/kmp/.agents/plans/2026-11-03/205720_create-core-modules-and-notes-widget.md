@@ -1,5 +1,9 @@
----
-sessionId: session-261103-201146-q52q
+# Implementation Plan: Core Module Extraction & NotesWidget Architecture
+
+**Status:** Completed  
+**Date:** 2026-11-03  
+**Target:** ui/kmp:core:widgets, ui/kmp:core:design-system  
+
 ---
 
 # Requirements

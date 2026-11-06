@@ -1,8 +1,8 @@
-# Architecture & Code Refactor Proposal: Canonical Enum Mapping & Self-Contained Relationships
+# Architecture Plan: Canonical Enum Mapping & Self-Contained Relationships (Refactor Proposal)
 
 **Status:** Draft / Proposed  
 **Date:** 2026-11-05  
-**Target:** `ui/kmp` (and `records`)  
+**Target:** ui/kmp (and records)  
 
 ---
 

@@ -12,7 +12,7 @@ description: >
 # Job Tracker
 
 One record, one write path, one history. This skill states the invariants an
-agent must not break; the detail lives in `docs/tracker-migration-plan.md` and
+agent must not break; the detail lives in `.agents/plans/2026-10-31/021052_tracker-migration-plan.md` and
 the contract in `tracker.schema.json`.
 
 ## The three rules

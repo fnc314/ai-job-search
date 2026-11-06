@@ -1,5 +1,11 @@
 # Implementation Plan: Room 3 Multiplatform Support & Offline-First Caching Policy
 
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** ui/kmp:core:data  
+
+---
+
 ## Goal Description
 Expand the Room 3 Kotlin Multiplatform (KMP) database setup in `ui/kmp` to provide full platform support across Android, Desktop JVM, iOS, and Web (`wasmJs` / `js`), implement bidirectional entity mappers, and enforce an **offline-first caching and synchronization policy** across all feature repositories.
 

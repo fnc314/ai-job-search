@@ -1,4 +1,10 @@
-# Implementation Plan: Triage & Resolve Build Warnings in `apps-android:assembleDebug`
+# Implementation Plan: Triage & Resolve Build Warnings in apps-android:assembleDebug
+
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** ui/kmp  
+
+---
 
 ## Goal Description
 During `:apps-android:assembleDebug` builds, multiple non-standard warnings and deprecation logs are emitted across Gradle configuration, native library packaging, Compose Material 3 UI widgets, and Kotlin Explicit API compiler checks. 

@@ -1,5 +1,11 @@
 # Implementation Plan: In-Repo Plan Relocation & Registry Status Synchronization
 
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** repository-wide (root .agents/plans)  
+
+---
+
 ## Overview & Goal
 1. **Relocate Planning File**: Persist this plan in the repository according to the mandatory hierarchy rule at [`.agents/plans/2026-11-05/181232_mark-detekt-and-konsist-plan-completed.md`](./181232_mark-detekt-and-konsist-plan-completed.md).
 2. **Synchronize `.agents/plans/README.md`**:

@@ -1,4 +1,10 @@
-# Architectural Plan: Root Scaffold & Type-Safe Navigation in `apps-core`
+# Architecture Plan: Root Scaffold & Navigation Backstack Enhancement
+
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** ui/kmp:apps:core, ui/kmp:features  
+
+---
 
 ## 1. Executive Summary & Design Decisions
 

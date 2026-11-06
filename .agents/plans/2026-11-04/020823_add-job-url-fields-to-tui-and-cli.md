@@ -1,5 +1,9 @@
----
-sessionId: session-261104-011903-9f90
+# Implementation Plan: Job URL Fields Integration in TUI, CLI & Schema
+
+**Status:** Completed  
+**Date:** 2026-11-04  
+**Target:** ui/terminal and tracker (CLI & Schema)  
+
 ---
 
 # Requirements

@@ -1,4 +1,10 @@
-# Implementation Plan: Platform Agnosticism & Solution-Independent Naming
+# Architecture Plan: Platform-Agnostic Module Renaming
+
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** ui/kmp  
+
+---
 
 ## Goal Description
 Audit and rename all files, classes, and conventions across the multiplatform workspace (`ui/kmp`) that reference specific technology vendors, libraries, or framework solutions by name (e.g., `Firebase` / `Firestore` $\to$ `Remote`, `Ktor` $\to$ `Network`, `Koin` $\to$ `DI`, `SignInWithGoogle` $\to$ `SignIn`).

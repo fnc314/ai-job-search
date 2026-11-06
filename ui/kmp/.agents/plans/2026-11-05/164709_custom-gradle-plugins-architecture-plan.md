@@ -1,4 +1,10 @@
-# Architecture Plan: Custom Gradle Convention Plugins (`gradle/tools/project-plugins`)
+# Architecture Plan: Custom Gradle Convention Plugins (gradle/tools/project-plugins)
+
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** ui/kmp:gradle/tools/project-plugins  
+
+---
 
 ## 1. Executive Summary & Goals
 

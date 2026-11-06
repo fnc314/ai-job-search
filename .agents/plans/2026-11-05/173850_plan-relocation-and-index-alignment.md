@@ -1,4 +1,10 @@
-# Implementation Plan: Relocate Dokka Plan & Date/Timestamp Reorganization of `.agents/plans/`
+# Implementation Plan: Relocate Dokka Plan & Date/Timestamp Reorganization of .agents/plans/
+
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** repository-wide (root .agents/plans, ui/kmp/.agents/plans)  
+
+---
 
 ## Goal Description
 1. Relocate [`dokka-and-comprehensive-kdocs-plan.md`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/.agents/plans/dokka-and-comprehensive-kdocs-plan.md) from the subsystem directory `ui/kmp/.agents/plans/` to the repository-wide directory `.agents/plans/` because its scope affects both `records` (`records-proto`, `records-parser`) and `ui/kmp` (including `gradle/tools/project-plugins`).
@@ -117,7 +123,7 @@ This directory holds architecture, system design, and migration plans for the re
 | [`recruiter-outreach-tracking.md`](./2026-11-02/172144_recruiter-outreach-tracking.md) | Completed | Recruiter outreach data models, CLI subcommands, and pipeline tracking |
 | [`add-job-url-fields-to-tui-and-cli.md`](./2026-11-04/012918_add-job-url-fields-to-tui-and-cli.md) | Completed | Job URL fields in tracker schema, Curses TUI, and Python CLI tools |
 | [`tui-log-rotation-and-cleanup.md`](./2026-11-01/174355_tui-log-rotation-and-cleanup.md) | Completed | Curses TUI session log rotation, retention limit, and disk cleanup |
-| [`docs/tracker-migration-plan.md`](../../docs/tracker-migration-plan.md) | Completed | 10-phase authoritative migration from CSV tracker to Firestore store |
+| [`tracker-migration-plan.md`](./2026-10-31/021052_tracker-migration-plan.md) | Completed | 10-phase authoritative migration from CSV tracker to Firestore store |
 | [`ai-job-search-plan.md`](../../ai-job-search-plan.md) | Canonical | Universal multi-agent architecture and single source of truth specifications |
 ```
 

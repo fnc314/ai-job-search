@@ -1,5 +1,9 @@
----
-sessionId: session-261101-175933-asa3
+# Architecture Plan: KMP Protobuf Type Contracts & Records Restructuring
+
+**Status:** Completed  
+**Date:** 2026-11-02  
+**Target:** records and ui/kmp (cross-subsystem)  
+
 ---
 
 # Requirements

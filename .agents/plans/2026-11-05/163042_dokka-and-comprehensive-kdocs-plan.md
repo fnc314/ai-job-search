@@ -1,5 +1,11 @@
 # Implementation Plan: Dokka Integration & Comprehensive Workspace KDocs
 
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** records and ui/kmp (cross-subsystem)  
+
+---
+
 ## Goal Description
 Introduce **Dokka 2.3.0** documentation engine across `ui/kmp` and `records`, backed by dedicated convention plugins in `gradle/tools/project-plugins`. Systematically author thorough, structured, self-referencing, and navigable KDocs for every `public` declaration across all modules (`core/*`, `features/*`, `apps/*`, `gradle/tools/project-plugins`, and `records`), ensuring clear architectural context, parameter tags, return semantics, exception behavior, and cross-type linking (`[Type]`).
 

@@ -4,12 +4,12 @@
 Covers the import map, the reconciliation checklist, and the cutover rules — including
 what the CSV is still good for now that Firestore is authoritative.
 
-Companion documents: `docs/tracker-migration-plan.md` (design and rationale),
+Companion documents: `.agents/plans/2026-10-31/021052_tracker-migration-plan.md` (design and rationale),
 `tracker.schema.json` (the contract).
 
 **Last updated:** 2026-10-31 (after Phase 10 and the setup/mock-data follow-on)
 **Update rule:** revised at the end of every phase, including when an implementation decision
-changes the approved scope (see `docs/tracker-migration-plan.md` §16).
+changes the approved scope (see `.agents/plans/2026-10-31/021052_tracker-migration-plan.md` §16).
 
 ---
 

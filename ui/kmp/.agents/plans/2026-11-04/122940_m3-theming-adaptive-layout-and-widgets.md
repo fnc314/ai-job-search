@@ -1,8 +1,11 @@
-# Material 3 Theming, Adaptive Layouts, Persistence & Widget Enhancements
+# Architecture Plan: Material 3 Theming, Adaptive Layouts & Widget Enhancements
 
 **Status:** Completed  
-**Author:** Antigravity  
 **Date:** 2026-11-04  
+**Target:** ui/kmp:core:design-system, ui/kmp:core:widgets  
+**Author:** Antigravity  
+
+---
 
 ## Objective
 Implement comprehensive Material Design 3 enhancements across the KMP Job Tracker shared UI:

@@ -1,5 +1,11 @@
 # Architecture Plan: DataSource Abstraction, UI Model Separation, & Strict MVI
 
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** ui/kmp:features, ui/kmp:core:data  
+
+---
+
 ## Goal Description
 Modernize the UI and presentation layer across all KMP modules in `ui/kmp` by:
 1. **Decoupling Data Layer from UI**: Completely separating DataSource/Record models (driven by `.proto` and backend storage contracts in `core:data`) from Domain entities (`features/*/domain`) and dedicated UI display models (`features/*/ui`). The UI will **never** consume DataSource/Remote models directly.

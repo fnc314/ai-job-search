@@ -1,4 +1,10 @@
-# Implementation Plan: Thinning `apps-core` & Establishing `core/navigation`
+# Architecture Plan: Thinning apps/core & Modular Navigation Decoupling
+
+**Status:** Completed  
+**Date:** 2026-11-05  
+**Target:** ui/kmp:apps:core, ui/kmp:core:navigation  
+
+---
 
 ## 1. Goal Description & Architectural Principles
 
