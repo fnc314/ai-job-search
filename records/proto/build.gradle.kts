@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.protobuf)
@@ -5,7 +7,10 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(libs.versions.java.toolchains.get().toInt())
+    compilerOptions {
+        jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.get())
+    }
 }
 
 dependencies {

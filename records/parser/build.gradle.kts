@@ -1,18 +1,30 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.dokka)
+  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.dokka)
 }
 
 kotlin {
-    jvmToolchain(17)
-    explicitApiWarning()
+  jvmToolchain(libs.versions.java.toolchains.get().toInt())
+  explicitApiWarning()
+  compilerOptions {
+    jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.get())
+    apiVersion = KotlinVersion.fromVersion(
+      libs.versions.kotlin.get().substringBeforeLast(".")
+    )
+    languageVersion = KotlinVersion.fromVersion(
+      libs.versions.kotlin.get().substringBeforeLast(".")
+    )
+  }
 }
 
 dependencies {
-    implementation(project(":records-proto"))
-    implementation(libs.protobuf.kotlin)
+  implementation(projects.recordsProto)
+  implementation(libs.protobuf.kotlin)
 
-    testImplementation(kotlin("test"))
-    testImplementation(libs.konsist)
+  testImplementation(kotlin("test"))
+  testImplementation(libs.konsist)
 }
 

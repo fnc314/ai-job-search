@@ -1,5 +1,5 @@
 [versions]
-  agp = "9.5.0"
+  agp = "9.5.1"
   android-compileSdk = "37"
   android-minSdk = "24"
   android-targetSdk = "37"
@@ -32,15 +32,17 @@
   material3 = "1.12.0-alpha03"
   mockk = "1.14.11"
   navigation-compose = "2.10.0"
-  navigation3 = "1.2.0"
+  navigation3 = "1.2.1"
   jvm = "17"
+  javaToolchain = "26"
   googlePlayServices = "4.5.0"
   node = "26.13.0"
   ksp = "2.3.13"
   dokka = "2.3.0"
   detekt = "1.23.8"
-  compose-rules = "0.4.22"
+  compose-rules = "0.6.8"
   konsist = "0.18.1"
+  records = "1.0.0"
 
 [libraries]
   kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -98,8 +100,8 @@
   navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
   mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
   android-gradle-plugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "agp" }
-  records-proto = { group = "dev.fnc314.tools.jobsearch.records", name = "records-proto" }
-  records-parser = { group = "dev.fnc314.tools.jobsearch.records", name = "records-parser" }
+  records-proto = { group = "dev.fnc314.tools.jobsearch.records", name = "records-proto", version.ref = "records" }
+  records-parser = { group = "dev.fnc314.tools.jobsearch.records", name = "records-parser", version.ref = "records" }
   kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
   compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "composeMultiplatform" }
   dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }

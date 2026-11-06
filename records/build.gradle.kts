@@ -12,6 +12,24 @@ subprojects {
     version = "1.0.0"
 
     apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "maven-publish")
+
+    plugins.withId("org.jetbrains.kotlin.jvm") {
+        configure<org.gradle.api.plugins.JavaPluginExtension> {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
+        }
+    }
+
+    afterEvaluate {
+        configure<PublishingExtension> {
+            publications {
+                create<MavenPublication>("maven") {
+                    from(components["java"])
+                }
+            }
+        }
+    }
 
     extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
         toolVersion = detektVersion

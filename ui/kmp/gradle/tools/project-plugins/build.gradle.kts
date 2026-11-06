@@ -1,3 +1,5 @@
+import java.time.Instant
+
 plugins {
   alias(libs.plugins.kotlinJvm)
   alias(libs.plugins.dokka)
@@ -17,7 +19,7 @@ dokka {
 kotlin {
   explicitApi()
   jvmToolchain(
-    libs.versions.jvm.get().toInt()
+    libs.versions.javaToolchain.get().toInt()
   )
 }
 

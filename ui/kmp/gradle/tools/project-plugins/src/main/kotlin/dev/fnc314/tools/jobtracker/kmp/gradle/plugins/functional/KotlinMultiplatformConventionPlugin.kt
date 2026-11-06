@@ -38,7 +38,11 @@ public class KotlinMultiplatformConventionPlugin : Plugin<Project>, BaseConventi
         with(kotlin) {
             jvm {
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_17)
+                    jvmTarget.set(
+                        JvmTarget.fromTarget(
+                            CatalogTypes.Versions.JVM.asString(this@configurePlugin)
+                        )
+                    )
                 }
             }
             js {

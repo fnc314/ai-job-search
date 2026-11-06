@@ -21,13 +21,15 @@ internal sealed interface CatalogTypes<out T> {
         override val catalogKey: String,
     ) : CatalogTypes<VersionConstraint> {
         JVM("jvm"),
+        JAVA_TOOLCHAIN("javaToolchain"),
         ANDROID_COMPILE_SDK("android-compileSdk"),
         ANDROID_MIN_SDK("android-minSdk"),
         ANDROID_TARGET_SDK("android-targetSdk"),
         KOTLIN("kotlin"),
         AGP("agp"),
         NODE("node"),
-        DETEKT("detekt");
+        DETEKT("detekt"),
+        ;
 
         override fun fromCatalog(project: Project): VersionConstraint =
             project.versionCatalog.findVersion(catalogKey).orElseThrow {
