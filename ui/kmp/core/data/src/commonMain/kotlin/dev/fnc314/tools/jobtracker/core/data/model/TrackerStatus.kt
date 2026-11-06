@@ -42,40 +42,40 @@ public sealed interface TrackerStatus : WireContract {
         override val wireTag: Int = -1,
     ) : TrackerStatus {
         /** Sentinel value representing an unfiltered filter state matching all applications. */
-        NONE(displayName = "All", wireKey = "status:none"),
+        NONE(displayName = "All", wireKey = "NONE"),
 
         /** Fallback status when the Firestore status string is missing or unspecified. */
-        UNSPECIFIED(displayName = "Unspecified", wireKey = "status:unspecified", wireTag = 0),
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", wireTag = 0),
 
         /** Pre-funnel opportunity lead captured prior to active drafting. */
-        LEAD(displayName = "Lead", wireKey = "status:lead", wireTag = 10),
+        LEAD(displayName = "Lead", wireKey = "LEAD", wireTag = 10),
 
         /** Initial opportunity drafting state prior to formal submission. */
-        DRAFTING(displayName = "Drafting", wireKey = "status:drafting", wireTag = 1),
+        DRAFTING(displayName = "Drafting", wireKey = "DRAFTING", wireTag = 1),
 
         /** Formal application submitted to company or hiring platform. */
-        APPLIED(displayName = "Applied", wireKey = "status:applied", wireTag = 2),
+        APPLIED(displayName = "Applied", wireKey = "APPLIED", wireTag = 2),
 
         /** Active interview process underway (screens, technical rounds, onsites). */
-        INTERVIEW(displayName = "Interview", wireKey = "status:interview", wireTag = 3),
+        INTERVIEW(displayName = "Interview", wireKey = "INTERVIEW", wireTag = 3),
 
         /** Candidate expecting or negotiating a formal compensation offer. */
-        OFFER_EXPECTED(displayName = "Offer Expected", wireKey = "status:offer", wireTag = 4),
+        OFFER_EXPECTED(displayName = "Offer Expected", wireKey = "OFFER_EXPECTED", wireTag = 4),
 
         /** Candidate accepted offer and successfully completed hiring. */
-        HIRED(displayName = "Hired", wireKey = "status:hired", wireTag = 5),
+        HIRED(displayName = "Hired", wireKey = "HIRED", wireTag = 5),
 
         /** Application was rejected by employer. */
-        REJECTED(displayName = "Rejected", wireKey = "status:rejected", wireTag = 6),
+        REJECTED(displayName = "Rejected", wireKey = "REJECTED", wireTag = 6),
 
         /** Employer did not respond within standard follow-up horizon (>30 days). */
-        NO_RESPONSE(displayName = "No Response", wireKey = "status:no-response", wireTag = 7),
+        NO_RESPONSE(displayName = "No Response", wireKey = "NO_RESPONSE", wireTag = 7),
 
         /** Candidate declined an offer extended by the company. */
-        OFFER_DECLINED(displayName = "Offer Declined", wireKey = "status:offer-declined", wireTag = 8),
+        OFFER_DECLINED(displayName = "Offer Declined", wireKey = "OFFER_DECLINED", wireTag = 8),
 
         /** Candidate voluntarily withdrew application from consideration. */
-        APPLICATION_WITHDRAWN(displayName = "Application Withdrawn", wireKey = "status:withdrawn", wireTag = 9);
+        APPLICATION_WITHDRAWN(displayName = "Application Withdrawn", wireKey = "APPLICATION_WITHDRAWN", wireTag = 9);
 
         override val isTerminal: Boolean
             get() = when (this) {
@@ -135,8 +135,24 @@ public sealed interface TrackerStatus : WireContract {
     public companion object {
         public val DEFAULT: TrackerStatus = Known.UNSPECIFIED
 
-        // Static O(1) multi-key lookup map built using stdlib extension
-        private val lookup: Map<String, Known> = Known.entries.toWireLookupMap()
+        // Static O(1) multi-key lookup map built using stdlib extension with legacy aliases
+        private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
+            val legacy = when (entry) {
+                Known.LEAD -> listOf("status:lead", "lead")
+                Known.DRAFTING -> listOf("status:drafting", "drafting", "draft")
+                Known.APPLIED -> listOf("status:applied", "applied", "screening")
+                Known.INTERVIEW -> listOf("status:interview", "interview", "interviewing", "onsite")
+                Known.OFFER_EXPECTED -> listOf("status:offer", "offer")
+                Known.HIRED -> listOf("status:hired", "hired")
+                Known.REJECTED -> listOf("status:rejected", "rejected")
+                Known.NO_RESPONSE -> listOf("status:no-response", "no-response", "no_response")
+                Known.OFFER_DECLINED -> listOf("status:offer-declined", "offer-declined", "offer_declined")
+                Known.APPLICATION_WITHDRAWN -> listOf("status:withdrawn", "withdrawn")
+                Known.NONE -> listOf("status:none", "all")
+                Known.UNSPECIFIED -> listOf("status:unspecified", "unspecified")
+            }
+            legacy + listOf(entry.name.lowercase().replace("_", "-"))
+        }
 
         // Backward-compatible shortcut properties matching standard enum names
         public val NONE: TrackerStatus = Known.NONE

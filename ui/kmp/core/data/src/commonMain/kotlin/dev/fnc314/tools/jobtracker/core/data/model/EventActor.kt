@@ -23,22 +23,22 @@ public sealed interface EventActor : WireContract {
         override val wireTag: Int = -1,
     ) : EventActor {
         /** Fallback when initiator identity is not recorded. */
-        UNSPECIFIED(displayName = "Unspecified", wireKey = "actor:unspecified", wireTag = 0),
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", wireTag = 0),
 
         /** The human candidate interacting via the TUI, Web Dashboard, or CLI. */
-        USER(displayName = "User", wireKey = "actor:user", wireTag = 1),
+        USER(displayName = "User", wireKey = "USER", wireTag = 1),
 
         /** Autonomous AI agent acting on behalf of the candidate. */
-        AGENT(displayName = "Agent", wireKey = "actor:agent", wireTag = 2),
+        AGENT(displayName = "Agent", wireKey = "AGENT", wireTag = 2),
 
         /** Automated background email synchronization job. */
-        EMAIL_SYNC(displayName = "Email Sync", wireKey = "actor:gmail-sync", wireTag = 3),
+        EMAIL_SYNC(displayName = "Email Sync", wireKey = "EMAIL_SYNC", wireTag = 3),
 
         /** Batch data import or migration process. */
-        IMPORT(displayName = "Import", wireKey = "actor:import", wireTag = 4),
+        IMPORT(displayName = "Import", wireKey = "IMPORT", wireTag = 4),
 
         /** Recurring cron scheduler triggering time-based transitions. */
-        SCHEDULER(displayName = "Scheduler", wireKey = "actor:scheduler", wireTag = 5);
+        SCHEDULER(displayName = "Scheduler", wireKey = "SCHEDULER", wireTag = 5);
     }
 
     /**
@@ -54,9 +54,14 @@ public sealed interface EventActor : WireContract {
         public val DEFAULT: EventActor = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            val aliases = mutableListOf(entry.wireKey.removePrefix("actor:"))
+            val aliases = mutableListOf(
+                "actor:" + entry.name.lowercase().replace("_", "-"),
+                entry.name.lowercase().replace("_", "-")
+            )
             if (entry == Known.EMAIL_SYNC) {
+                aliases.add("actor:gmail-sync")
                 aliases.add("actor:email-sync")
+                aliases.add("gmail-sync")
                 aliases.add("email-sync")
             }
             aliases

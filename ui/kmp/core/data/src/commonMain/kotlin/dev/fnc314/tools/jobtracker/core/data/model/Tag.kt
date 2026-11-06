@@ -78,7 +78,31 @@ public sealed interface Tag : WireContract {
     public companion object {
         public val DEFAULT: Tag = Known.UNSPECIFIED
 
-        private val lookup: Map<String, Known> = Known.entries.toWireLookupMap()
+                private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
+            val legacy = when (entry) {
+                Known.RELOCATION_REQUIRED -> "relocation:required"
+                Known.RELOCATION_ACCEPTED -> "relocation:accepted"
+                Known.RELOCATION_DECLINED -> "relocation:declined"
+                Known.COMPENSATION_ABOVE_SUPER_COMMUTER_NYC -> "compensation:above-super-commuter:NYC"
+                Known.COMPENSATION_ABOVE_SUPER_COMMUTER_SF -> "compensation:above-super-commuter:SF"
+                Known.COMPENSATION_BELOW_NYC_FLOOR -> "compensation:below-nyc-floor"
+                Known.COMPENSATION_BELOW_BAND -> "compensation:below-band"
+                Known.COMPENSATION_AT_BAND -> "compensation:at-band"
+                Known.COMPENSATION_ABOVE_BAND -> "compensation:above-band"
+                Known.COMPENSATION_EQUITY_HEAVY -> "compensation:equity-heavy"
+                Known.FIT_STRONG -> "fit:strong"
+                Known.FIT_STRETCH -> "fit:stretch"
+                Known.FIT_GAP_IOS -> "fit:gap-ios"
+                Known.FIT_GAP_CROSS_PLATFORM -> "fit:gap-cross-platform"
+                Known.PROCESS_TAKE_HOME -> "process:take-home"
+                Known.PROCESS_REFERRAL -> "process:referral"
+                Known.PROCESS_INTERNAL_CONTACT -> "process:internal-contact"
+                Known.PROCESS_NO_RESPONSE_30D -> "process:no-response-30d"
+                Known.PROCESS_RECRUITER_OUTREACH -> "process:recruiter:outreach"
+                Known.UNSPECIFIED -> "tag:unspecified"
+            }
+            listOf(legacy, legacy.lowercase(), entry.name.lowercase())
+        }
 
         public val entries: List<Tag> = Known.entries
 

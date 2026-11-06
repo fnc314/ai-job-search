@@ -13,7 +13,7 @@ import kotlin.time.Instant
  *
  * @property id The slug identifier (e.g., `"acme-corp-principal-android"`), historically matching Firestore document IDs.
  * @property uuid The time-ordered RFC 4122 Variant UUIDv7 identifier [Uuid7] acting as the primary key.
- * @property schemaVersion Document schema migration version number (current standard is `7`).
+ * @property schemaVersion Document schema migration version number (current standard is `8`).
  * @property company The hiring company or employer name.
  * @property role The title of the target position (e.g., `"Principal Android Software Engineer"`).
  * @property location Human-readable summary string of the work location (e.g. `"Pittsburgh, PA / Remote"`).
@@ -46,7 +46,7 @@ import kotlin.time.Instant
 public data class JobApplication(
     public val id: String,
     public val uuid: Uuid7? = null,
-    public val schemaVersion: Int = 7,
+    public val schemaVersion: Int = 8,
     public val company: String,
     public val role: String?,
     public val location: String?,

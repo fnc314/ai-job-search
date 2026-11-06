@@ -23,16 +23,27 @@ import contract
 # Event types that imply a funnel status. An event carries statusFrom/statusTo
 # only when it actually moved the funnel; a follow-up does not.
 EVENT_IMPLIED_STATUS = {
-    "event:applied": "status:applied",
-    "event:recruiter-screen": "status:interview",
-    "event:interview-scheduled": "status:interview",
-    "event:onsite": "status:interview",
-    "event:offer": "status:offer",
-    "event:offer-accepted": "status:hired",
-    "event:offer-declined": "status:offer-declined",
-    "event:rejection": "status:rejected",
-    "event:no-response": "status:no-response",
-    "event:withdrawn": "status:withdrawn",
+    "APPLY": "APPLIED",
+    "RECRUITER_SCREEN": "INTERVIEW",
+    "SCHEDULE_INTERVIEW": "INTERVIEW",
+    "VISIT_ONSITE": "INTERVIEW",
+    "OFFER": "OFFER_EXPECTED",
+    "ACCEPT_OFFER": "HIRED",
+    "DECLINE_OFFER": "OFFER_DECLINED",
+    "REJECT": "REJECTED",
+    "GHOST": "NO_RESPONSE",
+    "WITHDRAW": "APPLICATION_WITHDRAWN",
+    # Legacy support
+    "event:applied": "APPLIED",
+    "event:recruiter-screen": "INTERVIEW",
+    "event:interview-scheduled": "INTERVIEW",
+    "event:onsite": "INTERVIEW",
+    "event:offer": "OFFER_EXPECTED",
+    "event:offer-accepted": "HIRED",
+    "event:offer-declined": "OFFER_DECLINED",
+    "event:rejection": "REJECTED",
+    "event:no-response": "NO_RESPONSE",
+    "event:withdrawn": "APPLICATION_WITHDRAWN",
 }
 
 # Event types that must never silently move the funnel: they describe activity
@@ -47,7 +58,7 @@ NON_STATUS_EVENTS = {
     "event:artifact-added",
     "event:note-added",
     "event:imported",
-    "event:status-corrected",
+    "CORRECT_STATUS",
 }
 
 
@@ -68,7 +79,7 @@ def statusEventType(status: str) -> str:
             return eventType
     # status:drafting has no inbound event type of its own; it is the initial
     # state of a record, so entering it is a correction rather than progress.
-    return "event:status-corrected"
+    return "CORRECT_STATUS"
 
 
 def nowIso() -> str:

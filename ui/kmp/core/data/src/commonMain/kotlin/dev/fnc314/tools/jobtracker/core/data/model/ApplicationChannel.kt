@@ -24,43 +24,43 @@ public sealed interface ApplicationChannel : WireContract {
         override val wireTag: Int = -1,
     ) : ApplicationChannel {
         /** Fallback when the sourcing vector is not documented. */
-        UNSPECIFIED(displayName = "Unspecified", wireKey = "channel:unspecified", wireTag = 0),
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", wireTag = 0),
 
         /** Submitted through Greenhouse ATS. */
-        GREENHOUSE(displayName = "Greenhouse", wireKey = "channel:greenhouse", wireTag = 1),
+        GREENHOUSE(displayName = "Greenhouse", wireKey = "GREENHOUSE", wireTag = 1),
 
         /** Submitted through Workday enterprise portal. */
-        WORKDAY(displayName = "Workday", wireKey = "channel:workday", wireTag = 2),
+        WORKDAY(displayName = "Workday", wireKey = "WORKDAY", wireTag = 2),
 
         /** Submitted through Lever ATS. */
-        LEVER(displayName = "Lever", wireKey = "channel:lever", wireTag = 3),
+        LEVER(displayName = "Lever", wireKey = "LEVER", wireTag = 3),
 
         /** Submitted through Ashby ATS. */
-        ASHBY(displayName = "Ashby", wireKey = "channel:ashby", wireTag = 4),
+        ASHBY(displayName = "Ashby", wireKey = "ASHBY", wireTag = 4),
 
         /** Submitted through SmartRecruiters. */
-        SMARTRECRUITERS(displayName = "SmartRecruiters", wireKey = "channel:smartrecruiters", wireTag = 5),
+        SMARTRECRUITERS(displayName = "SmartRecruiters", wireKey = "SMARTRECRUITERS", wireTag = 5),
 
         /** Sourced or applied through LinkedIn Jobs / InMail. */
-        LINKEDIN(displayName = "LinkedIn", wireKey = "channel:linkedin", wireTag = 6),
+        LINKEDIN(displayName = "LinkedIn", wireKey = "LINKEDIN", wireTag = 6),
 
         /** Personal or employee referral. */
-        REFERRAL(displayName = "Referral", wireKey = "channel:referral", wireTag = 7),
+        REFERRAL(displayName = "Referral", wireKey = "REFERRAL", wireTag = 7),
 
         /** Direct outreach to founder, hiring manager, or company career portal. */
-        DIRECT(displayName = "Direct", wireKey = "channel:direct", wireTag = 8),
+        DIRECT(displayName = "Direct", wireKey = "DIRECT", wireTag = 8),
 
         /** Direct recruiter outreach via LinkedIn. */
-        OUTREACH_LINKEDIN(displayName = "Outreach (LinkedIn)", wireKey = "channel:outreach:linkedin"),
+        OUTREACH_LINKEDIN(displayName = "Outreach (LinkedIn)", wireKey = "OUTREACH_LINKEDIN"),
 
         /** Direct recruiter outreach via Email. */
-        OUTREACH_EMAIL(displayName = "Outreach (Email)", wireKey = "channel:outreach:email"),
+        OUTREACH_EMAIL(displayName = "Outreach (Email)", wireKey = "OUTREACH_EMAIL"),
 
         /** Direct outreach via Referral. */
-        OUTREACH_REFERRAL(displayName = "Outreach (Referral)", wireKey = "channel:outreach:referral"),
+        OUTREACH_REFERRAL(displayName = "Outreach (Referral)", wireKey = "OUTREACH_REFERRAL"),
 
         /** Sourced through other portals or agency partners. */
-        OTHER(displayName = "Other", wireKey = "channel:other", wireTag = 9);
+        OTHER(displayName = "Other", wireKey = "OTHER", wireTag = 9);
     }
 
     /**
@@ -78,7 +78,14 @@ public sealed interface ApplicationChannel : WireContract {
 
         // Static O(1) multi-key lookup map indexing wireKey, name, and bare channel suffix
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            listOf(entry.wireKey.removePrefix("channel:"))
+            val nameLower = entry.name.lowercase()
+            val kebab = nameLower.replace("_", "-")
+            listOf(
+                "channel:$kebab",
+                "channel:${kebab.replace("outreach-", "outreach:")}",
+                kebab,
+                nameLower,
+            )
         }
 
         // Backward-compatible shortcut properties matching standard enum names

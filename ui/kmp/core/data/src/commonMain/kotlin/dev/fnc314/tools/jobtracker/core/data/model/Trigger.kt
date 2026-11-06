@@ -21,19 +21,19 @@ public sealed interface Trigger : WireContract {
         override val wireTag: Int = -1,
     ) : Trigger {
         /** Fallback when trigger source is unknown. */
-        UNSPECIFIED(displayName = "Unspecified", wireKey = "trigger:unspecified", wireTag = 0),
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", wireTag = 0),
 
         /** Scheduled cron or timer job. */
-        CRON(displayName = "Cron", wireKey = "trigger:cron", wireTag = 1),
+        CRON(displayName = "Cron", wireKey = "CRON", wireTag = 1),
 
         /** Fired when an application record is created. */
-        APPLICATION_CREATED(displayName = "Application Created", wireKey = "trigger:application-created", wireTag = 2),
+        APPLICATION_CREATED(displayName = "Application Created", wireKey = "APPLICATION_CREATED", wireTag = 2),
 
         /** Fired when an application record is updated. */
-        APPLICATION_UPDATED(displayName = "Application Updated", wireKey = "trigger:application-updated", wireTag = 3),
+        APPLICATION_UPDATED(displayName = "Application Updated", wireKey = "APPLICATION_UPDATED", wireTag = 3),
 
         /** Explicit human action via UI or CLI. */
-        MANUAL(displayName = "Manual", wireKey = "trigger:manual", wireTag = 4);
+        MANUAL(displayName = "Manual", wireKey = "MANUAL", wireTag = 4);
     }
 
     /** Associated-value carrier for unmapped trigger strings. */
@@ -47,7 +47,7 @@ public sealed interface Trigger : WireContract {
         public val DEFAULT: Trigger = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            listOf(entry.wireKey.removePrefix("trigger:"))
+            listOf("trigger:" + entry.name.lowercase().replace("_", "-"), entry.name.lowercase().replace("_", "-"))
         }
 
         public val UNSPECIFIED: Trigger = Known.UNSPECIFIED

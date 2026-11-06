@@ -11,7 +11,7 @@ import kotlin.time.Instant
 /**
  * Room 3 entity representing a tracked job application in the local SQLite relational database cache.
  *
- * Conforms to `tracker.schema.json` (schemaVersion = 7).
+ * Conforms to `tracker.schema.json` (schemaVersion = 8).
  * Uses canonical time-ordered [uuid] as the primary key with [slugId] uniquely indexed for fast lookups.
  *
  * @property uuid Primary key [Uuid7] ensuring monotonic sorting and unique entity identity.
@@ -42,7 +42,7 @@ import kotlin.time.Instant
 public data class JobApplicationEntity(
     @PrimaryKey public val uuid: Uuid7,
     public val slugId: String,
-    public val schemaVersion: Int = 7,
+    public val schemaVersion: Int = 8,
     public val company: String,
     public val role: String?,
     public val location: String?,

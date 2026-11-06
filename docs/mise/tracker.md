@@ -214,14 +214,15 @@ Show a proposal
 
 ## `tracker proposals approve`
 
-- **Usage:** `tracker proposals approve [--note <note>] [--only <indexes>] <id>`
+- **Usage:** `tracker proposals approve [FLAGS] [id]`
 
 Approve a proposal
 
 ### Arguments
-- **`<id>`** — Proposal ID
+- **`[id]`** — Proposal ID (optional with -i)
 
 ### Flags
+- **`-i --interactive`** — Iterate through all pending proposals interactively
 - **`--note <note>`** — Resolution text
 - **`--only <indexes>`** — Comma-separated 1-based change indexes to approve (default: all)
 

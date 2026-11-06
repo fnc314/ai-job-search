@@ -126,7 +126,8 @@ cmd "proposals" help="Review the collector queue" {
     arg "id" help="Proposal ID"
   }
   cmd "approve" help="Approve a proposal" {
-    arg "id" help="Proposal ID"
+    arg "[id]" help="Proposal ID (optional with -i)"
+    flag "-i --interactive" help="Iterate through all pending proposals interactively"
     flag "--note <note>" help="Resolution text"
     flag "--only <only>" help="Comma-separated change indexes to approve"
   }
@@ -231,12 +232,17 @@ flag "-q --query" help="Explicit query (repeatable); overrides search-queries.md
 flag "--limit <limit>" help="Max results per portal per query (default: 20)"
 flag "--priority <priority>" help="Priority categories to run, 0 = all (default: 3)"
 flag "--focus <focus>" help="Focus area to prioritize queries (e.g. Android)"
-flag "--save-seen" help="Write updated seen_jobs.json after search"
+flag "--save-seen" help="Write updated seen postings to Firestore after search"
+flag "--migrate-seen" help="Seed existing seen_jobs.json into Firestore, then exit"
 flag "--table" help="Output as a Markdown table instead of JSON"
 flag "--summary" help="Only show summary stats, not individual results"
 flag "--health" help="Only check portal health (probe each portal)"
 """,
-    run = '.venv/bin/python scripts/scrape.py{% if usage.query %}{% for q in usage.query %} -q "{{ q }}"{% endfor %}{% endif %}{% if usage.limit %} --limit {{ usage.limit }}{% endif %}{% if usage.priority %} --priority {{ usage.priority }}{% endif %}{% if usage.focus %} --focus "{{ usage.focus }}"{% endif %}{% if usage.save_seen %} --save-seen{% endif %}{% if usage.table %} --table{% endif %}{% if usage.summary %} --summary{% endif %}{% if usage.health %} --health{% endif %}'
+    run = '.venv/bin/python scripts/scrape.py{% if usage.query %}{% for q in usage.query %} -q "{{ q }}"{% endfor %}{% endif %}{% if usage.limit %} --limit {{ usage.limit }}{% endif %}{% if usage.priority %} --priority {{ usage.priority }}{% endif %}{% if usage.focus %} --focus "{{ usage.focus }}"{% endif %}{% if usage.save_seen %} --save-seen{% endif %}{% if usage.migrate_seen %} --migrate-seen{% endif %}{% if usage.table %} --table{% endif %}{% if usage.summary %} --summary{% endif %}{% if usage.health %} --health{% endif %}'
+  }
+  "scrape:migrate" = {
+    description = "One-time migration: seed existing seen_jobs.json into Firestore",
+    run = ".venv/bin/python scripts/scrape.py --migrate-seen"
   }
   # ── Gmail sync ─────────────────────────────────────────────────────────────
   # Each step is independent so a scheduler or agent can run only what it needs.

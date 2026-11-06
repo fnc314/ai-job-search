@@ -5,6 +5,7 @@ import dev.fnc314.tools.jobsearch.tracker.v1.Confidence
 import dev.fnc314.tools.jobsearch.tracker.v1.DerivedFrom
 import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
 import dev.fnc314.tools.jobsearch.tracker.v1.Region
+import dev.fnc314.tools.jobsearch.tracker.v1.RoleLocation
 import dev.fnc314.tools.jobsearch.tracker.v1.SyncKind
 import dev.fnc314.tools.jobsearch.tracker.v1.SyncState
 import dev.fnc314.tools.jobsearch.tracker.v1.Tag
@@ -14,24 +15,14 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEditState
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobsearch.tracker.v1.Trigger
-import dev.fnc314.tools.jobsearch.tracker.v1.WorkMode
 
 /**
  * Canonical Firestore wire key for [TrackerStatus] proto enum entries.
  */
 public val TrackerStatus.wireKey: String
     get() = when (this) {
-        TrackerStatus.LEAD -> "status:lead"
-        TrackerStatus.DRAFTING -> "status:drafting"
-        TrackerStatus.APPLIED -> "status:applied"
-        TrackerStatus.INTERVIEW -> "status:interview"
-        TrackerStatus.OFFER_EXPECTED -> "status:offer"
-        TrackerStatus.HIRED -> "status:hired"
-        TrackerStatus.REJECTED -> "status:rejected"
-        TrackerStatus.NO_RESPONSE -> "status:no-response"
-        TrackerStatus.OFFER_DECLINED -> "status:offer-declined"
-        TrackerStatus.APPLICATION_WITHDRAWN -> "status:withdrawn"
         TrackerStatus.TRACKER_STATUS_UNSPECIFIED, TrackerStatus.UNRECOGNIZED -> ""
+        else -> name
     }
 
 /**
@@ -39,28 +30,8 @@ public val TrackerStatus.wireKey: String
  */
 public val TrackerEventType.wireKey: String
     get() = when (this) {
-        TrackerEventType.APPLY -> "event:applied"
-        TrackerEventType.ACKNOWLEDGE -> "event:acknowledged"
-        TrackerEventType.RECRUITER_SCREEN -> "event:recruiter-screen"
-        TrackerEventType.SCHEDULE_INTERVIEW -> "event:interview-scheduled"
-        TrackerEventType.COMPLETE_INTERVIEW -> "event:interview-completed"
-        TrackerEventType.ASSESS -> "event:assessment"
-        TrackerEventType.VISIT_ONSITE -> "event:onsite"
-        TrackerEventType.OFFER -> "event:offer"
-        TrackerEventType.ACCEPT_OFFER -> "event:offer-accepted"
-        TrackerEventType.DECLINE_OFFER -> "event:offer-declined"
-        TrackerEventType.REJECT -> "event:rejection"
-        TrackerEventType.GHOST -> "event:no-response"
-        TrackerEventType.WITHDRAW -> "event:withdrawn"
-        TrackerEventType.SEND_FOLLOW_UP -> "event:follow-up-sent"
-        TrackerEventType.TAILOR_DOCUMENT -> "event:document-tailored"
-        TrackerEventType.RECALCULATE_FIT -> "event:fit-recalculated"
-        TrackerEventType.ADD_ARTIFACT -> "event:artifact-added"
-        TrackerEventType.ADD_NOTE -> "event:note-added"
-        TrackerEventType.IMPORT -> "event:imported"
-        TrackerEventType.CORRECT_STATUS -> "event:status-corrected"
-        TrackerEventType.RECRUITER_OUTREACH -> "event:recruiter-outreach"
         TrackerEventType.TRACKER_EVENT_TYPE_UNSPECIFIED, TrackerEventType.UNRECOGNIZED -> ""
+        else -> name
     }
 
 /**
@@ -68,19 +39,8 @@ public val TrackerEventType.wireKey: String
  */
 public val ApplicationChannel.wireKey: String
     get() = when (this) {
-        ApplicationChannel.GREENHOUSE -> "channel:greenhouse"
-        ApplicationChannel.WORKDAY -> "channel:workday"
-        ApplicationChannel.LEVER -> "channel:lever"
-        ApplicationChannel.ASHBY -> "channel:ashby"
-        ApplicationChannel.SMARTRECRUITERS -> "channel:smartrecruiters"
-        ApplicationChannel.LINKEDIN -> "channel:linkedin"
-        ApplicationChannel.REFERRAL -> "channel:referral"
-        ApplicationChannel.DIRECT -> "channel:direct"
-        ApplicationChannel.OTHER -> "channel:other"
-        ApplicationChannel.OUTREACH_LINKEDIN -> "channel:outreach:linkedin"
-        ApplicationChannel.OUTREACH_EMAIL -> "channel:outreach:email"
-        ApplicationChannel.OUTREACH_REFERRAL -> "channel:outreach:referral"
         ApplicationChannel.APPLICATION_CHANNEL_UNSPECIFIED, ApplicationChannel.UNRECOGNIZED -> ""
+        else -> name
     }
 
 /**
@@ -88,23 +48,17 @@ public val ApplicationChannel.wireKey: String
  */
 public val TrackerArtifactKind.wireKey: String
     get() = when (this) {
-        TrackerArtifactKind.ARTIFACT_CV -> "artifact:cv"
-        TrackerArtifactKind.ARTIFACT_COVER_LETTER -> "artifact:cover-letter"
-        TrackerArtifactKind.ARTIFACT_OUTCOME -> "artifact:outcome"
-        TrackerArtifactKind.ARTIFACT_POSTING -> "artifact:posting"
-        TrackerArtifactKind.ARTIFACT_ASSESSMENT -> "artifact:assessment"
         TrackerArtifactKind.TRACKER_ARTIFACT_KIND_UNSPECIFIED, TrackerArtifactKind.UNRECOGNIZED -> ""
+        else -> name
     }
 
 /**
- * Canonical Firestore wire key for [WorkMode] proto enum entries.
+ * Canonical Firestore wire key for [RoleLocation] proto enum entries.
  */
-public val WorkMode.wireKey: String
+public val RoleLocation.wireKey: String
     get() = when (this) {
-        WorkMode.WORK_MODE_ONSITE -> "work-mode:onsite"
-        WorkMode.WORK_MODE_HYBRID -> "work-mode:hybrid"
-        WorkMode.WORK_MODE_REMOTE -> "work-mode:remote"
-        WorkMode.WORK_MODE_UNSPECIFIED, WorkMode.UNRECOGNIZED -> ""
+        RoleLocation.ROLE_LOCATION_UNSPECIFIED, RoleLocation.UNRECOGNIZED -> ""
+        else -> name
     }
 
 /**
@@ -112,12 +66,12 @@ public val WorkMode.wireKey: String
  */
 public val EventActor.wireKey: String
     get() = when (this) {
-        EventActor.ACTOR_USER -> "actor:user"
-        EventActor.ACTOR_AGENT -> "actor:agent"
-        EventActor.ACTOR_EMAIL_SYNC -> "actor:gmail-sync"
-        EventActor.ACTOR_IMPORT -> "actor:import"
-        EventActor.ACTOR_SCHEDULER -> "actor:scheduler"
         EventActor.EVENT_ACTOR_UNSPECIFIED, EventActor.UNRECOGNIZED -> ""
+        EventActor.ACTOR_USER -> "USER"
+        EventActor.ACTOR_AGENT -> "AGENT"
+        EventActor.ACTOR_EMAIL_SYNC -> "EMAIL_SYNC"
+        EventActor.ACTOR_IMPORT -> "IMPORT"
+        EventActor.ACTOR_SCHEDULER -> "SCHEDULER"
     }
 
 /**
@@ -125,11 +79,11 @@ public val EventActor.wireKey: String
  */
 public val TrackerEditState.wireKey: String
     get() = when (this) {
-        TrackerEditState.EDIT_STATE_PENDING -> "proposal:pending"
-        TrackerEditState.EDIT_STATE_APPROVED -> "proposal:approved"
-        TrackerEditState.EDIT_STATE_REJECTED -> "proposal:rejected"
-        TrackerEditState.EDIT_STATE_EXPIRED -> "proposal:expired"
         TrackerEditState.TRACKER_EDIT_STATE_UNSPECIFIED, TrackerEditState.UNRECOGNIZED -> ""
+        TrackerEditState.EDIT_STATE_PENDING -> "PENDING"
+        TrackerEditState.EDIT_STATE_APPROVED -> "APPROVED"
+        TrackerEditState.EDIT_STATE_REJECTED -> "REJECTED"
+        TrackerEditState.EDIT_STATE_EXPIRED -> "EXPIRED"
     }
 
 /**
@@ -137,10 +91,10 @@ public val TrackerEditState.wireKey: String
  */
 public val TrackerEditKind.wireKey: String
     get() = when (this) {
-        TrackerEditKind.EDIT_KIND_EMAIL_SYNC -> "proposal:gmail-sync"
-        TrackerEditKind.EDIT_KIND_SHEET_SYNC -> "proposal:sheet-sync"
-        TrackerEditKind.EDIT_KIND_LEAD -> "proposal:lead"
         TrackerEditKind.TRACKER_EDIT_KIND_UNSPECIFIED, TrackerEditKind.UNRECOGNIZED -> ""
+        TrackerEditKind.EDIT_KIND_EMAIL_SYNC -> "EMAIL_SYNC"
+        TrackerEditKind.EDIT_KIND_SHEET_SYNC -> "SHEET_SYNC"
+        TrackerEditKind.EDIT_KIND_LEAD -> "LEAD"
     }
 
 /**
@@ -148,11 +102,11 @@ public val TrackerEditKind.wireKey: String
  */
 public val Trigger.wireKey: String
     get() = when (this) {
-        Trigger.TRIGGER_CRON -> "trigger:cron"
-        Trigger.TRIGGER_APPLICATION_CREATED -> "trigger:application-created"
-        Trigger.TRIGGER_APPLICATION_UPDATED -> "trigger:application-updated"
-        Trigger.TRIGGER_MANUAL -> "trigger:manual"
         Trigger.TRIGGER_UNSPECIFIED, Trigger.UNRECOGNIZED -> ""
+        Trigger.TRIGGER_CRON -> "CRON"
+        Trigger.TRIGGER_APPLICATION_CREATED -> "APPLICATION_CREATED"
+        Trigger.TRIGGER_APPLICATION_UPDATED -> "APPLICATION_UPDATED"
+        Trigger.TRIGGER_MANUAL -> "MANUAL"
     }
 
 /**
@@ -160,8 +114,8 @@ public val Trigger.wireKey: String
  */
 public val SyncKind.wireKey: String
     get() = when (this) {
-        SyncKind.SYNC_KIND_EMAIL_COLLECT -> "sync:gmail-collect"
         SyncKind.SYNC_KIND_UNSPECIFIED, SyncKind.UNRECOGNIZED -> ""
+        SyncKind.SYNC_KIND_EMAIL_COLLECT -> "EMAIL_COLLECT"
     }
 
 /**
@@ -169,11 +123,11 @@ public val SyncKind.wireKey: String
  */
 public val SyncState.wireKey: String
     get() = when (this) {
-        SyncState.SYNC_STATE_PENDING -> "sync:pending"
-        SyncState.SYNC_STATE_CLAIMED -> "sync:claimed"
-        SyncState.SYNC_STATE_DONE -> "sync:done"
-        SyncState.SYNC_STATE_FAILED -> "sync:failed"
         SyncState.SYNC_STATE_UNSPECIFIED, SyncState.UNRECOGNIZED -> ""
+        SyncState.SYNC_STATE_PENDING -> "PENDING"
+        SyncState.SYNC_STATE_CLAIMED -> "CLAIMED"
+        SyncState.SYNC_STATE_DONE -> "DONE"
+        SyncState.SYNC_STATE_FAILED -> "FAILED"
     }
 
 /**
@@ -181,10 +135,8 @@ public val SyncState.wireKey: String
  */
 public val Confidence.wireKey: String
     get() = when (this) {
-        Confidence.CONFIDENCE_HIGH -> "high"
-        Confidence.CONFIDENCE_MEDIUM -> "medium"
-        Confidence.CONFIDENCE_LOW -> "low"
         Confidence.CONFIDENCE_UNSPECIFIED, Confidence.UNRECOGNIZED -> ""
+        else -> name
     }
 
 /**
@@ -192,11 +144,11 @@ public val Confidence.wireKey: String
  */
 public val DerivedFrom.wireKey: String
     get() = when (this) {
-        DerivedFrom.DERIVED_MANUAL -> "manual"
-        DerivedFrom.DERIVED_NOTES_REGEX -> "notes-regex"
-        DerivedFrom.DERIVED_EMAIL -> "gmail"
-        DerivedFrom.DERIVED_CSV_IMPORT -> "csv-import"
         DerivedFrom.DERIVED_FROM_UNSPECIFIED, DerivedFrom.UNRECOGNIZED -> ""
+        DerivedFrom.DERIVED_MANUAL -> "MANUAL"
+        DerivedFrom.DERIVED_NOTES_REGEX -> "NOTES_REGEX"
+        DerivedFrom.DERIVED_EMAIL -> "EMAIL"
+        DerivedFrom.DERIVED_CSV_IMPORT -> "CSV_IMPORT"
     }
 
 /**
@@ -204,13 +156,8 @@ public val DerivedFrom.wireKey: String
  */
 public val Region.wireKey: String
     get() = when (this) {
-        Region.REGION_PIT -> "PIT"
-        Region.REGION_NYC -> "NYC"
-        Region.REGION_SF -> "SF"
-        Region.REGION_LA -> "LA"
-        Region.REGION_DC -> "DC"
-        Region.REGION_REMOTE_US -> "REMOTE-US"
         Region.REGION_UNSPECIFIED, Region.UNRECOGNIZED -> ""
+        else -> name
     }
 
 /**
@@ -218,24 +165,6 @@ public val Region.wireKey: String
  */
 public val Tag.wireKey: String
     get() = when (this) {
-        Tag.RELOCATION_REQUIRED -> "relocation:required"
-        Tag.RELOCATION_ACCEPTED -> "relocation:accepted"
-        Tag.RELOCATION_DECLINED -> "relocation:declined"
-        Tag.COMPENSATION_ABOVE_SUPER_COMMUTER_NYC -> "compensation:above-super-commuter:NYC"
-        Tag.COMPENSATION_ABOVE_SUPER_COMMUTER_SF -> "compensation:above-super-commuter:SF"
-        Tag.COMPENSATION_BELOW_NYC_FLOOR -> "compensation:below-nyc-floor"
-        Tag.COMPENSATION_BELOW_BAND -> "compensation:below-band"
-        Tag.COMPENSATION_AT_BAND -> "compensation:at-band"
-        Tag.COMPENSATION_ABOVE_BAND -> "compensation:above-band"
-        Tag.COMPENSATION_EQUITY_HEAVY -> "compensation:equity-heavy"
-        Tag.FIT_STRONG -> "fit:strong"
-        Tag.FIT_STRETCH -> "fit:stretch"
-        Tag.FIT_GAP_IOS -> "fit:gap-ios"
-        Tag.FIT_GAP_CROSS_PLATFORM -> "fit:gap-cross-platform"
-        Tag.PROCESS_TAKE_HOME -> "process:take-home"
-        Tag.PROCESS_REFERRAL -> "process:referral"
-        Tag.PROCESS_INTERNAL_CONTACT -> "process:internal-contact"
-        Tag.PROCESS_NO_RESPONSE_30D -> "process:no-response-30d"
-        Tag.PROCESS_RECRUITER_OUTREACH -> "process:recruiter:outreach"
         Tag.TAG_UNSPECIFIED, Tag.UNRECOGNIZED -> ""
+        else -> name
     }

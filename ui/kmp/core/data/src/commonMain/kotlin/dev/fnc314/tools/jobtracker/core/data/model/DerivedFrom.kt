@@ -24,7 +24,7 @@ public sealed interface DerivedFrom : WireContract {
         override val wireTag: Int = -1,
     ) : DerivedFrom {
         /** Fallback when source provenance is unknown. */
-        UNSPECIFIED(displayName = "Unspecified", wireKey = "derived:unspecified", legacyValue = "unspecified", wireTag = 0),
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", legacyValue = "unspecified", wireTag = 0),
 
         /** Explicitly entered by the user via UI or CLI command. */
         MANUAL(displayName = "Manual", wireKey = "manual", legacyValue = "derived:manual", wireTag = 1),

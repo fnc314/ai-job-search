@@ -121,130 +121,93 @@ enum ApplicationChannel {
 // ============================================================================
 // TrackerArtifactKind
 // Artifact types stored in GCS
-// Original namespaced values: artifact:cv, artifact:cover-letter, etc.
 // ============================================================================
 enum TrackerArtifactKind {
   TRACKER_ARTIFACT_KIND_UNSPECIFIED = 0;
-  // artifact:cv
-  ARTIFACT_CV = 1;
-  // artifact:cover-letter
-  ARTIFACT_COVER_LETTER = 2;
-  // artifact:outcome
-  ARTIFACT_OUTCOME = 3;
-  // artifact:posting
-  ARTIFACT_POSTING = 4;
-  // artifact:assessment
-  ARTIFACT_ASSESSMENT = 5;
+  CV = 1;
+  COVER_LETTER = 2;
+  OUTCOME = 3;
+  POSTING = 4;
+  ASSESSMENT = 5;
 }
 
 // ============================================================================
-// WorkMode
+// RoleLocation
 // Work arrangement (onsite, hybrid, remote)
-// Original namespaced values: work-mode:onsite, work-mode:hybrid, work-mode:remote
 // ============================================================================
-enum WorkMode {
-  WORK_MODE_UNSPECIFIED = 0;
-  // work-mode:onsite
-  WORK_MODE_ONSITE = 1;
-  // work-mode:hybrid
-  WORK_MODE_HYBRID = 2;
-  // work-mode:remote
-  WORK_MODE_REMOTE = 3;
+enum RoleLocation {
+  ROLE_LOCATION_UNSPECIFIED = 0;
+  ONSITE = 1;
+  HYBRID = 2;
+  REMOTE = 3;
 }
 
 // ============================================================================
 // EventActor
 // Who created an event
-// Original namespaced values: actor:user, actor:agent, etc.
 // ============================================================================
 enum EventActor {
   EVENT_ACTOR_UNSPECIFIED = 0;
-  // actor:user
   ACTOR_USER = 1;
-  // actor:agent
   ACTOR_AGENT = 2;
-  // actor:email-sync
   ACTOR_EMAIL_SYNC = 3;
-  // actor:import
   ACTOR_IMPORT = 4;
-  // actor:scheduler
   ACTOR_SCHEDULER = 5;
 }
 
 // ============================================================================
 // TrackerEditState
 // Edit lifecycle (pending → approved/rejected/expired)
-// Original namespaced values: proposal:pending, proposal:approved, etc.
 // ============================================================================
 enum TrackerEditState {
   TRACKER_EDIT_STATE_UNSPECIFIED = 0;
-  // proposal:pending
   EDIT_STATE_PENDING = 1;
-  // proposal:approved
   EDIT_STATE_APPROVED = 2;
-  // proposal:rejected
   EDIT_STATE_REJECTED = 3;
-  // proposal:expired
   EDIT_STATE_EXPIRED = 4;
 }
 
 // ============================================================================
 // TrackerEditKind
 // Edit source (email-sync, sheet-sync)
-// Original namespaced values: proposal:email-sync, proposal:sheet-sync
 // ============================================================================
 enum TrackerEditKind {
   TRACKER_EDIT_KIND_UNSPECIFIED = 0;
-  // proposal:email-sync
   EDIT_KIND_EMAIL_SYNC = 1;
-  // proposal:sheet-sync
   EDIT_KIND_SHEET_SYNC = 2;
-  // proposal:lead
   EDIT_KIND_LEAD = 3;
 }
 
 // ============================================================================
 // Trigger
 // What triggered a TrackerEdit (cron, application-created, etc.)
-// Original namespaced values: trigger:cron, trigger:application-created, etc.
 // ============================================================================
 enum Trigger {
   TRIGGER_UNSPECIFIED = 0;
-  // trigger:cron
   TRIGGER_CRON = 1;
-  // trigger:application-created
   TRIGGER_APPLICATION_CREATED = 2;
-  // trigger:application-updated
   TRIGGER_APPLICATION_UPDATED = 3;
-  // trigger:manual
   TRIGGER_MANUAL = 4;
 }
 
 // ============================================================================
 // SyncKind
 // Sync operation type (email-collect)
-// Original namespaced values: sync:email-collect
 // ============================================================================
 enum SyncKind {
   SYNC_KIND_UNSPECIFIED = 0;
-  // sync:email-collect
   SYNC_KIND_EMAIL_COLLECT = 1;
 }
 
 // ============================================================================
 // SyncState
 // Sync request lifecycle (pending → claimed → done/failed)
-// Original namespaced values: sync:pending, sync:claimed, etc.
 // ============================================================================
 enum SyncState {
   SYNC_STATE_UNSPECIFIED = 0;
-  // sync:pending
   SYNC_STATE_PENDING = 1;
-  // sync:claimed
   SYNC_STATE_CLAIMED = 2;
-  // sync:done
   SYNC_STATE_DONE = 3;
-  // sync:failed
   SYNC_STATE_FAILED = 4;
 }
 
@@ -254,9 +217,9 @@ enum SyncState {
 // ============================================================================
 enum Confidence {
   CONFIDENCE_UNSPECIFIED = 0;
-  CONFIDENCE_HIGH = 1;
-  CONFIDENCE_MEDIUM = 2;
-  CONFIDENCE_LOW = 3;
+  HIGH_CONFIDENCE = 1;
+  MEDIUM_CONFIDENCE = 2;
+  LOW_CONFIDENCE = 3;
 }
 
 // ============================================================================
@@ -278,12 +241,12 @@ enum DerivedFrom {
 // ============================================================================
 enum Region {
   REGION_UNSPECIFIED = 0;
-  REGION_PIT = 1;
-  REGION_NYC = 2;
-  REGION_SF = 3;
-  REGION_LA = 4;
-  REGION_DC = 5;
-  REGION_REMOTE_US = 6;
+  US_PIT = 1;
+  US_NYC = 2;
+  US_SF = 3;
+  US_LA = 4;
+  US_DC = 5;
+  US_REMOTE = 6;
 }
 
 // ============================================================================
@@ -331,4 +294,17 @@ enum Tag {
   PROCESS_NO_RESPONSE_30D = 18;
   // process:recruiter:outreach
   PROCESS_RECRUITER_OUTREACH = 19;
+}
+
+// ============================================================================
+// ScrapedPostingStatus
+// Lifecycle of a scraped posting record. Values stored in Firestore match
+// the proto enum name directly (NEW, REVIEWED, REJECTED, APPLIED).
+// ============================================================================
+enum ScrapedPostingStatus {
+  SCRAPED_POSTING_STATUS_UNSPECIFIED = 0;
+  SCRAPED_POSTING_STATUS_NEW = 1;
+  SCRAPED_POSTING_STATUS_REVIEWED = 2;
+  SCRAPED_POSTING_STATUS_REJECTED = 3;
+  SCRAPED_POSTING_STATUS_APPLIED = 4;
 }

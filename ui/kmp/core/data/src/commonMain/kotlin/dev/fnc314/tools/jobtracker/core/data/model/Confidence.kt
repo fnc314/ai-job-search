@@ -11,7 +11,7 @@ public sealed interface Confidence : WireContract {
     /** Returns the display name. */
     public fun displayName(): String = displayName
 
-    /** Returns the namespaced Firestore document string. */
+    /** Returns the canonical Firestore document string representation. */
     public fun toFirestore(): String = wireKey
 
     /**
@@ -20,20 +20,19 @@ public sealed interface Confidence : WireContract {
     public enum class Known(
         override val displayName: String,
         override val wireKey: String,
-        public val rawValue: String,
         override val wireTag: Int = -1,
     ) : Confidence {
         /** Fallback when no confidence calculation was performed. */
-        UNSPECIFIED(displayName = "Unspecified", wireKey = "confidence:unspecified", rawValue = "unspecified", wireTag = 0),
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "CONFIDENCE_UNSPECIFIED", wireTag = 0),
 
         /** High confidence in extraction accuracy (>90%). */
-        HIGH(displayName = "High", wireKey = "confidence:high", rawValue = "high", wireTag = 1),
+        HIGH_CONFIDENCE(displayName = "High", wireKey = "HIGH_CONFIDENCE", wireTag = 1),
 
         /** Medium confidence in extraction accuracy (60% to 90%). */
-        MEDIUM(displayName = "Medium", wireKey = "confidence:medium", rawValue = "medium", wireTag = 2),
+        MEDIUM_CONFIDENCE(displayName = "Medium", wireKey = "MEDIUM_CONFIDENCE", wireTag = 2),
 
         /** Low confidence requiring manual human verification (<60%). */
-        LOW(displayName = "Low", wireKey = "confidence:low", rawValue = "low", wireTag = 3);
+        LOW_CONFIDENCE(displayName = "Low", wireKey = "LOW_CONFIDENCE", wireTag = 3);
     }
 
     /**
@@ -49,13 +48,22 @@ public sealed interface Confidence : WireContract {
         public val DEFAULT: Confidence = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            listOf(entry.rawValue)
+            listOf(
+                entry.name.lowercase(),
+                entry.name.removeSuffix("_CONFIDENCE").lowercase(),
+                "confidence:${entry.name.removeSuffix("_CONFIDENCE").lowercase()}"
+            )
         }
 
         public val UNSPECIFIED: Confidence = Known.UNSPECIFIED
-        public val HIGH: Confidence = Known.HIGH
-        public val MEDIUM: Confidence = Known.MEDIUM
-        public val LOW: Confidence = Known.LOW
+        public val HIGH_CONFIDENCE: Confidence = Known.HIGH_CONFIDENCE
+        public val MEDIUM_CONFIDENCE: Confidence = Known.MEDIUM_CONFIDENCE
+        public val LOW_CONFIDENCE: Confidence = Known.LOW_CONFIDENCE
+
+        // Aliases for backward compatibility
+        public val HIGH: Confidence = Known.HIGH_CONFIDENCE
+        public val MEDIUM: Confidence = Known.MEDIUM_CONFIDENCE
+        public val LOW: Confidence = Known.LOW_CONFIDENCE
 
         public val entries: List<Confidence> = Known.entries
 

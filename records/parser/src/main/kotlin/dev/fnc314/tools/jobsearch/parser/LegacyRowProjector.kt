@@ -18,7 +18,7 @@ public object LegacyRowProjector {
         "id", "company", "role", "location", "status", "status_label",
         "channel", "job_url", "description", "tags", "contact_ids",
         "compensation_min", "compensation_max", "compensation_currency",
-        "work_mode", "relocation", "fit_rating", "fit_gaps",
+        "work_mode", "role_location", "relocation", "fit_rating", "fit_gaps",
         "events", "follow_ups_sent", "interviews", "rejections",
         "first_activity", "last_activity", "days_since_activity",
         "next_follow_up", "notes", "created_at", "updated_at",
@@ -26,24 +26,25 @@ public object LegacyRowProjector {
     )
 
     /**
-     * Converts a namespaced status string (e.g. `"status:interview"`) into its legacy display label (e.g. `"interview"`).
+     * Converts a status string (e.g. `"INTERVIEW"` or `"status:interview"`) into its legacy display label (e.g. `"interview"`).
      *
-     * @param value The raw namespaced status string or null.
+     * @param value The raw status string or null.
      * @return The legacy presentation label string, defaulting to `"applied"` if null or unmapped.
      */
     public fun legacyStatus(value: String?): String {
         if (value.isNullOrBlank()) return "applied"
         return when (value) {
-            "status:drafting" -> "drafting"
-            "status:applied" -> "applied"
-            "status:interview" -> "interview"
-            "status:offer" -> "offer"
-            "status:hired" -> "hired"
-            "status:rejected" -> "rejected"
-            "status:no-response" -> "no-response"
-            "status:offer-declined" -> "offer-declined"
-            "status:withdrawn" -> "withdrawn"
-            else -> "applied"
+            "LEAD", "status:lead" -> "lead"
+            "DRAFTING", "status:drafting" -> "drafting"
+            "APPLIED", "status:applied" -> "applied"
+            "INTERVIEW", "status:interview" -> "interview"
+            "OFFER_EXPECTED", "status:offer" -> "offer"
+            "HIRED", "status:hired" -> "hired"
+            "REJECTED", "status:rejected" -> "rejected"
+            "NO_RESPONSE", "status:no-response" -> "no-response"
+            "OFFER_DECLINED", "status:offer-declined" -> "offer-declined"
+            "APPLICATION_WITHDRAWN", "status:withdrawn" -> "withdrawn"
+            else -> value.lowercase().removePrefix("status:")
         }
     }
 
@@ -51,12 +52,13 @@ public object LegacyRowProjector {
      * Extracts the path or external URL of an artifact matching a specific kind from an artifact list.
      *
      * @param artifacts The collection of [TrackerArtifact] items to query.
-     * @param kind The string name of the artifact kind (e.g. `"ARTIFACT_CV"`).
+     * @param kind The string name of the artifact kind (e.g. `"CV"` or `"ARTIFACT_CV"`).
      * @return The local file path or external URL if found, or null otherwise.
      */
     public fun artifactValue(artifacts: List<TrackerArtifact>, kind: String): String? {
+        val normalizedKind = kind.removePrefix("ARTIFACT_")
         return artifacts
-            .firstOrNull { it.kind.name == kind }
+            .firstOrNull { it.kind.name.removePrefix("ARTIFACT_") == normalizedKind }
             ?.let { if (it.localPath.isNotBlank()) it.localPath else it.externalUrl.ifBlank { null } }
     }
 
@@ -97,8 +99,11 @@ public object LegacyRowProjector {
 
         // Location
         if (app.hasLocationDetail()) {
-            row["work_mode"] = app.locationDetail.workMode.name.lowercase().replace("_", "-")
-            row["relocation"] = app.locationDetail.relocation.toString()
+            val loc = app.locationDetail
+            val roleLoc = loc.roleLocation.name.lowercase().replace("_", "-")
+            row["work_mode"] = roleLoc
+            row["role_location"] = roleLoc
+            row["relocation"] = loc.relocation.toString()
         }
 
         // Fit
@@ -138,8 +143,8 @@ public object LegacyRowProjector {
         }
 
         // Artifacts
-        row["cv_file"] = artifactValue(artifacts, "ARTIFACT_CV") ?: ""
-        row["cover_letter_file"] = artifactValue(artifacts, "ARTIFACT_COVER_LETTER") ?: ""
+        row["cv_file"] = artifactValue(artifacts, "CV") ?: ""
+        row["cover_letter_file"] = artifactValue(artifacts, "COVER_LETTER") ?: ""
 
         return row
     }

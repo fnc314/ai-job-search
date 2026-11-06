@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+import "google/protobuf/timestamp.proto";
+import "tracker/v1/enums.proto";
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// ScrapedPosting — one per job posting discovered during scrape sessions.
+// Document ID equals `uuid` (UUIDv7). Deduped by `normalizedUrl` or `dedupKey`.
+message ScrapedPosting {
+  string uuid = 1;
+  string dedupKey = 2;
+  string normalizedUrl = 3;
+  string companySlug = 4;
+  string titleSlug = 5;
+  string title = 6;
+  string company = 7;
+  string url = 8;
+  string location = 9;
+  string portal = 10;
+  string searchQuery = 11;
+  string postingDate = 12;
+  string applicationDeadline = 13;
+  string jobId = 14;
+  string description = 15;
+  repeated string keyRequirements = 16;
+  google.protobuf.Timestamp firstScrapedAt = 17;
+  google.protobuf.Timestamp lastScrapedAt = 18;
+  int32 scrapeCount = 19;
+  int32 fitRating = 20;
+  ScrapedPostingStatus fitStatus = 21;
+  string rejectionReason = 22;
+  string appliedToId = 23;
+  google.protobuf.Timestamp createdAt = 24;
+  google.protobuf.Timestamp updatedAt = 25;
+}

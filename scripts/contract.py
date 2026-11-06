@@ -224,9 +224,9 @@ def legacyFieldMap() -> dict[str, str]:
 
 
 def normalizeStatus(raw: str) -> str:
-    """Map a legacy or human status onto a namespaced status value.
+    """Map a legacy or human status onto a canonical status value.
 
-    Accepts 'applied', 'APPLIED', 'no response', and already-namespaced values,
+    Accepts 'applied', 'APPLIED', 'no response', and legacy namespaced values,
     so callers do not have to know which era a value came from.
     """
     if not raw:
@@ -235,15 +235,27 @@ def normalizeStatus(raw: str) -> str:
     values = statusValues()
     if value in values:
         return value
-    key = value.lower().replace("_", " ").strip()
+    cleaned = value.lower().removeprefix("status:").strip()
+    if cleaned.upper() in values:
+        return cleaned.upper()
+    key = cleaned.replace("_", " ").strip()
     mapping = legacyStatusMap()
-    if value.lower() in mapping:
-        return mapping[value.lower()]
+    if cleaned in mapping:
+        return mapping[cleaned]
     if key in mapping:
         return mapping[key]
     underscored = key.replace(" ", "_")
     if underscored in mapping:
         return mapping[underscored]
+    # Check special mappings
+    if cleaned in ("offer", "offer_expected", "offer-expected"):
+        return "OFFER_EXPECTED"
+    if cleaned in ("withdrawn", "application_withdrawn", "application-withdrawn"):
+        return "APPLICATION_WITHDRAWN"
+    if cleaned in ("no-response", "no_response", "no response"):
+        return "NO_RESPONSE"
+    if cleaned in ("offer-declined", "offer_declined", "offer declined"):
+        return "OFFER_DECLINED"
     raise ContractError(
         f"status {raw!r} is not recognized. Known values: {sorted(values)}"
     )

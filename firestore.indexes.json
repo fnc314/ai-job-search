@@ -56,9 +56,39 @@
         { "fieldPath": "state", "order": "ASCENDING" },
         { "fieldPath": "dueAt", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "scraped-postings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "lastScrapedAt", "order": "DESCENDING" },
+        { "fieldPath": "fitStatus", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scraped-postings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "portal", "order": "ASCENDING" },
+        { "fieldPath": "lastScrapedAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": [
+    {
+      "collectionGroup": "scraped-postings",
+      "fieldPath": "normalizedUrl",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION" }
+      ]
+    },
+    {
+      "collectionGroup": "scraped-postings",
+      "fieldPath": "dedupKey",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION" }
+      ]
+    },
     {
       "collectionGroup": "applications",
       "fieldPath": "notesLegacy",

@@ -23,22 +23,22 @@ public sealed interface TrackerArtifactKind : WireContract {
         override val wireTag: Int = -1,
     ) : TrackerArtifactKind {
         /** Fallback when artifact classification is unspecified. */
-        UNSPECIFIED(displayName = "Unspecified", wireKey = "artifact:unspecified", wireTag = 0),
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", wireTag = 0),
 
         /** Tailored LaTeX Curriculum Vitae (PDF). */
-        CV(displayName = "CV", wireKey = "artifact:cv", wireTag = 1),
+        CV(displayName = "CV", wireKey = "CV", wireTag = 1),
 
         /** Targeted LaTeX Cover Letter (PDF). */
-        COVER_LETTER(displayName = "Cover Letter", wireKey = "artifact:cover-letter", wireTag = 2),
+        COVER_LETTER(displayName = "Cover Letter", wireKey = "COVER_LETTER", wireTag = 2),
 
         /** Application outcome summary or feedback document (`outcome.md`). */
-        OUTCOME(displayName = "Outcome", wireKey = "artifact:outcome", wireTag = 3),
+        OUTCOME(displayName = "Outcome", wireKey = "OUTCOME", wireTag = 3),
 
         /** Archived raw HTML or text job posting specification. */
-        POSTING(displayName = "Posting", wireKey = "artifact:posting", wireTag = 4),
+        POSTING(displayName = "Posting", wireKey = "POSTING", wireTag = 4),
 
         /** Technical take-home assessment brief, code archive, or submission. */
-        ASSESSMENT(displayName = "Assessment", wireKey = "artifact:assessment", wireTag = 5);
+        ASSESSMENT(displayName = "Assessment", wireKey = "ASSESSMENT", wireTag = 5);
     }
 
     /**
@@ -54,7 +54,7 @@ public sealed interface TrackerArtifactKind : WireContract {
         public val DEFAULT: TrackerArtifactKind = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            listOf(entry.wireKey.removePrefix("artifact:"))
+            listOf("artifact:" + entry.name.lowercase().replace("_", "-"), entry.name.lowercase().replace("_", "-"))
         }
 
         public val UNSPECIFIED: TrackerArtifactKind = Known.UNSPECIFIED

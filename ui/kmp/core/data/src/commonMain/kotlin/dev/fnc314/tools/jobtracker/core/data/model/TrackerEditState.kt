@@ -23,19 +23,19 @@ public sealed interface TrackerEditState : WireContract {
         override val wireTag: Int = -1,
     ) : TrackerEditState {
         /** Fallback when proposal state is unrecorded. */
-        UNSPECIFIED(displayName = "Unspecified", wireKey = "proposal:unspecified", wireTag = 0),
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", wireTag = 0),
 
         /** Staged and awaiting explicit candidate review and approval. */
-        PENDING(displayName = "Pending", wireKey = "proposal:pending", wireTag = 1),
+        PENDING(displayName = "Pending", wireKey = "PENDING", wireTag = 1),
 
         /** Confirmed by candidate; mutations applied to the target application record. */
-        APPROVED(displayName = "Approved", wireKey = "proposal:approved", wireTag = 2),
+        APPROVED(displayName = "Approved", wireKey = "APPROVED", wireTag = 2),
 
         /** Dismissed by candidate; proposal rejected with no underlying mutations made. */
-        REJECTED(displayName = "Rejected", wireKey = "proposal:rejected", wireTag = 3),
+        REJECTED(displayName = "Rejected", wireKey = "REJECTED", wireTag = 3),
 
         /** Unreviewed proposal expired after its time-to-live deadline passed. */
-        EXPIRED(displayName = "Expired", wireKey = "proposal:expired", wireTag = 4);
+        EXPIRED(displayName = "Expired", wireKey = "EXPIRED", wireTag = 4);
     }
 
     /**
@@ -51,7 +51,7 @@ public sealed interface TrackerEditState : WireContract {
         public val DEFAULT: TrackerEditState = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            listOf(entry.wireKey.removePrefix("proposal:"))
+            listOf("proposal:" + entry.name.lowercase(), entry.name.lowercase())
         }
 
         public val UNSPECIFIED: TrackerEditState = Known.UNSPECIFIED

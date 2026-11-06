@@ -17,10 +17,12 @@ import json
 import re
 import subprocess
 import sys
-from datetime import date, datetime
+import uuid
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+SCRAPE_COLLECTION = "scraped-postings"
 SKILLS_DIR = REPO_ROOT / ".agents" / "skills"
 SEEN_FILE = REPO_ROOT / "job-scraper" / "seen_jobs.json"
 QUERIES_FILE = REPO_ROOT / ".claude" / "skills" / "job-scraper" / "search-queries.md"
@@ -102,6 +104,147 @@ def _load_seen() -> dict[str, dict[str, object]]:
         except (json.JSONDecodeError, KeyError):
             return {}
     return {}
+
+
+def _get_db():
+    """Return the Firestore database client."""
+    scripts_dir = REPO_ROOT / "scripts"
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+    import client  # noqa: E402
+
+    return client.getDb()
+
+
+def _load_seen_from_firestore(db) -> dict[str, dict[str, object]]:
+    """Load all scraped postings from Firestore and return a dict keyed by
+    normalizedUrl and dedupKey, matching the structure of _load_seen()."""
+    seen: dict[str, dict[str, object]] = {}
+    try:
+        docs = db.collection(SCRAPE_COLLECTION).stream()
+        for doc in docs:
+            data = doc.to_dict()
+            if not data:
+                continue
+            # Index by normalizedUrl
+            url_key = data.get("normalizedUrl", "")
+            if url_key:
+                seen[url_key] = {
+                    "title": data.get("title", ""),
+                    "company": data.get("company", ""),
+                    "url": data.get("url", ""),
+                    "first_seen": data.get("firstScrapedAt", ""),
+                    "fit": "unknown",
+                    "status": data.get("fitStatus", "NEW"),
+                    "portal": data.get("portal", ""),
+                }
+            # Index by dedupKey
+            dedup_key = data.get("dedupKey", "")
+            if dedup_key:
+                seen[dedup_key] = {
+                    "title": data.get("title", ""),
+                    "company": data.get("company", ""),
+                    "url": data.get("url", ""),
+                    "first_seen": data.get("firstScrapedAt", ""),
+                    "fit": "unknown",
+                    "status": data.get("fitStatus", "NEW"),
+                    "portal": data.get("portal", ""),
+                }
+    except Exception as e:
+        print(f"  [warn] Firestore read failed: {e}", file=sys.stderr)
+    return seen
+
+
+def _slugify(s: str) -> str:
+    """Convert a string to a kebab-case slug."""
+    s = re.sub(r"[^a-z0-9]+", "-", s.lower().strip())
+    return s.strip("-")
+
+
+def _save_seen_to_firestore(db, seen_dict: dict[str, dict[str, object]]) -> int:
+    """Upsert scraped postings to Firestore. Returns count of documents written."""
+    now = datetime.now(timezone.utc).isoformat()
+    written = 0
+
+    # Build reverse index: normalizedUrl -> doc_id and dedupKey -> doc_id
+    url_to_id: dict[str, str] = {}
+    dedup_to_id: dict[str, str] = {}
+    try:
+        for doc in db.collection(SCRAPE_COLLECTION).stream():
+            data = doc.to_dict()
+            if not data:
+                continue
+            uid = doc.id
+            url_key = data.get("normalizedUrl", "")
+            if url_key:
+                url_to_id[url_key] = uid
+            dedup_key = data.get("dedupKey", "")
+            if dedup_key:
+                dedup_to_id[dedup_key] = uid
+    except Exception as e:
+        print(f"  [warn] Firestore index read failed: {e}", file=sys.stderr)
+
+    for dedup_key, info in seen_dict.items():
+        title = info.get("title", "")
+        company = info.get("company", "")
+        url = info.get("url", "")
+        portal = info.get("portal", "")
+
+        if not title or not company:
+            continue
+
+        company_slug = _slugify(company)
+        title_slug = _slugify(title)
+        posting_dedup_key = f"{company_slug}-{title_slug}"
+        normalized_url = _url_key(url) if url else ""
+
+        # Check if this posting already exists
+        existing_id = None
+        if normalized_url and normalized_url in url_to_id:
+            existing_id = url_to_id[normalized_url]
+        elif posting_dedup_key and posting_dedup_key in dedup_to_id:
+            existing_id = dedup_to_id[posting_dedup_key]
+
+        if existing_id:
+            # Re-scrape: increment scrapeCount and update lastScrapedAt
+            from google.cloud.firestore import Increment  # noqa: E402
+
+            ref = db.collection(SCRAPE_COLLECTION).document(existing_id)
+            ref.set(
+                {
+                    "lastScrapedAt": now,
+                    "updatedAt": now,
+                    "scrapeCount": Increment(1),
+                },
+                merge=True,
+            )
+            written += 1
+        else:
+            # New posting
+            doc_id = str(uuid.uuid7()) if hasattr(uuid, "uuid7") else str(uuid.uuid4())
+            doc = {
+                "uuid": doc_id,
+                "dedupKey": posting_dedup_key,
+                "normalizedUrl": normalized_url,
+                "companySlug": company_slug,
+                "titleSlug": title_slug,
+                "title": title,
+                "company": company,
+                "url": url,
+                "location": info.get("location", ""),
+                "portal": portal,
+                "searchQuery": "",
+                "firstScrapedAt": now,
+                "lastScrapedAt": now,
+                "scrapeCount": 1,
+                "fitStatus": "NEW",
+                "createdAt": now,
+                "updatedAt": now,
+            }
+            db.collection(SCRAPE_COLLECTION).document(doc_id).set(doc)
+            written += 1
+
+    return written
 
 
 def _load_tracker_ids() -> set[str]:
@@ -215,8 +358,12 @@ def run_searches(
     limit: int = 20,
     priority: int = 3,
     focus: str | None = None,
+    db = None,
 ) -> dict[str, object]:
-    """Run all searches and return the report."""
+    """Run all searches and return the report.
+
+    If db is provided, use Firestore for dedup instead of seen_jobs.json.
+    """
     if queries is None:
         queries = _load_queries()
 
@@ -243,7 +390,10 @@ def run_searches(
             "meta": {"total": 0},
         }
 
-    seen = _load_seen()
+    if db is not None:
+        seen = _load_seen_from_firestore(db)
+    else:
+        seen = _load_seen()
     tracker_ids = _load_tracker_ids()
     now = date.today().isoformat()
 
@@ -341,7 +491,12 @@ def main() -> int:
     parser.add_argument(
         "--save-seen",
         action="store_true",
-        help="Write updated seen_jobs.json after search",
+        help="Write updated seen postings to Firestore after search",
+    )
+    parser.add_argument(
+        "--migrate-seen",
+        action="store_true",
+        help="Seed existing seen_jobs.json into Firestore, then exit",
     )
     parser.add_argument(
         "--table",
@@ -375,15 +530,32 @@ def main() -> int:
                 print(f"  {portal_name}: no results (may be degraded)", file=sys.stderr)
         return 0
 
-    report = run_searches(queries=queries, limit=args.limit, priority=args.priority, focus=args.focus)
+    # Migrate existing seen_jobs.json to Firestore
+    if args.migrate_seen:
+        db = _get_db()
+        seen = _load_seen()
+        if not seen:
+            print("No entries in seen_jobs.json to migrate.", file=sys.stderr)
+            return 0
+        count = _save_seen_to_firestore(db, seen)
+        print(f"Migrated {count} entries from seen_jobs.json to Firestore.", file=sys.stderr)
+        return 0
 
-    # Save seen jobs if requested
+    # Initialize Firestore DB if --save-seen is requested
+    db = None
     if args.save_seen:
-        SEEN_FILE.parent.mkdir(parents=True, exist_ok=True)
-        SEEN_FILE.write_text(
-            json.dumps({"seen": report.get("seen", {})}, indent=2, ensure_ascii=False),
-            encoding="utf-8",
-        )
+        try:
+            db = _get_db()
+        except Exception as e:
+            print(f"  [warn] Firestore unavailable: {e}. Falling back to file-based mode.", file=sys.stderr)
+            db = None
+
+    report = run_searches(queries=queries, limit=args.limit, priority=args.priority, focus=args.focus, db=db)
+
+    # Save seen postings to Firestore if requested
+    if args.save_seen and db is not None:
+        count = _save_seen_to_firestore(db, report.get("seen", {}))
+        print(f"Saved {count} postings to Firestore.", file=sys.stderr)
 
     if args.table:
         # Markdown table output

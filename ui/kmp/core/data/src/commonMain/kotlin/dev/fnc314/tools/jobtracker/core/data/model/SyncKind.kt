@@ -25,7 +25,7 @@ public sealed interface SyncKind : WireContract {
         public val DEFAULT: SyncKind = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            if (entry == Known.EMAIL_COLLECT) listOf("sync:email-collect", "email-collect", "gmail-collect") else emptyList()
+            if (entry == Known.EMAIL_COLLECT) listOf("sync:gmail-collect", "sync:email-collect", "email-collect", "gmail-collect") else emptyList()
         }
 
         public val entries: List<SyncKind> = Known.entries

@@ -110,7 +110,8 @@ cmd "proposals" help="Review the collector queue" {
     arg "<id>" help="Proposal ID"
   }
   cmd "approve" help="Approve a proposal" {
-    arg "<id>" help="Proposal ID"
+    arg "[id]" help="Proposal ID (optional with -i)"
+    flag "-i --interactive" help="Iterate through all pending proposals interactively"
     flag "--note <note>" help="Resolution text"
     flag "--only <indexes>" help="Comma-separated 1-based change indexes to approve (default: all)"
   }

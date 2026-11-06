@@ -23,16 +23,16 @@ public sealed interface TrackerEditKind : WireContract {
         override val wireTag: Int = -1,
     ) : TrackerEditKind {
         /** Fallback when edit target is unspecified. */
-        UNSPECIFIED(displayName = "Unspecified", wireKey = "proposal:unspecified", wireTag = 0),
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", wireTag = 0),
 
         /** Proposal originating from Gmail synchronization. */
-        EMAIL_SYNC(displayName = "Email Sync", wireKey = "proposal:gmail-sync", wireTag = 1),
+        EMAIL_SYNC(displayName = "Email Sync", wireKey = "EMAIL_SYNC", wireTag = 1),
 
         /** Proposal originating from Google Sheets synchronization. */
-        SHEET_SYNC(displayName = "Sheet Sync", wireKey = "proposal:sheet-sync", wireTag = 2),
+        SHEET_SYNC(displayName = "Sheet Sync", wireKey = "SHEET_SYNC", wireTag = 2),
 
         /** Proposal originating from automated lead ingestion. */
-        LEAD(displayName = "Lead", wireKey = "proposal:lead"),
+        LEAD(displayName = "Lead", wireKey = "LEAD"),
 
         /** Status transition update (e.g. from Applied to Interview). */
         STATUS(displayName = "Status", wireKey = "edit:status"),
@@ -63,10 +63,14 @@ public sealed interface TrackerEditKind : WireContract {
         public val DEFAULT: TrackerEditKind = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            val aliases = mutableListOf<String>()
-            aliases.add(entry.wireKey.substringAfter(':'))
+            val aliases = mutableListOf<String>(
+                "proposal:" + entry.name.lowercase().replace("_", "-"),
+                entry.name.lowercase().replace("_", "-")
+            )
             if (entry == Known.EMAIL_SYNC) {
+                aliases.add("proposal:gmail-sync")
                 aliases.add("proposal:email-sync")
+                aliases.add("gmail-sync")
                 aliases.add("email-sync")
             }
             aliases

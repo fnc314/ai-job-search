@@ -26,6 +26,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerFit
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.model.Trigger
 import dev.fnc314.tools.jobtracker.core.data.model.Uuid7
+import dev.fnc314.tools.jobtracker.core.data.model.RoleLocation
 import dev.fnc314.tools.jobtracker.core.data.model.WorkMode
 import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Clock
@@ -64,7 +65,7 @@ public object Factory {
      * @param updatedAt Last update timestamp. Defaults to [Clock.System.now].
      * @param jobApplicationUrl Direct candidate portal link.
      * @param uuid Primary key [Uuid7]. Automatically synthesized via [Uuid7.generate] if null.
-     * @param schemaVersion Schema version number. Defaults to `7`.
+     * @param schemaVersion Schema version number. Defaults to `8`.
      * @return Fully constructed and immutable [JobApplication] instance.
      */
     public fun createJobApplication(
@@ -90,7 +91,7 @@ public object Factory {
         updatedAt: Instant? = Clock.System.now(),
         jobApplicationUrl: String? = null,
         uuid: Uuid7? = null,
-        schemaVersion: Int = 7,
+        schemaVersion: Int = 8,
     ): JobApplication {
         val resolvedScore = fitRating ?: fitEvaluation?.score
         val resolvedFitEvaluation = fitEvaluation ?: resolvedScore?.let {
@@ -324,14 +325,14 @@ public object Factory {
         city: String? = null,
         region: String? = null,
         country: String? = null,
-        workMode: WorkMode = WorkMode.UNSPECIFIED,
+        roleLocation: RoleLocation = RoleLocation.UNSPECIFIED,
         relocation: Boolean = false,
         superCommuter: Boolean = false,
     ): Location = Location(
         city = city,
         region = region,
         country = country,
-        workMode = workMode,
+        roleLocation = roleLocation,
         relocation = relocation,
         superCommuter = superCommuter,
     )

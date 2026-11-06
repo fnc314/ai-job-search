@@ -34,7 +34,7 @@ public sealed interface SyncState : WireContract {
         public val DEFAULT: SyncState = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            listOf(entry.wireKey.removePrefix("sync:"))
+            listOf("sync:" + entry.name.lowercase(), entry.name.lowercase())
         }
 
         public val entries: List<SyncState> = Known.entries

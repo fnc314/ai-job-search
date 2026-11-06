@@ -17,6 +17,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerEditState
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.model.Trigger
+import dev.fnc314.tools.jobtracker.core.data.model.RoleLocation
 import dev.fnc314.tools.jobtracker.core.data.model.WorkMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -85,7 +86,7 @@ class EnumLogicTest {
         TrackerStatus.entries.forEach { status ->
             assertTrue(status.displayName().isNotBlank(), "DisplayName must not be blank for ${status.wireKey}")
             assertEquals(status.displayName, status.displayName())
-            assertTrue(status.toFirestore().startsWith("status:"), "Firestore value must start with status: for ${status.wireKey}")
+            assertEquals(status.wireKey, status.toFirestore())
         }
     }
 
@@ -124,7 +125,7 @@ class EnumLogicTest {
         assertEquals(WorkMode.UNSPECIFIED, WorkMode.fromFirestore(null))
         assertEquals(WorkMode.UNSPECIFIED, WorkMode.fromFirestore("   "))
         val unknown = WorkMode.fromFirestore("telepathic\n")
-        assertIs<WorkMode.Unrecognized>(unknown)
+        assertIs<RoleLocation.Unrecognized>(unknown)
         assertEquals("telepathic\n", unknown.wireKey)
     }
 
@@ -132,7 +133,7 @@ class EnumLogicTest {
     fun testWorkMode_DisplayNameCoverage() {
         WorkMode.entries.forEach { mode ->
             assertTrue(mode.displayName().isNotBlank(), "DisplayName must not be blank for ${mode.wireKey}")
-            assertTrue(mode.toFirestore().startsWith("work-mode:"), "Firestore value must start with work-mode: for ${mode.wireKey}")
+            assertEquals(mode.wireKey, mode.toFirestore())
         }
     }
 
@@ -163,7 +164,7 @@ class EnumLogicTest {
         assertEquals(SyncKind.Known.EMAIL_COLLECT, SyncKind.fromWireKey("sync:gmail-collect"))
         assertEquals(SyncKind.Known.EMAIL_COLLECT, SyncKind.fromWireKey("sync:email-collect"))
         assertEquals(SyncState.Known.PENDING, SyncState.fromWireKey("sync:pending"))
-        assertEquals(Region.Known.PIT, Region.fromWireKey("PIT"))
+        assertEquals(Region.Known.US_PIT, Region.fromWireKey("PIT"))
         assertEquals(Tag.Known.FIT_STRONG, Tag.fromWireKey("fit:strong"))
         assertEquals(CompPeriod.Known.YEAR, CompPeriod.fromWireKey("year"))
         assertEquals(CompVsTarget.Known.ABOVE, CompVsTarget.fromWireKey("above"))
@@ -175,7 +176,7 @@ class EnumLogicTest {
 
         // Canonical wireKey round-trip
         val serializedStatus = converters.fromTrackerStatus(TrackerStatus.INTERVIEW)
-        assertEquals("status:interview", serializedStatus)
+        assertEquals("INTERVIEW", serializedStatus)
         assertEquals(TrackerStatus.INTERVIEW, converters.toTrackerStatus(serializedStatus))
 
         // Legacy enum .name support

@@ -49,12 +49,12 @@ public class RoomDatabaseMappingTest {
 
     @Test
     public fun testDatabaseConverters_EnumsAndLists(): Unit {
-        assertEquals("status:offer", converters.fromTrackerStatus(TrackerStatus.OFFER_EXPECTED))
+        assertEquals("OFFER_EXPECTED", converters.fromTrackerStatus(TrackerStatus.OFFER_EXPECTED))
         assertEquals(TrackerStatus.OFFER_EXPECTED, converters.toTrackerStatus("status:offer"))
         assertEquals(TrackerStatus.OFFER_EXPECTED, converters.toTrackerStatus("OFFER_EXPECTED"))
         assertEquals(TrackerStatus.Unrecognized("UNKNOWN_NON_EXISTENT"), converters.toTrackerStatus("UNKNOWN_NON_EXISTENT"))
 
-        assertEquals("channel:linkedin", converters.fromApplicationChannel(ApplicationChannel.LINKEDIN))
+        assertEquals("LINKEDIN", converters.fromApplicationChannel(ApplicationChannel.LINKEDIN))
         assertEquals(ApplicationChannel.LINKEDIN, converters.toApplicationChannel("channel:linkedin"))
         assertEquals(ApplicationChannel.LINKEDIN, converters.toApplicationChannel("LINKEDIN"))
         assertEquals(ApplicationChannel.UNSPECIFIED, converters.toApplicationChannel(null))
@@ -85,13 +85,13 @@ public class RoomDatabaseMappingTest {
             tags = listOf("android", "kotlin", "architecture"),
             contactIds = listOf("contact-1"),
             uuid = originalUuid,
-            schemaVersion = 7,
+            schemaVersion = 8,
         )
 
         val entity = JobApplicationMapper.toEntity(domain)
         assertEquals(originalUuid, entity.uuid)
         assertEquals("2026-03-pnc-lead", entity.slugId)
-        assertEquals(7, entity.schemaVersion)
+        assertEquals(8, entity.schemaVersion)
         assertEquals("PNC Financial Services", entity.company)
         assertEquals(TrackerStatus.APPLIED, entity.status)
         assertEquals(95, entity.fitScore)

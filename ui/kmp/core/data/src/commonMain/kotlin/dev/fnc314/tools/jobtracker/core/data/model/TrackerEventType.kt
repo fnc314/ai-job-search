@@ -43,70 +43,70 @@ public sealed interface TrackerEventType : WireContract {
         override val wireTag: Int = -1,
     ) : TrackerEventType {
         /** Fallback when event kind is unspecified. */
-        UNSPECIFIED(Icons.Default.CheckCircle, "Unspecified", "event:unspecified", 0),
+        UNSPECIFIED(Icons.Default.CheckCircle, "Unspecified", "UNSPECIFIED", 0),
 
         /** Initial application submission to company. */
-        APPLY(Icons.AutoMirrored.Filled.Send, "Application Submitted", "event:applied", 1),
+        APPLY(Icons.AutoMirrored.Filled.Send, "Application Submitted", "APPLY", 1),
 
         /** Automated or recruiter confirmation of application receipt. */
-        ACKNOWLEDGE(Icons.Default.Email, "Acknowledged", "event:acknowledged", 2),
+        ACKNOWLEDGE(Icons.Default.Email, "Acknowledged", "ACKNOWLEDGE", 2),
 
         /** Initial conversational phone or video screen with a technical recruiter. */
-        RECRUITER_SCREEN(Icons.Default.DateRange, "Recruiter Screen", "event:recruiter-screen", 3),
+        RECRUITER_SCREEN(Icons.Default.DateRange, "Recruiter Screen", "RECRUITER_SCREEN", 3),
 
         /** Technical or behavioral interview scheduled. */
-        SCHEDULE_INTERVIEW(Icons.Default.DateRange, "Interview Scheduled", "event:interview-scheduled", 4),
+        SCHEDULE_INTERVIEW(Icons.Default.DateRange, "Interview Scheduled", "SCHEDULE_INTERVIEW", 4),
 
         /** Scheduled interview round concluded. */
-        COMPLETE_INTERVIEW(Icons.Default.DateRange, "Interview Completed", "event:interview-completed", 5),
+        COMPLETE_INTERVIEW(Icons.Default.DateRange, "Interview Completed", "COMPLETE_INTERVIEW", 5),
 
         /** Take-home technical coding assessment or architectural assignment. */
-        ASSESS(Icons.Default.Edit, "Assessment", "event:assessment", 6),
+        ASSESS(Icons.Default.Edit, "Assessment", "ASSESS", 6),
 
         /** Full loop or final onsite interview round. */
-        VISIT_ONSITE(Icons.Default.Place, "On-Site Interview", "event:onsite", 7),
+        VISIT_ONSITE(Icons.Default.Place, "On-Site Interview", "VISIT_ONSITE", 7),
 
         /** Formal offer of employment extended. */
-        OFFER(Icons.Default.Star, "Offer Received", "event:offer", 8),
+        OFFER(Icons.Default.Star, "Offer Received", "OFFER", 8),
 
         /** Offer formally accepted by candidate. */
-        ACCEPT_OFFER(Icons.Default.CheckCircle, "Offer Accepted", "event:offer-accepted", 9),
+        ACCEPT_OFFER(Icons.Default.CheckCircle, "Offer Accepted", "ACCEPT_OFFER", 9),
 
         /** Candidate declined the employment offer. */
-        DECLINE_OFFER(Icons.Default.Close, "Offer Declined", "event:offer-declined", 10),
+        DECLINE_OFFER(Icons.Default.Close, "Offer Declined", "DECLINE_OFFER", 10),
 
         /** Candidate rejected by company. */
-        REJECT(Icons.Default.Close, "Rejected", "event:rejection", 11),
+        REJECT(Icons.Default.Close, "Rejected", "REJECT", 11),
 
         /** Application marked inactive after 30+ days of silence. */
-        GHOST(Icons.Default.Close, "No Response", "event:no-response", 12),
+        GHOST(Icons.Default.Close, "No Response", "GHOST", 12),
 
         /** Candidate voluntarily withdrew from consideration. */
-        WITHDRAW(Icons.Default.Close, "Withdrawn", "event:withdrawn", 13),
+        WITHDRAW(Icons.Default.Close, "Withdrawn", "WITHDRAW", 13),
 
         /** Follow-up message sent by candidate or agent. */
-        SEND_FOLLOW_UP(Icons.Default.Email, "Follow-Up Sent", "event:follow-up-sent", 14),
+        SEND_FOLLOW_UP(Icons.Default.Email, "Follow-Up Sent", "SEND_FOLLOW_UP", 14),
 
         /** Tailored LaTeX CV or Cover Letter compiled for this role. */
-        TAILOR_DOCUMENT(Icons.Default.Edit, "Document Tailored", "event:document-tailored", 15),
+        TAILOR_DOCUMENT(Icons.Default.Edit, "Document Tailored", "TAILOR_DOCUMENT", 15),
 
         /** Candidate fit score recalculated against updated requirements. */
-        RECALCULATE_FIT(Icons.Default.Refresh, "Fit Recalculated", "event:fit-recalculated", 16),
+        RECALCULATE_FIT(Icons.Default.Refresh, "Fit Recalculated", "RECALCULATE_FIT", 16),
 
         /** New document or specification artifact attached. */
-        ADD_ARTIFACT(Icons.Default.Info, "Artifact Added", "event:artifact-added", 17),
+        ADD_ARTIFACT(Icons.Default.Info, "Artifact Added", "ADD_ARTIFACT", 17),
 
         /** Contextual strategy note added. */
-        ADD_NOTE(Icons.Default.Edit, "Note Added", "event:note-added", 18),
+        ADD_NOTE(Icons.Default.Edit, "Note Added", "ADD_NOTE", 18),
 
         /** Record imported from external system or CSV archive. */
-        IMPORT(Icons.Default.Share, "Imported", "event:imported", 19),
+        IMPORT(Icons.Default.Share, "Imported", "IMPORT", 19),
 
         /** Manual correction applied to status lifecycle. */
-        CORRECT_STATUS(Icons.Default.Refresh, "Status Corrected", "event:status-corrected", 20),
+        CORRECT_STATUS(Icons.Default.Refresh, "Status Corrected", "CORRECT_STATUS", 20),
 
         /** Direct outreach initiated to recruiter or hiring team member. */
-        RECRUITER_OUTREACH(Icons.Default.Person, "Recruiter Outreach", "event:recruiter-outreach");
+        RECRUITER_OUTREACH(Icons.Default.Person, "Recruiter Outreach", "RECRUITER_OUTREACH");
     }
 
     /**
@@ -123,7 +123,31 @@ public sealed interface TrackerEventType : WireContract {
         public val DEFAULT: TrackerEventType = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            listOf(entry.wireKey.removePrefix("event:"))
+            val legacy = when (entry) {
+                Known.UNSPECIFIED -> "event:unspecified"
+                Known.APPLY -> "event:applied"
+                Known.ACKNOWLEDGE -> "event:acknowledged"
+                Known.RECRUITER_SCREEN -> "event:recruiter-screen"
+                Known.SCHEDULE_INTERVIEW -> "event:interview-scheduled"
+                Known.COMPLETE_INTERVIEW -> "event:interview-completed"
+                Known.ASSESS -> "event:assessment"
+                Known.VISIT_ONSITE -> "event:onsite"
+                Known.OFFER -> "event:offer"
+                Known.ACCEPT_OFFER -> "event:offer-accepted"
+                Known.DECLINE_OFFER -> "event:offer-declined"
+                Known.REJECT -> "event:rejection"
+                Known.GHOST -> "event:no-response"
+                Known.WITHDRAW -> "event:withdrawn"
+                Known.SEND_FOLLOW_UP -> "event:follow-up-sent"
+                Known.TAILOR_DOCUMENT -> "event:document-tailored"
+                Known.RECALCULATE_FIT -> "event:fit-recalculated"
+                Known.ADD_ARTIFACT -> "event:artifact-added"
+                Known.ADD_NOTE -> "event:note-added"
+                Known.IMPORT -> "event:imported"
+                Known.CORRECT_STATUS -> "event:status-corrected"
+                Known.RECRUITER_OUTREACH -> "event:recruiter-outreach"
+            }
+            listOf(legacy, legacy.removePrefix("event:"), entry.name.lowercase().replace("_", "-"))
         }
 
         public val UNSPECIFIED: TrackerEventType = Known.UNSPECIFIED

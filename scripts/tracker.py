@@ -2455,6 +2455,123 @@ def commandSheet(args) -> int:
     return EXIT_OK
 
 
+def _interactive_proposal_approve(db, note: str | None = None) -> int:
+    """Walk through all pending proposals and prompt the user to approve/reject/skip."""
+    if not sys.stdin.isatty():
+        raise contract.ContractError("interactive mode requires a terminal.")
+
+    pending = proposalsModule.listing(db, "proposal:pending")
+    if not pending:
+        sys.stderr.write("No pending proposals to review.\n")
+        emit({"ok": True, "approved": 0, "rejected": 0, "skipped": 0, "summary": "no pending proposals"})
+        return EXIT_OK
+
+    sys.stderr.write(f"\nFound {len(pending)} pending proposal(s).\n\n")
+
+    approved_count = 0
+    rejected_count = 0
+    skipped_count = 0
+
+    for idx, proposal in enumerate(pending, 1):
+        pid = proposal["proposalId"]
+        created = proposal.get("createdAt", "")[:19].replace("T", " ")
+        changes = proposal.get("changes", [])
+        unmatched = proposal.get("unmatched", [])
+
+        sys.stderr.write(f"--- Proposal {idx}/{len(pending)}: {pid} (created {created}) ---\n")
+        sys.stderr.write(f"  {len(changes)} change(s), {len(unmatched)} unmatched email(s)\n\n")
+
+        # Display each change
+        for ci, change in enumerate(changes, 1):
+            app_id = change.get("applicationId") or change.get("leadCompany") or "(unknown)"
+            event_type = _strip_namespace(change.get("eventType", ""))
+            status_from = _strip_namespace(change.get("statusFrom", ""))
+            status_to = _strip_namespace(change.get("statusTo", ""))
+            confidence = change.get("confidence", "medium")
+            source_email = change.get("sourceEmail") or {}
+            subject = source_email.get("subject", "")
+
+            transition = ""
+            if status_from and status_to:
+                transition = f" {status_from} → {status_to}"
+            elif status_to:
+                transition = f" → {status_to}"
+
+            sys.stderr.write(f"  {ci}. [{event_type}] {app_id}{transition}\n")
+            sys.stderr.write(f"     Confidence: {confidence}")
+            if subject:
+                sys.stderr.write(f"\n     Email: {subject}")
+            sys.stderr.write("\n")
+
+        # Display unmatched emails
+        if unmatched:
+            sys.stderr.write("\n  Unmatched emails:\n")
+            for ui, um in enumerate(unmatched, 1):
+                subject = (um.get("sourceEmail") or {}).get("subject", "(no subject)")
+                reason = um.get("reason", "")
+                sys.stderr.write(f"    {ui}. {subject}\n")
+                if reason:
+                    sys.stderr.write(f"       Reason: {reason}\n")
+
+        # Prompt for action
+        sys.stderr.write("\n")
+        choice = _read_line("  [a]pprove / [r]eject / [s]kip / [c]hoose changes / [q]uit: ")
+        choice = choice.lower().strip()
+
+        if choice == "q":
+            sys.stderr.write("Quitting interactive session.\n")
+            break
+        elif choice == "a":
+            client.assertWritesAllowed("approved proposal changes")
+            result = proposalsModule.approve(db, pid, note=note)
+            approved_count += 1
+            sys.stderr.write(f"  ✓ Approved {pid} ({len(result.get('approved', []))} change(s) applied).\n")
+        elif choice == "r":
+            client.assertWritesAllowed("rejected proposal changes")
+            reason = None
+            if note:
+                reason = note
+            result = proposalsModule.reject(db, pid, reason=reason)
+            rejected_count += 1
+            sys.stderr.write(f"  ✗ Rejected {pid}.\n")
+        elif choice == "s":
+            skipped_count += 1
+            sys.stderr.write(f"  ⊘ Skipped {pid}.\n")
+        elif choice == "c":
+            if not changes:
+                sys.stderr.write("  No changes to select from.\n")
+                skipped_count += 1
+                continue
+            indexes_str = _read_line("  Enter comma-separated change indexes to approve: ")
+            only_set = {
+                int(part)
+                for part in indexes_str.replace(" ", "").split(",")
+                if part.isdigit()
+            }
+            if not only_set:
+                sys.stderr.write("  No valid indexes entered, skipping.\n")
+                skipped_count += 1
+                continue
+            client.assertWritesAllowed("approved proposal changes")
+            result = proposalsModule.approve(db, pid, note=note, only=only_set)
+            approved_count += 1
+            sys.stderr.write(f"  ✓ Approved {pid} ({len(result.get('approved', []))} change(s) applied).\n")
+        else:
+            sys.stderr.write("  Invalid choice. Skipping.\n")
+            skipped_count += 1
+
+        sys.stderr.write("\n")
+
+    emit({
+        "ok": True,
+        "approved": approved_count,
+        "rejected": rejected_count,
+        "skipped": skipped_count,
+        "summary": f"approved {approved_count}, rejected {rejected_count}, skipped {skipped_count}",
+    })
+    return EXIT_OK
+
+
 def commandProposals(args) -> int:
     db = client.getDb()
     if args.proposalsCommand == "list":
@@ -2465,6 +2582,8 @@ def commandProposals(args) -> int:
         emit({"proposal": proposalsModule.load(db, args.id)})
         return EXIT_OK
     if args.proposalsCommand == "approve":
+        if getattr(args, "interactive", False) and not args.id:
+            return _interactive_proposal_approve(db, note=args.note)
         client.assertWritesAllowed("approved proposal changes")
         only = None
         if getattr(args, "only", None):
@@ -2831,7 +2950,9 @@ def buildParser() -> argparse.ArgumentParser:
     proposalShow.add_argument("id")
     proposalShow.set_defaults(handler=commandProposals)
     proposalApprove = proposalSubs.add_parser("approve")
-    proposalApprove.add_argument("id")
+    proposalApprove.add_argument("id", nargs="?", help="Proposal ID (optional with -i)")
+    proposalApprove.add_argument("-i", "--interactive", action="store_true",
+                                 help="Iterate through all pending proposals interactively")
     proposalApprove.add_argument("--note", help="resolution text")
     proposalApprove.add_argument(
         "--only",
