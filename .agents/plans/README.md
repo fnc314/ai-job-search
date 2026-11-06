@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`commit-reconciliation-and-frontmatter-completion-plan.md`](./2026-11-05/185500_commit-reconciliation-and-frontmatter-completion-plan.md) | Completed | Split bundled commit into per-plan commits, finish frontmatter templating, remove draft plan, and log commit SHAs |
 | [`plan-frontmatter-standardization-and-templating.md`](./2026-11-05/183738_plan-frontmatter-standardization-and-templating.md) | Completed | Universal Markdown plan frontmatter standardization, `TEMPLATE.md`, and tracker migration plan relocation |
 | [`mark-detekt-and-konsist-plan-completed.md`](./2026-11-05/181232_mark-detekt-and-konsist-plan-completed.md) | Completed | In-repo plan relocation, registry status synchronization, and bookkeeping enforcement |
 | [`canonical-enum-mapping-and-wire-contracts-plan.md`](./2026-11-05/175500_canonical-enum-mapping-and-wire-contracts-plan.md) | Completed | Two-tier canonical enum mapping, self-contained wire contracts, O(1) lookups, and Room converter modernization |

@@ -3,7 +3,7 @@
 **Status:** Completed  
 **Date:** 2026-11-05  
 **Target:** `records` and `ui/kmp` (cross-subsystem)  
-**Evaluates:** [`172809_DRAFT-code-refactor.md`](../../ui/kmp/.agents/plans/2026-11-05/172809_DRAFT-code-refactor.md)  
+**Evaluates:** `172809_DRAFT-code-refactor.md` (superseded & removed)  
 **Schema Authority:** [`tracker.schema.json`](../../tracker.schema.json)  
 
 ---

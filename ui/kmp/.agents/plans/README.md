@@ -26,7 +26,6 @@ This directory contains design and implementation plans for the `ui/kmp` project
 | [`compose-resources-migration-plan.md`](./2026-11-05/160417_compose-resources-migration-plan.md) | Completed | Migration of all UI literals to `composeResources` |
 | [`create-core-modules-and-notes-widget.md`](./2026-11-03/205720_create-core-modules-and-notes-widget.md) | Completed | Core widget extraction (`NotesWidget`, `StatusBadge`, `FitBadge`) |
 | [`custom-gradle-plugins-architecture-plan.md`](./2026-11-05/164709_custom-gradle-plugins-architecture-plan.md) | Completed | Custom convention plugins in `gradle/tools/project-plugins` |
-| [`DRAFT-code-refactor.md`](./2026-11-05/172809_DRAFT-code-refactor.md) | Draft / Proposed | Self-contained Enum relationships & companion lookup map refactor proposal |
 | [`firebase-android-and-multiplatform-integration.md`](./2026-11-03/230050_firebase-android-and-multiplatform-integration.md) | Completed | GitLive Firebase SDK multiplatform data store implementation |
 | [`fix-android-defects.md`](./2026-11-03/205720_fix-android-defects.md) | Completed | Android runtime, build, and edge-to-edge UI defect fixes |
 | [`integrate-records-fix-icons.md`](./2026-11-04/064700_integrate-records-fix-icons.md) | Completed | Protobuf records integration and Material icon fixes |
