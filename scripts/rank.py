@@ -326,13 +326,22 @@ def format_markdown(result: dict, tracker_record: dict | None) -> str:
     return "\n".join(lines)
 
 
+def _read_file_content(path: str) -> str:
+    """Read job description text from a local file."""
+    file_path = Path(path)
+    if not file_path.is_file():
+        print(f"File not found: {path}", file=sys.stderr)
+        return ""
+    return file_path.read_text(encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Evaluate a job posting against the candidate profile"
     )
     parser.add_argument(
         "url_or_jd",
-        help="Job URL or job description text",
+        help="Job URL, local file path, or job description text",
     )
     parser.add_argument(
         "--json",
@@ -346,8 +355,15 @@ def main() -> int:
         text = _fetch_url_content(args.url_or_jd)
         if not text:
             print(f"Could not fetch content from URL: {args.url_or_jd}", file=sys.stderr)
-            print("Try providing the job description text directly.", file=sys.stderr)
+            print("Try providing a local file path or the job description text directly.", file=sys.stderr)
             return 1
+    elif Path(args.url_or_jd).is_file():
+        text = _read_file_content(args.url_or_jd)
+        if not text:
+            return 1
+    elif "/" in args.url_or_jd or "\\" in args.url_or_jd or Path(args.url_or_jd).suffix:
+        print(f"File not found: {args.url_or_jd}", file=sys.stderr)
+        return 1
     else:
         text = args.url_or_jd
 

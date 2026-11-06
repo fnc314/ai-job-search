@@ -12,7 +12,7 @@ Search job portals and collect new listings, deduplicated against seen jobs and 
 - **`--limit <limit>`** — Max results per portal per query (default: 20)
 - **`--priority <priority>`** — Priority categories to run, 0 = all (default: 3)
 - **`--focus <focus>`** — Focus area to prioritize queries (e.g. Android)
-- **`--save-seen`** — Write updated seen_jobs.json after search
-- **`--table`** — Output as a Markdown table instead of JSON
+- **`--no-save-seen`** — Skip writing seen postings to Firestore (default: saves)
+- **`--json`** — Output as JSON instead of a Markdown table
 - **`--summary`** — Only show summary stats, not individual results
 - **`--health`** — Only check portal health (probe each portal)

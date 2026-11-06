@@ -256,7 +256,7 @@ arg "[url-or-jd]" help="Job URL or job description text (optional; omit for inte
     description = "Evaluate a job posting against the candidate profile (single-job fit score)",
     raw = true,
     usage = """
-arg "url-or-jd" help="Job URL or job description text (required)"
+arg "url-or-jd" help="Job URL, local file path, or job description text (required)"
 flag "--json" help="Output as JSON instead of markdown"
 """,
     run = '.venv/bin/python scripts/rank.py "{{ usage.url_or_jd }}"{% if usage.json %} --json{% endif %}'
