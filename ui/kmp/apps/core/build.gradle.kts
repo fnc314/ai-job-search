@@ -43,6 +43,15 @@ kotlin {
         jvmTest.dependencies {
             implementation(libs.konsist)
         }
+        androidMain.dependencies {
+            implementation(libs.kmp.inspector)
+        }
+        iosMain.dependencies {
+            implementation(libs.kmp.inspector)
+        }
+        jvmMain.dependencies {
+            implementation(libs.kmp.inspector)
+        }
         jsMain.dependencies {
             implementation(libs.wrappers.browser)
         }

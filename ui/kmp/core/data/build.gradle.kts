@@ -24,13 +24,16 @@ kotlin {
             implementation(libs.bundles.ktor.client.jvm)
             implementation(libs.records.proto)
             implementation(libs.records.parser)
+            implementation(libs.kmp.inspector)
         }
         androidMain.dependencies {
             implementation(libs.bundles.ktor.client.android)
             implementation(libs.kotlinx.coroutinesPlayServices)
+            implementation(libs.kmp.inspector)
         }
         iosMain.dependencies {
             implementation(libs.bundles.ktor.client.ios)
+            implementation(libs.kmp.inspector)
         }
         jsMain.dependencies {
             implementation(libs.bundles.ktor.client.js)

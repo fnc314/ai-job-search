@@ -16,5 +16,6 @@ public fun createJsonHttpClient(): HttpClient {
                 isLenient = true
             })
         }
+        installInspector()
     }
 }

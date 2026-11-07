@@ -98,20 +98,21 @@ public fun App(): Unit {
             seedColor = seedColor,
         ) {
             ProvideWindowSizeClass {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background,
-                ) {
-                    AppScaffold(
-                        navController = navController,
-                        isAuthenticated = isAuthenticated,
-                        snackbarHostState = snackbarHostState,
-                    ) { _ ->
-                        NavHost(
+                KmpInspector {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background,
+                    ) {
+                        AppScaffold(
                             navController = navController,
-                            startDestination = if (isAuthenticated) ListRoute else SignInRoute,
-                            modifier = Modifier.fillMaxSize(),
-                        ) {
+                            isAuthenticated = isAuthenticated,
+                            snackbarHostState = snackbarHostState,
+                        ) { _ ->
+                            NavHost(
+                                navController = navController,
+                                startDestination = if (isAuthenticated) ListRoute else SignInRoute,
+                                modifier = Modifier.fillMaxSize(),
+                            ) {
                             signInNavHook(this, navController)
 
                             jobApplicationsListNavHook(
@@ -151,4 +152,5 @@ public fun App(): Unit {
             }
         }
     }
+}
 }

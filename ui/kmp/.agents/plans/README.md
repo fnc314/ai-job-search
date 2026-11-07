@@ -33,6 +33,8 @@ This directory contains design and implementation plans for the `ui/kmp` project
 | [`m3-theming-adaptive-layout-and-widgets.md`](./2026-11-04/122940_m3-theming-adaptive-layout-and-widgets.md) | Completed | Material 3 token system, dynamic colors & adaptive layouts |
 | [`module-readmes-plan.md`](./2026-11-05/164709_module-readmes-plan.md) | Completed | Module `README.md` documentation standard & verification script |
 | [`unified-remote-datasource-and-firebase-generics.md`](./2026-11-06/190000_unified-remote-datasource-and-firebase-generics.md) | Draft / Proposed | Unified RemoteDataSource and Feature-specific Firebase generics mapping |
+| [`kmp-inspector-seamless-integration.md`](./2026-11-06/200000_kmp-inspector-seamless-integration.md) | Draft / Proposed | Seamless KMP Inspector integration for debug vs release variants |
+| [`refactor-settings-feature-and-add-remote-config.md`](./2026-11-06/220000_refactor-settings-feature-and-add-remote-config.md) | Draft / Proposed | Refactor settings feature to mirror job-applications-list and add Firebase Remote Config dependencies |
 | [`mvi-architecture-and-ui-model-separation-plan.md`](./2026-11-05/160417_mvi-architecture-and-ui-model-separation-plan.md) | Completed | MVI state/intent architecture & UI model decoupling |
 | [`platform-agnosticism-renaming-plan.md`](./2026-11-05/160417_platform-agnosticism-renaming-plan.md) | Completed | Platform-agnostic module renaming (`apps/core`, `features/*`) |
 | [`repackaging-shared-and-job-applications-modularization.md`](./2026-11-04/195448_repackaging-shared-and-job-applications-modularization.md) | Completed | Feature packaging and modularization (`features/job-applications-*`) |

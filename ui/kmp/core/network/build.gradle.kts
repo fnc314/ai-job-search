@@ -12,12 +12,18 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.bundles.ktor.client.android)
+            implementation(libs.kmp.inspector)
+            implementation(libs.kmp.inspector.ktor)
         }
         iosMain.dependencies {
             implementation(libs.bundles.ktor.client.ios)
+            implementation(libs.kmp.inspector)
+            implementation(libs.kmp.inspector.ktor)
         }
         jvmMain.dependencies {
             implementation(libs.bundles.ktor.client.jvm)
+            implementation(libs.kmp.inspector)
+            implementation(libs.kmp.inspector.ktor)
         }
         jsMain.dependencies {
             implementation(libs.bundles.ktor.client.js)
