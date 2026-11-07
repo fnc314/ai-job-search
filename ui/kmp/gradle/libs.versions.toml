@@ -23,6 +23,7 @@
   firebase-admin = "9.5.0"
   junit = "4.13.2"
   koin = "4.2.2"
+  koin-compiler = "1.2.1"
   kotlin = "2.4.21"
   kotlin-wrappers = "2026.11.0"
   kotlinx-collections-immutable = "0.5.2"
@@ -89,8 +90,11 @@
   firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebase-auth" }
   firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
   firebase-remote-config = { module = "com.google.firebase:firebase-config-ktx" }
+  koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin" }
+  koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
   koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
   koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+  koin-compiler-gradle-plugin = { module = "io.insert-koin:koin-compiler-gradle-plugin", version.ref = "koin-compiler" }
   koin-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
   ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
   ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
@@ -168,6 +172,10 @@
     "koin-compose",
     "koin-viewmodel",
   ]
+  koin-compiler = [
+    "koin-core",
+    "koin-annotations",
+  ]
   androidx-lifecycle-compose = [
     "androidx-lifecycle-viewmodelCompose",
     "androidx-lifecycle-runtimeCompose",
@@ -217,6 +225,7 @@
   google-play-services = { id = "com.google.gms.google-services", version.ref = "googlePlayServices" }
   local-multiplatform-library = { id = "dev.fnc314.tools.jobtracker.multiplatform-library" }
   ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+  koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-compiler" }
   dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
   local-dokka = { id = "dev.fnc314.tools.jobtracker.dokka" }
   detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
