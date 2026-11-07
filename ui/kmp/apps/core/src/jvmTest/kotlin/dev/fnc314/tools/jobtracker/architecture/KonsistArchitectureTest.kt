@@ -72,4 +72,36 @@ class KonsistArchitectureTest {
                 !prop.name.endsWith("ByString")
             }
     }
+
+    @Test
+    fun `internal implementation classes ending with Impl reside in impl package`() {
+        kmpScope
+            .classes()
+            .filter { it.name.endsWith("Impl") && it.hasInternalModifier }
+            .assertTrue { clazz ->
+                clazz.packagee?.name?.contains(".impl") == true
+            }
+    }
+
+    @Test
+    fun `feature domain code does not import data or ui packages`() {
+        kmpScope
+            .files
+            .filter { it.path.contains("/features/") && it.path.contains("/domain/") }
+            .assertTrue { file ->
+                file.imports.none { import ->
+                    import.name.contains(".data.") || import.name.contains(".ui.")
+                }
+            }
+    }
+
+    @Test
+    fun `all datasource interfaces and implementations are internal`() {
+        val classAndIface = kmpScope.classes() + kmpScope.interfaces()
+        classAndIface
+            .filter { it.name.contains("DataSource") }
+            .assertTrue { decl ->
+                decl.hasInternalModifier
+            }
+    }
 }

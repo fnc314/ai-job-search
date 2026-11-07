@@ -5,7 +5,7 @@ import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 /**
  * Data source contract for persisting and retrieving user [AppSettings].
  */
-public interface LocalSettingsDataSource {
+internal interface LocalSettingsDataSource {
     /**
      * Retrieves stored [AppSettings].
      */
