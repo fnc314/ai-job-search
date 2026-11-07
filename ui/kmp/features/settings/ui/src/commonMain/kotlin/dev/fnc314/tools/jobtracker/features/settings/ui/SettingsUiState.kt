@@ -19,4 +19,7 @@ public sealed interface SettingsUiState {
 
     /** Transient navigation state requesting return to the previous screen. */
     public data object NavigateBack : SettingsUiState
+
+    /** Transient navigation state requesting transition to sign-in upon sign-out. */
+    public data object NavigateToSignIn : SettingsUiState
 }

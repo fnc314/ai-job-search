@@ -7,6 +7,7 @@
     <string name="settings_label_theme">Theme: %s</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_system">System</string>
     <string name="settings_label_accent_seed">Accent Color Seed</string>
     <string name="settings_cd_theme_color">%s theme color</string>
     <string name="settings_label_custom_seed_hex">Custom Seed Hex</string>

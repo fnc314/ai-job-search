@@ -145,6 +145,11 @@ public fun App(): Unit {
                                 settings = settings,
                                 onSettingsChange = { settingsRepository.updateSettings(it) },
                                 onNavigateBack = { navController.popBackStack() },
+                                onSignOut = {
+                                    navController.navigate(SignInRoute) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                },
                             )(this, navController)
                         }
                     }

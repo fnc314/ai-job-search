@@ -15,13 +15,13 @@
 
 ## Overview
 
-The `features/settings` module provides configuration and preference management for the application. It governs UI theme mode (System, Light, Dark), dynamic Material 3 color seed selection (persisted via hexadecimal strings), backend environment preferences, and diagnostics.
+The `features/settings` module provides configuration and preference management for the application. It governs UI theme mode (System, Light, Dark), dynamic Material 3 color seed selection (persisted via hexadecimal strings), backend environment preferences, and session sign-out.
 
 ---
 
 ## Architectural Breakdown & Subprojects
 
-The feature is organized into three Clean Architecture layers:
+The feature is organized into three Clean Architecture layers adhering to the `.impl.` package convention:
 
 ```mermaid
 graph TD
@@ -36,26 +36,27 @@ graph TD
 ### 1. `:features-settings-domain`
 Defines contracts for observing and mutating user preferences:
 - [`SettingsRepository`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/domain/repository/SettingsRepository.kt): Core interface exposing `val settings: StateFlow<AppSettings>` and `fun updateSettings(settings: AppSettings)`.
-- [`ObserveSettingsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/domain/usecase/ObserveSettingsUseCase.kt): Provides reactive observation of application settings.
-- [`UpdateSettingsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/domain/usecase/UpdateSettingsUseCase.kt): Dispatches setting mutations to the repository.
+- [`ObserveSettingsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/domain/usecase/ObserveSettingsUseCase.kt): Provides reactive observation of application settings (`ObserveSettingsUseCaseImpl` housed in `usecase.impl`).
+- [`UpdateSettingsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/domain/usecase/UpdateSettingsUseCase.kt): Dispatches setting mutations to the repository (`UpdateSettingsUseCaseImpl` housed in `usecase.impl`).
+- [`settingsDomainModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/domain/di/SettingsDomainModule.kt): Koin DI module registering use cases.
 
 ### 2. `:features-settings-data`
 Provides concrete data source and repository implementations:
-- [`SettingsRepositoryImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/SettingsRepositoryImpl.kt): `internal` repository implementation coordinating `LocalSettingsDataSource`.
-- [`LocalSettingsDataSource`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/source/LocalSettingsDataSource.kt): Local data source interface and `internal class LocalSettingsDataSourceImpl` serializing `AppSettings` using `kotlinx.serialization` into `SettingsStorage` (backed by platform key-value stores such as NSUserDefaults, SharedPreferences, or localStorage).
-- [`settingsDataModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/SettingsDataModule.kt): Koin DI declarations registering `LocalSettingsDataSource` and `SettingsRepository`.
+- [`SettingsRepositoryImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/repository/impl/SettingsRepositoryImpl.kt): `internal` repository implementation coordinating `LocalSettingsDataSource` housed in `repository.impl`.
+- [`LocalSettingsDataSource`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/source/LocalSettingsDataSource.kt): Local data source interface and `internal class LocalSettingsDataSourceImpl` housed in `source.impl` serializing `AppSettings` using `kotlinx.serialization`.
+- [`settingsDataModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/data/di/SettingsDataModule.kt): Koin DI declarations registering `LocalSettingsDataSource` and `SettingsRepository`.
 
 ### 3. `:features-settings-ui`
 Renders the preference controls adhering to MVI architecture:
-- [`SettingsUiModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiModel.kt): Immutable presentation model (`themeModeName`, `seedColorHex`, `isSystemDark`) isolating the UI layer from domain entities.
-- [`SettingsUiState`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiState.kt): Sealed interface representing UI screen states (`Loading`, `Content`, `NavigateBack`).
-- [`SettingsUiIntent`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiIntent.kt): Sealed interface capturing user interactions (`ChangeTheme`, `ChangeSeedColor`, `ClickBack`).
+- [`SettingsUiModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiModel.kt): Immutable presentation model (`uiMode`, `seedColorHex`, `isSystemDark`, `randomSeedSuggestions`) isolating the UI layer from domain entities.
+- [`SettingsUiState`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiState.kt): Sealed interface representing UI screen states (`Loading`, `Content`, `NavigateBack`, `NavigateToSignIn`).
+- [`SettingsUiIntent`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiIntent.kt): Sealed interface capturing user interactions (`ChangeUiMode`, `ChangeSeedColor`, `ClickSignOut`, `ClickBack`).
 - [`SettingsViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsViewModel.kt): MVI ViewModel exposing `uiState: StateFlow<SettingsUiState>` and `onIntent(SettingsUiIntent)`.
 - [`SettingsScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsScreen.kt): Composable view binding `SettingsUiState` and forwarding user actions through `SettingsUiIntent`.
 - [`SettingsRoute`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsNavigation.kt): Type-safe destination key implementing `NavKeyRoute`.
 - [`settingsNavHook`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsNavigation.kt): `FeatureNavigationHook` registering the `composable<SettingsRoute>` entry in the root `NavGraphBuilder`.
 - [`settingsUiModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiModule.kt): Koin DI factory for `SettingsViewModel`.
-- [`settingsFeatureModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiModule.kt): Umbrella DI module.
+- [`settingsFeatureModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/settings/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/settings/ui/SettingsUiModule.kt): Umbrella DI module including data, domain, and UI modules.
 
 ---
 

@@ -17,11 +17,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
@@ -38,54 +34,49 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import dev.fnc314.tools.jobtracker.core.data.settings.UiMode
 import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.designsystem.toHexString
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
-import dev.fnc314.tools.jobtracker.features.signin.ui.SignInUiIntent
-import dev.fnc314.tools.jobtracker.features.signin.ui.SignInUiState
-import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_action_sign_out
-import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_cd_back
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_cd_custom_seed_hex
-import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_cd_navigate_back
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_cd_theme_color
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_label_accent_seed
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_label_custom_seed_hex
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_label_theme
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_section_account
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_section_appearance
-import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_signed_in_default
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_theme_dark
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_theme_light
-import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_title
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_theme_system
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Top-level Stateful composable hosting the application settings screen.
  *
- * Connects [SettingsViewModel] to presentation rendering and handles navigation callbacks.
- *
- * @param onNavigateBack Callback invoked when the user exits the settings view.
+ * @param onNavigateBack Callback invoked when exiting settings.
+ * @param onSignOut Callback invoked upon user sign out.
  * @param modifier Composable layout modifier.
- * @param viewModel [SettingsViewModel] providing preferences state and mutations.
- * @param signInViewModel Optional [SignInViewModel] to provide account sign-out actions.
+ * @param viewModel [SettingsViewModel] driving presentation state.
  */
 @Composable
 public fun SettingsScreen(
     onNavigateBack: () -> Unit,
+    onSignOut: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = koinViewModel(),
-    signInViewModel: SignInViewModel? = null,
 ): Unit {
     val uiState: SettingsUiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState) {
-        if (uiState is SettingsUiState.NavigateBack) {
-            onNavigateBack()
+        when (uiState) {
+            is SettingsUiState.NavigateBack -> onNavigateBack()
+            is SettingsUiState.NavigateToSignIn -> onSignOut()
+            else -> {}
         }
     }
 
@@ -93,30 +84,28 @@ public fun SettingsScreen(
         uiState = uiState,
         onIntent = viewModel::onIntent,
         modifier = modifier,
-        signInViewModel = signInViewModel,
     )
 }
 
 /**
- * Stateless composable displaying settings configuration options (theme, seed color, account).
+ * Stateless composable displaying settings configuration options.
  *
  * @param uiState Current [SettingsUiState] to render.
  * @param onIntent Event handler for user interaction intents.
  * @param modifier Composable layout modifier.
- * @param signInViewModel Optional [SignInViewModel] for handling user account sessions.
  */
 @Composable
 public fun SettingsScreen(
     uiState: SettingsUiState,
     onIntent: (SettingsUiIntent) -> Unit,
     modifier: Modifier = Modifier,
-    signInViewModel: SignInViewModel? = null,
 ): Unit {
     when (uiState) {
         is SettingsUiState.Loading -> {
             LoadingWidget(modifier = modifier)
         }
-        is SettingsUiState.NavigateBack -> {
+        is SettingsUiState.NavigateBack,
+        is SettingsUiState.NavigateToSignIn -> {
             Box(modifier = modifier.fillMaxSize())
         }
         is SettingsUiState.Content -> {
@@ -124,7 +113,6 @@ public fun SettingsScreen(
                 model = uiState.model,
                 onIntent = onIntent,
                 modifier = modifier,
-                signInViewModel = signInViewModel,
             )
         }
     }
@@ -135,7 +123,6 @@ internal fun SettingsContent(
     model: SettingsUiModel,
     onIntent: (SettingsUiIntent) -> Unit,
     modifier: Modifier = Modifier,
-    signInViewModel: SignInViewModel? = null,
 ): Unit {
     val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
 
@@ -151,29 +138,6 @@ internal fun SettingsContent(
                 .padding(MaterialTheme.spacing.medium),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
         ) {
-            // Header with Back button
-            val navBackDescription: String = stringResource(Res.string.settings_cd_navigate_back)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-            ) {
-                IconButton(
-                    onClick = { onIntent(SettingsUiIntent.ClickBack) },
-                    modifier = Modifier.semantics { contentDescription = navBackDescription },
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(Res.string.settings_cd_back),
-                    )
-                }
-                Text(
-                    text = stringResource(Res.string.settings_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-
             // Section 1: Appearance & Theme
             OutlinedCard(
                 shape = MaterialTheme.shapes.medium,
@@ -192,7 +156,7 @@ internal fun SettingsContent(
                     )
 
                     Text(
-                        text = stringResource(Res.string.settings_label_theme, model.themeModeName),
+                        text = stringResource(Res.string.settings_label_theme, model.uiMode.name),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -202,14 +166,20 @@ internal fun SettingsContent(
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                     ) {
                         FilterChip(
-                            selected = !model.isSystemDark,
-                            onClick = { onIntent(SettingsUiIntent.ChangeTheme(isDark = false)) },
+                            selected = model.uiMode == UiMode.SYSTEM,
+                            onClick = { onIntent(SettingsUiIntent.ChangeUiMode(UiMode.SYSTEM)) },
+                            label = { Text(stringResource(Res.string.settings_theme_system)) },
+                            modifier = Modifier.weight(1f),
+                        )
+                        FilterChip(
+                            selected = model.uiMode == UiMode.LIGHT,
+                            onClick = { onIntent(SettingsUiIntent.ChangeUiMode(UiMode.LIGHT)) },
                             label = { Text(stringResource(Res.string.settings_theme_light)) },
                             modifier = Modifier.weight(1f),
                         )
                         FilterChip(
-                            selected = model.isSystemDark,
-                            onClick = { onIntent(SettingsUiIntent.ChangeTheme(isDark = true)) },
+                            selected = model.uiMode == UiMode.DARK,
+                            onClick = { onIntent(SettingsUiIntent.ChangeUiMode(UiMode.DARK)) },
                             label = { Text(stringResource(Res.string.settings_theme_dark)) },
                             modifier = Modifier.weight(1f),
                         )
@@ -273,42 +243,27 @@ internal fun SettingsContent(
             }
 
             // Section 2: Account & Session
-            if (signInViewModel != null) {
-                val signInState: SignInUiState by signInViewModel.uiState.collectAsState()
-                val authenticatedUser = (signInState as? SignInUiState.Authenticated)?.user
-                if (authenticatedUser != null) {
-                    OutlinedCard(
-                        shape = MaterialTheme.shapes.medium,
+            OutlinedCard(
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(MaterialTheme.spacing.medium),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                ) {
+                    Text(
+                        text = stringResource(Res.string.settings_section_account),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+
+                    OutlinedButton(
+                        onClick = { onIntent(SettingsUiIntent.ClickSignOut) },
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(MaterialTheme.spacing.medium),
-                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.settings_section_account),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-
-                            val defaultSignedIn: String = stringResource(Res.string.settings_signed_in_default)
-                            Text(
-                                text = authenticatedUser.displayName ?: authenticatedUser.email.ifEmpty { defaultSignedIn },
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-
-                            OutlinedButton(
-                                onClick = {
-                                    signInViewModel.onIntent(SignInUiIntent.ClickSignOut)
-                                    onIntent(SettingsUiIntent.ClickBack)
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(stringResource(Res.string.settings_action_sign_out))
-                            }
-                        }
+                        Text(stringResource(Res.string.settings_action_sign_out))
                     }
                 }
             }
