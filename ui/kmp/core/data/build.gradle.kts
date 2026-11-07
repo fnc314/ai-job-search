@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.local.dependencies.serialization)
     alias(libs.plugins.local.dependencies.di)
     alias(libs.plugins.local.dependencies.datasource)
+    alias(libs.plugins.local.dependencies.firebase)
 }
 
 kotlin {
@@ -21,13 +22,11 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(libs.bundles.ktor.client.jvm)
-            implementation(libs.bundles.firebase.jvm)
             implementation(libs.records.proto)
             implementation(libs.records.parser)
         }
         androidMain.dependencies {
             implementation(libs.bundles.ktor.client.android)
-            implementation(libs.bundles.firebase.android)
             implementation(libs.kotlinx.coroutinesPlayServices)
         }
         iosMain.dependencies {

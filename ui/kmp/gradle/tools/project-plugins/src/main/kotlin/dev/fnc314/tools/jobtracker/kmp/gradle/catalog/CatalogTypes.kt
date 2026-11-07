@@ -66,7 +66,11 @@ internal sealed interface CatalogTypes<out T> {
         DOKKA_GRADLE_PLUGIN("dokka-gradle-plugin"),
         DETEKT_FORMATTING("detekt-formatting"),
         COMPOSE_RULES_DETEKT("compose-rules-detekt"),
-        KONSIST("konsist");
+        COMPOSE_CONSTRAINT_LAYOUT("compose-constraint"),
+        KONSIST("konsist"),
+        FIREBASE_BOM("firebase-bom"),
+        KMP_INSPECTOR_NOOP("kmp-inspector-noop"),
+        ;
 
         override fun fromCatalog(project: Project): Provider<MinimalExternalModuleDependency> =
             project.versionCatalog.findLibrary(catalogKey).orElseThrow {
@@ -91,7 +95,9 @@ internal sealed interface CatalogTypes<out T> {
         TESTING_ANDROID("testing-android"),
         ROOM("room"),
         SQLITE_BUNDLED("sqlite-bundled"),
-        SQLITE_WEB("sqlite-web");
+        SQLITE_WEB("sqlite-web"),
+        KMP_INSPECTOR("kmp-inspector"),
+        ;
 
         override fun fromCatalog(project: Project): Provider<ExternalModuleDependencyBundle> =
             project.versionCatalog.findBundle(catalogKey).orElseThrow {
@@ -114,7 +120,9 @@ internal sealed interface CatalogTypes<out T> {
         DOKKA("dokka"),
         LOCAL_DOKKA("local-dokka"),
         DETEKT("detekt"),
-        LOCAL_DETEKT("local-detekt");
+        LOCAL_DETEKT("local-detekt"),
+        GOOGLE_PLAY_SERVICES("google-play-services"),
+        ;
 
         override fun fromCatalog(project: Project): Provider<PluginDependency> =
             project.versionCatalog.findPlugin(catalogKey).orElseThrow {

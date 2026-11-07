@@ -23,6 +23,7 @@ public class ComposeDependenciesConventionPlugin : Plugin<Project>, BaseConventi
 
         kotlin.sourceSets.findByName("androidMain")?.dependencies {
             implementation(CatalogTypes.Bundles.COMPOSE_TOOLING(project))
+            implementation(CatalogTypes.Libraries.COMPOSE_CONSTRAINT_LAYOUT(this@configurePlugin))
         }
     }
 }

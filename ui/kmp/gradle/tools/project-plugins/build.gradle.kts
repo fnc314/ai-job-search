@@ -47,6 +47,12 @@ gradlePlugin {
       implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.functional.KotlinMultiplatformConventionPlugin"
       displayName = "Kotlin Multiplatform Convention"
     }
+    create("android-application") {
+      id = libs.plugins.local.android.application.map { it.pluginId }.get()
+      description = "Applies Android Application plugin and SDK conventions"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.functional.AndroidApplicationConventionPlugin"
+      displayName = "Android KMP Library Convention"
+    }
     create("android-kmp-library") {
       id = libs.plugins.local.android.kmp.library.map { it.pluginId }.get()
       description = "Applies Android KMP Library toolchain and SDK conventions"
@@ -64,6 +70,12 @@ gradlePlugin {
       description = "Applies Compose UI and tooling dependency bundles"
       implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.ComposeDependenciesConventionPlugin"
       displayName = "Compose Dependencies Convention"
+    }
+    create("dependencies-firebase") {
+      id = libs.plugins.local.dependencies.firebase.map { it.pluginId }.get()
+      description = "Configures Firebase dependencies"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.FirebaseDependenciesConventionPlugin"
+      displayName = "Firebase Dependencies Convention"
     }
     create("dependencies-serialization") {
       id = libs.plugins.local.dependencies.serialization.map { it.pluginId }.get()

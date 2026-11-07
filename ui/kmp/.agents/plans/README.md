@@ -32,6 +32,7 @@ This directory contains design and implementation plans for the `ui/kmp` project
 | [`kmp-mobile-tracker-ui.md`](./2026-11-02/221655_kmp-mobile-tracker-ui.md) | Completed | Foundation KMP tracker architecture, models, and initial UI screens |
 | [`m3-theming-adaptive-layout-and-widgets.md`](./2026-11-04/122940_m3-theming-adaptive-layout-and-widgets.md) | Completed | Material 3 token system, dynamic colors & adaptive layouts |
 | [`module-readmes-plan.md`](./2026-11-05/164709_module-readmes-plan.md) | Completed | Module `README.md` documentation standard & verification script |
+| [`unified-remote-datasource-and-firebase-generics.md`](./2026-11-06/190000_unified-remote-datasource-and-firebase-generics.md) | Draft / Proposed | Unified RemoteDataSource and Feature-specific Firebase generics mapping |
 | [`mvi-architecture-and-ui-model-separation-plan.md`](./2026-11-05/160417_mvi-architecture-and-ui-model-separation-plan.md) | Completed | MVI state/intent architecture & UI model decoupling |
 | [`platform-agnosticism-renaming-plan.md`](./2026-11-05/160417_platform-agnosticism-renaming-plan.md) | Completed | Platform-agnostic module renaming (`apps/core`, `features/*`) |
 | [`repackaging-shared-and-job-applications-modularization.md`](./2026-11-04/195448_repackaging-shared-and-job-applications-modularization.md) | Completed | Feature packaging and modularization (`features/job-applications-*`) |

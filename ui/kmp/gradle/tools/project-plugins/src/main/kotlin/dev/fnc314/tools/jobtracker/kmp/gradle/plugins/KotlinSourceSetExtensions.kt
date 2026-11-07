@@ -1,8 +1,10 @@
 package dev.fnc314.tools.jobtracker.kmp.gradle.plugins
 
+import dev.fnc314.tools.jobtracker.kmp.gradle.catalog.CatalogTypes
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import javax.xml.catalog.Catalog
 
 internal val KotlinMultiplatformExtension.commonMain: KotlinSourceSet
     get() = sourceSets.getByName("commonMain")
@@ -42,4 +44,22 @@ internal val Project.kotlinMultiplatform: KotlinMultiplatformExtension
 
 internal inline fun Project.kotlinMultiplatform(crossinline configure: KotlinMultiplatformExtension.() -> Unit): Unit {
     kotlinMultiplatform.configure()
+}
+
+internal val Project.hasKotlinPlugin: Boolean get() = plugins.let {
+    it.hasPlugin(
+        CatalogTypes.Plugins.KOTLIN_JVM(this).get().pluginId
+    ) ||
+    it.hasPlugin(
+        CatalogTypes.Plugins.KOTLIN_MULTIPLATFORM(this).get().pluginId
+    )
+}
+
+internal val Project.hasAndroidPlugin: Boolean get() = plugins.let {
+    it.hasPlugin(
+        CatalogTypes.Plugins.ANDROID_APPLICATION(this).get().pluginId
+    ) ||
+    it.hasPlugin(
+        CatalogTypes.Plugins.ANDROID_MULTIPLATFORM_LIBRARY(this).get().pluginId
+    )
 }

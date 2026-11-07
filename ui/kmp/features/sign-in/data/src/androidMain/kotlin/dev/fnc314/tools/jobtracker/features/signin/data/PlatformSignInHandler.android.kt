@@ -20,13 +20,17 @@ import kotlinx.coroutines.tasks.await
 private const val TAG = "PlatformSignInHandler"
 
 public actual class PlatformSignInHandler(
-    private val context: Context,
+    private val context: Context?,
     private val serverClientId: String? = null
 ) {
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
-    private val credentialManager: CredentialManager by lazy { CredentialManager.create(context) }
+    private val credentialManager: CredentialManager? by lazy {
+        context?.let { CredentialManager.create(it) }
+    }
 
     public actual suspend fun signIn(): Result<UserAccount> = runCatching {
+        val ctx = context ?: throw IllegalStateException("Android application context must be initialized before using PlatformSignInHandler")
+        val cm = credentialManager ?: throw IllegalStateException("CredentialManager not initialized")
         Log.d(TAG, "signIn: Starting sign-in flow")
 
         // Check if user is already signed in to Firebase
@@ -59,9 +63,9 @@ public actual class PlatformSignInHandler(
 
         Log.d(TAG, "signIn: Requesting credential from Credential Manager")
         val result = try {
-            credentialManager.getCredential(
+            cm.getCredential(
                 request = request,
-                context = context
+                context = ctx
             ).also { 
                 Log.d(TAG, "signIn: Credential Manager returned credential type: ${it.credential.type}")
             }
@@ -128,14 +132,16 @@ public actual class PlatformSignInHandler(
     public actual suspend fun signOut(): Result<Unit> = runCatching {
         Log.d(TAG, "signOut: Signing out from Firebase")
         auth.signOut()
-        Log.d(TAG, "signOut: Clearing credential state")
-        credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        val cm = credentialManager
+        if (cm != null) {
+            Log.d(TAG, "signOut: Clearing credential state")
+            cm.clearCredentialState(ClearCredentialStateRequest())
+        }
         Log.i(TAG, "signOut: Sign out complete")
     }
 }
 
 public actual fun createPlatformSignInHandler(): PlatformSignInHandler {
     val context = ApplicationContextHolder.application
-        ?: throw IllegalStateException("Android application context must be initialized before using PlatformSignInHandler")
     return PlatformSignInHandler(context)
 }

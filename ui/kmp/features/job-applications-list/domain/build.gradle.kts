@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.local.kotlin.multiplatform)
     alias(libs.plugins.local.android.kmp.library)
+    alias(libs.plugins.local.dependencies.koin)
 }
 
 kotlin {
@@ -8,6 +9,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.coreData)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(projects.featuresJobApplicationsListData)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

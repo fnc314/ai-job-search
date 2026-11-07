@@ -139,7 +139,7 @@ To completely eliminate circular dependencies between features and `apps:core`, 
   - `LoadAllJobApplicationsUseCaseImpl.kt`
   - `FilterJobApplicationsUseCaseImpl.kt`
   - `SortJobApplicationsUseCaseImpl.kt`
-  - `JobApplicationsListModule.kt` (Koin definitions for list use cases)
+  - `JobApplicationsListDataModule.kt` (Koin definitions for list use cases)
 
 #### C. UI (`features/job-applications-list/ui`)
 - **Package:** `dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui`

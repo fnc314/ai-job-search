@@ -2,7 +2,7 @@ package dev.fnc314.tools.jobtracker.features.signin.ui
 
 import androidx.navigation.compose.composable
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureNavigationHook
-import dev.fnc314.tools.jobtracker.core.navigation.NavKeyRoute
+import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.sign_in_route_title
 import kotlinx.serialization.Serializable
@@ -14,7 +14,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * Navigation destination route for the authentication screen.
  */
 @Serializable
-public data object SignInRoute : NavKeyRoute {
+public data object SignInRoute : NavKey {
     @Transient
     override val titleRes: StringResource = Res.string.sign_in_route_title
 }

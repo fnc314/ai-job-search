@@ -1,0 +1,89 @@
+Role:
+Sr. Manager, Software Engineering-Android & Device Platforms
+Job Number:
+4743678005
+Posted Date:
+10/14/2026
+Join PatientPoint
+Join PatientPoint to be part of a dynamic team creating change in and around the doctor's office. As a leading digital health company, we innovate to positively impact patient behaviors. Our purpose-driven approach offers an inspirational career opportunity where you can contribute to improving health outcomes for millions of patients nationwide.
+
+Location
+Remote - United States
+
+Travel Requirements
+2-4 times per year
+
+Job Summary
+As Senior Engineering Manager, Device Products & Operations, you will oversee software engineering across PatientPoint's device-side product areas - field operations and device management tooling, exam-room patient engagement technology, waiting-room displays, and back-office systems - all running on Android and BrightSign devices in clinical and on-site settings.
+
+You will be the Engineering Manager for a mix of senior Engineering Leads and individual-contributor engineers, owning hiring, performance, and career growth directly, and stepping into the Engineering Lead's technical-direction role yourself where a team needs it.
+
+This is a hands-on role: you'll stay close to the code, contribute directly where it matters, champion AI-assisted and agentic ways of working across your teams, and bring credible, current expertise across Android (including Custom Android ROM, kiosk/rooted device management), AWS (IoT Core, Lambda, Bedrock AgentCore), and JavaScript/React front-ends to the technical decisions your teams make day to day.
+
+What You'll Do
+Own engineering outcomes across PatientPoint's device product areas - field operations tooling, exam-room technology, waiting-room displays, and back-office systems.
+Serve as the Engineering Manager for a mix of senior Engineering Leads and individual-contributor engineers - owning hiring, performance, and career growth directly - and step into the Engineering Lead's technical-direction role yourself where a team needs it.
+Stay close to the code: lead code reviews, contribute directly where needed, and guide teams on technical best practices.
+Champion AI-assisted and agentic engineering practices - in your own work, across your teams' day-to-day development, and in the AI-powered capabilities we build into our products (e.g., automated device diagnostics).
+Coordinate priorities and dependencies across three or more concurrently active product areas with different tech stacks and team maturity.
+Contribute to cross-org architecture discussions (ARB/RFCs), bringing a device-fleet perspective to architecture trade-off conversations.
+Help engineers and Engineering Leads grow in their roles and career paths at PatientPoint.
+Partner closely with Product and Design leads on execution across the device product areas.
+Manage a blended team of full-time and contract engineers, onshore and offshore.
+Escalate organizational, staffing, and resourcing needs for the device product areas to engineering leadership.
+What We Need
+10+ years of software engineering experience, including 2+ years leading engineers or engineering teams.
+Recent hands-on technical involvement within the last 1-2 years, such as contributing to production code, reviewing pull requests, designing implementations, creating architecture plans, or directly troubleshooting and fixing software defects.
+Given the hands-on nature of this role, candidates will be asked to complete a coding assessment as part of the interview process.
+Current hands-on experience with native Android development using Kotlin and modern Android development practices.
+Experience with AOSP, customized Android ROMs, rooted or kiosk-mode Android devices, APK distribution, or Android OS upgrade programs.
+Experience with Android device-platform development beyond traditional consumer mobile applications.
+Experience with Java in addition to Kotlin.
+Experience with JavaScript or TypeScript and React-based front-end development.
+Experience building software for connected, managed, or remotely deployed devices, with an understanding of the operational challenges associated with physical device fleets.
+Experience leading engineers across multiple concurrent products, workstreams, or technical domains.
+Experience managing and developing engineers, including hiring, performance management, coaching, and career development.
+Strong understanding of the constraints associated with deployed devices, including limited memory, storage, or processing power; intermittent connectivity; remote software updates; and supporting multiple hardware or OS generations.
+Experience supporting remotely deployed device fleets, including considerations such as staged releases, monitoring fleet health, remote troubleshooting, and software update or rollback strategies.
+Experience with backend technologies supporting device fleets, such as Kotlin/JVM services, Node.js, serverless architectures, or similar microservice environments.
+Hands-on use of AI-assisted development tools such as GitHub Copilot, Cursor, Claude, or similar tools, along with experience encouraging or driving their adoption within an engineering team.
+Working knowledge of cloud-based services and APIs that support connected-device applications.
+Experience managing blended teams of full-time employees and contractors.
+Desired Qualifications
+Bachelor's degree in computer science, engineering, information systems, or a related field, or equivalent professional experience.
+Experience with BrightSign or other digital signage/device-management platforms such as SignageOS or Broadsign.
+Experience with IoT technologies and protocols such as AWS IoT Core, MQTT, Device Shadow, BLE, or GATT.
+Experience with Jetpack Compose.
+Experience contributing to an architecture review process such as ARB, RFCs, or an equivalent technical-governance model.
+Experience operating in a product-operating-model or product-trio structure.
+Experience guiding or contributing to AI-powered product capabilities such as automated diagnostics, self-healing device operations, or similar AI-driven features.
+Experience with agent-orchestration frameworks or patterns such as MCP-based tool access, AWS Bedrock AgentCore, Strands Agents, or similar approaches.
+Experience with Kotlin Multiplatform or similar cross-platform native architectures.
+Experience developing, tracking, or improving engineering delivery metrics such as DORA.
+Experience with vulnerability management, application security, or security reviews for distributed or device-based systems.
+Experience in healthcare or another regulated industry.
+Experience leading through organizational change or team transitions.
+What You'll Need to Succeed
+Ability to lead teams in delivering product features while continuously improving software quality and development practices.
+Comfort remaining technically hands-on and working alongside engineers on code, architecture, implementation, and device-level issues.
+Strong ability to develop talent and help engineers grow into larger technical and leadership roles.
+Strong judgment around when to provide technical direction versus empowering senior engineers and Engineering Leads to own decisions.
+Excellent collaboration and communication skills across Product, Design, Architecture, and other engineering teams.
+Ability to balance near-term delivery with long-term maintainability, reliability, and operational excellence.
+Base Salary Band
+$154,200 - $212,200
+
+Compensation
+At PatientPoint, we are committed to providing competitive pay and benefits that are in line with industry standards. We analyze and carefully consider several factors when determining compensation, including skills, qualifications, geographic location, and professional experience, which can cause your compensation to vary. The base salary range listed is just one component of PatientPoint's total compensation package for employees. For additional details on our total benefits package, please review the section "About PatientPoint" at the end of this job description.
+
+About PatientPoint
+PatientPoint® is the Point of Change company, transforming the healthcare experience through the strategic delivery of behavior-changing content at critical moments of care. As the nation's largest and most impactful digital network in 30,000 physician offices, we connect patients, providers, and health brands with relevant information that is proven to drive healthier decisions and better outcomes. Learn more at patientpoint.com.
+
+Latest News & Innovations
+Why is PatientPoint a Best Place to Work! Read More
+Teammate Honored as "Top Woman in Tech". Read More
+Recognized on Vault's Top Internship List. Read More
+What We Offer
+We know you bring your whole self to work every day, and we are committed to supporting our full-time teammates with a comprehensive range of modernized benefits and cultural perks. We offer competitive compensation, flexible time off to recharge, hybrid work options, mental and emotional wellness resources, a 401K plan, and more. While these benefits are available to full-time team members, we strive to create a positive and supportive environment for all teammates.
+
+PatientPoint recognizes that privacy is important to you. Please read the PatientPoint privacy policy, we want you to be familiar with how we may collect, use, and disclose your information. Employer is EOE/M/F/D/V.

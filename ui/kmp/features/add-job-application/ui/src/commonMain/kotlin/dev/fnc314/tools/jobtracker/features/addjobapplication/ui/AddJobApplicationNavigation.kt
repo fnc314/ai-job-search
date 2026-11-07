@@ -2,7 +2,7 @@ package dev.fnc314.tools.jobtracker.features.addjobapplication.ui
 
 import androidx.navigation.compose.composable
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureNavigationHook
-import dev.fnc314.tools.jobtracker.core.navigation.NavKeyRoute
+import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_route_title
 import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_route_title
@@ -14,7 +14,7 @@ import org.jetbrains.compose.resources.StringResource
  * Navigation destination route for creating a formal job application entry.
  */
 @Serializable
-public data object AddApplicationRoute : NavKeyRoute {
+public data object AddApplicationRoute : NavKey {
     @Transient
     override val titleRes: StringResource = Res.string.add_app_route_title
 }
@@ -23,7 +23,7 @@ public data object AddApplicationRoute : NavKeyRoute {
  * Navigation destination route for recording an early-stage prospective lead.
  */
 @Serializable
-public data object AddLeadRoute : NavKeyRoute {
+public data object AddLeadRoute : NavKey {
     @Transient
     override val titleRes: StringResource = Res.string.add_lead_route_title
 }

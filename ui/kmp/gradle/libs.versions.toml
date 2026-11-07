@@ -16,6 +16,7 @@
   google-id = "1.2.1"
   composeMultiplatform = "1.12.2"
   composeMaterialIcons = "1.7.3"
+  composeConstraintLayout = "1.1.2"
   firebase-bom = "35.1.0"
   firebase-auth = "25.0.0"
   firebase-firestore = "27.1.0"
@@ -43,6 +44,7 @@
   compose-rules = "0.6.8"
   konsist = "0.18.1"
   records = "1.0.0"
+  kmp-inspector = "1.0.1"
 
 [libraries]
   kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -63,6 +65,7 @@
   compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
   compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
   compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
+  compose-constraint = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "composeConstraintLayout" }
   compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
   compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
   compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
@@ -109,6 +112,10 @@
   detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
   compose-rules-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "compose-rules" }
   konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
+  kmp-inspector = { module = "io.github.waqas028:kmp-inspector", version.ref = "kmp-inspector" }
+  kmp-inspector-ktor = { module = "io.github.waqas028:kmp-inspector-ktor", version.ref = "kmp-inspector" }
+  kmp-inspector-noop = { module = "io.github.waqas028:kmp-inspector-no-op", version.ref = "kmp-inspector" }
+  kmp-inspector-room = { module = "io.github.waqas028:kmp-inspector-room", version.ref = "kmp-inspector" }
   project-plugins = { module = "dev.fnc314.tools.jobtracker.tools:project-plugins", version = "1.0.0" }
 
 [bundles]
@@ -149,6 +156,11 @@
   ]
   firebase-jvm = [
     "firebase-admin",
+  ]
+  kmp-inspector = [
+    "kmp-inspector",
+    "kmp-inspector-ktor",
+    "kmp-inspector-room",
   ]
   koin = [
     "koin-core",
@@ -201,7 +213,7 @@
   kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
   kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
   kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-  googleServices = { id = "com.google.gms.google-services", version.ref = "googlePlayServices" }
+  google-play-services = { id = "com.google.gms.google-services", version.ref = "googlePlayServices" }
   local-multiplatform-library = { id = "dev.fnc314.tools.jobtracker.multiplatform-library" }
   ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
   dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
@@ -219,6 +231,7 @@
   # Local Configuration Concern Plugins
   local-dependencies-compose = { id = "dev.fnc314.tools.jobtracker.dependencies.compose" }
   local-dependencies-di = { id = "dev.fnc314.tools.jobtracker.dependencies.di" }
+  local-dependencies-firebase = { id = "dev.fnc314.tools.jobtracker.dependencies.firebase" }
   local-dependencies-koin = { id = "dev.fnc314.tools.jobtracker.dependencies.koin" }
   local-dependencies-ktor = { id = "dev.fnc314.tools.jobtracker.dependencies.ktor" }
   local-dependencies-serialization = { id = "dev.fnc314.tools.jobtracker.dependencies.serialization" }

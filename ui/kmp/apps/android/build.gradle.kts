@@ -1,9 +1,10 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.local.android.application)
+    alias(libs.plugins.local.dependencies.firebase)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.googleServices)
+    alias(libs.plugins.google.play.services)
 }
 
 kotlin {
@@ -20,8 +21,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
 
     // Firebase (needed for MainActivity initialization)
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.bundles.firebase.android)
+//    implementation(platform(libs.firebase.bom))
+//    implementation(libs.bundles.firebase.android)
 
     implementation(libs.bundles.compose.tooling)
     debugImplementation(libs.compose.uiTooling)
@@ -78,6 +79,3 @@ androidComponents {
         (variant as com.android.build.api.variant.HasUnitTestBuilder).enableUnitTest = true
     }
 }
-
-
-

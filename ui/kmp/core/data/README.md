@@ -26,7 +26,7 @@ All feature modules (`features/*`) depend on `:core-data` for data models and re
 ```
 core/data/src/
 ├── commonMain/kotlin/dev/fnc314/tools/jobtracker/core/data/
-│   ├── di/CoreDataModule.kt                  # Koin DI module providing globalJson, SettingsStorage, PlatformFileOpener
+│   ├── di/CoreDataModule.kt                  # Koin DI module providing globalJson, SettingsStorage, AppSettingsRepository, PlatformFileOpener
 │   ├── factory/Factory.kt                    # Centralized factory for creating validated domain models
 │   ├── json/JsonProvider.kt                  # Standard globalJson instance for kotlinx.serialization
 │   ├── model/                                # Universal entities and encapsulated enums
@@ -89,10 +89,11 @@ All domain enums implement `WireContract` as sealed interface hierarchies (`Know
 - `WorkMode`, `Confidence`, `DerivedFrom`, `EventActor`, `TrackerArtifactKind`, `TrackerEditKind`, `TrackerEditState`, `Trigger`: Audit, provenance, and workflow sealed hierarchies.
 - `SyncKind`, `SyncState`, `Region`, `Tag`, `CompPeriod`, `CompVsTarget`: Synchronization, geographic region, controlled vocabulary tag, and compensation sub-enum sealed hierarchies.
 
-### Data Source Engines
-- `LocalDataSource`: Suspend & synchronous key-value persistent storage engine contract.
-- `NetworkDataSource`: Ktor HTTP network engine wrapping JSON client.
-- `RemoteDataSource`: Provider-agnostic cloud document/collection observation and mutation engine contract.
+### Settings & Preferences
+- `AppSettings`: Data model capturing app theme mode (`UiMode`), seed colors, and preferences.
+- `AppSettingsRepository`: Reactive repository providing hot `StateFlow<AppSettings>` and persistence via `SettingsStorage`.
+- `SettingsStorage`: Multiplatform key-value settings storage contract and implementations (SharedPreferences, Preferences API, NSUserDefaults, LocalStorage).
+- `RemoteDataSource`: Multiplatform contract defining remote database interactions (`observeCollection`, `getDocument`, `setDocument`, `updateDocument`) via `createRemoteDataSource()`, backed by platform-native Firebase Firestore integrations (`AndroidRemoteDataSource` and `JvmRemoteDataSource`).
 - `AppDatabase`: Room 3.x multiplatform SQLite relational database and DAO contract. Feature modules consume these engines through their own domain repositories and feature data sources.
 
 ---

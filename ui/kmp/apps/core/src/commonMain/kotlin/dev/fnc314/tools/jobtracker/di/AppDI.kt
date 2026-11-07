@@ -4,7 +4,7 @@ import dev.fnc314.tools.jobtracker.core.data.di.coreDataModule
 import dev.fnc314.tools.jobtracker.core.network.di.coreNetworkModule
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.addJobApplicationFeatureModule
 import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.jobApplicationsDetailsFeatureModule
-import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.jobApplicationsListFeatureModule
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.di.jobApplicationsListFeatureModule
 import dev.fnc314.tools.jobtracker.features.settings.ui.settingsFeatureModule
 import dev.fnc314.tools.jobtracker.features.signin.ui.signInFeatureModule
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.trackerEditsFeatureModule

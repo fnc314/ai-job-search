@@ -9,7 +9,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.coreData)
-            implementation(projects.featuresJobApplicationsListDomain)
             implementation(libs.kotlinx.coroutines.core)
         }
     }

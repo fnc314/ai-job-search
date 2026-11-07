@@ -474,7 +474,7 @@ public interface JobApplicationsListRepository {
 }
 ```
 
-#### [MODIFY] `features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/repository/JobApplicationsListRepositoryImpl.kt`
+#### [MODIFY] `../../../features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/repository/impl/JobApplicationsListRepositoryImpl.kt`
 Implement **Cache-First with Remote Synchronization**:
 ```kotlin
 internal class JobApplicationsListRepositoryImpl(
@@ -504,7 +504,7 @@ internal class JobApplicationsListRepositoryImpl(
 }
 ```
 
-#### [MODIFY] `features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/LoadAllJobApplicationsUseCaseImpl.kt`
+#### [MODIFY] `../../../features/job-applications-list/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/domain/usecase/impl/LoadAllJobApplicationsUseCaseImpl.kt`
 Pass `params.forceRefresh` to `repository.getJobApplications(params.forceRefresh)`.
 
 #### [MODIFY] `features/job-applications-details/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/data/repository/JobApplicationsDetailsRepositoryImpl.kt`

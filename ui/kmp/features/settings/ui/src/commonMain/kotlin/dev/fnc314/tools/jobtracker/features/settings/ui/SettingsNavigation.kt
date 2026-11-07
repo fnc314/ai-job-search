@@ -3,7 +3,7 @@ package dev.fnc314.tools.jobtracker.features.settings.ui
 import androidx.navigation.compose.composable
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureNavigationHook
-import dev.fnc314.tools.jobtracker.core.navigation.NavKeyRoute
+import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_route_title
@@ -16,7 +16,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * Navigation destination route for the application settings screen.
  */
 @Serializable
-public data object SettingsRoute : NavKeyRoute {
+public data object SettingsRoute : NavKey {
     @Transient
     override val titleRes: StringResource = Res.string.settings_route_title
 }

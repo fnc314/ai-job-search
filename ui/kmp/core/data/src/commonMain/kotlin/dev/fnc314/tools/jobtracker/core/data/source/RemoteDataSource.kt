@@ -44,3 +44,20 @@ public interface RemoteDataSource {
      */
     public suspend fun updateDocument(collectionPath: String, documentId: String, record: RemoteRecord): DataResult
 }
+
+/**
+ * Data class implementation of [RemoteRecord] wrapping a map of document fields.
+ */
+public data class MapRemoteRecord(
+    override val id: String,
+    override val fields: Map<String, Any?>,
+) : RemoteRecord {
+    override fun getString(key: String): String? = fields[key] as? String
+    override fun getLong(key: String): Long? = (fields[key] as? Number)?.toLong()
+    override fun getBoolean(key: String): Boolean? = fields[key] as? Boolean
+}
+
+/**
+ * Platform-specific factory resolving the native [RemoteDataSource] implementation wrapping Firebase.
+ */
+public expect fun createRemoteDataSource(): RemoteDataSource

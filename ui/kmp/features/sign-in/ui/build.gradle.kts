@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.local.dependencies.compose)
     alias(libs.plugins.local.dependencies.di)
     alias(libs.plugins.local.dependencies.navigation)
+    alias(libs.plugins.local.dependencies.serialization)
 }
 
 kotlin {

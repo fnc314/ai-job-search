@@ -12,12 +12,9 @@ import kotlinx.coroutines.flow.asStateFlow
 internal class AuthRepositoryImpl(
     private val remoteDataSource: RemoteAuthDataSource,
     private val localDataSource: LocalAuthDataSource,
-    initialUser: UserAccount? = null,
 ) : AuthRepository {
 
-    private val _authState = MutableStateFlow<AuthState>(
-        if (initialUser != null) AuthState.Authenticated(initialUser) else AuthState.Unauthenticated
-    )
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Unauthenticated)
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     override val currentUser: UserAccount?

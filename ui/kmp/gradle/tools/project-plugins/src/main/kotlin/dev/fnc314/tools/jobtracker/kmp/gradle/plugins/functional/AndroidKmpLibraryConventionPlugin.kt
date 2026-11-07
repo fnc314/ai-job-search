@@ -28,6 +28,7 @@ public class AndroidKmpLibraryConventionPlugin : Plugin<Project>, BaseConvention
         extAware.extensions.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) { android ->
             android.compileSdk = CatalogTypes.Versions.ANDROID_COMPILE_SDK.asInt(project)
             android.minSdk = CatalogTypes.Versions.ANDROID_MIN_SDK.asInt(project)
+            android.androidResources.enable = true
             if (android.namespace == null) {
                 val relative = projectDir.relativeTo(rootDir).invariantSeparatorsPath
                 val sanitized = relative.split('/').joinToString(".") { segment ->

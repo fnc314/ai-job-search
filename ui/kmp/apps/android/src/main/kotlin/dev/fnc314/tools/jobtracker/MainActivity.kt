@@ -14,11 +14,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        // Initialize Firebase
+        ApplicationContextHolder.application = application
         if (FirebaseApp.getApps(this).isEmpty()) {
             FirebaseApp.initializeApp(this)
         }
-        ApplicationContextHolder.application = application
 
         setContent {
             App()

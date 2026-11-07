@@ -23,5 +23,7 @@ public expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>?
 public fun createRoomDatabase(): AppDatabase? {
     return runCatching {
         getDatabaseBuilder()?.build()
-    }.getOrNull()
+    }.getOrNull().also {
+
+    }
 }

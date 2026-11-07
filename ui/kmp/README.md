@@ -46,20 +46,20 @@ All significant Gradle workflows can be invoked directly from the repository roo
 
 ### Mise Tasks (Repo Root)
 
-| Goal | Mise Command | Underlying Gradle Task |
-|---|---|---|
-| **Build all** | `mise run ui:kmp:build` | `./gradlew build -x test` |
-| **Run tests** | `mise run ui:kmp:test` | `./gradlew :shared:jvmTest` |
-| **Clean cache** | `mise run ui:kmp:clean` | `./gradlew clean` |
-| **Desktop Run** | `mise run ui:kmp:desktop:run` | `./gradlew :apps-desktop:run` |
-| **Desktop Package** | `mise run ui:kmp:desktop:package` | `./gradlew :apps-desktop:packageDistributionForCurrentOS` |
-| **Android Assemble** | `mise run ui:kmp:android:assemble` | `./gradlew :apps-android:assembleDebug` |
-| **Android Bundle** | `mise run ui:kmp:android:bundle` | `./gradlew :apps-android:bundleRelease` |
-| **Android Install** | `mise run ui:kmp:android:install` | `./gradlew :apps-android:installDebug` |
-| **Web Wasm Dev** | `mise run ui:kmp:web:wasm:dev` | `./gradlew :apps-web:wasmJsBrowserDevelopmentRun` |
-| **Web Wasm Dist** | `mise run ui:kmp:web:wasm:dist` | `./gradlew :apps-web:wasmJsBrowserDistribution` |
-| **Web JS Dev** | `mise run ui:kmp:web:js:dev` | `./gradlew :apps-web:jsBrowserDevelopmentRun` |
-| **Web JS Dist** | `mise run ui:kmp:web:js:dist` | `./gradlew :apps-web:jsBrowserDistribution` |
+| Goal                 | Mise Command                       | Underlying Gradle Task                                    |
+|----------------------|------------------------------------|-----------------------------------------------------------|
+| **Build all**        | `mise run ui:kmp:build`            | `./gradlew build -x test`                                 |
+| **Run tests**        | `mise run ui:kmp:test`             | `./gradlew :shared:jvmTest`                               |
+| **Clean cache**      | `mise run ui:kmp:clean`            | `./gradlew clean`                                         |
+| **Desktop Run**      | `mise run ui:kmp:desktop:run`      | `./gradlew :apps-desktop:run`                             |
+| **Desktop Package**  | `mise run ui:kmp:desktop:package`  | `./gradlew :apps-desktop:packageDistributionForCurrentOS` |
+| **Android Assemble** | `mise run ui:kmp:android:assemble` | `./gradlew :apps-android:assembleDebug`                   |
+| **Android Bundle**   | `mise run ui:kmp:android:bundle`   | `./gradlew :apps-android:bundleRelease`                   |
+| **Android Install**  | `mise run ui:kmp:android:install`  | `./gradlew :apps-android:installDebug`                    |
+| **Web Wasm Dev**     | `mise run ui:kmp:web:wasm:dev`     | `./gradlew :apps-web:wasmJsBrowserDevelopmentRun`         |
+| **Web Wasm Dist**    | `mise run ui:kmp:web:wasm:dist`    | `./gradlew :apps-web:wasmJsBrowserDistribution`           |
+| **Web JS Dev**       | `mise run ui:kmp:web:js:dev`       | `./gradlew :apps-web:jsBrowserDevelopmentRun`             |
+| **Web JS Dist**      | `mise run ui:kmp:web:js:dist`      | `./gradlew :apps-web:jsBrowserDistribution`               |
 
 ---
 

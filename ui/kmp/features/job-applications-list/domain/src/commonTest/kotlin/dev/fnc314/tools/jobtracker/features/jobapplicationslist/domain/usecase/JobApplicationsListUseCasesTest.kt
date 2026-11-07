@@ -1,12 +1,12 @@
-package dev.fnc314.tools.jobtracker.features.jobapplicationslist.data
+package dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase
 
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
-import dev.fnc314.tools.jobtracker.features.jobapplicationslist.data.repository.JobApplicationsListRepositoryImpl
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.data.repository.impl.JobApplicationsListRepositoryImpl
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.data.source.LocalJobApplicationsListDataSource
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.data.source.RemoteJobApplicationsListDataSource
-import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.repository.JobApplicationsListRepository
-import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.LoadAllJobApplicationsUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.data.repository.JobApplicationsListRepository
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.impl.LoadAllJobApplicationsUseCaseImpl
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -29,13 +29,13 @@ class JobApplicationsListUseCasesTest {
             Factory.createJobApplication(id = "app-2", company = "Apple"),
         )
 
-        override suspend fun getJobApplications(): List<JobApplication> = remoteApps
+        override suspend operator fun invoke(): List<JobApplication> = remoteApps
     }
 
     private class FakeJobApplicationsListRepository(
         private val apps: List<JobApplication>,
     ) : JobApplicationsListRepository {
-        override suspend fun getJobApplications(): List<JobApplication> = apps
+        override suspend operator fun invoke(): List<JobApplication> = apps
     }
 
     @Test
@@ -58,7 +58,7 @@ class JobApplicationsListUseCasesTest {
         val remote = FakeRemoteJobApplicationsListDataSource()
         val repo = JobApplicationsListRepositoryImpl(remote, local)
 
-        val result = repo.getJobApplications()
+        val result = repo()
         assertEquals(1, result.size)
         assertEquals("local-1", result.first().id)
     }
@@ -69,7 +69,7 @@ class JobApplicationsListUseCasesTest {
         val remote = FakeRemoteJobApplicationsListDataSource()
         val repo = JobApplicationsListRepositoryImpl(remote, local)
 
-        val result = repo.getJobApplications()
+        val result = repo()
         assertEquals(2, result.size)
         assertEquals(2, local.applications.size)
         assertEquals("app-1", local.applications.first().id)
@@ -81,7 +81,7 @@ class JobApplicationsListUseCasesTest {
         val remote = FakeRemoteJobApplicationsListDataSource().apply { remoteApps = emptyList() }
         val repo = JobApplicationsListRepositoryImpl(remote, local)
 
-        val result = repo.getJobApplications()
+        val result = repo()
         assertEquals(0, result.size)
         assertEquals(0, local.applications.size)
     }
@@ -92,10 +92,10 @@ class JobApplicationsListUseCasesTest {
         val remote = FakeRemoteJobApplicationsListDataSource()
         val repo = JobApplicationsListRepositoryImpl(remote, local)
 
-        val firstCall = repo.getJobApplications()
+        val firstCall = repo()
         assertEquals(2, firstCall.size)
         remote.remoteApps = emptyList()
-        val secondCall = repo.getJobApplications()
+        val secondCall = repo()
         assertEquals(2, secondCall.size)
     }
 }
