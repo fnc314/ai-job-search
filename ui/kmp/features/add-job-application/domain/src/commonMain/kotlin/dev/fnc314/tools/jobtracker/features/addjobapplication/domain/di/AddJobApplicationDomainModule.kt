@@ -5,12 +5,14 @@ import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.usecase.Cre
 import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.usecase.impl.CreateJobApplicationUseCaseImpl
 import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.usecase.impl.CreateLeadUseCaseImpl
 import org.koin.core.module.Module
-import org.koin.dsl.*
+import org.koin.core.module.dsl.factoryOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
 /**
  * Koin module declaring domain use case bindings for the add job application feature.
  */
 public val addJobApplicationDomainModule: Module = module {
-    factory<CreateJobApplicationUseCase> { CreateJobApplicationUseCaseImpl(get()) }
-    factory<CreateLeadUseCase> { CreateLeadUseCaseImpl(get()) }
+    factoryOf(::CreateJobApplicationUseCaseImpl) bind CreateJobApplicationUseCase::class
+    factoryOf(::CreateLeadUseCaseImpl) bind CreateLeadUseCase::class
 }

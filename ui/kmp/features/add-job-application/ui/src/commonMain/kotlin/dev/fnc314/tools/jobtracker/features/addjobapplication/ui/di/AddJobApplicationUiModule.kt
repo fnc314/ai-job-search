@@ -1,7 +1,9 @@
-package dev.fnc314.tools.jobtracker.features.addjobapplication.ui
+package dev.fnc314.tools.jobtracker.features.addjobapplication.ui.di
 
-import dev.fnc314.tools.jobtracker.features.addjobapplication.data.addJobApplicationDataModule
+import dev.fnc314.tools.jobtracker.features.addjobapplication.data.di.addJobApplicationDataModule
 import dev.fnc314.tools.jobtracker.features.addjobapplication.domain.di.addJobApplicationDomainModule
+import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddJobApplicationViewModel
+import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
