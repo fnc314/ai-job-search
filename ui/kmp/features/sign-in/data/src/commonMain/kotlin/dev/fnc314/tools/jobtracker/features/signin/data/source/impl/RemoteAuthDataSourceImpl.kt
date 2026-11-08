@@ -8,6 +8,8 @@ internal class RemoteAuthDataSourceImpl(
     private val signInHandler: PlatformSignInHandler,
 ) : RemoteAuthDataSource {
     override suspend fun signIn(): Result<UserAccount> = signInHandler.signIn()
+
     override suspend fun getCurrentUser(): UserAccount? = signInHandler.getCurrentUser()
+
     override suspend fun signOut(): Result<Unit> = signInHandler.signOut()
 }

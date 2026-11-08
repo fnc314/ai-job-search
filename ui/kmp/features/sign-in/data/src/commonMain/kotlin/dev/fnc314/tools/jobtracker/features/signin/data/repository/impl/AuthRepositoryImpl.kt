@@ -2,9 +2,9 @@ package dev.fnc314.tools.jobtracker.features.signin.data.repository.impl
 
 import dev.fnc314.tools.jobtracker.core.data.model.AuthState
 import dev.fnc314.tools.jobtracker.core.data.model.UserAccount
+import dev.fnc314.tools.jobtracker.features.signin.data.repository.AuthRepository
 import dev.fnc314.tools.jobtracker.features.signin.data.source.LocalAuthDataSource
 import dev.fnc314.tools.jobtracker.features.signin.data.source.RemoteAuthDataSource
-import dev.fnc314.tools.jobtracker.features.signin.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
