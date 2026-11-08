@@ -13,16 +13,18 @@ import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.UpdateApplicationStatusUseCaseImpl
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.UpdateFitScoreUseCaseImpl
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.factoryOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /**
  * Koin module declaring domain use case bindings for the job application details feature.
  */
 public val jobApplicationsDetailsDomainModule: Module = module {
-    factory<GetArtifactSignedUrlUseCase> { GetArtifactSignedUrlUseCaseImpl(get()) }
-    factory<LoadCompaniesUseCase> { LoadCompaniesUseCaseImpl(get()) }
-    factory<LoadJobApplicationUseCase> { LoadJobApplicationUseCaseImpl(get()) }
-    factory<RecordEventUseCase> { RecordEventUseCaseImpl(get()) }
-    factory<UpdateApplicationStatusUseCase> { UpdateApplicationStatusUseCaseImpl(get()) }
-    factory<UpdateFitScoreUseCase> { UpdateFitScoreUseCaseImpl(get()) }
+    factoryOf(::GetArtifactSignedUrlUseCaseImpl) bind GetArtifactSignedUrlUseCase::class
+    factoryOf(::LoadCompaniesUseCaseImpl) bind LoadCompaniesUseCase::class
+    factoryOf(::LoadJobApplicationUseCaseImpl) bind LoadJobApplicationUseCase::class
+    factoryOf(::RecordEventUseCaseImpl) bind RecordEventUseCase::class
+    factoryOf(::UpdateApplicationStatusUseCaseImpl) bind UpdateApplicationStatusUseCase::class
+    factoryOf(::UpdateFitScoreUseCaseImpl) bind UpdateFitScoreUseCase::class
 }
