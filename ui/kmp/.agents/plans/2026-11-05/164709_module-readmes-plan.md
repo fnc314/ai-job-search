@@ -163,8 +163,8 @@ Create [`ui/kmp/AGENTS.md`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-jo
 - **Contents**: Detailed application inspector, event timeline, generated artifact browser, status mutation dialogs, and company intelligence profiles across `domain`, `data`, and `ui`.
 - **Contribution**: High-density detail screen for an individual job application, enabling interview prep, status progression, and artifact review.
 - **Significant Contributions**:
-  - `jobApplicationsDetailsFeatureModule`.
-  - `JobApplicationsDetailsScreen`: Detail view taking `applicationId`.
+  - `jobApplicationDetailsFeatureModule`.
+  - `JobApplicationDetailsScreen`: Detail view taking `applicationId`.
   - `JobApplicationDetailViewModel`: Coordinates status updates, manual event recording, and fit score adjustments.
   - Domain Use Cases: `LoadJobApplicationUseCase`, `UpdateApplicationStatusUseCase`, `RecordEventUseCase`, `UpdateFitScoreUseCase`, `GetArtifactSignedUrlUseCase`, `LoadCompaniesUseCase`.
   - Internal components: `ArtifactsList`, `EventsTimeline`, `UpdateStatusDialog`, `RecordEventDialog`, `UpdateFitScoreDialog`, `MarkdownPreviewDialog`.

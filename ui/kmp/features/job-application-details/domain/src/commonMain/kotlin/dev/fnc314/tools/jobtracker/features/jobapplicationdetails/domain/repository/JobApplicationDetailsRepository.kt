@@ -8,7 +8,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 /**
  * Domain repository contract managing detail queries, status transitions, and audit events for a single application.
  */
-public interface JobApplicationsDetailsRepository {
+public interface JobApplicationDetailsRepository {
 
     /**
      * Retrieves an individual job application by its slug or UUID identifier.

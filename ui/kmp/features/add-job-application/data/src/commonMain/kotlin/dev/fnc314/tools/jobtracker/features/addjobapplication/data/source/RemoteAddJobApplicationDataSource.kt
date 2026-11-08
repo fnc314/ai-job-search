@@ -4,7 +4,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.source.RemoteDataSource
 
-public interface RemoteAddJobApplicationDataSource {
+internal interface RemoteAddJobApplicationDataSource {
     public suspend fun saveJobApplication(application: JobApplication): String
     public suspend fun recordEvent(event: TrackerEvent): String
 }

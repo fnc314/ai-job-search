@@ -87,7 +87,7 @@ import org.koin.compose.koinInject
  * @param modifier Composable layout modifier.
  */
 @Composable
-public fun JobApplicationsDetailsScreen(
+public fun JobApplicationDetailsScreen(
     applicationId: String,
     viewModel: JobApplicationDetailViewModel = koinInject(),
     onNavigateBack: () -> Unit,

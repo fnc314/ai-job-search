@@ -27,7 +27,7 @@ This architecture plan outlines the design and refactoring strategy to introduce
 
 ### [NEW / MODIFY] Core / Feature Data Source Abstractions
 - Define shared Firestore extension helpers for common document collection queries.
-- Refactor feature data sources (`RemoteJobApplicationsListDataSourceImpl`, `RemoteJobApplicationsDetailsDataSourceImpl`, etc.) to inherit or compose generic Firestore operations.
+- Refactor feature data sources (`RemoteJobApplicationsListDataSourceImpl`, `RemoteJobApplicationDetailsDataSourceImpl`, etc.) to inherit or compose generic Firestore operations.
 
 ---
 

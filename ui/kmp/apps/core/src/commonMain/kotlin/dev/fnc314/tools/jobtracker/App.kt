@@ -27,7 +27,7 @@ import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddApplicationR
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.addJobApplicationNavHook
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.DetailRoute
-import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.jobApplicationsDetailsNavHook
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.jobApplicationDetailsNavHook
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.ListRoute
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.jobApplicationsListNavHook
 import dev.fnc314.tools.jobtracker.features.settings.ui.SettingsRoute
@@ -125,7 +125,7 @@ public fun App(): Unit {
                   onSettingsChange = { settingsRepository.updateSettings(it) },
                 ) (this, navController)
 
-                jobApplicationsDetailsNavHook(
+                jobApplicationDetailsNavHook(
                   settings = settings,
                   onNavigateBack = { navController.popBackStack() },
                 ) (this, navController)

@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source
+package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source.impl
 
 import dev.fnc314.tools.jobtracker.core.data.database.DatabaseHolder
 import dev.fnc314.tools.jobtracker.core.data.database.JobApplicationMapper
@@ -6,18 +6,13 @@ import dev.fnc314.tools.jobtracker.core.data.database.dao.JobApplicationDao
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.source.LocalDataSource
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source.LocalJobApplicationDetailsDataSource
 
-public interface LocalJobApplicationsDetailsDataSource {
-    public suspend fun getJobApplication(id: String): JobApplication?
-    public suspend fun saveJobApplication(application: JobApplication): Unit
-    public suspend fun getCompanies(): List<Company>
-    public suspend fun saveCompanies(companies: List<Company>): Unit
-}
-
-internal class LocalJobApplicationsDetailsDataSourceImpl(
+@Suppress("UnusedPrivateProperty")
+internal class LocalJobApplicationDetailsDataSourceImpl(
     private val databaseHolder: DatabaseHolder? = null,
     private val localDataSource: LocalDataSource? = null,
-) : LocalJobApplicationsDetailsDataSource {
+) : LocalJobApplicationDetailsDataSource {
     private val applicationCache = mutableMapOf<String, JobApplication>()
     private val companyCache = mutableListOf<Company>()
 
@@ -35,7 +30,7 @@ internal class LocalJobApplicationsDetailsDataSourceImpl(
         return applicationCache[id]
     }
 
-    override suspend fun saveJobApplication(application: JobApplication): Unit {
+    override suspend fun saveJobApplication(application: JobApplication) {
         applicationCache[application.id] = application
         val dbDao = dao
         if (dbDao != null) {
@@ -47,7 +42,7 @@ internal class LocalJobApplicationsDetailsDataSourceImpl(
 
     override suspend fun getCompanies(): List<Company> = companyCache.toList()
 
-    override suspend fun saveCompanies(companies: List<Company>): Unit {
+    override suspend fun saveCompanies(companies: List<Company>) {
         companyCache.clear()
         companyCache.addAll(companies)
     }

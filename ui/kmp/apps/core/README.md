@@ -19,7 +19,7 @@ The `apps/core` module is the **thin assembler** of the multiplatform client app
 Its sole responsibilities are:
 1. **Application Shell & Scaffold (`AppScaffold.kt`)**: Material 3 root scaffolding with dynamic `CenterAlignedTopAppBar` (back navigation arrow, dynamic title, search & calendar action buttons) and adaptive navigation (compact `NavigationBar` vs medium/expanded `NavigationRail`).
 2. **Top-Level Navigation Host (`App.kt`)**: Assembling feature navigation hooks (`FeatureNavigationHook`) into the root `NavHost` using `NavKeyRoute` entries.
-3. **Dependency Injection Graph (`AppDI.kt`)**: Uniting foundational modules (`coreDataModule`, `coreNetworkModule`) and feature modules (`signInFeatureModule`, `jobApplicationsListFeatureModule`, `jobApplicationsDetailsFeatureModule`, `settingsFeatureModule`, `addJobApplicationFeatureModule`, `trackerEditsFeatureModule`).
+3. **Dependency Injection Graph (`AppDI.kt`)**: Uniting foundational modules (`coreDataModule`, `coreNetworkModule`) and feature modules (`signInFeatureModule`, `jobApplicationsListFeatureModule`, `jobApplicationDetailsFeatureModule`, `settingsFeatureModule`, `addJobApplicationFeatureModule`, `trackerEditsFeatureModule`).
 4. **Platform Bridge (`MainViewController.kt`)**: Providing the iOS entry point `ComposeUIViewController`.
 
 ---

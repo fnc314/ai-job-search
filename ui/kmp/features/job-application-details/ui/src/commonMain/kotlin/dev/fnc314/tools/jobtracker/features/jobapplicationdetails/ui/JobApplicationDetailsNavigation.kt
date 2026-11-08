@@ -31,16 +31,17 @@ public data class DetailRoute(public val applicationId: String) : NavKey {
  * @param onNavigateBack Callback invoked when the user requests returning to the prior screen.
  * @return Configured [FeatureNavigationHook] ready for graph registration.
  */
-public fun jobApplicationsDetailsNavHook(
+public fun jobApplicationDetailsNavHook(
     settings: AppSettings = AppSettings(),
     onNavigateBack: () -> Unit,
-): FeatureNavigationHook = FeatureNavigationHook { navGraphBuilder, _ ->
-    navGraphBuilder.composable<DetailRoute> { backStackEntry ->
-        val route: DetailRoute = backStackEntry.toRoute()
-        JobApplicationsDetailsScreen(
-            applicationId = route.applicationId,
-            onNavigateBack = onNavigateBack,
-            settings = settings,
-        )
+): FeatureNavigationHook =
+    FeatureNavigationHook { navGraphBuilder, _ ->
+        navGraphBuilder.composable<DetailRoute> { backStackEntry ->
+            val route: DetailRoute = backStackEntry.toRoute()
+            JobApplicationDetailsScreen(
+                applicationId = route.applicationId,
+                onNavigateBack = onNavigateBack,
+                settings = settings,
+            )
+        }
     }
-}

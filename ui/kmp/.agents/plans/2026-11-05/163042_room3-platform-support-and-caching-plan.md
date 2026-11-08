@@ -445,7 +445,7 @@ Update `LocalJobApplicationsListDataSourceImpl`:
   - Update memory cache.
 
 #### [MODIFY] `jobapplicationdetails`
-Update `LocalJobApplicationsDetailsDataSourceImpl`:
+Update `LocalJobApplicationDetailsDataSourceImpl`:
 - In `getJobApplication(id)`:
   - Query `jobApplicationDao.getById(id)?.toDomain()`.
   - Fall back to memory cache.

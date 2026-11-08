@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source
+package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source.impl
 
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.Company
@@ -6,18 +6,12 @@ import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.source.RemoteDataSource
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source.RemoteJobApplicationDetailsDataSource
 
-public interface RemoteJobApplicationsDetailsDataSource {
-    public suspend fun getJobApplication(id: String): JobApplication?
-    public suspend fun getCompanies(): List<Company>
-    public suspend fun updateStatus(id: String, status: TrackerStatus, date: String?, note: String?): JobApplication
-    public suspend fun recordEvent(event: TrackerEvent): String
-    public suspend fun updateFitScore(id: String, score: Int): JobApplication
-}
-
-internal class RemoteJobApplicationsDetailsDataSourceImpl(
+@Suppress("UnusedPrivateProperty")
+internal class RemoteJobApplicationDetailsDataSourceImpl(
     private val remoteDataSource: RemoteDataSource? = null,
-) : RemoteJobApplicationsDetailsDataSource {
+) : RemoteJobApplicationDetailsDataSource {
     override suspend fun getJobApplication(id: String): JobApplication? = null
     override suspend fun getCompanies(): List<Company> = emptyList()
     override suspend fun updateStatus(id: String, status: TrackerStatus, date: String?, note: String?): JobApplication {

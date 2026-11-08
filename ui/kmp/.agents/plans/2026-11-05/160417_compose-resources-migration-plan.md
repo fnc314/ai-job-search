@@ -256,7 +256,7 @@ Each module defines a canonical `packageOfResClass`:
 </resources>
 ```
 
-#### [MODIFY] `JobApplicationsDetailsScreen.kt`, `DetailDialogs.kt`, `EventsTimeline.kt`, `ArtifactsList.kt`, `JobApplicationsDetailsNavigation.kt`
+#### [MODIFY] `JobApplicationDetailsScreen.kt`, `DetailDialogs.kt`, `EventsTimeline.kt`, `ArtifactsList.kt`, `JobApplicationDetailsNavigation.kt`
 - `DetailRoute.titleRes = Res.string.detail_route_title`.
 - Bind target-paired actions: `stringResource(Res.string.detail_action_update_status, model.companyName)`.
 

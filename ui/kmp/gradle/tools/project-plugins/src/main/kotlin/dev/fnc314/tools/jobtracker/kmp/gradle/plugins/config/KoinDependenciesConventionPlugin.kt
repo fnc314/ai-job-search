@@ -4,9 +4,9 @@ import dev.fnc314.tools.jobtracker.kmp.gradle.catalog.CatalogTypes
 import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.BaseConventionPlugin
 import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.commonMain
 import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.kotlinMultiplatform
-import org.koin.compiler.plugin.KoinGradleExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.koin.compiler.plugin.KoinGradleExtension
 
 /**
  * Concern convention plugin providing Koin core and Compose multiplatform dependency injection bundles.
@@ -25,12 +25,13 @@ public class KoinDependenciesConventionPlugin : Plugin<Project>, BaseConventionP
                 .warn(
                     """
                     |WARNING: Koin Gradle Plugin is applied to the project '${project.name}'.
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
         }
         kotlinMultiplatform {
             commonMain {
                 dependencies {
+                    implementation(CatalogTypes.Bundles.KOIN(project))
                     implementation(CatalogTypes.Bundles.KOIN_COMPILER(project))
                 }
             }

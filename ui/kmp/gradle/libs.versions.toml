@@ -168,7 +168,6 @@
     "kmp-inspector-room",
   ]
   koin = [
-    "koin-core",
     "koin-compose",
     "koin-viewmodel",
   ]

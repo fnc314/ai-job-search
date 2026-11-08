@@ -289,7 +289,7 @@ public interface JobApplicationsDetailsRepository {
 ```
 
 #### [NEW] Data Sources in `features/job-application-details/data/.../source/`
-- `RemoteJobApplicationsDetailsDataSource` + `internal class RemoteJobApplicationsDetailsDataSourceImpl`
+- `RemoteJobApplicationDetailsDataSource` + `internal class RemoteJobApplicationsDetailsDataSourceImpl`
 - `NetworkJobApplicationsDetailsDataSource` + `internal class NetworkJobApplicationsDetailsDataSourceImpl`
 - `LocalJobApplicationsDetailsDataSource` + `internal class LocalJobApplicationsDetailsDataSourceImpl`
 
@@ -297,7 +297,7 @@ public interface JobApplicationsDetailsRepository {
 `internal class JobApplicationsDetailsRepositoryImpl(...) : JobApplicationsDetailsRepository`.
 
 #### [MODIFY] Use Cases in `features:job-applications-details:data`
-Update all 6 use cases to consume `JobApplicationsDetailsRepository`.
+Update all 6 use cases to consume `JobApplicationDetailsRepository`.
 
 ---
 
