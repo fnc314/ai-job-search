@@ -1,7 +1,8 @@
-package dev.fnc314.tools.jobtracker.features.signin.ui
+package dev.fnc314.tools.jobtracker.features.signin.ui.di
 
 import dev.fnc314.tools.jobtracker.features.signin.data.di.signInDataModule
 import dev.fnc314.tools.jobtracker.features.signin.domain.di.signInDomainModule
+import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
