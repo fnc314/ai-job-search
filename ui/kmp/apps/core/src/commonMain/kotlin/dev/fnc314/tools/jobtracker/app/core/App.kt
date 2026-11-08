@@ -48,114 +48,117 @@ import org.koin.dsl.koinConfiguration
  * monitors authentication status, and coordinates navigation across all feature modules.
  */
 @Composable
-public fun App(): Unit {
-  KoinApplication(
-    configuration = koinConfiguration(
-        declaration = {
-            modules(appModule)
-        },
-    ),
-  ) {
-    val settingsRepository = koinInject<AppSettingsRepository>()
-    val settings by settingsRepository.settings.collectAsState()
-    val systemDark = isSystemInDarkTheme()
-    val isDark = settings.isDark(systemDark)
-
-    val seedColor = settings.seedColorHex.toColorOrNull() ?: SeedColors.ProfessionalBlue
-
-    // Observe auth state from the AuthRepository singleton
-    val authRepository = koinInject<AuthRepository>()
-
-    // Initialize auth state on app start (restores Firebase auth session)
-    var authInitialized by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-      authRepository.initAuthState()
-      authInitialized = true
-    }
-    if (!authInitialized) return@KoinApplication
-
-    val authState by authRepository.authState.collectAsState()
-    val isAuthenticated = authState is AuthState.Authenticated
-
-    val navController = rememberNavController()
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    // React to authentication changes
-    LaunchedEffect(isAuthenticated) {
-      if (isAuthenticated) {
-        navController.navigate(ListRoute) {
-          popUpTo(SignInRoute) { inclusive = true }
-        }
-      } else {
-        navController.navigate(SignInRoute) {
-          popUpTo(0) { inclusive = true }
-        }
-      }
-    }
-
-    JobTrackerTheme(
-      darkTheme = isDark,
-      seedColor = seedColor,
+public fun App() {
+    KoinApplication(
+        configuration =
+            koinConfiguration(
+                declaration = {
+                    modules(appModule)
+                },
+            ),
     ) {
-      ProvideWindowSizeClass {
-        KmpInspector {
-          Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
-          ) {
-            AppScaffold(
-              navController = navController,
-              isAuthenticated = isAuthenticated,
-              snackbarHostState = snackbarHostState,
-            ) { _ ->
-              NavHost(
-                navController = navController,
-                startDestination = if (isAuthenticated) ListRoute else SignInRoute,
-                modifier = Modifier.fillMaxSize(),
-              ) {
-                signInNavHook(this, navController)
+        val settingsRepository = koinInject<AppSettingsRepository>()
+        val settings by settingsRepository.settings.collectAsState()
+        val systemDark = isSystemInDarkTheme()
+        val isDark = settings.isDark(systemDark)
 
-                jobApplicationsListNavHook(
-                  onApplicationClick = { id -> navController.navigate(DetailRoute(id)) },
-                  onAddApplicationClick = { navController.navigate(AddApplicationRoute) },
-                  onAddLeadClick = { navController.navigate(AddLeadRoute) },
-                  onEditsClick = { navController.navigate(EditsRoute) },
-                  onSettingsClick = { navController.navigate(SettingsRoute) },
-                  settings = settings,
-                  onSettingsChange = { settingsRepository.updateSettings(it) },
-                ) (this, navController)
+        val seedColor =
+            settings.seedColorHex.toColorOrNull()
+                ?: SeedColors.ProfessionalBlue
 
-                jobApplicationDetailsNavHook(
-                  settings = settings,
-                  onNavigateBack = { navController.popBackStack() },
-                ) (this, navController)
+        // Observe auth state from the AuthRepository singleton
+        val authRepository = koinInject<AuthRepository>()
 
-                addJobApplicationNavHook(
-                  onNavigateBack = { navController.popBackStack() },
-                ) (this, navController)
-
-                trackerEditsNavHook(
-                  onNavigateBack = { navController.popBackStack() },
-                  onEditClick = { appId -> navController.navigate(DetailRoute(appId)) },
-                  settings = settings,
-                  onSettingsChange = { settingsRepository.updateSettings(it) },
-                ) (this, navController)
-
-                settingsNavHook(
-                  settings = settings,
-                  onSettingsChange = { settingsRepository.updateSettings(it) },
-                  onNavigateBack = { navController.popBackStack() },
-                  onSignOut = {
-                    navController.navigate(SignInRoute) {
-                      popUpTo(0) { inclusive = true }
-                    }
-                  },
-                ) (this, navController)
-              }
-            }
-          }
+        // Initialize auth state on app start (restores Firebase auth session)
+        var authInitialized by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            authRepository.initAuthState()
+            authInitialized = true
         }
-      }
+        if (!authInitialized) return@KoinApplication
+
+        val authState by authRepository.authState.collectAsState()
+        val isAuthenticated = authState is AuthState.Authenticated
+
+        val navController = rememberNavController()
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        // React to authentication changes
+        LaunchedEffect(isAuthenticated) {
+            if (isAuthenticated) {
+                navController.navigate(ListRoute) {
+                    popUpTo(SignInRoute) { inclusive = true }
+                }
+            } else {
+                navController.navigate(SignInRoute) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
+
+        JobTrackerTheme(
+            darkTheme = isDark,
+            seedColor = seedColor,
+        ) {
+            ProvideWindowSizeClass {
+                KmpInspector {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background,
+                    ) {
+                        AppScaffold(
+                            navController = navController,
+                            isAuthenticated = isAuthenticated,
+                            snackbarHostState = snackbarHostState,
+                        ) { _ ->
+                            NavHost(
+                                navController = navController,
+                                startDestination = if (isAuthenticated) ListRoute else SignInRoute,
+                                modifier = Modifier.fillMaxSize(),
+                            ) {
+                                signInNavHook(this, navController)
+
+                                jobApplicationsListNavHook(
+                                    onApplicationClick = { id -> navController.navigate(DetailRoute(id)) },
+                                    onAddApplicationClick = { navController.navigate(AddApplicationRoute) },
+                                    onAddLeadClick = { navController.navigate(AddLeadRoute) },
+                                    onEditsClick = { navController.navigate(EditsRoute) },
+                                    onSettingsClick = { navController.navigate(SettingsRoute) },
+                                    settings = settings,
+                                    onSettingsChange = { settingsRepository.updateSettings(it) },
+                                )
+
+                                jobApplicationDetailsNavHook(
+                                    settings = settings,
+                                    onNavigateBack = { navController.popBackStack() },
+                                )
+
+                                addJobApplicationNavHook(
+                                    onNavigateBack = { navController.popBackStack() },
+                                )
+
+                                trackerEditsNavHook(
+                                    onNavigateBack = { navController.popBackStack() },
+                                    onEditClick = { appId -> navController.navigate(DetailRoute(appId)) },
+                                    settings = settings,
+                                    onSettingsChange = { settingsRepository.updateSettings(it) },
+                                )
+
+                                settingsNavHook(
+                                    settings = settings,
+                                    onSettingsChange = { settingsRepository.updateSettings(it) },
+                                    onNavigateBack = { navController.popBackStack() },
+                                    onSignOut = {
+                                        navController.navigate(SignInRoute) {
+                                            popUpTo(0) { inclusive = true }
+                                        }
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
-  }
 }
