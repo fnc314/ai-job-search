@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.features.signin.domain.repository
+package dev.fnc314.tools.jobtracker.features.signin.data.repository
 
 import dev.fnc314.tools.jobtracker.core.data.model.AuthState
 import dev.fnc314.tools.jobtracker.core.data.model.UserAccount
@@ -10,12 +10,12 @@ import kotlinx.coroutines.flow.StateFlow
 public interface AuthRepository {
 
     /**
-     * Observable stream emitting real-time authentication status [AuthState].
+     * Observable stream emitting real-time authentication status [dev.fnc314.tools.jobtracker.core.data.model.AuthState].
      */
     public val authState: StateFlow<AuthState>
 
     /**
-     * Currently authenticated user profile [UserAccount], or null if unauthenticated.
+     * Currently authenticated user profile [dev.fnc314.tools.jobtracker.core.data.model.UserAccount], or null if unauthenticated.
      */
     public val currentUser: UserAccount?
 

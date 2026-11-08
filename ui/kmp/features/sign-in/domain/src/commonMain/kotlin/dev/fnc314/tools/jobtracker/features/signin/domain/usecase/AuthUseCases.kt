@@ -2,13 +2,13 @@ package dev.fnc314.tools.jobtracker.features.signin.domain.usecase
 
 import dev.fnc314.tools.jobtracker.core.data.model.AuthState
 import dev.fnc314.tools.jobtracker.core.data.model.UserAccount
-import dev.fnc314.tools.jobtracker.features.signin.domain.repository.AuthRepository
+import dev.fnc314.tools.jobtracker.features.signin.data.repository.AuthRepository
 import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Use case observing the active [AuthState] stream.
  *
- * @param authRepository Backing [AuthRepository] instance.
+ * @param authRepository Backing [dev.fnc314.tools.jobtracker.features.signin.data.repository.AuthRepository] instance.
  */
 public class ObserveAuthStateUseCase(
     private val authRepository: AuthRepository,
@@ -24,7 +24,7 @@ public class ObserveAuthStateUseCase(
 /**
  * Use case retrieving the currently signed-in user account.
  *
- * @param authRepository Backing [AuthRepository] instance.
+ * @param authRepository Backing [dev.fnc314.tools.jobtracker.features.signin.data.repository.AuthRepository] instance.
  */
 public class GetCurrentUserUseCase(
     private val authRepository: AuthRepository,
@@ -40,7 +40,7 @@ public class GetCurrentUserUseCase(
 /**
  * Use case signing out the active user session.
  *
- * @param authRepository Backing [AuthRepository] instance.
+ * @param authRepository Backing [dev.fnc314.tools.jobtracker.features.signin.data.repository.AuthRepository] instance.
  */
 public class SignOutUseCase(
     private val authRepository: AuthRepository,

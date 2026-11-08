@@ -6,7 +6,7 @@ import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.data.settings.UiMode
 import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.ObserveSettingsUseCase
 import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.UpdateSettingsUseCase
-import dev.fnc314.tools.jobtracker.features.signin.domain.repository.AuthRepository
+import dev.fnc314.tools.jobtracker.features.signin.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

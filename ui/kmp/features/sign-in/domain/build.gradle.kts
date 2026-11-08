@@ -7,6 +7,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.featuresSignInData)
             implementation(projects.coreData)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.koin.core)

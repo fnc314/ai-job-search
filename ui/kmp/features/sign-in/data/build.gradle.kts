@@ -9,7 +9,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.coreData)
-            implementation(projects.featuresSignInDomain)
             implementation(libs.kotlinx.coroutines.core)
         }
         androidMain.dependencies {

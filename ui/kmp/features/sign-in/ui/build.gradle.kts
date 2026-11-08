@@ -13,8 +13,8 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.coreData)
             implementation(projects.coreNavigation)
-            api(projects.featuresSignInDomain)
-            implementation(projects.featuresSignInData)
+            implementation(projects.featuresSignInDomain)
+            api(projects.featuresSignInData)
             implementation(projects.coreWidgets)
             implementation(libs.bundles.androidx.lifecycle.compose)
             implementation(libs.kotlinx.coroutines.core)

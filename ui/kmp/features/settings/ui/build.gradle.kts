@@ -16,7 +16,7 @@ kotlin {
             implementation(projects.coreWidgets)
             implementation(projects.featuresSettingsDomain)
             implementation(projects.featuresSettingsData)
-            implementation(projects.featuresSignInDomain)
+            implementation(projects.featuresSignInData)
             implementation(projects.featuresSignInUi)
             implementation(libs.bundles.androidx.lifecycle.compose)
             implementation(libs.kotlinx.coroutines.core)
