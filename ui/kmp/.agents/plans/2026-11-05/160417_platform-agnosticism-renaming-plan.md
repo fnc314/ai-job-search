@@ -199,8 +199,8 @@ public class JobApplicationDetailViewModel(
 - Delete dead template graphic per user decision.
 
 #### [MODIFY] Application Entrypoints:
-- `apps/android/src/main/kotlin/dev/fnc314/tools/jobtracker/MainActivity.kt`: Reference `appDIModule`.
-- `apps/desktop/src/main/kotlin/dev/fnc314/tools/jobtracker/main.kt`: Reference `appDIModule`.
+- `../../../apps/android/src/main/kotlin/dev/fnc314/tools/jobtracker/app/android/MainActivity.kt`: Reference `appDIModule`.
+- `../../../apps/desktop/src/main/kotlin/dev/fnc314/tools/jobtracker/app/desktop/main.kt`: Reference `appDIModule`.
 - `apps/web/src/webMain/kotlin/dev/fnc314/tools/jobtracker/main.kt`: Reference `appDIModule`.
 
 ---

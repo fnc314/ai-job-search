@@ -17,7 +17,7 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "dev.fnc314.tools.jobtracker.MainKt"
+        mainClass = "dev.fnc314.tools.jobtracker.app.desktop.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

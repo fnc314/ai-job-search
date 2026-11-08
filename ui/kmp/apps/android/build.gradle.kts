@@ -29,7 +29,7 @@ dependencies {
 }
 
 android {
-    namespace = "dev.fnc314.tools.jobtracker"
+    namespace = "dev.fnc314.tools.jobtracker.app.android"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {

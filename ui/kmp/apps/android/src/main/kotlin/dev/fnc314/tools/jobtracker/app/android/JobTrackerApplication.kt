@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker
+package dev.fnc314.tools.jobtracker.app.android
 
 import android.app.Application
 import com.google.firebase.FirebaseApp

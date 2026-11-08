@@ -8,9 +8,7 @@ plugins {
 
 plugins.withType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin> {
     extensions.configure<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec>("kotlinNodeJsSpec") {
-        version.set(
-            libs.versions.node
-        )
+        version = libs.versions.node
     }
 }
 
