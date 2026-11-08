@@ -37,5 +37,5 @@ When you have a link to a job you want to apply for, use this command to evaluat
 If you installed LaTeX in Step 1, you will instantly find ready-to-send PDF files in your `templates/cv/` and `templates/cover-letters/` folders!
 
 ### 5. Track Applications (TUI & Web Dashboard)
-- **Terminal UI Tracker:** Launch the interactive keyboard tracker via `python3 ui/terminal/tracker_tui.py` (configured via `ui/terminal/tui_config.json`).
-- **Web Dashboard Server:** Quickly serve and inspect your HTML dashboard with `python3 ui/web/application-dashboard-server.py` (serves `ui/web/application-dashboard.html` at `http://127.0.0.1:8000`).
+- **Terminal UI Tracker:** Launch the interactive keyboard tracker via `mise run tui` (or `mise tui`).
+- **Web Dashboard Server:** Quickly serve and inspect your HTML dashboard with `mise run dashboard` (or `mise dashboard`, serves at `http://127.0.0.1:8000`).

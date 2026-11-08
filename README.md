@@ -270,7 +270,7 @@ The `/apply` command executes a rigorous **drafter-reviewer workflow** with auto
 
 ## Contributing & Upstream Synchronization
 
-- Upstream releases are tagged in GitHub releases. Use `python3 tools/check_upstream_updates.py` to preview upstream updates against your personalized files.
+- Upstream releases are tagged in GitHub releases. Use `mise run dev:check-upstream` to preview upstream updates against your personalized files.
 - Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for PR guidelines and [SECURITY.md](SECURITY.md) for untrusted data handling rules.
 
 ## Acknowledgements

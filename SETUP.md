@@ -9,23 +9,23 @@ wizard verifies the live connection, seeds the schema after confirmation, and ca
 populate the ordinary tracker workflow with a namespaced mock record:
 
 ```bash
-.venv/bin/python scripts/setup.py --check  # read-only readiness report
-.venv/bin/python scripts/setup.py --sheet  # interactive setup; also regenerates the Sheet
+mise run setup --check  # read-only readiness report
+mise run setup --sheet  # interactive setup; also regenerates the Sheet
 ```
 
 Mock applications use companies beginning with `Mock ` and mock message IDs beginning
 with `mock`. The generator writes only a plain inbox-read JSON payload — it makes **no
-Composio call** — then normal `tracker.py import` and `tracker.py collect` create the
+Composio call** — then normal `mise run tracker import` and `mise run email:collect` create the
 Firestore documents and pending proposals. The TUI, dashboard, generated Sheet, and
 proposal review behave normally.
 
 ```bash
 # Preview exactly what would be removed (read-only)
-.venv/bin/python tools/mock_data.py --clear
+mise run tracker mock-clear
 
 # Delete only namespaced mock applications, their events/artifacts, matching pending
 # proposals, and mock processed-message IDs. Requires TRACKER_ALLOW_WRITES=1.
-.venv/bin/python tools/mock_data.py --clear --apply
+mise run tracker mock-clear --apply
 ```
 
 ## 1. Prerequisites
@@ -351,8 +351,7 @@ If you have salary data (from a union, salary survey, Glassdoor, or personal res
 1. **Option A:** Create `salary_data.json` manually in the repo root (see `tools/README_SALARY_TOOL.md` for the format)
 2. **Option B:** Convert from Excel:
    ```bash
-   pip install openpyxl
-   python3 tools/convert_salary_excel.py path/to/salary-data.xlsx --source "My Salary Data 2025"
+   mise run salary:convert-excel path/to/salary-data.xlsx --source "My Salary Data 2025"
    ```
 
 This creates `salary_data.json` which the `/apply` workflow uses for salary benchmarking. If you skip this step, salary lookup is simply omitted.
@@ -406,12 +405,12 @@ Once the project, service account, and `.env.local` from step 1 exist:
 
 ```bash
 # Validate the contract, then seed meta/schema
-.venv/bin/python scripts/tracker.py check
-.venv/bin/python scripts/tracker.py seed
+mise run tracker check
+mise run tracker seed
 
 # Optional: import an existing CSV (idempotent; re-running skips imported rows)
-.venv/bin/python scripts/tracker.py import --csv path/to/job_search_tracker.csv --dry-run
-.venv/bin/python scripts/tracker.py import --csv path/to/job_search_tracker.csv
+mise run tracker import --csv path/to/job_search_tracker.csv --dry-run
+mise run tracker import --csv path/to/job_search_tracker.csv
 ```
 
 Writes are refused unless `TRACKER_ALLOW_WRITES=1` is set in the environment; `.env.local` provides it, and `mise` loads that file for you.
@@ -421,7 +420,7 @@ Writes are refused unless `TRACKER_ALLOW_WRITES=1` is set in the environment; `.
 Create a spreadsheet, share it with the service-account email as **Editor**, put its id in `TRACKER_SHEET_ID`, then:
 
 ```bash
-.venv/bin/python scripts/tracker.py sheet --sync
+mise run tracker sheet --sync
 ```
 
 The three tabs (Applications, Events, Summary) are replaced wholesale. Never hand-edit the Sheet: fix the record and re-sync.
@@ -429,25 +428,25 @@ The three tabs (Applications, Events, Summary) are replaced wholesale. Never han
 ### Interactive Terminal TUI
 Run the keyboard-navigable terminal tracker:
 ```bash
-.venv/bin/python ui/terminal/tracker_tui.py
+mise run tui
 ```
 Use `j`/`k` to navigate, `Enter` to view full dossiers and outreach templates, and `1`–`5` to sort columns. Layout preferences can be tweaked in `ui/terminal/tui_config.json`.
 
 ### Web Dashboard & Server
 Launch the local web dashboard server (auto-opens in your browser):
 ```bash
-.venv/bin/python ui/web/application-dashboard-server.py
+mise run dashboard
 ```
 - Open `http://127.0.0.1:8000` to review status KPIs, interview conversion funnel, and sector distributions.
-- Visit `http://127.0.0.1:8000/refresh` or run `.venv/bin/python scripts/generate_report.py` to regenerate the HTML report from the tracker.
+- Visit `http://127.0.0.1:8000/refresh` or run `mise run report` to regenerate the HTML report from the tracker.
 
-### Gmail sync and the scheduled fetch (macOS)
+### Email sync and the scheduled fetch (macOS)
 
-`/gmail-sync` fetches mail, stages a **proposal**, and waits for your review. The fetch half also runs unattended:
+`/email-sync` fetches mail, stages a **proposal**, and waits for your review. The fetch half also runs unattended:
 
 ```bash
 # one manual run
-./scripts/gmail-fetch.sh
+mise run email:read-inbox
 
 # install the two launchd agents (fetch every 12h, sync-due every 15min)
 cp deploy/launchd/dev.fnc314.tracker-gmail-fetch.plist ~/Library/LaunchAgents/
@@ -459,7 +458,7 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/dev.fnc314.tracker-colle
 Both agents read the service-account key from disk and reuse your Composio CLI login; nothing is embedded in the plists. Logs: `~/Library/Logs/job-tracker-gmail-fetch.log` and `~/Library/Logs/job-tracker-collect.log`. Review what was staged with:
 
 ```bash
-.venv/bin/python scripts/tracker.py proposals list --state proposal:pending
+mise run tracker proposals list --state proposal:pending
 ```
 
 The fetcher pages 50 messages at a time because Composio rejects larger single responses, and it never approves a proposal itself.
@@ -468,11 +467,11 @@ The fetcher pages 50 messages at a time because Composio rejects larger single r
 
 ```bash
 # offline suite
-.venv/bin/python -m unittest discover -s tests
+mise run test
 
 # full suite incl. Firestore emulator (Java required)
 firebase emulators:exec --only firestore --project job-search-tracker-test \
-  ".venv/bin/python -m unittest discover -s tests"
+  "mise run test"
 ```
 
 ## 9. Pulling upstream updates into your fork
@@ -485,7 +484,7 @@ Upstream keeps improving the methodology files your fork has personalized, so pl
 2. **Preview what changed before pulling:**
    ```bash
    git fetch upstream    # or origin, if you cloned the template directly
-   python3 tools/check_upstream_updates.py
+   mise run dev:check-upstream
    ```
    It compares the `framework_version` markers in your framework files against upstream and lists exactly which methodology files changed, with the diff command for each.
 3. **Merge normally.** `git merge upstream/master` (or `git pull`) three-way-merges upstream's edits around your personalization; because methodology edits rarely touch the lines `/setup` filled in, most updates land cleanly. A conflict in a personalized file is a *feature*, not a failure — it means upstream changed methodology in a section you customized, and the version marker plus its changelog commit tell you why. Resolve by keeping your data and adopting the methodology change around it.
@@ -525,7 +524,7 @@ Make sure Bun is installed and you ran `bun install` in each CLI directory. The 
 The cover letter template expects fonts in `templates/cover-letters/OpenFonts/fonts/`. Make sure this directory exists and contains the Lato and Raleway font files.
 
 ### Stale `.claude/settings.local.json` from an older clone
-Shared Claude Code permissions now live in `.claude/settings.json` (scoped to `bun run`, `python salary_lookup.py`, and `python3 salary_lookup.py`). Earlier versions of this repo committed a broader `.claude/settings.local.json` that pre-approved `Bash(curl:*)`, `Bash(python:*)` and `Bash(bun:*)`. If you cloned before that change, git leaves the old file behind in your working copy, and its permissions still apply on top of `settings.json`. Delete it (or trim it to your own personal overrides):
+Shared Claude Code permissions now live in `.claude/settings.json` (scoped to `bun run`, `mise run:*`, and `mise:*`). Earlier versions of this repo committed a broader `.claude/settings.local.json` that pre-approved `Bash(curl:*)`, `Bash(python:*)` and `Bash(bun:*)`. If you cloned before that change, git leaves the old file behind in your working copy, and its permissions still apply on top of `settings.json`. Delete it (or trim it to your own personal overrides):
 
 ```bash
 rm .claude/settings.local.json

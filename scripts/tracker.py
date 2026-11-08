@@ -18,6 +18,9 @@ Usage:
 
 from __future__ import annotations
 
+import _guard
+_guard.enforce_mise()
+
 import argparse
 import csv
 import datetime as dt

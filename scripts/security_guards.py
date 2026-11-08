@@ -36,8 +36,8 @@ errors: list[str] = []
 ALLOWED_PERMISSIONS = {
     "Skill(job-application-assistant)",
     "Bash(bun run:*)",
-    "Bash(python salary_lookup.py:*)",
-    "Bash(python3 salary_lookup.py:*)",
+    "Bash(mise run:*)",
+    "Bash(mise:*)",
     "Bash(pdftotext:*)",
 }
 

@@ -54,18 +54,18 @@ from the store or local cache). It returns the record with a provenance badge: `
 `csv (pre-migration)`. `TRACKER_SOURCE=store|cache|csv` forces a source.
 A UI that shows stale data must say so; never hide the badge.
 
-## Gmail
+## Email Synchronization
 
-`/gmail-sync` has two halves:
+Email ingestion operates via Composio integration, supporting Gmail or alternative email providers:
 
-- **Fetch + stage:** read Gmail via `mise run gmail:read:inbox`, write `generated/gmail-inbox.json` and
-  `generated/gmail-labels.json`, run `mise run tracker collect --labels …`.
+- **Fetch + stage:** read email via `mise run email:read-inbox`, write `generated/gmail-inbox.json` and
+  `generated/gmail-labels.json`, run `mise run email:collect --labels …`.
   `collect` stages one proposal and writes `meta/sync` only. It never touches
   applications.
-- **Review:** present `mise run tracker proposals show`, wait for an explicit reply, then
-  `mise run tracker proposals approve <id> [--only 1,3]`. Approval emits events in one batch.
+- **Review:** present `mise run proposals show <id>`, wait for an explicit reply, then
+  `mise run proposals approve <id> [--only 1,3]`. Approval emits events in one batch.
 
-Scopes: Primary, Updates, `JOBS`, and every `JOBS/*` label seen last run.
+Scopes: Primary, Updates, `JOBS`, and every `JOBS/*` label/folder seen last run.
 `--label` is validated against `mise run tracker labels`; unknown values are refused,
 not guessed.
 
@@ -74,7 +74,7 @@ not guessed.
 - Blob metadata (`sha256`, `size`, `contentType`, `storage`) lives on the
   artifact document; bytes live in `gs://job-search-fnc314-dev-artifacts`.
   `.gdoc` shortcuts and `externalUrl` records have no blob by design.
-- The Google Sheet is regenerated wholesale (`sheet --sync`) and is never
+- The Google Sheet is regenerated wholesale (`mise run tracker sheet --sync`) and is never
   hand-edited.
 - `generated/` holds disposable caches. Local documents stay in `documents/`.
 
@@ -84,10 +84,10 @@ Two `launchd` user agents, both reading credentials already on disk (the tracker
 service account and the Composio CLI login):
 
 - `dev.fnc314.tracker-gmail-fetch` — every 12 hours, runs
-  `scripts/gmail-fetch.sh`: `gmail_fetch.py` writes `generated/gmail-inbox.json`
-  and `gmail-labels.json`, `tracker.py collect --trigger trigger:cron` stages a
-  proposal, then `sync-due` runs. Review stays interactive.
-- `dev.fnc314.tracker-collect` — every 15 minutes, runs `tracker.py sync-due`.
+  `mise run email:read-inbox`: writes `generated/gmail-inbox.json`
+  and `gmail-labels.json`, runs `mise run email:collect --trigger trigger:cron` to stage a
+  proposal, then `mise run tracker sync-due`. Review stays interactive.
+- `dev.fnc314.tracker-collect` — every 15 minutes, runs `mise run tracker sync-due`.
   A write queues one deferred collection run; `sync-due` leaves requests pending
   when no inbox payload exists, so a missing fetch never consumes the backlog.
 
@@ -98,25 +98,13 @@ produced a change — so a scheduled run over the same mail stages nothing twice
 Inspect with `launchctl print gui/$(id -u)/<label>` and
 `~/Library/Logs/job-tracker-*.log`; install from `deploy/launchd/`.
 
-## Keeping mise.toml in sync
+## Self-Documenting Mise Tasks
 
-Every new `tracker.py` subcommand **must** be reflected in `mise.toml` so that
-`mise tracker <subcommand>` works. The tracker task uses the Usage DSL:
+All commands are defined as modular, executable files in `.config/mise/tasks/`:
 
-1. **Add the subcommand to the `usage` block** — a `cmd "name"` entry with
-   flags and arguments, placed alphabetically among the other commands.
-2. **Add the arguments to the `run` template** — any new flags or arguments
-   need corresponding `{% if usage.xxx %}` clauses so mise passes them through
-   to `scripts/tracker.py`.
-3. **Update the `description` string** — include the new subcommand name in
-   the parenthetical list.
-4. **Update `scripts/specs/tracker.usage.kdl`** — add a matching command spec
-   so zsh completions include the new subcommand.
-5. **Regenerate** — run `mise run mise:docs:tasks` and `mise run completions:generate`.
-
-Without these steps, `mise tracker <new_command>` will fail with
-`unexpected word: <new_command>`. The pre-commit hook will regenerate docs
-and completions, but it cannot add missing Usage DSL entries.
+1. **Add new subcommands or tasks** by creating a new `.py` file in `.config/mise/tasks/<subsystem>/<name>.py`.
+2. **Add metadata and CLI specs** using `#MISE description="..."` and `#USAGE flag ...` or `#USAGE arg ...` comment headers directly in the file.
+3. **Regenerate docs & completions** via `mise run docs:tasks` and `mise run completions:generate`.
 
 ## Before finishing a tracker task
 

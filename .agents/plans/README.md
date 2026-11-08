@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`python-to-mise-tasks-migration-plan.md`](./2026-11-08/180500_python-to-mise-tasks-migration-plan.md) | Completed | Migrate away from direct Python invocations to file-based Mise tasks with environment/virtualenv auto-binding |
 | [`tui-triage-and-fix.md`](./2026-11-06/052500_tui-triage-and-fix.md) | Completed | TUI screen flash and navigation fixes, Firestore erroneously withdrawn applications remediation |
 | [`mise-task-changes.md`](./2026-11-05/230500_mise-task-changes.md) | Completed | Inverted `mise scrape` defaults (markdown output, save-seen), added `mise apply` and `mise rank` tasks |
 | [`migration-execution-and-rollback-plan.md`](./2026-11-05/224500_migration-execution-and-rollback-plan.md) | Completed | Execution and rollback procedure for live Firestore migration to Enum.name matches (Schema v8) |

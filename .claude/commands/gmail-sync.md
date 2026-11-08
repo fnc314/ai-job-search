@@ -2,12 +2,12 @@
 
 You keep the tracker's event history in step with the user's inbox. The work is split in two because they have different trust requirements:
 
-- **Fetch + stage (agent, deterministic result).** Read Gmail, write what you found to `generated/gmail-inbox.json`, and let `tracker.py collect` match, classify, and stage a proposal. This half never touches an application.
+- **Fetch + stage (agent, deterministic result).** Read Gmail/email, write what you found to `generated/gmail-inbox.json`, and let `mise run tracker collect` match, classify, and stage a proposal. This half never touches an application.
 - **Review (agent + human).** Present the staged proposal, wait for approval, then apply the approved changes as events. This half is the only thing that writes application history, and it writes nothing until the user answers.
 
-A cron job cannot do the second half, and an LLM cannot be the authority for the first. `tracker.py sync-due` runs the same `collect` on a 15-minute schedule when a write has queued a deferred sync, so a fetch you stage is reviewed whenever you next run `/gmail-sync`.
+A cron job cannot do the second half, and an LLM cannot be the authority for the first. `mise run tracker sync-due` runs the same `collect` on a 15-minute schedule when a write has queued a deferred sync, so a fetch you stage is reviewed whenever you next run `/gmail-sync`.
 
-The fetch half also runs without an agent: `scripts/gmail-fetch.sh` (installed as the `dev.fnc314.tracker-gmail-fetch` agent, every 12 hours) calls `scripts/gmail_fetch.py`, then `collect`, then `sync-due`. It uses the same Composio connection and writes the same payload, so a proposal may already be waiting when you run this command. `gmail_fetch.py` pages 50 messages at a time; asking Composio for 100+ at once fails with "The tool response payload is too large".
+The fetch half can also run via `mise run email:read-inbox`, then `mise run tracker collect`, then `mise run tracker sync-due`. It uses the Composio connection and writes the same payload, so a proposal may already be waiting when you run this command. `email:read-inbox` pages 50 messages at a time; asking Composio for 100+ at once fails with "The tool response payload is too large".
 
 Follow these steps **in order**.
 
@@ -83,7 +83,7 @@ That returns `{count, labels: [{id, name, type}]}` from `meta/sync.gmail.labels`
 
 `--label <name-or-id>` restricts the fetch to one label instead of the default four areas. **Enumerate it against the stored inventory**, not against a hard-coded list:
 
-1. Run `tracker.py labels`.
+1. Run `mise run tracker labels`.
 2. If `--label` matches a stored `name` or `id` (case-insensitive, and exact — do not fuzzy-match), use `label:"<name>"`.
 3. If it does not match, **stop** and reply with the available names:
    `Unknown label "<input>". Last sync saw: Primary-style categories, JOBS, JOBS/Applications, …`
@@ -259,7 +259,7 @@ If no archive folder exists for an application added outside `/apply`/`/outcome`
 
 ## Step 7: Staleness Check
 
-For open applications whose `timeline.daysSinceActivity` is 30+ days (from `tracker.py list`, never re-parsed prose), add one "needs follow-up" line to the closing summary. Surface only — never write for staleness.
+For open applications whose `timeline.daysSinceActivity` is 30+ days (from `mise run tracker list`, never re-parsed prose), add one "needs follow-up" line to the closing summary. Surface only — never write for staleness.
 
 ---
 
@@ -297,4 +297,4 @@ If nothing was proposed or approved, a short note is enough. If this run pushed 
 6. **Idempotent by message id.** Processed ids live in `meta/sync`; re-fetching the same window must not re-propose it.
 7. **Read-only against Gmail.** No applying labels, archiving, or deleting in the user's mailbox. The only label writes are the local inventory in `meta/sync`.
 8. **All state is personal data.** `generated/gmail-inbox.json`, the local `generated/` cache, and `job-applications/**` are gitignored. Tracker data lives in Firestore, not in the repo.
-9. **The Sheet is a view.** Never hand-edit it; regenerate it with `tracker.py sheet --sync`.
+9. **The Sheet is a view.** Never hand-edit it; regenerate it with `mise run tracker sheet --sync`.
