@@ -6,6 +6,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.source.RemoteDataSource
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.data.source.RemoteJobApplicationsListDataSource
+import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -19,6 +20,11 @@ internal class RemoteJobApplicationsListDataSourceImpl(
         .observeCollection("applications")
         .first()
         .map { record ->
+          val createdAt = record.fields["createdAt"]?.toInstantOrNull()
+            ?: record.fields["created_at"]?.toInstantOrNull()
+          val updatedAt = record.fields["updatedAt"]?.toInstantOrNull()
+            ?: record.fields["updated_at"]?.toInstantOrNull()
+
           Factory.createJobApplication(
             id = record.id,
             company = record.getString("company") ?: record.getString("name") ?: "Unknown Company",
@@ -31,8 +37,20 @@ internal class RemoteJobApplicationsListDataSourceImpl(
             description = record.getString("description"),
             fitRating = record.getLong("fitScore")?.toInt() ?: record.getLong("fitRating")?.toInt(),
             notesRendered = record.getString("notesRendered"),
+            createdAt = createdAt,
+            updatedAt = updatedAt,
           )
         }
     }
+  }
+}
+
+private fun Any?.toInstantOrNull(): Instant? {
+  return when (this) {
+    null -> null
+    is Instant -> this
+    is Long -> Instant.fromEpochMilliseconds(this)
+    is String -> runCatching { Instant.parse(this) }.getOrNull()
+    else -> runCatching { Instant.parse(this.toString()) }.getOrNull()
   }
 }

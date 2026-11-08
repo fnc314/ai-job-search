@@ -4,8 +4,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 
 public fun interface FeatureNavigationHook {
-    public operator fun invoke(
-        navGraphBuilder: NavGraphBuilder,
-        navController: NavHostController,
-    )
+  public operator fun invoke(
+    navGraphBuilder: NavGraphBuilder,
+    navController: NavHostController,
+  )
 }

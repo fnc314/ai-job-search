@@ -149,6 +149,13 @@ public class JobApplicationsListViewModel(
             updatedAt = updatedAt,
             createdAt = createdAt,
         ) ?: ""
+        val createdYyyyMmDd = createdAt?.toString()?.substringBefore('T') ?: ""
+        val appliedYyyyMmDd = timeline?.firstActivityAt?.toString()?.substringBefore('T') ?: createdYyyyMmDd
+        val updatedText = formatSemanticTimestamp(
+            updatedAt = updatedAt,
+            createdAt = createdAt,
+        ) ?: createdYyyyMmDd
+
         return JobApplicationItemUiModel(
             id = id,
             companyName = company,
@@ -159,6 +166,9 @@ public class JobApplicationsListViewModel(
             fitScore = fitScore,
             fitScoreText = fitScore?.let { "Fit $it" },
             formattedCreatedDate = dateText,
+            createdDateYyyyMmDd = createdYyyyMmDd,
+            appliedDateYyyyMmDd = appliedYyyyMmDd,
+            updatedDateText = updatedText,
             onClickIntent = JobApplicationsListUiIntent.SelectApplication(id),
         )
     }

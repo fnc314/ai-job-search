@@ -85,6 +85,7 @@ internal sealed interface CatalogTypes<out T> {
         COMPOSE_UI("compose-ui"),
         COMPOSE_TOOLING("compose-tooling"),
         KTOR_CLIENT("ktor-client"),
+        COIL("coil"),
         KOIN("koin"),
         KOIN_COMPILER("koin-compiler"),
         ANDROIDX_LIFECYCLE_COMPOSE("androidx-lifecycle-compose"),

@@ -10,20 +10,22 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
  * Concern convention plugin providing shared Compose UI, foundation, and tooling dependency bundles.
  */
 public class ComposeDependenciesConventionPlugin : Plugin<Project>, BaseConventionPlugin {
-    override fun apply(target: Project): Unit {
-        target.configurePlugin()
+
+  override fun apply(target: Project) {
+    target.configurePlugin()
+  }
+
+  override fun Project.configurePlugin() {
+    val kotlin = extensions.getByType(KotlinMultiplatformExtension::class.java)
+
+    kotlin.sourceSets.getByName("commonMain").dependencies {
+      implementation(CatalogTypes.Bundles.COMPOSE_UI(project))
+      implementation(CatalogTypes.Bundles.COIL(project))
     }
 
-    override fun Project.configurePlugin(): Unit {
-        val kotlin = extensions.getByType(KotlinMultiplatformExtension::class.java)
-
-        kotlin.sourceSets.getByName("commonMain").dependencies {
-            implementation(CatalogTypes.Bundles.COMPOSE_UI(project))
-        }
-
-        kotlin.sourceSets.findByName("androidMain")?.dependencies {
-            implementation(CatalogTypes.Bundles.COMPOSE_TOOLING(project))
-            implementation(CatalogTypes.Libraries.COMPOSE_CONSTRAINT_LAYOUT(this@configurePlugin))
-        }
+    kotlin.sourceSets.findByName("androidMain")?.dependencies {
+      implementation(CatalogTypes.Bundles.COMPOSE_TOOLING(project))
+      implementation(CatalogTypes.Libraries.COMPOSE_CONSTRAINT_LAYOUT(this@configurePlugin))
     }
+  }
 }

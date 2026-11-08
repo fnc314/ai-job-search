@@ -15,14 +15,14 @@ import org.koin.dsl.module
  * Master Koin module assembling all core, data, network, and feature modules for the application runtime.
  */
 public val appModule: Module = module {
-    includes(
-        coreDataModule,
-        coreNetworkModule,
-        signInFeatureModule,
-        settingsFeatureModule,
-        addJobApplicationFeatureModule,
-        trackerEditsFeatureModule,
-        jobApplicationsListFeatureModule,
-        jobApplicationDetailsFeatureModule,
-    )
+  includes(
+    coreDataModule,
+    coreNetworkModule,
+    signInFeatureModule,
+    settingsFeatureModule,
+    addJobApplicationFeatureModule,
+    trackerEditsFeatureModule,
+    jobApplicationsListFeatureModule,
+    jobApplicationDetailsFeatureModule,
+  )
 }

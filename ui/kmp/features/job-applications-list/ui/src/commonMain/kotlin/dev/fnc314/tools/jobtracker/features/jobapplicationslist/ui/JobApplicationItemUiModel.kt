@@ -30,5 +30,9 @@ public data class JobApplicationItemUiModel(
     public val fitScore: Int?,
     public val fitScoreText: String?,
     public val formattedCreatedDate: String,
+    public val createdDateYyyyMmDd: String,
+    public val appliedDateYyyyMmDd: String,
+    public val updatedDateText: String,
+    public val isExpanded: Boolean = false,
     public val onClickIntent: JobApplicationsListUiIntent,
 )

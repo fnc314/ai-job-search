@@ -21,7 +21,7 @@ public expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>?
  * @return The operational [AppDatabase] instance, or null if initialization fails.
  */
 public fun createRoomDatabase(): AppDatabase? {
-    return runCatching {
-        getDatabaseBuilder()?.build()
-    }.getOrNull()
+  return runCatching {
+    getDatabaseBuilder()?.build()
+  }.getOrNull()
 }

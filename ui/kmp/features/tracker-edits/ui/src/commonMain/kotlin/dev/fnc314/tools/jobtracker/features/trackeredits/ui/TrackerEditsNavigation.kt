@@ -15,8 +15,8 @@ import org.jetbrains.compose.resources.StringResource
  */
 @Serializable
 public data object EditsRoute : NavKey {
-    @Transient
-    override val titleRes: StringResource = Res.string.edits_route_title
+  @Transient
+  override val titleRes: StringResource = Res.string.edits_route_title
 }
 
 /**
@@ -29,17 +29,18 @@ public data object EditsRoute : NavKey {
  * @return Configured [FeatureNavigationHook] ready for graph registration.
  */
 public fun trackerEditsNavHook(
-    onNavigateBack: () -> Unit,
-    onEditClick: (String) -> Unit = {},
-    settings: AppSettings = AppSettings(),
-    onSettingsChange: (AppSettings) -> Unit = {},
-): FeatureNavigationHook = FeatureNavigationHook { navGraphBuilder, _ ->
+  onNavigateBack: () -> Unit,
+  onEditClick: (String) -> Unit = {},
+  settings: AppSettings = AppSettings(),
+  onSettingsChange: (AppSettings) -> Unit = {},
+): FeatureNavigationHook =
+  FeatureNavigationHook { navGraphBuilder, _ ->
     navGraphBuilder.composable<EditsRoute> {
-        TrackerEditsScreen(
-            onNavigateBack = onNavigateBack,
-            onEditClick = onEditClick,
-            settings = settings,
-            onSettingsChange = onSettingsChange,
-        )
+      TrackerEditsScreen(
+        onNavigateBack = onNavigateBack,
+        onEditClick = onEditClick,
+        settings = settings,
+        onSettingsChange = onSettingsChange,
+      )
     }
-}
+  }

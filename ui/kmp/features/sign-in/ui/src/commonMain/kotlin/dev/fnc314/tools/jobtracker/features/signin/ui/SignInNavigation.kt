@@ -15,19 +15,20 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Serializable
 public data object SignInRoute : NavKey {
-    @Transient
-    override val titleRes: StringResource = Res.string.sign_in_route_title
+  @Transient
+  override val titleRes: StringResource = Res.string.sign_in_route_title
 }
 
 /**
  * Navigation hook registering the [SignInRoute] composable in the root navigation graph.
  */
-public val signInNavHook: FeatureNavigationHook = FeatureNavigationHook { navGraphBuilder, _ ->
+public val signInNavHook: FeatureNavigationHook =
+  FeatureNavigationHook { navGraphBuilder, _ ->
     navGraphBuilder.composable<SignInRoute> {
-        val viewModel = koinViewModel<SignInViewModel>()
-        SignInScreen(
-            viewModel = viewModel,
-            onSignInSuccess = {},
-        )
+      val viewModel = koinViewModel<SignInViewModel>()
+      SignInScreen(
+        viewModel = viewModel,
+        onSignInSuccess = {},
+      )
     }
-}
+  }

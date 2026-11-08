@@ -1,5 +1,6 @@
 package dev.fnc314.tools.jobtracker.features.signin.data.di
 
+import dev.fnc314.tools.jobtracker.features.signin.data.createPlatformSignInHandler
 import dev.fnc314.tools.jobtracker.features.signin.data.repository.AuthRepository
 import dev.fnc314.tools.jobtracker.features.signin.data.repository.impl.AuthRepositoryImpl
 import dev.fnc314.tools.jobtracker.features.signin.data.source.LocalAuthDataSource
@@ -15,8 +16,8 @@ import org.koin.dsl.module
  * Koin module declaring data layer dependencies for the sign-in feature.
  */
 public val signInDataModule: Module = module {
-    singleOf(::RemoteAuthDataSourceImpl) bind RemoteAuthDataSource::class
-    singleOf(::LocalAuthDataSourceImpl) bind LocalAuthDataSource::class
-    singleOf(::AuthRepositoryImpl) bind AuthRepository::class
-
+  single { createPlatformSignInHandler() }
+  singleOf(::RemoteAuthDataSourceImpl) bind RemoteAuthDataSource::class
+  singleOf(::LocalAuthDataSourceImpl) bind LocalAuthDataSource::class
+  singleOf(::AuthRepositoryImpl) bind AuthRepository::class
 }

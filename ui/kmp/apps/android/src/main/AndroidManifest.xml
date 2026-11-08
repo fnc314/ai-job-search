@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".app.android.JobTrackerApplication"
+        android:name="dev.fnc314.tools.jobtracker.app.android.JobTrackerApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -14,7 +14,7 @@
         android:theme="@android:style/Theme.Material.NoActionBar">
         <activity
             android:exported="true"
-            android:name=".app.android.MainActivity"
+            android:name="dev.fnc314.tools.jobtracker.app.android.MainActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

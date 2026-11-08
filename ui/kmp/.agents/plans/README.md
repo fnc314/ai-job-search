@@ -46,3 +46,6 @@ This directory contains design and implementation plans for the `ui/kmp` project
 | [`thinning-apps-core-and-core-navigation.md`](./2026-11-05/160417_thinning-apps-core-and-core-navigation.md) | Completed | Decoupling navigation routes to feature modules |
 | [`ui-flow-improvements-and-modularization.md`](./2026-11-04/133245_ui-flow-improvements-and-modularization.md) | Completed | UI screen flows and widget extractions |
 | [`unit-tests-coverage-plan.md`](./2026-11-05/164709_unit-tests-coverage-plan.md) | Completed | 5:1 Unit test coverage across platform-agnostic business logic |
+| [`sorting-and-timestamp-investigation-and-fix.md`](./2026-11-08/162542_sorting-and-timestamp-investigation-and-fix.md) | Draft / Proposed | Investigation and fix for sorting mechanism and timestamp formatting |
+| [`expandable-job-application-tiles-plan.md`](./2026-11-08/165857_expandable-job-application-tiles-plan.md) | Draft / Proposed | Expandable job application tiles with 90x90 logo, chevron, and 3x3 grid details on compact screen widths |
+| [`add-coil-version-catalog.md`](./2026-11-08/173039_add-coil-version-catalog.md) | Draft / Proposed | Add Coil 3.6.3 version catalog entries for CMP-compatible images |
