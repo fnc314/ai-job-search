@@ -3,7 +3,7 @@
   "$id": "https://github.com/fnc314/ai-job-search/tracker.schema.json",
   "title": "Job Search Tracker",
   "description": "Single contract for every document in the tracker store. Validates the JSON boundary (what scripts/tracker.py reads and writes); Firestore Timestamps are produced from these ISO strings on write. The enum registry lives ONLY in $defs so it cannot drift from the fields it constrains.",
-  "schemaVersion": 8,
+  "schemaVersion": 9,
   "x-supersedes": "job_search_tracker.schema.json v1 (CSV row contract)",
   "x-revision-log": [
     {
@@ -29,6 +29,10 @@
     {
       "version": 8,
       "note": "Migrated recorded values to exact Enum.name matches (e.g. APPLIED, WORKDAY, REMOTE, HIGH_CONFIDENCE, US_PIT). Renamed workMode to roleLocation."
+    },
+    {
+      "version": 9,
+      "note": "Added company logo metadata fields (logoUrl, logoFormat, logoWidth, logoHeight, logoShape, logoFetchedAt) with typed enums for format and shape (SQUARE, RECTANGLE)."
     }
   ],
   "x-naming": {
@@ -528,6 +532,24 @@
         }
       }
     },
+    "logoFormat": {
+      "type": "string",
+      "enum": [
+        "AVIF",
+        "WEBP",
+        "PNG",
+        "SVG",
+        "UNKNOWN"
+      ]
+    },
+    "logoShape": {
+      "type": "string",
+      "enum": [
+        "SQUARE",
+        "RECTANGLE",
+        "UNKNOWN"
+      ]
+    },
     "counters": {
       "type": "object",
       "additionalProperties": false,
@@ -740,7 +762,7 @@
         },
         "schemaVersion": {
           "type": "integer",
-          "const": 8
+          "const": 9
         }
       }
     },
@@ -1165,6 +1187,26 @@
         },
         "notes": {
           "$ref": "#/$defs/nullableString"
+        },
+        "logoUrl": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "logoFormat": {
+          "$ref": "#/$defs/logoFormat"
+        },
+        "logoWidth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "logoHeight": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "logoShape": {
+          "$ref": "#/$defs/logoShape"
+        },
+        "logoFetchedAt": {
+          "$ref": "#/$defs/isoDateTime"
         },
         "metadata": {
           "type": "object",

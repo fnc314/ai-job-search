@@ -1,6 +1,6 @@
 # Implementation Plan: Hunter.io Logo Integration
 
-**Status:** Proposed  
+**Status:** Completed  
 **Date:** 2026-11-08  
 **Target:** `records` and `ui/kmp` (cross-subsystem), tracker, ui/terminal  
 **Model:** Junie  
@@ -207,6 +207,6 @@ Implement `commandLogoFetch(args)`:
 ## 5. Bookkeeping
 - [x] Plan persisted at `.agents/plans/2026-11-08/171648_hunter-logo-integration.md`
 - [x] Registry `README.md` row added / status synchronized
-- [ ] Craft a single commit of all changed files
-- [ ] Stage changed files and craft a commit message based on the name of this file
-- [ ] Push `git push origin main`
+- [x] Implemented schema v9, proto, KMP model, and Compose UI AsyncImage integration
+- [x] Implemented `mise run tracker logo-fetch` and populated 88/88 tracked companies in Firestore
+- [x] Verified unit tests and documentation generation (`mise run mise:docs:tasks`)

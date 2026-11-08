@@ -14,7 +14,7 @@ MODULES=(
     "core/widgets"
     "features/sign-in"
     "features/job-applications-list"
-    "features/job-applications-details"
+    "features/job-application-details"
     "features/settings"
     "features/add-job-application"
     "features/tracker-edits"

@@ -128,6 +128,7 @@ def rowFromStore(application: dict, artifacts: list[dict] | None = None) -> dict
         channel = (application.get("channel") or "").split(":", 1)[-1]
     return {
         "id": application.get("id", ""),
+        "companyId": application.get("companyId") or "",
         "date": day[:10],
         "company": application.get("company") or "",
         "sector": application.get("sector") or "",
@@ -180,11 +181,13 @@ def _fetch_companies(database, company_ids: set[str]) -> dict[str, dict]:
     are silently skipped — the company collection may not yet be populated.
     """
     companies = {}
+    if not company_ids:
+        return companies
     try:
-        for company_id in company_ids:
-            snapshot = database.collection(client.COMPANIES).document(company_id).get()
+        refs = [database.collection(client.COMPANIES).document(cid) for cid in company_ids]
+        for snapshot in database.get_all(refs):
             if snapshot.exists:
-                companies[company_id] = contract.fromFirestore(snapshot.to_dict())
+                companies[snapshot.id] = contract.fromFirestore(snapshot.to_dict())
     except Exception:  # noqa: BLE001 - missing companies are not a read failure
         pass
     return companies

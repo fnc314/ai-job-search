@@ -344,3 +344,13 @@ Align applications in Firebase to canonical IDs, recalculate fit, and update out
 - **`--no-fit-recalc`** — Skip recalculating fit
 - **`--no-docs-update`** — Skip updating outcome.md
 - **`--note <note>`** — Optional audit note
+
+## `tracker logo-fetch`
+
+- **Usage:** `tracker logo-fetch [--dry-run] [--company <id>]`
+
+Fetch and update company logos from Hunter.io
+
+### Flags
+- **`--dry-run`** — Preview logo resolution without writing to Firestore
+- **`--company <id>`** — Fetch logo for a single company ID

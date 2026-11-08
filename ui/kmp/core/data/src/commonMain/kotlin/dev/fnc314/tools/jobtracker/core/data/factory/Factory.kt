@@ -273,6 +273,12 @@ public object Factory {
         industry: String? = null,
         createdAt: Instant? = Clock.System.now(),
         updatedAt: Instant? = Clock.System.now(),
+        logoUrl: String? = null,
+        logoFormat: dev.fnc314.tools.jobtracker.core.data.model.LogoFormat = dev.fnc314.tools.jobtracker.core.data.model.LogoFormat.UNKNOWN,
+        logoWidth: Int = 0,
+        logoHeight: Int = 0,
+        logoShape: dev.fnc314.tools.jobtracker.core.data.model.LogoShape = dev.fnc314.tools.jobtracker.core.data.model.LogoShape.UNKNOWN,
+        logoFetchedAt: Instant = Instant.DISTANT_PAST,
     ): Company = Company(
         id = id,
         name = name,
@@ -281,6 +287,12 @@ public object Factory {
         industry = industry,
         createdAt = createdAt,
         updatedAt = updatedAt,
+        logoUrl = logoUrl,
+        logoFormat = logoFormat,
+        logoWidth = logoWidth,
+        logoHeight = logoHeight,
+        logoShape = logoShape,
+        logoFetchedAt = logoFetchedAt,
     )
 
     /**

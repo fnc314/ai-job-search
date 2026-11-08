@@ -34,7 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
+import coil3.compose.AsyncImage
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
@@ -56,6 +58,7 @@ import fnc314jobsearchtracker.features_job_application_details_ui.generated.reso
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_update_status
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_company_aliases
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_company_industry
+import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_company_logo_cd
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_company_profile_title
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_company_website
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_error_prefix
@@ -517,11 +520,25 @@ internal fun CompanyProfileSection(
                 .padding(MaterialTheme.spacing.medium),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {
-            Text(
-                text = stringResource(Res.string.detail_company_profile_title, company.name),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+            ) {
+                company.logoUrl?.let { url ->
+                    AsyncImage(
+                        model = url,
+                        contentDescription = stringResource(Res.string.detail_company_logo_cd, company.name),
+                        modifier = Modifier
+                            .size(MaterialTheme.iconSizes.extraLarge)
+                            .clip(MaterialTheme.shapes.small),
+                    )
+                }
+                Text(
+                    text = stringResource(Res.string.detail_company_profile_title, company.name),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
             company.website?.let { website ->
                 Text(
                     text = stringResource(Res.string.detail_company_website, website),

@@ -8,6 +8,22 @@ import "google/protobuf/struct.proto";
 option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
 option java_multiple_files = true;
 
+// Image encoding format
+enum LogoFormat {
+  LOGO_FORMAT_UNSPECIFIED = 0;
+  LOGO_FORMAT_AVIF = 1;
+  LOGO_FORMAT_WEBP = 2;
+  LOGO_FORMAT_PNG = 3;
+  LOGO_FORMAT_SVG = 4;
+}
+
+// 2D image aspect shape
+enum LogoShape {
+  LOGO_SHAPE_UNSPECIFIED = 0;
+  LOGO_SHAPE_SQUARE = 1;
+  LOGO_SHAPE_RECTANGLE = 2;
+}
+
 // Company — normalized employer records
 message Company {
   string id = 1;
@@ -18,4 +34,10 @@ message Company {
   google.protobuf.Timestamp createdAt = 6;
   google.protobuf.Timestamp updatedAt = 7;
   google.protobuf.Struct metadata = 8;
+  string logo_url = 9;
+  LogoFormat logo_format = 10;
+  int32 logo_width = 11;
+  int32 logo_height = 12;
+  LogoShape logo_shape = 13;
+  google.protobuf.Timestamp logo_fetched_at = 14;
 }

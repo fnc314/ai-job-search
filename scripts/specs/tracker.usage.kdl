@@ -184,3 +184,8 @@ cmd "align" help="Align applications in Firebase to canonical IDs, recalculate f
   flag "--no-docs-update" help="Skip updating outcome.md"
   flag "--note <note>" help="Optional audit note"
 }
+
+cmd "logo-fetch" help="Fetch and update company logos from Hunter.io" {
+  flag "--dry-run" help="Preview logo resolution without writing to Firestore"
+  flag "--company <id>" help="Fetch logo for a single company ID"
+}

@@ -25,8 +25,13 @@ import io
 import json
 import os
 import pathlib
+import re
+import struct
 import subprocess
 import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 
 SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -717,6 +722,12 @@ def ensure_company(db, document: dict) -> None:
         "careersEmail": document.get("careersEmail"),
         "jobBoardUrl": document.get("jobBoardUrl"),
         "linkedinUrl": document.get("linkedinUrl"),
+        "logoUrl": document.get("logoUrl"),
+        "logoFormat": document.get("logoFormat"),
+        "logoWidth": document.get("logoWidth"),
+        "logoHeight": document.get("logoHeight"),
+        "logoShape": document.get("logoShape"),
+        "logoFetchedAt": document.get("logoFetchedAt"),
     }
     # Remove None values so they don't overwrite existing data
     company_doc = {k: v for k, v in company_doc.items() if v is not None}
@@ -2726,6 +2737,280 @@ def commandMockClear(args) -> int:
     return EXIT_OK
 
 
+COMPANY_DOMAIN_ALIASES: dict[str, str] = {
+    "general-motors": "gm.com",
+    "gm": "gm.com",
+    "ford-motor-company": "ford.com",
+    "ford": "ford.com",
+    "jpmorgan-chase": "jpmorganchase.com",
+    "jpmorgan": "jpmorganchase.com",
+    "chase": "chase.com",
+    "the-trade-desk": "thetradedesk.com",
+    "trade-desk": "thetradedesk.com",
+    "american-eagle-outfitters": "aeo.com",
+    "american-eagle": "aeo.com",
+    "aeo": "aeo.com",
+    "major-league-baseball": "mlb.com",
+    "mlb": "mlb.com",
+    "carnegie-mellon-university": "cmu.edu",
+    "cmu": "cmu.edu",
+    "block": "block.xyz",
+    "new-york-times": "nytimes.com",
+    "the-new-york-times": "nytimes.com",
+    "pnc-bank": "pnc.com",
+    "pnc": "pnc.com",
+    "pnc-financial-services": "pnc.com",
+    "meta-platforms": "meta.com",
+    "alphabet": "google.com",
+    "crestron-electronics": "crestron.com",
+    "ulta-beauty": "ulta.com",
+    "hims-hers": "forhims.com",
+    "slickdeals": "slickdeals.net",
+    "touchlab": "touchlab.co",
+    "twitter2": "twitter.com",
+    "car-next-door": "carnextdoor.com.au",
+}
+
+GENERIC_DOMAINS: set[str] = {
+    "linkedin.com", "greenhouse.io", "lever.co", "myworkdayjobs.com",
+    "oraclecloud.com", "smartrecruiters.com", "workday.com", "ashbyhq.com",
+    "jobvite.com", "icims.com", "taleo.net", "bamboohr.com", "indeed.com"
+}
+
+
+def normalizeDomain(value: str | None) -> str:
+    """Normalize a URL, company ID, or company name into a clean, pure domain."""
+    if not value:
+        return ""
+    val = value.strip().lower()
+    if val in COMPANY_DOMAIN_ALIASES:
+        return COMPANY_DOMAIN_ALIASES[val]
+
+    # Parse URL if present
+    if "://" in val or "/" in val:
+        parsed = urllib.parse.urlparse(val if "://" in val else f"https://{val}")
+        netloc = parsed.netloc.split(":")[0]
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        if any(netloc.endswith(gen) for gen in GENERIC_DOMAINS):
+            return ""
+        if "." in netloc:
+            return COMPANY_DOMAIN_ALIASES.get(netloc, netloc)
+
+    # Check domain string with dot
+    if "." in val:
+        candidate = val.split("/")[0].split(":")[0]
+        if candidate.startswith("www."):
+            candidate = candidate[4:]
+        if any(candidate.endswith(gen) for gen in GENERIC_DOMAINS):
+            return ""
+        return COMPANY_DOMAIN_ALIASES.get(candidate, candidate)
+
+    # Slug fallback
+    slug = re.sub(r"[^a-z0-9-]", "", val)
+    if slug in COMPANY_DOMAIN_ALIASES:
+        return COMPANY_DOMAIN_ALIASES[slug]
+    clean_slug = slug.replace("-", "")
+    return f"{clean_slug}.com" if clean_slug else ""
+
+
+def extractImageMetadata(data: bytes, content_type: str = "") -> tuple[str, int, int, str]:
+    """Parse image binary bytes without third-party dependencies.
+
+    Returns (format_enum, width, height, shape_enum).
+    Formats: AVIF, WEBP, PNG, SVG, UNKNOWN.
+    Shapes: SQUARE, RECTANGLE, UNKNOWN.
+    """
+    fmt = "UNKNOWN"
+    width, height = 0, 0
+
+    if data.startswith(b"\x89PNG\r\n\x1a\n") and len(data) >= 24:
+        fmt = "PNG"
+        width, height = struct.unpack(">II", data[16:24])
+    elif len(data) >= 12 and data[4:8] == b"ftyp":
+        fmt = "AVIF"
+        idx = data.find(b"ispe")
+        if idx != -1 and len(data) >= idx + 16:
+            width, height = struct.unpack(">II", data[idx + 8 : idx + 16])
+    elif data.startswith(b"RIFF") and len(data) >= 12 and data[8:12] == b"WEBP":
+        fmt = "WEBP"
+        if data[12:16] == b"VP8 " and len(data) >= 30:
+            width = struct.unpack("<H", data[26:28])[0] & 0x3FFF
+            height = struct.unpack("<H", data[28:30])[0] & 0x3FFF
+        elif data[12:16] == b"VP8L" and len(data) >= 25:
+            b0, b1, b2, b3 = data[21:25]
+            width = 1 + (((b1 & 0x3F) << 8) | b0)
+            height = 1 + (((b3 & 0x0F) << 10) | (b2 << 2) | ((b1 & 0xC0) >> 6))
+        elif data[12:16] == b"VP8X" and len(data) >= 30:
+            width = 1 + int.from_bytes(data[24:27], "little")
+            height = 1 + int.from_bytes(data[27:30], "little")
+    elif b"<svg" in data[:1000] or "svg" in content_type.lower():
+        fmt = "SVG"
+        width, height = 1, 1
+
+    if fmt == "UNKNOWN":
+        low_ct = content_type.lower()
+        if "png" in low_ct:
+            fmt = "PNG"
+        elif "avif" in low_ct:
+            fmt = "AVIF"
+        elif "webp" in low_ct:
+            fmt = "WEBP"
+        elif "svg" in low_ct:
+            fmt = "SVG"
+
+    shape = "UNKNOWN"
+    if width > 0 and height > 0:
+        shape = "SQUARE" if width == height else "RECTANGLE"
+
+    return fmt, width, height, shape
+
+
+def fetchLogo(domain: str, timeout: int = 5) -> dict | None:
+    """Probe Hunter.io for a company logo and return metadata dict if found."""
+    if not domain:
+        return None
+    url = f"https://logos.hunter.io/{domain}"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            if resp.status == 200:
+                data = resp.read()
+                content_type = resp.headers.get("Content-Type") or ""
+                fmt, w, h, shape = extractImageMetadata(data, content_type)
+                return {
+                    "logoUrl": url,
+                    "logoFormat": fmt,
+                    "logoWidth": w,
+                    "logoHeight": h,
+                    "logoShape": shape,
+                    "logoFetchedAt": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+                }
+    except urllib.error.HTTPError as error:
+        if error.code == 404:
+            return None
+        warn(f"Logo fetch HTTP error for {domain}: {error}")
+    except Exception as error:  # noqa: BLE001
+        warn(f"Logo fetch network error for {domain}: {error}")
+    return None
+
+
+def commandLogoFetch(args) -> int:
+    """Enrich company records in Firestore with Hunter.io logo metadata."""
+    if not args.dry_run:
+        client.assertWritesAllowed("company logo enrichment")
+
+    db = client.getDb()
+    target_cids: set[str] = set()
+    companies_info: dict[str, dict] = {}
+
+    if args.company:
+        cid = contract.slug(args.company)
+        target_cids.add(cid)
+        companies_info[cid] = {"companyId": cid, "name": args.company}
+        existing = db.collection(client.COMPANIES).document(cid).get()
+        if existing.exists:
+            companies_info[cid].update(existing.to_dict())
+    else:
+        # Collect existing companies
+        for doc in db.collection(client.COMPANIES).stream():
+            cid = doc.id
+            target_cids.add(cid)
+            companies_info[cid] = doc.to_dict()
+
+        # Collect companies referenced by applications
+        for app in db.collection(client.APPLICATIONS).stream():
+            data = app.to_dict()
+            cid = data.get("companyId")
+            if not cid and data.get("company"):
+                cid = contract.slug(data["company"])
+            if cid:
+                target_cids.add(cid)
+                if cid not in companies_info:
+                    companies_info[cid] = {
+                        "companyId": cid,
+                        "name": data.get("company"),
+                        "website": data.get("website"),
+                    }
+                else:
+                    if not companies_info[cid].get("name") and data.get("company"):
+                        companies_info[cid]["name"] = data.get("company")
+                    if not companies_info[cid].get("website") and data.get("website"):
+                        companies_info[cid]["website"] = data.get("website")
+
+    sys.stderr.write(f"Found {len(target_cids)} companies to process.\n")
+
+    found_count = 0
+    missing_count = 0
+    updated_count = 0
+
+    for cid in sorted(target_cids):
+        info = companies_info.get(cid, {})
+        name = info.get("name") or cid
+        website = info.get("website")
+
+        domain = normalizeDomain(website) or normalizeDomain(cid) or normalizeDomain(name)
+        if not domain:
+            sys.stderr.write(f"[{cid}] Could not determine domain, skipping.\n")
+            missing_count += 1
+            continue
+
+        logo_info = fetchLogo(domain)
+        if logo_info:
+            found_count += 1
+            fmt = logo_info["logoFormat"]
+            w = logo_info["logoWidth"]
+            h = logo_info["logoHeight"]
+            shape = logo_info["logoShape"]
+            sys.stderr.write(f"[{cid}] Found logo at {domain}: {fmt} {w}x{h} ({shape})\n")
+
+            if not args.dry_run:
+                update_payload = {
+                    "companyId": cid,
+                    "name": name,
+                    "website": website or f"https://{domain}",
+                    "logoUrl": logo_info["logoUrl"],
+                    "logoFormat": fmt,
+                    "logoWidth": w,
+                    "logoHeight": h,
+                    "logoShape": shape,
+                    "logoFetchedAt": logo_info["logoFetchedAt"],
+                }
+                for k in ("sector", "hqAddress", "careersEmail", "jobBoardUrl", "linkedinUrl"):
+                    if info.get(k):
+                        update_payload[k] = info[k]
+                db.collection(client.COMPANIES).document(cid).set(
+                    contract.toFirestore(update_payload), merge=True
+                )
+                updated_count += 1
+        else:
+            missing_count += 1
+            sys.stderr.write(f"[{cid}] No logo found for domain: {domain}\n")
+            if not args.dry_run:
+                basic_payload = {
+                    "companyId": cid,
+                    "name": name,
+                }
+                if website:
+                    basic_payload["website"] = website
+                db.collection(client.COMPANIES).document(cid).set(
+                    contract.toFirestore(basic_payload), merge=True
+                )
+
+    emit({
+        "ok": True,
+        "total": len(target_cids),
+        "found": found_count,
+        "missing": missing_count,
+        "updated": updated_count,
+        "dryRun": args.dry_run,
+    })
+    return EXIT_OK
+
+
 def buildParser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="tracker",
@@ -2947,6 +3232,11 @@ def buildParser() -> argparse.ArgumentParser:
     align.add_argument("--no-docs-update", action="store_true", help="skip updating outcome.md")
     align.add_argument("--note", help="optional audit note")
     align.set_defaults(handler=commandAlign)
+
+    logo_fetch = subparsers.add_parser("logo-fetch", help="fetch company logo metadata via Hunter.io")
+    logo_fetch.add_argument("--company", help="target a single company ID or name")
+    logo_fetch.add_argument("--dry-run", action="store_true", help="probe Hunter.io without updating Firestore")
+    logo_fetch.set_defaults(handler=commandLogoFetch)
 
     return parser
 

@@ -86,7 +86,7 @@ class TestSchemaIntegrity(unittest.TestCase):
         )
 
     def test_schema_version_is_current(self):
-        self.assertEqual(self.schema["schemaVersion"], 7)
+        self.assertEqual(self.schema["schemaVersion"], 9)
 
     def test_revision_log_is_appended_and_ordered(self):
         revisions = self.schema["x-revision-log"]

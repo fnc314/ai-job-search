@@ -839,7 +839,15 @@ def load_detail_lines(row, max_width):
         ]:
             value = company_data.get(field)
             if value:
-                raw_entries.append((f"  {label}: {value}", None))
+                action = value if str(value).startswith(("http://", "https://")) else None
+                raw_entries.append((f"  {label}: {value}", action))
+        logo_url = company_data.get("logoUrl")
+        if logo_url:
+            w = company_data.get("logoWidth")
+            h = company_data.get("logoHeight")
+            shape = company_data.get("logoShape") or ""
+            dim_str = f" ({w}x{h} {shape})".rstrip() if (w and h) else ""
+            raw_entries.append((f"  Logo: {logo_url}{dim_str}", logo_url))
         raw_entries.append(("", None))
     
     # Files section — GCS storage from Firestore, local files as fallback

@@ -44,5 +44,5 @@ Every architecture plan created by any agent must strictly adhere to these parad
 | [`tui-log-rotation-and-cleanup.md`](./2026-11-01/174503_tui-log-rotation-and-cleanup.md) | Completed | Curses TUI session log rotation, retention limit, and disk cleanup |
 | [`firestore-data-optimization.md`](./2026-10-31/135442_firestore-data-optimization.md) | Completed | Firestore schema optimization, projection queries, and index alignment |
 | [`tracker-migration-plan.md`](./2026-10-31/021052_tracker-migration-plan.md) | Completed | 10-phase authoritative migration from CSV tracker to Firestore store |
-| [`hunter-logo-integration.md`](./2026-11-08/171648_hunter-logo-integration.md) | Proposed | Hunter.io Logo API integration: Company logo metadata in Firestore, `tracker logo-fetch` CLI, KMP & TUI logo wiring |
+| [`hunter-logo-integration.md`](./2026-11-08/171648_hunter-logo-integration.md) | Completed | Hunter.io Logo API integration: Company logo metadata in Firestore, `tracker logo-fetch` CLI, KMP & TUI logo wiring |
 | [`ai-job-search-plan.md`](../../ai-job-search-plan.md) | Canonical | Universal multi-agent architecture and single source of truth specifications |

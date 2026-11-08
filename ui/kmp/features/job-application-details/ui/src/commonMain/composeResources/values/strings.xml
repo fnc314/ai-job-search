@@ -19,6 +19,7 @@
     <string name="detail_prefix_job_url">🔗 Job URL: %s</string>
     <string name="detail_prefix_app_url">📋 Application URL: %s</string>
     <string name="detail_company_profile_title">Company Profile: %s</string>
+    <string name="detail_company_logo_cd">%s Logo</string>
     <string name="detail_company_website">🌐 %s</string>
     <string name="detail_company_industry">Industry: %s</string>
     <string name="detail_company_aliases">Aliases: %s</string>
