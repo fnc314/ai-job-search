@@ -14,7 +14,6 @@ import kotlin.test.Test
  * 3. All ViewModel declarations adhere to naming conventions.
  */
 class KonsistArchitectureTest {
-
     private val kmpScope = Konsist.scopeFromDirectory("..")
 
     @Test

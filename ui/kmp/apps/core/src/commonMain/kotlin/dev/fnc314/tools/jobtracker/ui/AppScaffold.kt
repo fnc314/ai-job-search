@@ -44,7 +44,7 @@ import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestination
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddApplicationRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadRoute
-import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.DetailRoute
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.DetailRoute
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.ListRoute
 import dev.fnc314.tools.jobtracker.features.settings.ui.SettingsRoute
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.EditsRoute

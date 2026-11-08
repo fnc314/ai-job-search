@@ -86,7 +86,7 @@ public fun NotesWidget(
 #### [MODIFY] Call sites of `NotesWidget`:
 - `features/add-job-application/ui/.../AddJobApplicationScreen.kt`: Pass and handle `ImmutableList<String>`.
 - `features/add-job-application/ui/.../AddLeadScreen.kt`: Pass and handle `ImmutableList<String>`.
-- `features/job-applications-details/ui/.../JobApplicationsDetailsScreen.kt`: Pass and handle `ImmutableList<String>`.
+- `features/job-application-details/ui/.../JobApplicationsDetailsScreen.kt`: Pass and handle `ImmutableList<String>`.
 
 ---
 
@@ -173,7 +173,7 @@ fun testSignInUseCase_success() = runTest {
 #### [MODIFY] `features/job-applications-list/ui/src/commonMain/kotlin/.../JobApplicationsListViewModel.kt`
 - Remove unused `KoinComponent` interface implementation.
 
-#### [MODIFY] `features/job-applications-details/ui/src/commonMain/kotlin/.../JobApplicationDetailViewModel.kt`
+#### [MODIFY] `features/job-application-details/ui/src/commonMain/kotlin/.../JobApplicationDetailViewModel.kt`
 - Convert property injection `by inject()` into constructor parameters:
 ```kotlin
 public class JobApplicationDetailViewModel(

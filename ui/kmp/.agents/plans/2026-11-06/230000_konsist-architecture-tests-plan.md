@@ -15,7 +15,7 @@ This plan details:
    - **Clean Architecture Layer Boundaries**: Domain code must not import data or ui packages.
    - **`.impl.` Package Convention**: `internal` implementation classes (`*Impl`) must reside within `.impl` sub-packages.
    - **DI Module Naming**: Feature DI modules must follow standard naming (`*DomainModule`, `*DataModule`, `*UiModule`, `*FeatureModule`).
-2. A refactoring plan to bring all other feature modules (`features/sign-in`, `features/add-job-application`, `features/job-applications-details`, `features/tracker-edits`) into compliance with these Konsist rules.
+2. A refactoring plan to bring all other feature modules (`features/sign-in`, `features/add-job-application`, `features/job-application-details`, `features/tracker-edits`) into compliance with these Konsist rules.
 
 ---
 
@@ -36,7 +36,7 @@ This plan details:
 - Add test: `DI modules follow naming conventions`.
 
 ### Step 2: Audit and Refactor Other Feature Modules
-- Inspect `features/sign-in`, `features/add-job-application`, `features/job-applications-details`, and `features/tracker-edits`.
+- Inspect `features/sign-in`, `features/add-job-application`, `features/job-application-details`, and `features/tracker-edits`.
 - Apply `.impl.` housing pattern where `Impl` classes are outside `impl` sub-packages.
 - Standardize DI module names (`*FeatureModule`, `*DomainModule`, `*DataModule`, `*UiModule`).
 

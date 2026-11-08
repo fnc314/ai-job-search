@@ -226,9 +226,9 @@ Each module defines a canonical `packageOfResClass`:
 
 ---
 
-### 6. `features/job-applications-details/ui`
+### 6. `features/job-application-details/ui`
 
-#### [NEW] `features/job-applications-details/ui/src/commonMain/composeResources/values/strings.xml`
+#### [NEW] `features/job-application-details/ui/src/commonMain/composeResources/values/strings.xml`
 ```xml
 <resources>
     <string name="detail_route_title">Application Details</string>

@@ -31,9 +31,9 @@ Implement a suite of user experience, design system, and navigation upgrades to 
 
 ## Plan Checklist
 
-- [x] **Step 0: Scaffold Feature Modules (`features/job-applications-list` & `features/job-applications-details`) - *COMPLETE***
+- [x] **Step 0: Scaffold Feature Modules (`features/job-applications-list` & `features/job-application-details`) - *COMPLETE***
   - Scaffolded `features/job-applications-list/{domain,data,ui}` with multiplatform target configurations and Gradle accessors.
-  - Scaffolded `features/job-applications-details/{domain,data,ui}` with multiplatform target configurations and Gradle accessors.
+  - Scaffolded `features/job-application-details/{domain,data,ui}` with multiplatform target configurations and Gradle accessors.
 - [x] **Step 1: Semantic Timestamp Formatter with Precedence (`updatedAt` -> `createdAt`) - *COMPLETE***
   - Created `SemanticTimestampFormatter.kt` implementing the exact tiered duration rules.
   - Integrated into `JobApplicationRow` and `JobApplicationDetailScreen` with strict `updatedAt` -> `createdAt` -> nothing precedence.

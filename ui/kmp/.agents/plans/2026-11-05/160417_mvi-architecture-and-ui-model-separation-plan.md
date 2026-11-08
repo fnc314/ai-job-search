@@ -148,7 +148,7 @@ For every feature `X`:
 
 ---
 
-### 2. `features/job-applications-details`
+### 2. `features/job-application-details`
 
 #### [NEW] `JobApplicationDetailUiState.kt`
 - `sealed interface JobApplicationDetailUiState`:

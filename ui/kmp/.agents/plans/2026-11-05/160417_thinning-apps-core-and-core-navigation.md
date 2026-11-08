@@ -114,7 +114,7 @@ graph TD
     subgraph Feature Modules
         SignIn["features/sign-in/ui"]
         List["features/job-applications-list/ui"]
-        Details["features/job-applications-details/ui"]
+        Details["features/job-application-details/ui"]
         Settings["features/settings/ui"]
         AddApp["features/add-job-application/ui"]
         Edits["features/tracker-edits/ui"]
@@ -373,7 +373,7 @@ Each feature defines its own `@Serializable` `NavKeyRoute` and `FeatureNavigatio
 2. **`features/job-applications-list/ui`**:
    - `public data object ListRoute : NavKeyRoute`
    - `public val jobApplicationsListNavHook: FeatureNavigationHook`
-3. **`features/job-applications-details/ui`**:
+3. **`features/job-application-details/ui`**:
    - `public data class DetailRoute(val applicationId: String) : NavKeyRoute`
    - `public val jobApplicationsDetailsNavHook: FeatureNavigationHook`
 4. **`features/settings/ui`**:

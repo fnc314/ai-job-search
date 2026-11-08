@@ -73,7 +73,7 @@ Using `LocalWindowSizeClass.current`:
   - Active tab highlighting matches current route in the backstack.
 
 ### C. Details Screen `MenuFAB`
-On [`JobApplicationsDetailsScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsScreen.kt):
+On [`JobApplicationsDetailsScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-application-details/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/ui/JobApplicationsDetailsScreen.kt):
 - Remove `TopAppBar` and its 3 action buttons.
 - Introduce an expandable `MenuFAB` in the bottom-right corner:
   - Main FAB: Primary action or Menu toggle (`Icons.Default.Edit` or `Icons.Default.MoreVert`).
@@ -141,7 +141,7 @@ On [`JobApplicationsDetailsScreen`](file:///Users/fnc314/Work/Search/waleedtarbo
 ## 4. Implementation Steps & Sequence
 
 1. **Step 1: Details Screen MenuFAB Transition**
-   - Update `JobApplicationsDetailsScreen` in `features/job-applications-details/ui` to replace TopAppBar actions with the MenuFAB.
+   - Update `JobApplicationsDetailsScreen` in `features/job-application-details/ui` to replace TopAppBar actions with the MenuFAB.
    - Remove internal `TopAppBar` and prepare screen as content layout.
 
 2. **Step 2: Streamline Other Feature Screens**

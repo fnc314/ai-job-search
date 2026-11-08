@@ -444,7 +444,7 @@ Update `LocalJobApplicationsListDataSourceImpl`:
   - Write to DAO with `.insertAll(applications.map { it.toEntity() })`.
   - Update memory cache.
 
-#### [MODIFY] `features/job-applications-details/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/data/source/LocalJobApplicationsDetailsDataSource.kt`
+#### [MODIFY] `jobapplicationdetails`
 Update `LocalJobApplicationsDetailsDataSourceImpl`:
 - In `getJobApplication(id)`:
   - Query `jobApplicationDao.getById(id)?.toDomain()`.
@@ -507,7 +507,7 @@ internal class JobApplicationsListRepositoryImpl(
 #### [MODIFY] `../../../features/job-applications-list/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/domain/usecase/impl/LoadAllJobApplicationsUseCaseImpl.kt`
 Pass `params.forceRefresh` to `repository.getJobApplications(params.forceRefresh)`.
 
-#### [MODIFY] `features/job-applications-details/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/data/repository/JobApplicationsDetailsRepositoryImpl.kt`
+#### [MODIFY] `jobapplicationdetails`
 Implement Cache-First reads and **Remote-First writes**:
 ```kotlin
 internal class JobApplicationsDetailsRepositoryImpl(

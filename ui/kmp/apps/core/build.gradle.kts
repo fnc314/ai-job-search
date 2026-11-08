@@ -29,7 +29,7 @@ kotlin {
             implementation(projects.featuresSignInUi)
             implementation(projects.featuresSignInDomain)
             implementation(projects.featuresJobApplicationsListUi)
-            implementation(projects.featuresJobApplicationsDetailsUi)
+            implementation(projects.featuresJobApplicationDetailsUi)
             implementation(projects.featuresSettingsUi)
             implementation(projects.featuresAddJobApplicationUi)
             implementation(projects.featuresTrackerEditsUi)

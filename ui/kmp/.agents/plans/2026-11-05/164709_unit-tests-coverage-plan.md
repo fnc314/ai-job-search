@@ -66,7 +66,7 @@ graph TD
         S_List["SortJobApplicationsTest.kt (Expanded)"]
     end
 
-    subgraph DetailsData ["features/job-applications-details/data"]
+    subgraph DetailsData ["features/job-application-details/data"]
         D_T["DetailsUseCasesTest.kt (Expanded)"]
     end
 
@@ -152,9 +152,9 @@ Expand test suite from 1 to 6 tests covering all 6 sort columns, null values, an
 
 ---
 
-### Component 3: `features/job-applications-details/data` (Detail Mutations & Events)
+### Component 3: `features/job-application-details/data` (Detail Mutations & Events)
 
-#### [MODIFY] `features/job-applications-details/data/src/commonTest/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationsdetails/data/DetailsUseCasesTest.kt`
+#### [MODIFY] `jobapplicationdetails`
 Expand test suite from 1 to 15 tests:
 - **`UpdateApplicationStatusUseCase` (5 tests)**:
   - **Test 1 (`testUpdateStatus_StandardTransition`)**: Transitions from `APPLIED` to `SCREENING`.

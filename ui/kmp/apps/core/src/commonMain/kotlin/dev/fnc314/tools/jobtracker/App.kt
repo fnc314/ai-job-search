@@ -26,8 +26,8 @@ import dev.fnc314.tools.jobtracker.di.appModule
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddApplicationRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.addJobApplicationNavHook
-import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.DetailRoute
-import dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui.jobApplicationsDetailsNavHook
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.DetailRoute
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.jobApplicationsDetailsNavHook
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.ListRoute
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.jobApplicationsListNavHook
 import dev.fnc314.tools.jobtracker.features.settings.ui.SettingsRoute

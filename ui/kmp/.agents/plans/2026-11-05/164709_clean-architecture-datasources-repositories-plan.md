@@ -272,7 +272,7 @@ Consumes `JobApplicationsListRepository`.
 
 ### 5. `features:job-applications-details`
 
-#### [NEW] `features/job-applications-details/domain/.../repository/JobApplicationsDetailsRepository.kt`
+#### [NEW] `features/job-application-details/domain/.../repository/JobApplicationsDetailsRepository.kt`
 ```kotlin
 package dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain.repository
 
@@ -288,12 +288,12 @@ public interface JobApplicationsDetailsRepository {
 }
 ```
 
-#### [NEW] Data Sources in `features/job-applications-details/data/.../source/`
+#### [NEW] Data Sources in `features/job-application-details/data/.../source/`
 - `RemoteJobApplicationsDetailsDataSource` + `internal class RemoteJobApplicationsDetailsDataSourceImpl`
 - `NetworkJobApplicationsDetailsDataSource` + `internal class NetworkJobApplicationsDetailsDataSourceImpl`
 - `LocalJobApplicationsDetailsDataSource` + `internal class LocalJobApplicationsDetailsDataSourceImpl`
 
-#### [NEW] `features/job-applications-details/data/.../repository/JobApplicationsDetailsRepositoryImpl.kt`
+#### [NEW] `features/job-application-details/data/.../repository/JobApplicationsDetailsRepositoryImpl.kt`
 `internal class JobApplicationsDetailsRepositoryImpl(...) : JobApplicationsDetailsRepository`.
 
 #### [MODIFY] Use Cases in `features:job-applications-details:data`

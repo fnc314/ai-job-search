@@ -14,7 +14,7 @@ This plan coordinates two major architectural refactoring tasks in tandem for th
 1. **Relocating Job Application Features (`features-job-applications-[list|details]`)**:
    - Extracting all list and detail UI, domain use cases, and data implementations out of `shared` and relocating them into dedicated multiplatform feature modules:
      - `features/job-applications-list/{ui, domain, data}`
-     - `features/job-applications-details/{ui, domain, data}`
+     - `features/job-application-details/{ui, domain, data}`
    - Decoupling all business logic, ViewModel state, and UI components from the application shell.
 2. **Repackaging `shared` into `apps/core` (`:apps-core`)**:
    - Retiring the monolithic `shared` module and placing the shared application coordinator into `apps/core` (`:apps-core`), auto-discovered by the `apps` project collection.
@@ -154,9 +154,9 @@ To completely eliminate circular dependencies between features and `apps:core`, 
 
 ---
 
-### 3.3. Details Feature -> Relocated to `features/job-applications-details/`
+### 3.3. Details Feature -> Relocated to `features/job-application-details/`
 
-#### A. Domain (`features/job-applications-details/domain`)
+#### A. Domain (`features/job-application-details/domain`)
 - **Package:** `dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.domain`
 - **Files:**
   - `LoadJobApplicationUseCase.kt`
@@ -166,7 +166,7 @@ To completely eliminate circular dependencies between features and `apps:core`, 
   - `GetArtifactSignedUrlUseCase.kt`
   - `LoadCompaniesUseCase.kt`
 
-#### B. Data (`features/job-applications-details/data`)
+#### B. Data (`features/job-application-details/data`)
 - **Package:** `dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.data`
 - **Files:**
   - `LoadJobApplicationUseCaseImpl.kt`
@@ -177,7 +177,7 @@ To completely eliminate circular dependencies between features and `apps:core`, 
   - `LoadCompaniesUseCaseImpl.kt`
   - `JobApplicationsDetailsModule.kt` (Koin definitions for details use cases)
 
-#### C. UI (`features/job-applications-details/ui`)
+#### C. UI (`features/job-application-details/ui`)
 - **Package:** `dev.fnc314.tools.jobtracker.features.jobapplicationsdetails.ui`
 - **Files:**
   - `JobApplicationDetailScreen.kt`
@@ -223,9 +223,9 @@ To completely eliminate circular dependencies between features and `apps:core`, 
 - [x] Validate compilation: `./gradlew :features-job-applications-list-ui:assemble`.
 
 ### Phase 4: Relocate `features-job-applications-details`
-- [x] Populate `features/job-applications-details/domain`: move detail use cases and contracts.
-- [x] Populate `features/job-applications-details/data`: move implementations and register `jobApplicationsDetailsModule`.
-- [x] Populate `features/job-applications-details/ui`: move `JobApplicationDetailScreen`, `JobApplicationDetailViewModel`, dialogs, and components.
+- [x] Populate `features/job-application-details/domain`: move detail use cases and contracts.
+- [x] Populate `features/job-application-details/data`: move implementations and register `jobApplicationsDetailsModule`.
+- [x] Populate `features/job-application-details/ui`: move `JobApplicationDetailScreen`, `JobApplicationDetailViewModel`, dialogs, and components.
 - [x] Validate compilation: `./gradlew :features-job-applications-details-ui:assemble`.
 
 ### Phase 5: Create `apps/core` & Retire `shared`

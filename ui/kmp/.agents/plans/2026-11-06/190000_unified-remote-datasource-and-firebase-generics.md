@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary & Goals
 
-As the `ui/kmp` workspace expands across multiple features (`job-applications-list`, `job-applications-details`, `add-job-application`, `tracker-edits`, `settings`, `sign-in`), remote data sources interacting with Firebase Firestore currently duplicate collection lookup logic, error mapping, and document snapshot deserialization. 
+As the `ui/kmp` workspace expands across multiple features (`job-applications-list`, `job-application-details`, `add-job-application`, `tracker-edits`, `settings`, `sign-in`), remote data sources interacting with Firebase Firestore currently duplicate collection lookup logic, error mapping, and document snapshot deserialization. 
 
 This architecture plan outlines the design and refactoring strategy to introduce a reusable, generic base remote data source (`BaseFirebaseRemoteDataSource` or unified remote abstraction) that standardizes CRUD operations, flow collection, error handling, and type-safe document mapping across all feature-specific data modules.
 

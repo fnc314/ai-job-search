@@ -23,7 +23,7 @@ Per requirements, documentation must exist at the project level for each module 
 | **Core** | `core/widgets/README.md` | Single module (`:core-widgets`) |
 | **Feature** | `features/sign-in/README.md` | `:features-sign-in-domain`, `:features-sign-in-data`, `:features-sign-in-ui` |
 | **Feature** | `features/job-applications-list/README.md` | `:features-job-applications-list-domain`, `:features-job-applications-list-data`, `:features-job-applications-list-ui` |
-| **Feature** | `features/job-applications-details/README.md` | `:features-job-applications-details-domain`, `:features-job-applications-details-data`, `:features-job-applications-details-ui` |
+| **Feature** | `features/job-application-details/README.md` | `:features-job-applications-details-domain`, `:features-job-applications-details-data`, `:features-job-applications-details-ui` |
 | **Feature** | `features/settings/README.md` | `:features-settings-domain`, `:features-settings-data`, `:features-settings-ui` |
 | **Feature** | `features/add-job-application/README.md` | `:features-add-job-application-domain`, `:features-add-job-application-data`, `:features-add-job-application-ui` |
 | **Feature** | `features/tracker-edits/README.md` | `:features-tracker-edits-domain`, `:features-tracker-edits-data`, `:features-tracker-edits-ui` |
@@ -159,7 +159,7 @@ Create [`ui/kmp/AGENTS.md`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-jo
   - URI pattern: `jobtracker://applications` or `/applications`.
   - Supports query filters (e.g. `?status=APPLIED&age=RECENT`).
 
-### 7. `features/job-applications-details/README.md`
+### 7. `features/job-application-details/README.md`
 - **Contents**: Detailed application inspector, event timeline, generated artifact browser, status mutation dialogs, and company intelligence profiles across `domain`, `data`, and `ui`.
 - **Contribution**: High-density detail screen for an individual job application, enabling interview prep, status progression, and artifact review.
 - **Significant Contributions**:
@@ -247,7 +247,7 @@ Create [`ui/kmp/AGENTS.md`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-jo
 ### Feature Modules Documentation
 - [NEW] `features/sign-in/README.md`
 - [NEW] `features/job-applications-list/README.md`
-- [NEW] `features/job-applications-details/README.md`
+- [NEW] `features/job-application-details/README.md`
 - [NEW] `features/settings/README.md`
 - [NEW] `features/add-job-application/README.md`
 - [NEW] `features/tracker-edits/README.md`

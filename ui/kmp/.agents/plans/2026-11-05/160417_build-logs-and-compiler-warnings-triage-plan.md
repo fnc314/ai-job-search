@@ -38,7 +38,7 @@ This plan categorizes each warning, diagnoses the root cause, and specifies the 
 
 ### Category 3: Kotlin Explicit API Mode Violations
 1. **`NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING` (15 occurrences)**
-   - **Origin**: Domain use case interfaces and classes in `features/job-applications-details/domain` and `features/settings/domain`:
+   - **Origin**: Domain use case interfaces and classes in `features/job-application-details/domain` and `features/settings/domain`:
      - `GetArtifactSignedUrlUseCase.kt` (lines 5, 6)
      - `LoadCompaniesUseCase.kt` (lines 6, 7)
      - `LoadJobApplicationUseCase.kt` (lines 6, 7)
@@ -61,7 +61,7 @@ This plan categorizes each warning, diagnoses the root cause, and specifies the 
 1. **`Modifier.menuAnchor()` without parameters is deprecated (5 occurrences)**
    - **Origin**: 
      - `features/add-job-application/ui/.../AddJobApplicationScreen.kt:328, 372, 416`
-     - `features/job-applications-details/ui/.../DetailDialogs.kt:112, 193`
+     - `features/job-application-details/ui/.../DetailDialogs.kt:112, 193`
    - **Root Cause**: Material 3 deprecated bare `Modifier.menuAnchor()` in favor of `Modifier.menuAnchor(type: ExposedDropdownMenuAnchorType, enabled: Boolean)`.
    - **Solution**: For read-only dropdown fields, update to `Modifier.menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)`.
 
@@ -159,7 +159,7 @@ LaunchedEffect(dismissState.targetValue) {
 
 ### Component 3: Domain Use Cases Explicit API Fixes
 
-#### [MODIFY] `features/job-applications-details/domain/.../*.kt`
+#### [MODIFY] `features/job-application-details/domain/.../*.kt`
 Add explicit `public` visibility to use case interfaces and `Params` data classes:
 - `GetArtifactSignedUrlUseCase.kt`:
   ```kotlin
@@ -243,7 +243,7 @@ Modifier
     .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
 ```
 
-#### [MODIFY] `features/job-applications-details/ui/.../DetailDialogs.kt`
+#### [MODIFY] `features/job-application-details/ui/.../DetailDialogs.kt`
 Update 2 occurrences of `menuAnchor()`:
 ```kotlin
 Modifier
