@@ -20,13 +20,19 @@ public class KoinDependenciesConventionPlugin : Plugin<Project>, BaseConventionP
         CatalogTypes.Plugins.KOIN_COMPILER(this).get().also {
             plugins.apply(it.pluginId)
         }
-        extensions.configure(KoinGradleExtension::class.java) {
-            logger
-                .warn(
-                    """
-                    |WARNING: Koin Gradle Plugin is applied to the project '${project.name}'.
-                    """.trimIndent(),
-                )
+        extensions.configure(KoinGradleExtension::class.java) { ext ->
+            ext.apply {
+                userLogs.set(true)
+                debugLogs.set(true)
+                skipDefaultValues.set(true)
+                unsafeDslChecks.set(true)
+                compileSafety.set(true)
+                strictSafety.set(true)
+                aiAssist.set(true)
+                logSeverity.set("info")
+                versionCheckSeverity.set("info")
+            }
+
         }
         kotlinMultiplatform {
             commonMain {
