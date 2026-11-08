@@ -1,20 +1,21 @@
 package dev.fnc314.tools.jobtracker.features.signin.ui
 
-import dev.fnc314.tools.jobtracker.features.signin.data.signInDataModule
+import dev.fnc314.tools.jobtracker.features.signin.data.di.signInDataModule
+import dev.fnc314.tools.jobtracker.features.signin.domain.di.signInDomainModule
 import org.koin.core.module.Module
-import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 /**
- * Koin module declaring UI layer dependencies for authentication and sign-in.
+ * Koin module declaring UI layer dependencies for the sign-in feature.
  */
 public val signInUiModule: Module = module {
-    factoryOf(::SignInViewModel)
+    viewModelOf(::SignInViewModel)
 }
 
 /**
- * Aggregate Koin module uniting data and UI definitions for the sign-in feature.
+ * Aggregate Koin module uniting data, domain, and UI definitions for the sign-in feature.
  */
 public val signInFeatureModule: Module = module {
-    includes(signInDataModule, signInUiModule)
+    includes(signInDataModule, signInDomainModule, signInUiModule)
 }
