@@ -515,7 +515,7 @@ Remove all backend/storage/protocol dependencies:
 - Add: `implementation(projects.coreNavigation)`, `implementation(projects.coreNetwork)`
 - Keep: `projects.coreData`, `projects.coreDesignSystem`, and feature `:ui` modules.
 
-#### [MODIFY] `apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/di/KoinModule.kt`
+#### [MODIFY] `../../../apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/app/core/di`
 Assemble all feature modules and core infrastructure cleanly with explicit imports and zero FQNames:
 ```kotlin
 package dev.fnc314.tools.jobtracker.di
@@ -545,13 +545,13 @@ public val appModule: Module = module {
 }
 ```
 
-#### [MODIFY] `apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/App.kt`
+#### [MODIFY] `../../../apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/app/core/App.kt`
 Thin client orchestrator:
 - Consumes `FeatureNavigationHook`s from each feature `:ui` module to build the `NavHost`.
 - Observes auth state and handles top-level routing between unauthenticated and authenticated states.
 - Applies `JobTrackerTheme` and `ProvideWindowSizeClass`.
 
-#### [MODIFY] `apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/ui/AppScaffold.kt`
+#### [MODIFY] `../../../apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/app/core/ui`
 Root presentation layout matching the TopAppBar and Navigation specifications:
 - **`CenterAlignedTopAppBar`**:
   - `navigationIcon`: Back arrow button (`IconButton` with `Icons.AutoMirrored.Filled.ArrowBack`) rendered whenever `navController.previousBackStackEntry != null` (can go back), invoking `navController.popBackStack()`.

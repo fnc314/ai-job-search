@@ -2,10 +2,11 @@ package dev.fnc314.tools.jobtracker
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
+import dev.fnc314.tools.jobtracker.app.core.App
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     ComposeViewport {
-        App()
+      App()
     }
 }

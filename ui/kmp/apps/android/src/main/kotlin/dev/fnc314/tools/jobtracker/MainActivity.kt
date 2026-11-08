@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.firebase.FirebaseApp
+import dev.fnc314.tools.jobtracker.app.core.App
 import dev.fnc314.tools.jobtracker.core.data.ApplicationContextHolder
 
 class MainActivity : ComponentActivity() {
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            App()
+          App()
         }
     }
 }
@@ -28,5 +29,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App()
+  App()
 }

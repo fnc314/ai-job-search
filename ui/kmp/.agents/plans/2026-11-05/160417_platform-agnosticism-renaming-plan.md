@@ -191,8 +191,8 @@ public class JobApplicationDetailViewModel(
 
 ### Component 6: `apps:core` & Entrypoints
 
-#### [DELETE] `apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/di/KoinModule.kt`
-#### [NEW] `apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/di/AppDI.kt`
+#### [DELETE] `../../../apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/app/core/di`
+#### [NEW] `../../../apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/app/core/di`
 - Rename val `appKoinModule` $\to$ `appDIModule`.
 
 #### [DELETE] `apps/core/src/commonMain/composeResources/drawable/compose-multiplatform.xml`

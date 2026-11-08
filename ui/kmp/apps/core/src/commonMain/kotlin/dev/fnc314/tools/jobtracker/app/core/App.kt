@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker
+package dev.fnc314.tools.jobtracker.app.core
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import dev.fnc314.tools.jobtracker.app.core.di.appModule
 import dev.fnc314.tools.jobtracker.core.data.model.AuthState
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository
 import dev.fnc314.tools.jobtracker.features.signin.domain.repository.AuthRepository
@@ -22,7 +23,6 @@ import dev.fnc314.tools.jobtracker.core.designsystem.JobTrackerTheme
 import dev.fnc314.tools.jobtracker.core.designsystem.ProvideWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.core.designsystem.toColorOrNull
-import dev.fnc314.tools.jobtracker.di.appModule
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddApplicationRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.addJobApplicationNavHook
@@ -36,7 +36,7 @@ import dev.fnc314.tools.jobtracker.features.signin.ui.SignInRoute
 import dev.fnc314.tools.jobtracker.features.signin.ui.signInNavHook
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.EditsRoute
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.trackerEditsNavHook
-import dev.fnc314.tools.jobtracker.ui.AppScaffold
+import dev.fnc314.tools.jobtracker.app.core.ui.AppScaffold
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.dsl.koinConfiguration

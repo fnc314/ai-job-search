@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.ui
+package dev.fnc314.tools.jobtracker.app.core.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues

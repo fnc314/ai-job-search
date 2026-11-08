@@ -323,7 +323,7 @@ Each module defines a canonical `packageOfResClass`:
 
 ### 9. `apps:core` Scaffold & Navigation Decoupling
 
-#### [MODIFY] `apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/ui/AppScaffold.kt`
+#### [MODIFY] `../../../apps/core/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/app/core/ui`
 - Replace hardcoded `when` title block with dynamic route lookup:
   ```kotlin
   val currentRoute = when {

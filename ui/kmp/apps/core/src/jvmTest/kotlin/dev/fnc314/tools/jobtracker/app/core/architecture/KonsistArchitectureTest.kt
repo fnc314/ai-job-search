@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.architecture
+package dev.fnc314.tools.jobtracker.app.core.architecture
 
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.withPackage

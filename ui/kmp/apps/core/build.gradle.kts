@@ -27,7 +27,6 @@ kotlin {
             implementation(projects.coreWidgets)
 
             implementation(projects.featuresSignInUi)
-            implementation(projects.featuresSignInDomain)
             implementation(projects.featuresJobApplicationsListUi)
             implementation(projects.featuresJobApplicationDetailsUi)
             implementation(projects.featuresSettingsUi)

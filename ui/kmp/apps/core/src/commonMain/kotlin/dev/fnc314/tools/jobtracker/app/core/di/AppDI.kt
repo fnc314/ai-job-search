@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.di
+package dev.fnc314.tools.jobtracker.app.core.di
 
 import dev.fnc314.tools.jobtracker.core.data.di.coreDataModule
 import dev.fnc314.tools.jobtracker.core.network.di.coreNetworkModule

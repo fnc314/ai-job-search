@@ -1,8 +1,8 @@
-package dev.fnc314.tools.jobtracker
+package dev.fnc314.tools.jobtracker.app.core
 
 import androidx.compose.runtime.Composable
 
 @Composable
 public actual fun KmpInspector(content: @Composable () -> Unit) {
-    com.waqas028.kmpinspector.KmpInspector(content = content)
+    content()
 }
