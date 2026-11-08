@@ -32,7 +32,6 @@ public class KoinDependenciesConventionPlugin : Plugin<Project>, BaseConventionP
                 logSeverity.set("info")
                 versionCheckSeverity.set("info")
             }
-
         }
         kotlinMultiplatform {
             commonMain {
