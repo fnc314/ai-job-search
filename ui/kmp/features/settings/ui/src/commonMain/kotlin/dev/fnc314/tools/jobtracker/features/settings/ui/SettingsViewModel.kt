@@ -47,12 +47,12 @@ public class SettingsViewModel(
             isNavigatingBack -> SettingsUiState.NavigateBack
             isSigningOut -> SettingsUiState.NavigateToSignIn
             else -> SettingsUiState.Content(
-                model = SettingsUiModel(
-                    uiMode = settings.uiMode,
-                    seedColorHex = settings.seedColorHex,
-                    isSystemDark = settings.uiMode == UiMode.DARK,
-                    randomSeedSuggestions = seedSuggestions,
-                ),
+              model = SettingsUiModel(
+                uiMode = settings.uiMode,
+                seedColorHex = settings.seedColorHex,
+                isSystemDark = settings.uiMode == UiMode.DARK,
+                randomSeedSuggestions = seedSuggestions,
+              ),
             )
         }
     }.stateIn(

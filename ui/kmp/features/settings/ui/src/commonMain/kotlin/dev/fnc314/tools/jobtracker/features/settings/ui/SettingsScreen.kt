@@ -120,9 +120,9 @@ public fun SettingsScreen(
 
 @Composable
 internal fun SettingsContent(
-    model: SettingsUiModel,
-    onIntent: (SettingsUiIntent) -> Unit,
-    modifier: Modifier = Modifier,
+  model: SettingsUiModel,
+  onIntent: (SettingsUiIntent) -> Unit,
+  modifier: Modifier = Modifier,
 ): Unit {
     val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
 
