@@ -26,10 +26,10 @@ complexity:
   # ─────────────────────────────────────────────────────────────────────────────
   ComplexInterface:
     active: false
-    threshold: 10
-    includeStaticDeclarations: false
-    includePrivateDeclarations: false
     ignoreOverloaded: false
+    includePrivateDeclarations: false
+    includeStaticDeclarations: false
+    threshold: 10
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: CyclomaticComplexMethod
   # ELI5: Measures the number of independent execution paths through a method; flags overly branchy functions.
@@ -38,12 +38,11 @@ complexity:
   # ─────────────────────────────────────────────────────────────────────────────
   CyclomaticComplexMethod:
     active: true
-    threshold: 15
-    ignoreSingleWhenExpression: true
-    ignoreSimpleWhenEntries: true
-    ignoreNestingFunctions: false
     ignoreAnnotated:
       - 'Composable'
+    ignoreNestingFunctions: false
+    ignoreSimpleWhenEntries: true
+    ignoreSingleWhenExpression: true
     nestingFunctions:
       - 'also'
       - 'apply'
@@ -54,6 +53,7 @@ complexity:
       - 'run'
       - 'use'
       - 'with'
+    threshold: 15
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: LabeledExpression
   # ELI5: Discourages labeled break/continue jumps (e.g., 'break@loop') that create confusing spaghetti flow.
@@ -81,9 +81,9 @@ complexity:
   LongMethod:
     active: true
     excludes: ['**/PlatformSignInHandler*']
-    threshold: 60
     ignoreAnnotated:
       - 'Composable'
+    threshold: 60
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: LongParameterList
   # ELI5: Flags functions or constructors taking too many parameters, which should be grouped into a parameter object.
@@ -92,13 +92,13 @@ complexity:
   # ─────────────────────────────────────────────────────────────────────────────
   LongParameterList:
     active: true
-    functionThreshold: 10
     constructorThreshold: 10
-    ignoreDefaultParameters: true
-    ignoreDataClasses: true
-    ignoreAnnotatedParameter: []
+    functionThreshold: 10
     ignoreAnnotated:
       - 'Composable'
+    ignoreAnnotatedParameter: []
+    ignoreDataClasses: true
+    ignoreDefaultParameters: true
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: MethodOverloading
   # ELI5: Warns when a class has too many overloaded versions of the same function name.
@@ -116,8 +116,8 @@ complexity:
   # ─────────────────────────────────────────────────────────────────────────────
   NamedArguments:
     active: false
-    threshold: 3
     ignoreArgumentsMatchingNames: false
+    threshold: 3
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: NestedBlockDepth
   # ELI5: Stops deep indentation pyramids where loops and conditionals are nested inside other loops and conditionals.
@@ -135,13 +135,13 @@ complexity:
   # ─────────────────────────────────────────────────────────────────────────────
   NestedScopeFunctions:
     active: false
-    threshold: 1
     functions:
       - 'kotlin.apply'
       - 'kotlin.run'
       - 'kotlin.with'
       - 'kotlin.let'
       - 'kotlin.also'
+    threshold: 1
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ReplaceSafeCallChainWithRun
   # ELI5: Suggests replacing repeated long safe call chains like 'x?.a?.b?.c' with a cleaner 'x?.run { ... }'.
@@ -159,10 +159,10 @@ complexity:
   StringLiteralDuplication:
     active: false
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
-    threshold: 3
-    ignoreAnnotation: true
     excludeStringsWithLessThan5Characters: true
+    ignoreAnnotation: true
     ignoreStringsRegex: '$^'
+    threshold: 3
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: TooManyFunctions
   # ELI5: Flags files or classes that declare an excessive number of functions, indicating bloated responsibilities.
@@ -172,13 +172,13 @@ complexity:
   TooManyFunctions:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
-    thresholdInFiles: 15
+    ignoreAnnotatedFunctions: []
+    ignoreDeprecated: false
+    ignoreOverridden: false
+    ignorePrivate: false
     thresholdInClasses: 15
+    thresholdInEnums: 15
+    thresholdInFiles: 15
     thresholdInInterfaces: 15
     thresholdInObjects: 20
-    thresholdInEnums: 15
-    ignoreDeprecated: false
-    ignorePrivate: false
-    ignoreOverridden: false
-    ignoreAnnotatedFunctions: []
 

@@ -8,7 +8,7 @@ naming:
   # ─────────────────────────────────────────────────────────────────────────────
   BooleanPropertyNaming:
     active: false
-    allowedPattern: '^(is|has|are)'
+    allowedPattern: "^(is|has|are)"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ClassNaming
   # ELI5: Requires class and interface names to follow PascalCase (e.g., 'MyAwesomeClass').
@@ -17,7 +17,7 @@ naming:
   # ─────────────────────────────────────────────────────────────────────────────
   ClassNaming:
     active: true
-    classPattern: '[A-Z][a-zA-Z0-9]*'
+    classPattern: "[A-Z][a-zA-Z0-9]*"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ConstructorParameterNaming
   # ELI5: Requires constructor parameters to follow camelCase conventions.
@@ -26,12 +26,12 @@ naming:
   # ─────────────────────────────────────────────────────────────────────────────
   ConstructorParameterNaming:
     active: true
-    parameterPattern: '[a-z][A-Za-z0-9]*'
-    privateParameterPattern: '[a-z][A-Za-z0-9]*'
-    excludeClassPattern: '$^'
+    excludeClassPattern: "$^"
+    parameterPattern: "[a-z][A-Za-z0-9]*"
+    privateParameterPattern: "[a-z][A-Za-z0-9]*"
   EnumNaming:
     active: true
-    enumEntryPattern: '[A-Z][_a-zA-Z0-9]*'
+    enumEntryPattern: "[A-Z][_a-zA-Z0-9]*"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ForbiddenClassName
   # ELI5: Allows banning specific generic or forbidden class names like 'Manager' or 'Helper'.
@@ -67,16 +67,26 @@ naming:
   # ─────────────────────────────────────────────────────────────────────────────
   FunctionNaming:
     active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
-    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
-    excludeClassPattern: '$^'
+    excludeClassPattern: "$^"
+    excludes:
+      [
+        "**/test/**",
+        "**/androidTest/**",
+        "**/commonTest/**",
+        "**/jvmTest/**",
+        "**/androidUnitTest/**",
+        "**/androidInstrumentedTest/**",
+        "**/jsTest/**",
+        "**/iosTest/**",
+      ]
+    functionPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ignoreAnnotated:
-      - 'Composable'
-      - 'Preview'
+      - "Composable"
+      - "Preview"
   FunctionParameterNaming:
     active: true
-    parameterPattern: '[a-z][A-Za-z0-9]*'
-    excludeClassPattern: '$^'
+    excludeClassPattern: "$^"
+    parameterPattern: "[a-z][A-Za-z0-9]*"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: InvalidPackageDeclaration
   # ELI5: Ensures the 'package ...' declaration in code matches the actual filesystem folder path.
@@ -85,11 +95,11 @@ naming:
   # ─────────────────────────────────────────────────────────────────────────────
   InvalidPackageDeclaration:
     active: true
-    rootPackage: ''
     requireRootInDeclaration: false
+    rootPackage: ""
   LambdaParameterNaming:
     active: false
-    parameterPattern: '[a-z][A-Za-z0-9]*|_'
+    parameterPattern: "[a-z][A-Za-z0-9]*|_"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: MatchingDeclarationName
   # ELI5: Ensures the top-level class name matches the filename (e.g., 'Foo.kt' declares 'class Foo').
@@ -98,19 +108,19 @@ naming:
   # ─────────────────────────────────────────────────────────────────────────────
   MatchingDeclarationName:
     active: true
-    excludes: ['**/JPypeBridge.kt', '**/Color.kt', '**/*Navigation.kt']
-    mustBeFirst: true
+    excludes: ["**/JPypeBridge.kt", "**/Color.kt", "**/*Navigation.kt"]
     multiplatformTargets:
-      - 'ios'
-      - 'android'
-      - 'js'
-      - 'jvm'
-      - 'native'
-      - 'iosArm64'
-      - 'iosX64'
-      - 'macosX64'
-      - 'mingwX64'
-      - 'linuxX64'
+      - "ios"
+      - "android"
+      - "js"
+      - "jvm"
+      - "native"
+      - "iosArm64"
+      - "iosX64"
+      - "macosX64"
+      - "mingwX64"
+      - "linuxX64"
+    mustBeFirst: true
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: MemberNameEqualsClassName
   # ELI5: Flags members (functions/properties) with the exact same name as their enclosing class.
@@ -138,9 +148,9 @@ naming:
   # ─────────────────────────────────────────────────────────────────────────────
   ObjectPropertyNaming:
     active: true
-    constantPattern: '[A-Za-z][_A-Za-z0-9]*'
-    propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
-    privatePropertyPattern: '(_)?[A-Za-z][_A-Za-z0-9]*'
+    constantPattern: "[A-Za-z][_A-Za-z0-9]*"
+    privatePropertyPattern: "(_)?[A-Za-z][_A-Za-z0-9]*"
+    propertyPattern: "[A-Za-z][_A-Za-z0-9]*"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: PackageNaming
   # ELI5: Requires package names to be all lowercase words separated by dots, without underscores.
@@ -158,9 +168,9 @@ naming:
   # ─────────────────────────────────────────────────────────────────────────────
   TopLevelPropertyNaming:
     active: true
-    constantPattern: '[A-Z][_A-Z0-9]*'
-    propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
-    privatePropertyPattern: '_?[A-Za-z][_A-Za-z0-9]*'
+    constantPattern: "[A-Z][_A-Z0-9]*"
+    privatePropertyPattern: "_?[A-Za-z][_A-Za-z0-9]*"
+    propertyPattern: "[A-Za-z][_A-Za-z0-9]*"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: VariableMaxLength
   # ELI5: Flags variable names that are unreasonably long.
@@ -187,7 +197,6 @@ naming:
   # ─────────────────────────────────────────────────────────────────────────────
   VariableNaming:
     active: true
-    variablePattern: '[a-z][A-Za-z0-9]*'
-    privateVariablePattern: '(_)?[a-z][A-Za-z0-9]*'
-    excludeClassPattern: '$^'
-
+    excludeClassPattern: "$^"
+    privateVariablePattern: "(_)?[a-z][A-Za-z0-9]*"
+    variablePattern: "[a-z][A-Za-z0-9]*"

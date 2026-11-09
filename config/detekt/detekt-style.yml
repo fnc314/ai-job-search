@@ -10,12 +10,12 @@ style:
     active: false
   BracesOnIfStatements:
     active: false
-    singleLine: 'never'
-    multiLine: 'always'
+    multiLine: "always"
+    singleLine: "never"
   BracesOnWhenStatements:
     active: false
-    singleLine: 'necessary'
-    multiLine: 'consistent'
+    multiLine: "consistent"
+    singleLine: "necessary"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: CanBeNonNullable
   # ELI5: Flags variables marked nullable that are never assigned null or can safely be made non-null.
@@ -57,9 +57,9 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   DataClassContainsFunctions:
     active: false
-    conversionFunctionPrefix:
-      - 'to'
     allowOperators: false
+    conversionFunctionPrefix:
+      - "to"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: DataClassShouldBeImmutable
   # ELI5: Forbids 'var' properties in data classes; all data class fields should be immutable 'val'.
@@ -79,14 +79,14 @@ style:
     maxDestructuringEntries: 3
   DoubleNegativeLambda:
     active: false
-    negativeFunctions:
-      - reason: 'Use `takeIf` instead.'
-        value: 'takeUnless'
-      - reason: 'Use `all` instead.'
-        value: 'none'
     negativeFunctionNameParts:
-      - 'not'
-      - 'non'
+      - "not"
+      - "non"
+    negativeFunctions:
+      - reason: "Use `takeIf` instead."
+        value: "takeUnless"
+      - reason: "Use `all` instead."
+        value: "none"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: EqualsNullCall
   # ELI5: Flags 'x.equals(null)'; use 'x == null' instead.
@@ -131,20 +131,20 @@ style:
   ForbiddenAnnotation:
     active: false
     annotations:
-      - reason: 'it is a java annotation. Use `Suppress` instead.'
-        value: 'java.lang.SuppressWarnings'
-      - reason: 'it is a java annotation. Use `kotlin.Deprecated` instead.'
-        value: 'java.lang.Deprecated'
-      - reason: 'it is a java annotation. Use `kotlin.annotation.MustBeDocumented` instead.'
-        value: 'java.lang.annotation.Documented'
-      - reason: 'it is a java annotation. Use `kotlin.annotation.Target` instead.'
-        value: 'java.lang.annotation.Target'
-      - reason: 'it is a java annotation. Use `kotlin.annotation.Retention` instead.'
-        value: 'java.lang.annotation.Retention'
-      - reason: 'it is a java annotation. Use `kotlin.annotation.Repeatable` instead.'
-        value: 'java.lang.annotation.Repeatable'
-      - reason: 'Kotlin does not support @Inherited annotation, see https://youtrack.jetbrains.com/issue/KT-22265'
-        value: 'java.lang.annotation.Inherited'
+      - reason: "it is a java annotation. Use `Suppress` instead."
+        value: "java.lang.SuppressWarnings"
+      - reason: "it is a java annotation. Use `kotlin.Deprecated` instead."
+        value: "java.lang.Deprecated"
+      - reason: "it is a java annotation. Use `kotlin.annotation.MustBeDocumented` instead."
+        value: "java.lang.annotation.Documented"
+      - reason: "it is a java annotation. Use `kotlin.annotation.Target` instead."
+        value: "java.lang.annotation.Target"
+      - reason: "it is a java annotation. Use `kotlin.annotation.Retention` instead."
+        value: "java.lang.annotation.Retention"
+      - reason: "it is a java annotation. Use `kotlin.annotation.Repeatable` instead."
+        value: "java.lang.annotation.Repeatable"
+      - reason: "Kotlin does not support @Inherited annotation, see https://youtrack.jetbrains.com/issue/KT-22265"
+        value: "java.lang.annotation.Inherited"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ForbiddenComment
   # ELI5: Flags forbidden comment patterns such as FIXME, STOPSHIP, or unresolved author notes.
@@ -153,14 +153,14 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   ForbiddenComment:
     active: true
+    allowedPatterns: ""
     comments:
-      - reason: 'Forbidden FIXME todo marker in comment, please fix the problem.'
-        value: 'FIXME:'
-      - reason: 'Forbidden STOPSHIP todo marker in comment, please address the problem before shipping the code.'
-        value: 'STOPSHIP:'
-      - reason: 'Forbidden TODO todo marker in comment, please do the changes.'
-        value: 'TODO:'
-    allowedPatterns: ''
+      - reason: "Forbidden FIXME todo marker in comment, please fix the problem."
+        value: "FIXME:"
+      - reason: "Forbidden STOPSHIP todo marker in comment, please address the problem before shipping the code."
+        value: "STOPSHIP:"
+      - reason: "Forbidden TODO todo marker in comment, please do the changes."
+        value: "TODO:"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ForbiddenImport
   # ELI5: Forbids importing specific disallowed packages or classes.
@@ -169,8 +169,8 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   ForbiddenImport:
     active: false
+    forbiddenPatterns: ""
     imports: []
-    forbiddenPatterns: ''
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ForbiddenMethodCall
   # ELI5: Forbids calling specific dangerous or banned methods across the codebase.
@@ -180,10 +180,10 @@ style:
   ForbiddenMethodCall:
     active: false
     methods:
-      - reason: 'print does not allow you to configure the output stream. Use a logger instead.'
-        value: 'kotlin.io.print'
-      - reason: 'println does not allow you to configure the output stream. Use a logger instead.'
-        value: 'kotlin.io.println'
+      - reason: "print does not allow you to configure the output stream. Use a logger instead."
+        value: "kotlin.io.print"
+      - reason: "println does not allow you to configure the output stream. Use a logger instead."
+        value: "kotlin.io.println"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ForbiddenSuppress
   # ELI5: Forbids using @Suppress on specific critical rules that should never be ignored.
@@ -211,9 +211,9 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   FunctionOnlyReturningConstant:
     active: true
-    ignoreOverridableFunction: true
-    ignoreActualFunction: true
     excludedFunctions: []
+    ignoreActualFunction: true
+    ignoreOverridableFunction: true
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: LoopWithTooManyJumpStatements
   # ELI5: Flags loops containing too many break/continue jumps that make flow control unreadable.
@@ -231,35 +231,48 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   MagicNumber:
     active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts', '**/core/design-system/**', '**/designsystem/**']
-    ignoreNumbers:
-      - '-1'
-      - '0'
-      - '1'
-      - '2'
-      - '8'
-      - '16'
-      - '24'
-      - '32'
-      - '48'
-      - '60'
-      - '100'
-      - '500'
-      - '1000'
-      - '5000'
-    ignoreHashCodeFunction: true
-    ignorePropertyDeclaration: false
-    ignoreLocalVariableDeclaration: false
-    ignoreConstantDeclaration: true
-    ignoreCompanionObjectPropertyDeclaration: true
+    excludes:
+      [
+        "**/test/**",
+        "**/androidTest/**",
+        "**/commonTest/**",
+        "**/jvmTest/**",
+        "**/androidUnitTest/**",
+        "**/androidInstrumentedTest/**",
+        "**/jsTest/**",
+        "**/iosTest/**",
+        "**/*.kts",
+        "**/core/design-system/**",
+        "**/designsystem/**",
+      ]
     ignoreAnnotated:
-      - 'Composable'
-      - 'Preview'
+      - "Composable"
+      - "Preview"
     ignoreAnnotation: false
-    ignoreNamedArgument: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreConstantDeclaration: true
     ignoreEnums: false
-    ignoreRanges: false
     ignoreExtensionFunctions: true
+    ignoreHashCodeFunction: true
+    ignoreLocalVariableDeclaration: false
+    ignoreNamedArgument: true
+    ignoreNumbers:
+      - "-1"
+      - "0"
+      - "1"
+      - "2"
+      - "8"
+      - "16"
+      - "24"
+      - "32"
+      - "48"
+      - "60"
+      - "100"
+      - "500"
+      - "1000"
+      - "5000"
+    ignorePropertyDeclaration: false
+    ignoreRanges: false
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: MandatoryBracesLoops
   # ELI5: Requires curly braces on all for, while, and do-while loops.
@@ -285,11 +298,11 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   MaxLineLength:
     active: true
-    maxLineLength: 220
-    excludePackageStatements: true
-    excludeImportStatements: true
     excludeCommentStatements: true
+    excludeImportStatements: true
+    excludePackageStatements: true
     excludeRawStrings: true
+    maxLineLength: 220
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: MayBeConst
   # ELI5: Suggests adding 'const' modifier to top-level or object val properties with primitive literals.
@@ -318,8 +331,8 @@ style:
     active: false
     indentSize: 4
     trimmingMethods:
-      - 'trimIndent'
-      - 'trimMargin'
+      - "trimIndent"
+      - "trimMargin"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: NestedClassesVisibility
   # ELI5: Flags public nested classes inside internal classes; they should be internal as well.
@@ -418,12 +431,12 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   ReturnCount:
     active: true
-    max: 5
     excludedFunctions:
-      - 'equals'
+      - "equals"
+    excludeGuardClauses: true
     excludeLabeled: false
     excludeReturnFromLambda: true
-    excludeGuardClauses: true
+    max: 5
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: SafeCast
   # ELI5: Suggests replacing manual 'if (x is Foo) x as Foo else null' with idiomatic 'x as? Foo'.
@@ -450,8 +463,8 @@ style:
     active: false
   StringShouldBeRawString:
     active: false
-    maxEscapedCharacterCount: 2
     ignoredCharacters: []
+    maxEscapedCharacterCount: 2
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ThrowsCount
   # ELI5: Limits the number of throw statements inside a single method.
@@ -460,8 +473,8 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   ThrowsCount:
     active: true
-    max: 2
     excludeGuardClauses: false
+    max: 2
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: TrailingWhitespace
   # ELI5: Forbids invisible trailing spaces at the end of lines.
@@ -479,8 +492,8 @@ style:
   TrimMultilineRawString:
     active: false
     trimmingMethods:
-      - 'trimIndent'
-      - 'trimMargin'
+      - "trimIndent"
+      - "trimMargin"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: UnderscoresInNumericLiterals
   # ELI5: Encourages separating long numbers with underscores (e.g., '1_000_000') for readability.
@@ -488,8 +501,8 @@ style:
   # Docs: https://detekt.dev/docs/rules/style#underscoresinnumericliterals
   # ─────────────────────────────────────────────────────────────────────────────
   UnderscoresInNumericLiterals:
-    active: false
     acceptableLength: 4
+    active: false
     allowNonStandardGrouping: false
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: UnnecessaryAbstractClass
@@ -590,7 +603,7 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   UnusedParameter:
     active: true
-    allowedNames: 'ignored|expected|settings|.*Settings.*|.*External.*'
+    allowedNames: "ignored|expected|settings|.*Settings.*|.*External.*"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: UnusedPrivateClass
   # ELI5: Flags private classes that are never instantiated or referenced anywhere.
@@ -607,7 +620,7 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   UnusedPrivateMember:
     active: true
-    allowedNames: ''
+    allowedNames: ""
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: UnusedPrivateProperty
   # ELI5: Flags private properties that are declared but never read.
@@ -616,7 +629,7 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   UnusedPrivateProperty:
     active: true
-    allowedNames: '_|ignored|expected|serialVersionUID|.*DataSource|.*Holder|.*Database'
+    allowedNames: "_|ignored|expected|serialVersionUID|.*DataSource|.*Holder|.*Database"
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: UseAnyOrNoneInsteadOfFind
   # ELI5: Suggests 'any { ... }' instead of 'find { ... } != null'.
@@ -649,7 +662,7 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   UseCheckOrError:
     active: true
-    excludes: ['**/PlatformSignInHandler*']
+    excludes: ["**/PlatformSignInHandler*"]
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: UseDataClass
   # ELI5: Flags classes that only contain public properties and no logic; they should be declared as 'data class'.
@@ -686,6 +699,14 @@ style:
   # ─────────────────────────────────────────────────────────────────────────────
   UseIsNullOrEmpty:
     active: true
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Rule: UselessCallOnNotNull
+  # ELI5: Flags calling '.orEmpty()' on a collection or string that is already non-nullable.
+  # Type: Boolean
+  # Docs: https://detekt.dev/docs/rules/style#uselesscallonnotnull
+  # ─────────────────────────────────────────────────────────────────────────────
+  UselessCallOnNotNull:
+    active: true
   UseLet:
     active: false
   # ─────────────────────────────────────────────────────────────────────────────
@@ -721,14 +742,6 @@ style:
   UseSumOfInsteadOfFlatMapSize:
     active: false
   # ─────────────────────────────────────────────────────────────────────────────
-  # Rule: UselessCallOnNotNull
-  # ELI5: Flags calling '.orEmpty()' on a collection or string that is already non-nullable.
-  # Type: Boolean
-  # Docs: https://detekt.dev/docs/rules/style#uselesscallonnotnull
-  # ─────────────────────────────────────────────────────────────────────────────
-  UselessCallOnNotNull:
-    active: true
-  # ─────────────────────────────────────────────────────────────────────────────
   # Rule: UtilityClassWithPublicConstructor
   # ELI5: Flags utility classes with only static/companion methods having a public constructor; declare as 'object' instead.
   # Type: Boolean
@@ -754,12 +767,11 @@ style:
   WildcardImport:
     active: true
     excludeImports:
-      - 'java.util.*'
-      - 'androidx.compose.foundation.layout.*'
-      - 'androidx.compose.material3.*'
-      - 'androidx.compose.runtime.*'
-      - 'androidx.compose.ui.input.key.*'
-
+      - "java.util.*"
+      - "androidx.compose.foundation.layout.*"
+      - "androidx.compose.material3.*"
+      - "androidx.compose.runtime.*"
+      - "androidx.compose.ui.input.key.*"
 
 # ═════════════════════════════════════════════════════════════════════════════
 # COMPOSE RULES (io.nlopez.compose.rules:detekt)

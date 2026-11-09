@@ -17,7 +17,7 @@ Compose:
   # Docs: https://mrmike.github.io/compose-rules/rules/composable-param-order
   # ─────────────────────────────────────────────────────────────────────────────
   ComposableParamOrder:
-    active: false
+    active: true
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: CompositionLocalAllowlist
@@ -188,7 +188,7 @@ Compose:
   # Docs: https://mrmike.github.io/compose-rules/rules/unstable-collections
   # ─────────────────────────────────────────────────────────────────────────────
   UnstableCollections:
-    active: false
+    active: true
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ViewModelForwarding
