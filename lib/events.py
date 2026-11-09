@@ -124,6 +124,21 @@ def buildEvent(
     to nothing: an event describes what it moved *to*, and callers that know the
     prior state pass it. Guessing the prior state here would invent history.
     """
+    if actor.startswith("actor:"):
+        actor = actor.split(":", 1)[1].upper()
+    elif actor.lower() in ("user", "agent", "email_sync", "import", "scheduler"):
+        actor = actor.upper()
+
+    if derivedFrom.startswith("derived-from:") or derivedFrom.startswith("derivedFrom:"):
+        derivedFrom = derivedFrom.split(":", 1)[1]
+    derivedFromMap = {"manual": "MANUAL", "notes_regex": "NOTES_REGEX", "notes-regex": "NOTES_REGEX", "email": "EMAIL", "csv_import": "CSV_IMPORT", "csv-import": "CSV_IMPORT"}
+    derivedFrom = derivedFromMap.get(derivedFrom.lower(), derivedFrom.upper())
+
+    if confidence.startswith("confidence:"):
+        confidence = confidence.split(":", 1)[1]
+    confidenceMap = {"high": "HIGH_CONFIDENCE", "medium": "MEDIUM_CONFIDENCE", "low": "LOW_CONFIDENCE"}
+    confidence = confidenceMap.get(confidence.lower(), confidence.upper())
+
     if eventType not in contract.enums("eventType"):
         raise EventError(
             f"unknown event type {eventType!r}. Known types: "
