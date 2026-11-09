@@ -38,4 +38,5 @@ message JobApplication {
   google.protobuf.Struct metadata = 20;
   string jobApplicationUrl = 21;
   string uuid = 22;
+  repeated string emailMessageIds = 23;
 }

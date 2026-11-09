@@ -1,3 +1,5 @@
+apply(from = "../gradle/conventions/subsystem.settings.gradle.kts")
+
 rootProject.name = "records"
 
 include(":records-proto")

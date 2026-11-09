@@ -1,7 +1,0 @@
-[tools]
-gradle = "9.8.2"
-
-[env]
-ANDROID_HOME = "$HOME/.android/sdk"
-ANDROID_USER_HOME = "$HOME/.android"
-GRADLE_USER_HOME = "$HOME/.gradle"

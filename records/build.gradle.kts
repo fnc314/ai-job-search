@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.protobuf) apply false
     alias(libs.plugins.dokka) apply false
     alias(libs.plugins.detekt)

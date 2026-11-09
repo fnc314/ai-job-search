@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
-  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlinJvm)
   alias(libs.plugins.dokka)
 }
 
@@ -11,12 +11,9 @@ kotlin {
   explicitApiWarning()
   compilerOptions {
     jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.get())
-    apiVersion = KotlinVersion.fromVersion(
-      libs.versions.kotlin.get().substringBeforeLast(".")
-    )
-    languageVersion = KotlinVersion.fromVersion(
-      libs.versions.kotlin.get().substringBeforeLast(".")
-    )
+    val kotlinVer = libs.versions.kotlin.asProvider().get().substringBeforeLast(".")
+    apiVersion = KotlinVersion.fromVersion(kotlinVer)
+    languageVersion = KotlinVersion.fromVersion(kotlinVer)
   }
 }
 

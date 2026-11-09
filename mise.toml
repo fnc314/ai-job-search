@@ -24,7 +24,7 @@ monorepo_root = true
 
 [monorepo]
   lockfile = true
-  config_roots = [ "records", "ui/kmp", "ui/kotlin-toolchain" ]
+  config_roots = [ "records", "frontend" ]
 
 [hooks]
   cd = "bash scripts/cleanup-tui-logs.sh"
