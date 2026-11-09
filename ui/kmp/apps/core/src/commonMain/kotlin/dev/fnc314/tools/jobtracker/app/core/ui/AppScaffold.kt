@@ -93,8 +93,9 @@ public fun AppScaffold(
   val isAddAppSelected = currentDestination is AddApplicationRoute
   val isAddLeadSelected = currentDestination is AddLeadRoute
 
-  val showNav = isAuthenticated && (isListSelected || isEditsSelected || isSettingsSelected)
-  val canNavigateBack = navigator.backStack.size > 1 && !isListSelected
+  val isTopLevelDestination = isListSelected || isEditsSelected || isSettingsSelected
+  val showNav = isAuthenticated && isTopLevelDestination
+  val canNavigateBack = navigator.backStack.size > 1 && !isTopLevelDestination
 
   val titleRes: StringResource = when {
     isListSelected -> ListRoute.titleRes

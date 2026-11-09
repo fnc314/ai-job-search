@@ -56,3 +56,4 @@ This directory contains design and implementation plans for the `ui/kmp` project
 | [`refresh-firebase-room-sync-plan.md`](./2026-11-09/010500_refresh-firebase-room-sync-plan.md) | Completed | Force refresh mechanism re-reading from Firebase, updating Room, and updating UI |
 | [`pull-to-refresh-and-firebase-sync-plan.md`](./2026-11-09/044100_pull-to-refresh-and-firebase-sync-plan.md) | Completed | Pull-to-refresh experience with PullToRefreshBox, ViewModel isRefreshing fix, and fresh Firebase server queries |
 | [`fix-tracker-edits-koin-crash-plan.md`](./2026-11-09/045300_fix-tracker-edits-koin-crash-plan.md) | Completed | Resolve TrackerEdits Koin NoDefinitionFoundException crash by injecting DatabaseHolder |
+| [`squash-tracker-edits-navigation-and-title-plan.md`](./2026-11-09/050600_squash-tracker-edits-navigation-and-title-plan.md) | Completed | Squash duplicate navigation arrow and screen title in Tracker Edits screen and AppScaffold |

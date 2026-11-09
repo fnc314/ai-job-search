@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
@@ -54,7 +53,6 @@ import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edit
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_action_reject
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_action_reject_for_app
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_application_label
-import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_cd_back
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_cd_view_application
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_changes_header
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_confidence_label
@@ -65,7 +63,6 @@ import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edit
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_dialog_reject_title
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_empty
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_reason_label
-import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_route_title
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_source_email_from
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_source_email_subject
 import org.jetbrains.compose.resources.stringResource
@@ -105,50 +102,29 @@ public fun TrackerEditsScreen(
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {
-        // Toolbar row: Back, Title & Actions
+        // Actions row: Expire Stale Edits & Refresh
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = MaterialTheme.spacing.medium, vertical = MaterialTheme.spacing.small),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-            ) {
-                IconButton(onClick = { viewModel.onIntent(TrackerEditsUiIntent.ClickBack) }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(Res.string.edits_cd_back),
-                    )
-                }
-                Text(
-                    text = stringResource(Res.string.edits_route_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-            ) {
-                val isActionInProgress = (uiState as? TrackerEditsUiState.Content)?.isActionInProgress == true
-                val isLoading = uiState is TrackerEditsUiState.Loading
+            val isActionInProgress = (uiState as? TrackerEditsUiState.Content)?.isActionInProgress == true
+            val isLoading = uiState is TrackerEditsUiState.Loading
 
-                TooltipIconButton(
-                    tooltip = stringResource(Res.string.edits_action_expire_stale),
-                    icon = Icons.Default.DateRange,
-                    onClick = { viewModel.onIntent(TrackerEditsUiIntent.ExpireStaleEdits) },
-                    enabled = !isActionInProgress && !isLoading,
-                )
-                TooltipIconButton(
-                    tooltip = stringResource(Res.string.edits_action_refresh),
-                    icon = Icons.Default.Refresh,
-                    onClick = { viewModel.onIntent(TrackerEditsUiIntent.Refresh) },
-                    enabled = !isLoading && !isActionInProgress,
-                )
-            }
+            TooltipIconButton(
+                tooltip = stringResource(Res.string.edits_action_expire_stale),
+                icon = Icons.Default.DateRange,
+                onClick = { viewModel.onIntent(TrackerEditsUiIntent.ExpireStaleEdits) },
+                enabled = !isActionInProgress && !isLoading,
+            )
+            TooltipIconButton(
+                tooltip = stringResource(Res.string.edits_action_refresh),
+                icon = Icons.Default.Refresh,
+                onClick = { viewModel.onIntent(TrackerEditsUiIntent.Refresh) },
+                enabled = !isLoading && !isActionInProgress,
+            )
         }
 
         when (val state = uiState) {
