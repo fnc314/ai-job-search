@@ -3,7 +3,7 @@
     <string name="sign_in_app_title">Job Search Tracker</string>
     <string name="sign_in_subtitle">Sign in to access your applications, companies, and timeline directly from Firestore.</string>
     <string name="sign_in_progress">Signing in…</string>
-    <string name="sign_in_failed">Sign-in failed: %s</string>
+    <string name="sign_in_failed">Sign-in failed: %1$s</string>
     <string name="sign_in_action_google">Sign In with Google</string>
     <string name="sign_in_action_retry">Try Again</string>
 </resources>

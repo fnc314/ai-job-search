@@ -1,5 +1,6 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,10 +35,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
 import dev.fnc314.tools.jobtracker.core.data.model.Company
+import dev.fnc314.tools.jobtracker.core.data.model.LogoShape
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
@@ -507,6 +512,11 @@ internal fun CompanyProfileSection(
     company: Company,
     modifier: Modifier = Modifier,
 ): Unit {
+    val logoUrl = company.logoUrl?.takeIf { company.logoShape != LogoShape.RECTANGLE }
+    var isLogoLoaded by remember(logoUrl) { mutableStateOf(false) }
+    var isLogoFailed by remember(logoUrl) { mutableStateOf(logoUrl == null) }
+    val companyInitial = company.name.trim().firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "?"
+
     OutlinedCard(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier
@@ -523,14 +533,53 @@ internal fun CompanyProfileSection(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             ) {
-                company.logoUrl?.let { url ->
-                    AsyncImage(
-                        model = url,
-                        contentDescription = stringResource(Res.string.detail_company_logo_cd, company.name),
-                        modifier = Modifier
-                            .size(MaterialTheme.iconSizes.extraLarge)
-                            .clip(MaterialTheme.shapes.small),
-                    )
+                Box(
+                    modifier = Modifier
+                        .size(MaterialTheme.iconSizes.extraLarge)
+                        .background(
+                            color = if (isLogoLoaded) {
+                                MaterialTheme.colorScheme.surfaceContainerHighest
+                            } else {
+                                MaterialTheme.colorScheme.primaryContainer
+                            },
+                            shape = MaterialTheme.shapes.small,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (!isLogoLoaded) {
+                        Text(
+                            text = companyInitial,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    }
+                    if (logoUrl != null && !isLogoFailed) {
+                        AsyncImage(
+                            model = logoUrl,
+                            contentDescription = stringResource(Res.string.detail_company_logo_cd, company.name),
+                            modifier = Modifier
+                                .size(MaterialTheme.iconSizes.extraLarge)
+                                .clip(MaterialTheme.shapes.small)
+                                .alpha(if (isLogoLoaded) 1f else 0f),
+                            contentScale = ContentScale.Fit,
+                            onState = { state ->
+                                when (state) {
+                                    is AsyncImagePainter.State.Success -> {
+                                        isLogoLoaded = true
+                                    }
+                                    is AsyncImagePainter.State.Error -> {
+                                        isLogoLoaded = false
+                                        isLogoFailed = true
+                                    }
+                                    is AsyncImagePainter.State.Loading,
+                                    is AsyncImagePainter.State.Empty,
+                                    -> {
+                                        isLogoLoaded = false
+                                    }
+                                }
+                            },
+                        )
+                    }
                 }
                 Text(
                     text = stringResource(Res.string.detail_company_profile_title, company.name),

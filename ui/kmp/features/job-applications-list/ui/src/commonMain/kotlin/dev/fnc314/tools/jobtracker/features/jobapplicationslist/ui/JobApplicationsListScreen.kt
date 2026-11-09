@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -59,9 +58,7 @@ import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resour
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_error_prefix
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_fab_cd
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_fab_icon_cd
-import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_tooltip_edits
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_tooltip_refresh
-import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_tooltip_settings
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -230,16 +227,6 @@ internal fun JobApplicationsListContent(
                         tooltip = stringResource(Res.string.list_tooltip_refresh),
                         icon = Icons.Default.Refresh,
                         onClick = { onIntent(JobApplicationsListUiIntent.Refresh) },
-                    )
-                    TooltipIconButton(
-                        tooltip = stringResource(Res.string.list_tooltip_edits),
-                        icon = Icons.Default.Edit,
-                        onClick = { onIntent(JobApplicationsListUiIntent.ClickEdits) },
-                    )
-                    TooltipIconButton(
-                        tooltip = stringResource(Res.string.list_tooltip_settings),
-                        icon = Icons.Default.Settings,
-                        onClick = { onIntent(JobApplicationsListUiIntent.ClickSettings) },
                     )
                 }
             }

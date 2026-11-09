@@ -17,6 +17,7 @@ kotlin {
             implementation(projects.featuresJobApplicationsListData)
             implementation(projects.coreWidgets)
             implementation(libs.bundles.androidx.lifecycle.compose)
+            implementation(libs.bundles.coil)
             implementation(libs.kotlinx.coroutines.core)
         }
     }

@@ -7,12 +7,12 @@
     <string name="add_lead_action_cancel">Cancel</string>
     <string name="add_app_action_save_empty">Save Application</string>
     <string name="add_app_action_saving_empty">Saving Application…</string>
-    <string name="add_app_action_save_with_company">Save Application for %s</string>
-    <string name="add_app_action_saving_with_company">Saving Application for %s…</string>
+    <string name="add_app_action_save_with_company">Save Application for %1$s</string>
+    <string name="add_app_action_saving_with_company">Saving Application for %1$s…</string>
     <string name="add_lead_action_save_empty">Save Lead</string>
     <string name="add_lead_action_saving_empty">Saving Lead…</string>
-    <string name="add_lead_action_save_with_company">Save Lead for %s</string>
-    <string name="add_lead_action_saving_with_company">Saving Lead for %s…</string>
+    <string name="add_lead_action_save_with_company">Save Lead for %1$s</string>
+    <string name="add_lead_action_saving_with_company">Saving Lead for %1$s…</string>
     <string name="add_form_required_hint">(*) Denotes a required field</string>
     <string name="add_app_company_label">Company (*)</string>
     <string name="add_app_company_placeholder">e.g. Acme Corp</string>

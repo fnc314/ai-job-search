@@ -44,22 +44,55 @@ public data class JobApplicationItemUiModel(
     public val isExpanded: Boolean = false,
     public val onClickIntent: JobApplicationsListUiIntent,
 ) {
-    /** Creation date as `YYYY-MM-DD`, or [backup] when unknown. */
-    public fun createdDateDisplay(backup: String): String = createdAt.dateOrNull() ?: backup
+    /** Single uppercase alphanumeric character representing the company monogram, or `"?"` when blank. */
+    public val companyInitial: String
+        get() = companyName.trim().firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "?"
 
-    /** Application date as `YYYY-MM-DD` (first activity, else creation), or [backup] when unknown. */
-    public fun appliedDateDisplay(backup: String): String =
-        firstActivityAt.dateOrNull() ?: createdAt.dateOrNull() ?: backup
+    /** Whether [status] indicates the application has already been submitted to the employer. */
+    public val hasBeenSubmitted: Boolean
+        get() = when (status) {
+            TrackerStatus.Known.NONE,
+            TrackerStatus.Known.UNSPECIFIED,
+            TrackerStatus.Known.LEAD,
+            TrackerStatus.Known.DRAFTING,
+            -> false
+            else -> true
+        }
+
+    /** Creation date as `YYYY-MM-DD`, or `null` when unknown. */
+    public fun createdDateOrNull(): String? = createdAt.dateOrNull()
+
+    /** Creation date as `YYYY-MM-DD`, or [backup] when unknown. */
+    public fun createdDateDisplay(backup: String): String = createdDateOrNull() ?: backup
+
+    /**
+     * Application date as `YYYY-MM-DD`, or `null` when not yet applied / unknown.
+     *
+     * Prefers [firstActivityAt]; only falls back to [createdAt] when [hasBeenSubmitted] is true.
+     */
+    public fun appliedDateOrNull(): String? =
+        firstActivityAt.dateOrNull() ?: if (hasBeenSubmitted) createdAt.dateOrNull() else null
+
+    /** Application date as `YYYY-MM-DD` (first activity, else creation when submitted), or [backup] when unknown. */
+    public fun appliedDateDisplay(backup: String): String = appliedDateOrNull() ?: backup
+
+    /** Localized relative last-update text (falls back to creation), or `null` when unknown. */
+    @Composable
+    public fun updatedDateOrNull(): String? {
+        val target = if (updatedAt != Instant.DISTANT_PAST) updatedAt else createdAt
+        return formatRelativeInstant(target)
+    }
 
     /** Localized relative last-update text (falls back to creation), or [backup] when unknown. */
     @Composable
-    public fun updatedDateDisplay(backup: String = stringResource(Res.string.data_missing)): String {
-        val target = if (updatedAt != Instant.DISTANT_PAST) updatedAt else createdAt
-        return formatRelativeInstant(target) ?: backup
-    }
+    public fun updatedDateDisplay(backup: String = stringResource(Res.string.data_missing)): String =
+        updatedDateOrNull() ?: backup
+
+    /** Fit score as text, or `null` when unknown. */
+    public fun fitScoreOrNull(): String? = fitScore?.toString()
 
     /** Fit score as text, or [backup] when unknown. */
-    public fun fitScoreDisplay(backup: String): String = fitScore?.toString() ?: backup
+    public fun fitScoreDisplay(backup: String): String = fitScoreOrNull() ?: backup
 
     private fun Instant.dateOrNull(): String? =
         takeUnless { it == Instant.DISTANT_PAST }?.toString()?.substringBefore('T')

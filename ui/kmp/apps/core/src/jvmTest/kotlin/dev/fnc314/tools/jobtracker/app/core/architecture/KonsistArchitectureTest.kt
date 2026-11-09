@@ -3,7 +3,9 @@ package dev.fnc314.tools.jobtracker.app.core.architecture
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.withPackage
 import com.lemonappdev.konsist.api.verify.assertTrue
+import java.io.File
 import kotlin.test.Test
+import kotlin.test.assertTrue as kotlinAssertTrue
 
 /**
  * Global architecture test suite for `ui/kmp` multiplatform workspace.
@@ -105,5 +107,25 @@ class KonsistArchitectureTest {
             .assertTrue { decl ->
                 decl.hasInternalModifier
             }
+    }
+
+    @Test
+    fun `all composeResources strings xml files use indexed format specifiers`() {
+        val rootDir = File("..")
+        val stringsFiles = rootDir.walkTopDown()
+            .filter { file ->
+                file.isFile &&
+                    file.name == "strings.xml" &&
+                    file.path.contains("composeResources") &&
+                    !file.path.contains("/build/")
+            }
+            .toList()
+        kotlinAssertTrue(stringsFiles.isNotEmpty(), "Expected to find composeResources strings.xml files")
+        val unindexedSpecifierRegex = Regex("""%[sd]""")
+        val offendingFiles = stringsFiles.filter { unindexedSpecifierRegex.containsMatchIn(it.readText()) }
+        kotlinAssertTrue(
+            offendingFiles.isEmpty(),
+            "Found unindexed %s or %d in Compose string resources (must use %1\$s / %1\$d): ${offendingFiles.map { it.path }}",
+        )
     }
 }

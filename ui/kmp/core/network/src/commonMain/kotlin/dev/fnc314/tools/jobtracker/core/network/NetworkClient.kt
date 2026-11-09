@@ -8,14 +8,16 @@ import kotlinx.serialization.json.Json
 public expect fun createPlatformHttpClient(): HttpClient
 
 public fun createJsonHttpClient(): HttpClient {
-    return createPlatformHttpClient().config {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                prettyPrint = true
-                isLenient = true
-            })
-        }
-        installInspector()
+  return createPlatformHttpClient().config {
+    install(ContentNegotiation) {
+      json(
+        Json {
+          ignoreUnknownKeys = true
+          prettyPrint = true
+          isLenient = true
+        },
+      )
     }
+    installInspector()
+  }
 }

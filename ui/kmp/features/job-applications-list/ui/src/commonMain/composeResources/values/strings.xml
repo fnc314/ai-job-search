@@ -1,6 +1,6 @@
 <resources>
     <string name="list_route_title">Job Applications</string>
-    <string name="list_error_prefix">Error: %s</string>
+    <string name="list_error_prefix">Error: %1$s</string>
     <string name="list_action_retry">Retry</string>
     <string name="list_tooltip_refresh">Refresh applications</string>
     <string name="list_tooltip_edits">Pending edits</string>
@@ -32,10 +32,10 @@
     <string name="list_sort_active_cd">Active</string>
 
     <string name="list_filter_tooltip">Filter applications by status and age</string>
-    <string name="list_filter_cd">Active filter: %s</string>
+    <string name="list_filter_cd">Active filter: %1$s</string>
     <string name="list_filter_label_status_age">%1$s · %2$s</string>
-    <string name="list_filter_label_status">Status: %s</string>
-    <string name="list_filter_label_age">Age: %s</string>
+    <string name="list_filter_label_status">Status: %1$s</string>
+    <string name="list_filter_label_age">Age: %1$s</string>
     <string name="list_filter_label_all">Filter: All</string>
     <string name="list_filter_clear_all">Clear All Filters</string>
     <string name="list_filter_section_status">STATUS</string>
@@ -44,16 +44,21 @@
     <string name="list_filter_all_time">All Time</string>
     <string name="list_filter_active_cd">Active</string>
 
-    <string name="list_row_click_cd">View %s details</string>
-    <string name="list_row_no_role">No role</string>
+    <string name="list_row_click_cd">View %1$s details</string>
+    <string name="list_row_no_role">Untitled Role</string>
+    <string name="list_row_unknown_company">Unknown Company</string>
     <string name="list_row_cd">%1$s, %2$s, %3$s%4$s</string>
 
-    <string name="list_row_created">Created %s</string>
+    <string name="list_row_created">Created on %1$s</string>
+    <string name="list_row_created_unavailable">Created date unavailable</string>
     <string name="list_row_created_applied">Created %1$s • Applied %2$s</string>
     <string name="list_row_header_fit_score">Fit Score</string>
     <string name="list_row_header_applied_on">Applied on</string>
     <string name="list_row_header_updated">Updated</string>
     <string name="list_row_action_view_details">View Details</string>
     <string name="data_missing">DATA MISSING</string>
+    <string name="data_not_available">—</string>
+    <string name="data_not_applied">Not applied</string>
+    <string name="data_not_evaluated">Not evaluated</string>
     <string name="parsing_error">PARSING ERROR</string>
 </resources>

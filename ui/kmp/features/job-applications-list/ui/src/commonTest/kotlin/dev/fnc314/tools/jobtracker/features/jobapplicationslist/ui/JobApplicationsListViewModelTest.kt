@@ -19,8 +19,11 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class JobApplicationsListViewModelTest {
@@ -200,5 +203,47 @@ internal class JobApplicationsListViewModelTest {
         assertEquals(SortColumn.COMPANY, state.sortColumn)
         assertEquals("Acme Corp", state.applications[0].companyName)
         assertEquals("Beta Inc", state.applications[1].companyName)
+    }
+
+    @Test
+    fun testUiModel_MissingDataAndDraftingAppliedDateFallbacks(): Unit {
+        val createdInstant = Instant.parse("2026-10-15T12:00:00Z")
+        val draftingModel = JobApplicationItemUiModel(
+            id = "draft-1",
+            companyName = "hireeazy",
+            roleTitle = "Staff Android",
+            locationText = null,
+            status = TrackerStatus.DRAFTING,
+            statusDisplayName = "Drafting",
+            fitScore = null,
+            fitScoreText = null,
+            createdAt = createdInstant,
+            updatedAt = Instant.DISTANT_PAST,
+            firstActivityAt = Instant.DISTANT_PAST,
+            onClickIntent = JobApplicationsListUiIntent.SelectApplication("draft-1"),
+        )
+
+        assertFalse(draftingModel.hasBeenSubmitted)
+        assertEquals("H", draftingModel.companyInitial)
+        assertEquals("2026-10-15", draftingModel.createdDateOrNull())
+        assertNull(draftingModel.appliedDateOrNull())
+        assertEquals("Not applied", draftingModel.appliedDateDisplay("Not applied"))
+        assertNull(draftingModel.fitScoreOrNull())
+        assertEquals("Not evaluated", draftingModel.fitScoreDisplay("Not evaluated"))
+
+        val appliedModel = draftingModel.copy(
+            status = TrackerStatus.APPLIED,
+            statusDisplayName = "Applied",
+        )
+        assertTrue(appliedModel.hasBeenSubmitted)
+        assertEquals("2026-10-15", appliedModel.appliedDateOrNull())
+
+        val blankCompanyModel = draftingModel.copy(
+            companyName = "   ",
+            createdAt = Instant.DISTANT_PAST,
+        )
+        assertEquals("?", blankCompanyModel.companyInitial)
+        assertNull(blankCompanyModel.createdDateOrNull())
+        assertEquals("—", blankCompanyModel.createdDateDisplay("—"))
     }
 }
