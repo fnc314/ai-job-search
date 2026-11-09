@@ -27,12 +27,12 @@ dependencies {
 
 android {
   namespace = "dev.fnc314.tools.jobtracker.app.android"
-  compileSdk = libs.versions.android.compileSdk.get().toInt()
+  compileSdk = libs.versions.android.compile.sdk.get().toInt()
 
   defaultConfig {
     applicationId = "dev.fnc314.tools.jobtracker"
-    minSdk = libs.versions.android.minSdk.get().toInt()
-    targetSdk = libs.versions.android.targetSdk.get().toInt()
+    minSdk = libs.versions.android.min.sdk.get().toInt()
+    targetSdk = libs.versions.android.target.sdk.get().toInt()
     versionCode = 1
     versionName = "1.0"
   }

@@ -1,4 +1,4 @@
-apply(from = "../gradle/conventions/subsystem.settings.gradle.kts")
+apply(from = "../gradle/tools/settings-plugins/subsystem.settings.gradle.kts")
 
 rootProject.name = "backend"
 

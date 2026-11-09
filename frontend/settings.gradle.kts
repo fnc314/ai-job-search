@@ -1,11 +1,10 @@
 import dev.fnc314.gradle.plugins.settings.projectcollectionsgradlesettingsplugin.ProjectNameMapper
 
-apply(from = "../gradle/conventions/subsystem.settings.gradle.kts")
+apply(from = "../gradle/tools/settings-plugins/subsystem.settings.gradle.kts")
 
 rootProject.name = "FNC314JobSearchTracker"
 
 pluginManagement {
-    includeBuild("./gradle/tools")
     plugins {
         id("dev.fnc314.gradle.plugins.settings.project-collections-gradle-settings-plugin") version("5.1.1")
     }
@@ -28,4 +27,3 @@ projectCollections {
 }
 
 includeBuild("../records")
-includeBuild("./gradle/tools")

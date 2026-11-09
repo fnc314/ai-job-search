@@ -1,22 +1,22 @@
 [versions]
   agp = "9.5.1"
-  android-compileSdk = "37"
-  android-minSdk = "24"
-  android-targetSdk = "37"
+  android-compile-sdk = "37"
+  android-min-sdk = "24"
+  android-target-sdk = "37"
   androidx-activity = "1.13.0"
   androidx-appcompat = "1.8.0"
   androidx-core = "1.19.1"
   androidx-espresso = "3.7.0"
   androidx-lifecycle = "2.11.0"
-  androidx-testExt = "1.3.0"
-  androidx-testRunner = "1.7.0"
+  androidx-test-ext = "1.3.0"
+  androidx-test-runner = "1.7.0"
   androidx-credentials = "1.6.0"
   androidx-room3 = "3.0.3"
   androidx-sqlite = "2.7.1"
   google-id = "1.2.1"
-  composeMultiplatform = "1.12.2"
-  composeMaterialIcons = "1.7.3"
-  composeConstraintLayout = "1.1.2"
+  compose-multiplatform = "1.12.2"
+  compose-material-icons = "1.7.3"
+  compose-constraint-layout = "1.1.2"
   firebase-bom = "35.1.0"
   firebase-auth = "25.0.0"
   firebase-firestore = "27.1.0"
@@ -36,8 +36,8 @@
   navigation-compose = "2.10.0"
   navigation3 = "1.2.1"
   jvm = "17"
-  javaToolchain = "26"
-  googlePlayServices = "4.5.0"
+  java-toolchain = "17"
+  google-play-services = "4.5.0"
   node = "26.13.0"
   ksp = "2.3.13"
   dokka = "2.3.0"
@@ -48,9 +48,9 @@
   kmp-inspector = "1.0.2"
   desugar = "2.1.5"
   coil = "3.6.3"
-  protobufGradlePlugin = "0.9.4"
+  protobuf-gradle-plugin = "0.9.4"
   protobuf = "4.28.2"
-  androidGradlePlugin = "8.5.1"
+  android-gradle-plugin = "8.5.1"
   clikt = "5.0.3"
   mordant = "3.0.2"
 
@@ -63,24 +63,24 @@
   kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
   junit = { module = "junit:junit", version.ref = "junit" }
   androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
-  androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-testExt" }
+  androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-ext" }
   androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
-  androidx-testRunner = { module = "androidx.test:runner", version.ref = "androidx-testRunner" }
+  androidx-testRunner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
   androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
   androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
   androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "androidx-credentials" }
   androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "androidx-credentials" }
   google-id = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "google-id" }
-  compose-uiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
+  compose-uiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose-multiplatform" }
   androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
   androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
-  compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
-  compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
+  compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
+  compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
   compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
-  compose-constraint = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "composeConstraintLayout" }
-  compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
-  compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
-  compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
+  compose-constraint = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose-constraint-layout" }
+  compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-multiplatform" }
+  compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-multiplatform" }
+  compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose-multiplatform" }
   kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinx-collections-immutable" }
   kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
   kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -95,7 +95,7 @@
   ksp-gradle-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
   androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "androidx-sqlite" }
   androidx-sqlite-web = { module = "androidx.sqlite:sqlite-web", version.ref = "androidx-sqlite" }
-  compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "composeMaterialIcons" }
+  compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "compose-material-icons" }
   firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
   firebase-firestore = { module = "com.google.firebase:firebase-firestore", version.ref = "firebase-firestore" }
   firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebase-auth" }
@@ -108,6 +108,8 @@
   koin-compiler-gradle-plugin = { module = "io.insert-koin:koin-compiler-gradle-plugin", version.ref = "koin-compiler" }
   koin-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
   ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+  ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+  ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
   ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
   ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
   ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
@@ -119,14 +121,14 @@
   navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
   mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
   android-gradle-plugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "agp" }
-  records-proto = { group = "dev.fnc314.tools.jobsearch.records", name = "proto", version.ref = "records" }
-  records-parser = { group = "dev.fnc314.tools.jobsearch.records", name = "parser", version.ref = "records" }
+  records-proto = { group = "dev.fnc314.tools.jobsearch.records", name = "records-proto", version.ref = "records" }
+  records-parser = { group = "dev.fnc314.tools.jobsearch.records", name = "records-parser", version.ref = "records" }
   protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
   protobuf-bom = { module = "com.google.protobuf:protobuf-bom", version.ref = "protobuf" }
   clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
   mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
   kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-  compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "composeMultiplatform" }
+  compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-multiplatform" }
   dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
   detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
   detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
@@ -236,12 +238,12 @@
 [plugins]
   androidApplication = { id = "com.android.application", version.ref = "agp" }
   androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
-  composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
+  composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
   composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
   kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
   kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
   kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-  google-play-services = { id = "com.google.gms.google-services", version.ref = "googlePlayServices" }
+  google-play-services = { id = "com.google.gms.google-services", version.ref = "google-play-services" }
   local-multiplatform-library = { id = "dev.fnc314.tools.jobtracker.multiplatform-library" }
   ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
   koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-compiler" }
@@ -249,11 +251,8 @@
   local-dokka = { id = "dev.fnc314.tools.jobtracker.dokka" }
   detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
   local-detekt = { id = "dev.fnc314.tools.jobtracker.detekt" }
-  protobuf = { id = "com.google.protobuf", version.ref = "protobufGradlePlugin" }
+  protobuf = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
   android-library = { id = "com.android.library", version.ref = "agp" }
-  kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-  kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-  kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
   # Local Functional Cause Plugins
   local-kotlin-multiplatform = { id = "dev.fnc314.tools.jobtracker.kotlin-multiplatform" }

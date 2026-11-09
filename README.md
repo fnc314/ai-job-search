@@ -152,7 +152,7 @@ The workspace provides multiple specialized interfaces to interact with the data
             ▼                                    ▼                                    ▼
 ┌───────────────────────┐            ┌───────────────────────┐            ┌───────────────────────┐
 │     mise / CLI        │            │   Terminal UI (TUI)   │            │ Kotlin Multiplatform  │
-│  `mise run tracker`   │            │    `mise run tui`     │            │ `mise run ui:kmp:*`   │
+│  `mise run tracker`   │            │    `mise run tui`     │            │ `mise run frontend:*` │
 │ Scripts, automation,  │            │ Keyboard-driven       │            │ Android, Desktop JVM, │
 │ bulk edits, auditing  │            │ real-time curses view │            │ Web Wasm/JS, and iOS  │
 └───────────────────────┘            └───────────────────────┘            └───────────────────────┘
@@ -178,11 +178,11 @@ The workspace provides multiple specialized interfaces to interact with the data
    Fast, keyboard-driven curses tracker. Supports sorting, interactive filtering, viewing notes history, and jumping to local CV/cover letter PDFs.
 3. **Web Dashboard Server (`mise run dashboard`)**:
    Lightweight Python server serving [`ui/web/application-dashboard.html`](ui/web/application-dashboard.html) at `http://127.0.0.1:8000` with interactive pipeline metrics, sector distributions, and status charts.
-4. **Native Multiplatform Apps (`ui/kmp`)**:
+4. **Native Multiplatform Apps (`frontend`)**:
    Native applications built with Compose Multiplatform:
-   - **Desktop (JVM):** Full native desktop experience (`mise run ui:kmp:desktop:run`).
-   - **Android:** Mobile tracker with Material 3 design and offline-first Firestore sync (`mise run ui:kmp:android:install`).
-   - **Web:** Browser clients compiled to WebAssembly and JavaScript (`mise run ui:kmp:web:wasm:dev`).
+   - **Desktop (JVM):** Full native desktop experience (`mise run frontend:desktop:run`).
+   - **Android:** Mobile tracker with Material 3 design and offline-first Firestore sync (`mise run frontend:android:install`).
+   - **Web:** Browser clients compiled to WebAssembly and JavaScript (`mise run frontend:web:wasm:dev`).
 5. **Synchronized Views (Google Sheets & Notion)**:
    - Synchronize an external Google Sheet mirror: `mise run tracker sheet --sync`.
    - Publish a read-only live briefing to Notion: `/notion-sync`.
@@ -208,19 +208,19 @@ Task execution across the entire repository is standardized using [`mise`](https
 - **`mise run gmail:read:inbox`** — Fetch job-related emails and write inbox payload.
 - **`mise run gmail:collect`** — Stage proposals from fetched emails to Firestore for human review.
 
-### Kotlin Multiplatform (`ui/kmp`) Tasks
-- **`mise run ui:kmp:build`** — Build all KMP targets and modules.
-- **`mise run ui:kmp:clean`** — Clean Gradle build cache and build directories.
-- **`mise run ui:kmp:test`** — Run KMP unit tests across shared modules.
-- **`mise run ui:kmp:desktop:run`** — Launch the Compose Desktop application.
-- **`mise run ui:kmp:desktop:package`** — Package native desktop distribution (DMG/MSI/DEB).
-- **`mise run ui:kmp:android:assemble`** — Build Android debug APK.
-- **`mise run ui:kmp:android:bundle`** — Build Android release App Bundle.
-- **`mise run ui:kmp:android:install`** — Install debug APK to connected device/emulator.
-- **`mise run ui:kmp:web:wasm:dev`** — Run Compose Web dev server (Wasm target).
-- **`mise run ui:kmp:web:wasm:dist`** — Build production Web Wasm bundle.
-- **`mise run ui:kmp:web:js:dev`** — Run Compose Web dev server (JS target).
-- **`mise run ui:kmp:web:js:dist`** — Build production Web JS bundle.
+### Kotlin Multiplatform (`frontend`) Tasks
+- **`mise run frontend:build`** — Build all KMP targets and modules.
+- **`mise run frontend:clean`** — Clean Gradle build cache and build directories.
+- **`mise run frontend:test`** — Run KMP unit tests across shared modules.
+- **`mise run frontend:desktop:run`** — Launch the Compose Desktop application.
+- **`mise run frontend:desktop:package`** — Package native desktop distribution (DMG/MSI/DEB).
+- **`mise run frontend:android:assemble`** — Build Android debug APK.
+- **`mise run frontend:android:bundle`** — Build Android release App Bundle.
+- **`mise run frontend:android:install`** — Install debug APK to connected device/emulator.
+- **`mise run frontend:web:wasm:dev`** — Run Compose Web dev server (Wasm target).
+- **`mise run frontend:web:wasm:dist`** — Build production Web Wasm bundle.
+- **`mise run frontend:web:js:dev`** — Run Compose Web dev server (JS target).
+- **`mise run frontend:web:js:dist`** — Build production Web JS bundle.
 
 ### Documentation & Shell Completions
 - **`mise run mise:docs:tasks`** — Lint Usage specs, sync Protobuf, and regenerate Markdown documentation in `docs/mise/`.

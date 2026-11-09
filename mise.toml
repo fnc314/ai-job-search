@@ -10,6 +10,7 @@ monorepo_root = true
   java = "26.0.2+101"
 
 [env]
+  WORKSPACE_ROOT = "{{config_root}}"
   _ = { file = ".env.local", python = { venv = { path = ".venv", create = false } } }
   PYTHONPATH = "{{config_root}}/lib:{{config_root}}/scripts:{{config_root}}"
   TRACKER_ALLOW_WRITES = "1"

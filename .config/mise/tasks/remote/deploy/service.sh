@@ -22,11 +22,11 @@ IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT}/job-tracker-backend/backend:lates
 echo "Building and deploying ${SERVICE_NAME} to ${REGION} in project ${PROJECT} (mode: ${MODE})..."
 
 if [ "$MODE" = "local" ]; then
-  "${REPO_ROOT}/frontend/gradlew" -p "${REPO_ROOT}/backend" installDist
-  docker build -t "${IMAGE_URI}" "${REPO_ROOT}/backend"
+  "${MISE_PROJECT_ROOT}/gradlew" :backend:installDist
+  docker build -t "${IMAGE_URI}" "${MISE_PROJECT_ROOT}/backend"
   docker push "${IMAGE_URI}"
 else
-  gcloud builds submit --tag "${IMAGE_URI}" "${REPO_ROOT}/backend" --project="${PROJECT}"
+  gcloud builds submit --tag "${IMAGE_URI}" "${MISE_PROJECT_ROOT}/backend" --project="${PROJECT}"
 fi
 
 gcloud run deploy "${SERVICE_NAME}" \

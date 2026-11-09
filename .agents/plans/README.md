@@ -3,7 +3,7 @@
 This directory holds architecture, system design, and migration plans for the repository.
 
 ### Subsystem Plan Directories
-- **Kotlin Multiplatform UI Workspace:** [`ui/kmp/.agents/plans/`](../../ui/kmp/.agents/plans/README.md) houses all KMP UI, MVI, design system, and multiplatform feature architecture plans.
+- **Frontend Multiplatform Workspace:** [`frontend/.agents/plans/`](../../frontend/.agents/plans/README.md) houses all KMP UI, MVI, design system, and multiplatform feature architecture plans.
 - **Records Subsystem Workspace:** [`records/.agents/plans/`](../../records/.agents/plans/README.md) houses all protobuf contract, parsing, and interop plans specific to `records`.
 
 ---
@@ -12,11 +12,11 @@ This directory holds architecture, system design, and migration plans for the re
 Every architecture plan created by any agent must strictly adhere to these paradigms:
 1. **Target-Derived Location**:
    - Multi-module, cross-subsystem, or repository-wide plans -> `.agents/plans/`
-   - Subsystem plans -> `<subsystem>/.agents/plans/` (e.g. `ui/kmp/.agents/plans/`, `records/.agents/plans/`)
+   - Subsystem plans -> `<subsystem>/.agents/plans/` (e.g. `frontend/.agents/plans/`, `records/.agents/plans/`)
 2. **Date Subdirectory**: Plans must be saved in a `YYYY-MM-DD/` folder matching the creation date.
 3. **24-Hour Timestamp Prefix**: Filenames must be formatted as `HHMMSS_<plan-name>.md` using a 24-hour clock (`00`-`23` for `HH`).
 4. **Registry Synchronization**: Register the plan in the table below with its relative path (`./YYYY-MM-DD/HHMMSS_<plan-name>.md`), status, and scope.
-5. **Mandatory Opening Frontmatter**: Start every plan from [`TEMPLATE.md`](./TEMPLATE.md) (`Status`, `Date`, `Target` block); `Status` must match the registry row. The template is shared by `records/` and `ui/kmp/` plan directories.
+5. **Mandatory Opening Frontmatter**: Start every plan from [`TEMPLATE.md`](./TEMPLATE.md) (`Status`, `Date`, `Target` block); `Status` must match the registry row. The template is shared by `records/` and `frontend/` plan directories.
 
 ---
 
@@ -24,6 +24,8 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`164500_post_monorepo_quality_gates_and_cloud_run_deployment_plan.md`](./2026-11-09/164500_post_monorepo_quality_gates_and_cloud_run_deployment_plan.md) | Completed | Unified roadmap & implementation plan: tooling centralization under gradle/tools/, kebab-case catalog normalization, subsystem gradle/ removal, and local data enrichment |
+| [`170500_align_declared_versions_to_kebab_case_plan.md`](./2026-11-09/170500_align_declared_versions_to_kebab_case_plan.md) | Superseded | Adopted and superseded by 164500_post_monorepo_quality_gates_and_cloud_run_deployment_plan.md |
 | [`125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md`](./2026-11-09/125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md) | Completed | Architecture & implementation plan for Kotlin Cloud Run service, shared proto3 models, remote task offloading, and Kotlin TUI migration |
 | [`python-to-mise-tasks-migration-plan.md`](./2026-11-08/180500_python-to-mise-tasks-migration-plan.md) | Completed | Migrate away from direct Python invocations to file-based Mise tasks with environment/virtualenv auto-binding |
 | [`tui-triage-and-fix.md`](./2026-11-06/052500_tui-triage-and-fix.md) | Completed | TUI screen flash and navigation fixes, Firestore erroneously withdrawn applications remediation |

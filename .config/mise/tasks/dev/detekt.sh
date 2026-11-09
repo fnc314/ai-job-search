@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
-#MISE description="Run Detekt static analysis across records and ui/kmp"
+#MISE description="Run Detekt static analysis across records and frontend"
 #MISE alias="detekt"
 set -eu
-(cd records && ./gradlew detekt)
-(cd ui/kmp && ./gradlew detekt)
+
+cd "${MISE_PROJECT_ROOT}"
+"${MISE_PROJECT_ROOT}/gradlew" :records:detekt "$@"
+mise run frontend:detekt "$@"

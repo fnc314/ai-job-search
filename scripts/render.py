@@ -114,6 +114,14 @@ def project(application: dict, events: list[dict]) -> dict:
         "counters": counters(events),
         "timeline": timeline(events),
     }
+    email_ids = list(application.get("emailMessageIds") or [])
+    for ev in events:
+        mid = ev.get("emailMessageId")
+        if mid and mid not in email_ids:
+            email_ids.append(mid)
+    if email_ids:
+        projected["emailMessageIds"] = sorted(set(email_ids))
+
     implied = eventsModule.latestStatus(events)
     current = application.get("status")
     if implied and current != implied:

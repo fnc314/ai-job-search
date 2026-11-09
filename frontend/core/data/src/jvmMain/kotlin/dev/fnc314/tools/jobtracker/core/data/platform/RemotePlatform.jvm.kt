@@ -20,28 +20,8 @@ public object RemotePlatform {
     public fun initialize(): Unit {
         if (initialized) return
         try {
-            val saKeyEnv = System.getenv("TRACKER_SA_KEY")
-            val canonicalSaFile = File(System.getProperty("user.home"), ".config/job-tracker/sa.json")
-            val gAppCredsEnv = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-
-            val credentials = when {
-                !saKeyEnv.isNullOrBlank() && File(saKeyEnv).exists() -> {
-                    FileInputStream(File(saKeyEnv)).use { GoogleCredentials.fromStream(it) }
-                }
-                canonicalSaFile.exists() -> {
-                    FileInputStream(canonicalSaFile).use { GoogleCredentials.fromStream(it) }
-                }
-                !gAppCredsEnv.isNullOrBlank() && File(gAppCredsEnv).exists() -> {
-                    FileInputStream(File(gAppCredsEnv)).use { GoogleCredentials.fromStream(it) }
-                }
-                else -> {
-                    GoogleCredentials.getApplicationDefault()
-                }
-            }.createScoped(listOf("https://www.googleapis.com/auth/cloud-platform"))
-
-            val projectId = System.getenv("TRACKER_PROJECT")
-                ?: System.getenv("REMOTE_GCP_PROJECT")
-                ?: "job-search-fnc314-dev"
+            val credentials = resolveCredentials().createScoped(listOf("https://www.googleapis.com/auth/cloud-platform"))
+            val projectId = resolveProjectId()
 
             val options = FirebaseOptions.builder()
                 .setCredentials(credentials)
@@ -55,5 +35,27 @@ public object RemotePlatform {
         } catch (e: Exception) {
             println("Failed to initialize Remote JVM client: ${e.message}")
         }
+    }
+
+    private fun resolveCredentials(): GoogleCredentials {
+        val saKeyEnv = System.getenv("TRACKER_SA_KEY")
+        if (!saKeyEnv.isNullOrBlank() && File(saKeyEnv).exists()) {
+            return FileInputStream(File(saKeyEnv)).use { GoogleCredentials.fromStream(it) }
+        }
+        val canonicalSaFile = File(System.getProperty("user.home"), ".config/job-tracker/sa.json")
+        if (canonicalSaFile.exists()) {
+            return FileInputStream(canonicalSaFile).use { GoogleCredentials.fromStream(it) }
+        }
+        val gAppCredsEnv = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        if (!gAppCredsEnv.isNullOrBlank() && File(gAppCredsEnv).exists()) {
+            return FileInputStream(File(gAppCredsEnv)).use { GoogleCredentials.fromStream(it) }
+        }
+        return GoogleCredentials.getApplicationDefault()
+    }
+
+    private fun resolveProjectId(): String {
+        return System.getenv("TRACKER_PROJECT")
+            ?: System.getenv("REMOTE_GCP_PROJECT")
+            ?: "job-search-fnc314-dev"
     }
 }
