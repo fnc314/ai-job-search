@@ -69,6 +69,18 @@ internal class SignInViewModelTest {
         override suspend fun invoke(): Result<UserAccount> = repository.signIn()
     }
 
+    private class FakeSignOutUseCase(
+        private val repository: FakeAuthRepository,
+    ) : SignOutUseCase {
+        override suspend fun invoke(): Result<Unit> = repository.signOut()
+    }
+
+    private class FakeObserveAuthStateUseCase(
+        private val repository: FakeAuthRepository,
+    ) : ObserveAuthStateUseCase {
+        override fun invoke(): StateFlow<AuthState> = repository.authState
+    }
+
     private lateinit var repository: FakeAuthRepository
     private lateinit var viewModel: SignInViewModel
 
@@ -78,8 +90,8 @@ internal class SignInViewModelTest {
         repository = FakeAuthRepository()
         viewModel = SignInViewModel(
             signInUseCase = FakeSignInUseCase(repository),
-            signOutUseCase = SignOutUseCase(repository),
-            observeAuthStateUseCase = ObserveAuthStateUseCase(repository),
+            signOutUseCase = FakeSignOutUseCase(repository),
+            observeAuthStateUseCase = FakeObserveAuthStateUseCase(repository),
         )
     }
 
@@ -114,8 +126,8 @@ internal class SignInViewModelTest {
         val authenticatedRepo = FakeAuthRepository(initialUser = user)
         val vm = SignInViewModel(
             signInUseCase = FakeSignInUseCase(authenticatedRepo),
-            signOutUseCase = SignOutUseCase(authenticatedRepo),
-            observeAuthStateUseCase = ObserveAuthStateUseCase(authenticatedRepo),
+            signOutUseCase = FakeSignOutUseCase(authenticatedRepo),
+            observeAuthStateUseCase = FakeObserveAuthStateUseCase(authenticatedRepo),
         )
         backgroundScope.launch { vm.uiState.collect() }
 

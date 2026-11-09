@@ -18,6 +18,6 @@ import org.koin.dsl.module
 public val signInDataModule: Module = module {
   single { createPlatformSignInHandler() }
   singleOf(::RemoteAuthDataSourceImpl) bind RemoteAuthDataSource::class
-  singleOf(::LocalAuthDataSourceImpl) bind LocalAuthDataSource::class
+  single<LocalAuthDataSource> { LocalAuthDataSourceImpl(getOrNull()) }
   singleOf(::AuthRepositoryImpl) bind AuthRepository::class
 }

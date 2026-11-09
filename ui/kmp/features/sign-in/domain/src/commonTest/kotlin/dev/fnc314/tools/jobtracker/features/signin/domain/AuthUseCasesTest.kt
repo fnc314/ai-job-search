@@ -7,6 +7,10 @@ import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.GetCurrentUser
 import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.ObserveAuthStateUseCase
 import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignInUseCase
 import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.SignOutUseCase
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.impl.GetCurrentUserUseCaseImpl
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.impl.ObserveAuthStateUseCaseImpl
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.impl.SignInUseCaseImpl
+import dev.fnc314.tools.jobtracker.features.signin.domain.usecase.impl.SignOutUseCaseImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,14 +59,14 @@ class AuthUseCasesTest {
     @Test
     fun testObserveAuthState_InitialStateIsUnauthenticated() {
         val repo = FakeAuthRepository()
-        val useCase = ObserveAuthStateUseCase(repo)
+        val useCase: ObserveAuthStateUseCase = ObserveAuthStateUseCaseImpl(repo)
         assertEquals(AuthState.Unauthenticated, useCase().value)
     }
 
     @Test
     fun testGetCurrentUser_ReturnsNullWhenUnauthenticated() {
         val repo = FakeAuthRepository()
-        val useCase = GetCurrentUserUseCase(repo)
+        val useCase: GetCurrentUserUseCase = GetCurrentUserUseCaseImpl(repo)
         assertNull(useCase())
     }
 
@@ -70,7 +74,7 @@ class AuthUseCasesTest {
     fun testGetCurrentUser_ReturnsUserWhenAuthenticated() {
         val user = UserAccount(uid = "user-123", email = "test@example.com", displayName = "Test Candidate")
         val repo = FakeAuthRepository(initialUser = user)
-        val useCase = GetCurrentUserUseCase(repo)
+        val useCase: GetCurrentUserUseCase = GetCurrentUserUseCaseImpl(repo)
 
         val current = useCase()
         assertEquals("user-123", current?.uid)
@@ -82,8 +86,8 @@ class AuthUseCasesTest {
     fun testSignOut_TransitionsFromAuthenticatedToUnauthenticated() = runTest {
         val user = UserAccount(uid = "user-456", email = "logout@example.com")
         val repo = FakeAuthRepository(initialUser = user)
-        val observeUseCase = ObserveAuthStateUseCase(repo)
-        val signOutUseCase = SignOutUseCase(repo)
+        val observeUseCase: ObserveAuthStateUseCase = ObserveAuthStateUseCaseImpl(repo)
+        val signOutUseCase: SignOutUseCase = SignOutUseCaseImpl(repo)
 
         assertTrue(observeUseCase().value is AuthState.Authenticated)
 
@@ -96,8 +100,8 @@ class AuthUseCasesTest {
     @Test
     fun testSignOut_IdempotentWhenAlreadyUnauthenticated() = runTest {
         val repo = FakeAuthRepository()
-        val signOutUseCase = SignOutUseCase(repo)
-        val observeUseCase = ObserveAuthStateUseCase(repo)
+        val signOutUseCase: SignOutUseCase = SignOutUseCaseImpl(repo)
+        val observeUseCase: ObserveAuthStateUseCase = ObserveAuthStateUseCaseImpl(repo)
 
         val result = signOutUseCase()
         assertTrue(result.isSuccess)
@@ -107,12 +111,11 @@ class AuthUseCasesTest {
     @Test
     fun testSignInUseCase_Success() = runTest {
         val user = UserAccount(uid = "user-789", email = "signin@example.com")
-        val signInUseCase = object : SignInUseCase {
-            override suspend fun invoke(): Result<UserAccount> = Result.success(user)
-        }
+        val repo = FakeAuthRepository(initialUser = user)
+        val signInUseCase: SignInUseCase = SignInUseCaseImpl(repo)
         val result = signInUseCase()
         assertTrue(result.isSuccess)
-        assertEquals("user-789", result.getOrNull()?.uid)
-        assertEquals("signin@example.com", result.getOrNull()?.email)
+        assertEquals("test-uid", result.getOrNull()?.uid)
+        assertEquals("test@example.com", result.getOrNull()?.email)
     }
 }

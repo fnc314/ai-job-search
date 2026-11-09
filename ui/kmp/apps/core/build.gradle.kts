@@ -26,6 +26,8 @@ kotlin {
       implementation(projects.coreDesignSystem)
       implementation(projects.coreWidgets)
 
+      implementation(projects.featuresSignInDomain)
+      implementation(projects.featuresSignInData)
       implementation(projects.featuresSignInUi)
       implementation(projects.featuresJobApplicationsListUi)
       implementation(projects.featuresJobApplicationDetailsUi)

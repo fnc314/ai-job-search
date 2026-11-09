@@ -14,7 +14,7 @@ kotlin {
             implementation(projects.coreData)
             implementation(projects.coreNavigation)
             implementation(projects.featuresSignInDomain)
-            api(projects.featuresSignInData)
+            implementation(projects.featuresSignInData)
             implementation(projects.coreWidgets)
             implementation(libs.bundles.androidx.lifecycle.compose)
             implementation(libs.kotlinx.coroutines.core)
