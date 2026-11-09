@@ -176,11 +176,7 @@ public fun App() {
           }
         }
 
-        if (settings.enableKmpInspector) {
-          KmpInspector(enabled = true, content = appContent)
-        } else {
-          appContent()
-        }
+        KmpInspector(enabled = settings.enableKmpInspector, content = appContent)
       }
     }
   }

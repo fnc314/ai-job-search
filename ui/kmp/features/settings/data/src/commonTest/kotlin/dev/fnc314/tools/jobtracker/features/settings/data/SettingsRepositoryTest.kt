@@ -30,8 +30,16 @@ class SettingsRepositoryTest {
     }
 
     private fun createRepository(storage: FakeLocalDataSource): SettingsRepositoryImpl {
+        val appSettingsRepo = dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository(
+            object : dev.fnc314.tools.jobtracker.core.data.settings.SettingsStorage {
+                override fun getString(key: String): String? = storage.getString(key)
+                override fun putString(key: String, value: String) {
+                    storage.putString(key, value)
+                }
+            }
+        )
         val localDataSource = LocalSettingsDataSourceImpl(storage)
-        return SettingsRepositoryImpl(localDataSource)
+        return SettingsRepositoryImpl(appSettingsRepo, localDataSource)
     }
 
     @Test

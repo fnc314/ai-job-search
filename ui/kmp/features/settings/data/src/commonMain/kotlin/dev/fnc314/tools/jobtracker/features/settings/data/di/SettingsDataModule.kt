@@ -11,5 +11,5 @@ import org.koin.dsl.module
 
 public val settingsDataModule: Module = module {
     singleOf(::LocalSettingsDataSourceImpl) bind LocalSettingsDataSource::class
-    singleOf(::SettingsRepositoryImpl) bind SettingsRepository::class
+    single<SettingsRepository> { SettingsRepositoryImpl(get(), getOrNull()) }
 }
