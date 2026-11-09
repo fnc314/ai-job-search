@@ -175,6 +175,11 @@ standardize_apps.py
 cover_*.log
 
 # Personal candidate outreach & profile disclosures (populated by /setup)
+.agents/skills/job-application-assistant/01-candidate-profile.md
+.agents/skills/job-application-assistant/02-behavioral-profile.md
+.agents/skills/job-application-assistant/04-job-evaluation.md
+.agents/skills/job-application-assistant/07-interview-prep.md
+.agents/skills/job-scraper/search-queries.md
 .claude/skills/job-application-assistant/01-candidate-profile.md
 .claude/skills/job-application-assistant/02-behavioral-profile.md
 .claude/skills/job-application-assistant/04-job-evaluation.md
@@ -182,6 +187,7 @@ cover_*.log
 .claude/skills/job-scraper/search-queries.md
 
 bin
+frontend/apps/android/google-services.json
 ui/kmp/androidApp/google-services.json
 
 # Local Maven repository for records project

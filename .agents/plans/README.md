@@ -24,6 +24,8 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`182733_consolidate-agent-directories.md`](./2026-11-09/182733_consolidate-agent-directories.md) | Completed | Consolidate all agent dot-directories (.claude, .junie, .gemini, .opencode, .qwen) to align with canonical .agents/ structure |
+| [`181300_mise_task_orchestration_and_documentation_alignment_plan.md`](./2026-11-09/181300_mise_task_orchestration_and_documentation_alignment_plan.md) | Completed | Mise task orchestration for Konsist/validation, root-only mise.toml consolidation, and monorepo documentation alignment |
 | [`164500_post_monorepo_quality_gates_and_cloud_run_deployment_plan.md`](./2026-11-09/164500_post_monorepo_quality_gates_and_cloud_run_deployment_plan.md) | Completed | Unified roadmap & implementation plan: tooling centralization under gradle/tools/, kebab-case catalog normalization, subsystem gradle/ removal, and local data enrichment |
 | [`170500_align_declared_versions_to_kebab_case_plan.md`](./2026-11-09/170500_align_declared_versions_to_kebab_case_plan.md) | Superseded | Adopted and superseded by 164500_post_monorepo_quality_gates_and_cloud_run_deployment_plan.md |
 | [`125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md`](./2026-11-09/125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md) | Completed | Architecture & implementation plan for Kotlin Cloud Run service, shared proto3 models, remote task offloading, and Kotlin TUI migration |

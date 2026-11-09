@@ -4,8 +4,7 @@
 
 set -euo pipefail
 
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-FRONTEND_ROOT="${REPO_ROOT}/frontend"
+FRONTEND_ROOT="${MISE_PROJECT_ROOT:-$(git rev-parse --show-toplevel)}/frontend"
 
 MODULES=(
     "core/data"

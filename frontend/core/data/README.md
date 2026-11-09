@@ -5,7 +5,7 @@
 > - **Subproject**: `:core-data`
 > - **Package Root**: `dev.fnc314.tools.jobtracker.core.data`
 > - **Primary Contributions**: Domain entities, encapsulated enums, `Factory`, Firestore/Ktor repository interfaces & multiplatform implementations, `AppSettings`
-> - **Key Build/Verification Command**: `./gradlew :core-data:compileCommonMainKotlinMetadata` (or `./gradlew :core-data:jvmTest`)
+> - **Key Build/Verification Command**: `./gradlew :frontend:core-data:compileCommonMainKotlinMetadata` (or `./gradlew :frontend:core-data:jvmTest`)
 
 ---
 
@@ -102,10 +102,10 @@ All domain enums implement `WireContract` as sealed interface hierarchies (`Know
 
 | Task | Scope | Purpose |
 | :--- | :--- | :--- |
-| `./gradlew :core-data:compileCommonMainKotlinMetadata` | Module | Rapid metadata compilation and explicit API verification |
-| `./gradlew :core-data:jvmTest` | Module | Executes unit tests for parsing, factories, and settings |
-| `./gradlew :core-data:assemble` | Module | Compiles all multiplatform library targets (Android, JVM, iOS, Web) |
-| `mise run ui:kmp:test` | Workspace | Runs tests across all core data and shared modules |
+| `./gradlew :frontend:core-data:compileCommonMainKotlinMetadata` | Module | Rapid metadata compilation and explicit API verification |
+| `./gradlew :frontend:core-data:jvmTest` | Module | Executes unit tests for parsing, factories, and settings |
+| `./gradlew :frontend:core-data:assemble` | Module | Compiles all multiplatform library targets (Android, JVM, iOS, Web) |
+| `mise run frontend:test` | Workspace | Runs tests across all core data and shared modules |
 
 ---
 

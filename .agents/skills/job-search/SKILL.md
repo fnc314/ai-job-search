@@ -11,23 +11,23 @@ user_invocable: true
 | Input | Action |
 |-------|--------|
 | (empty) | Show command menu |
-| `setup` | `.claude/commands/setup.md` |
-| `apply <url>` | `.claude/commands/apply.md` |
-| `interview` | `.claude/commands/interview.md` |
-| `rank` | `.claude/commands/rank.md` |
-| `scrape` | `.claude/commands/scrape.md` |
-| `upskill` | `.claude/commands/upskill.md` |
-| `outcome` | `.claude/commands/outcome.md` |
-| `expand` | `.claude/commands/expand.md` |
-| `html-report` | `.claude/commands/html-report.md` |
-| `add-portal` | `.claude/commands/add-portal.md` |
-| `add-template` | `.claude/commands/add-template.md` |
-| `gmail-sync` | `.claude/commands/gmail-sync.md` |
-| `notion-sync` | `.claude/commands/notion-sync.md` |
-| `reset` | `.claude/commands/reset.md` |
+| `setup` | `.agents/commands/setup.md` |
+| `apply <url>` | `.agents/commands/apply.md` |
+| `interview` | `.agents/commands/interview.md` |
+| `rank` | `.agents/commands/rank.md` |
+| `scrape` | `.agents/commands/scrape.md` |
+| `upskill` | `.agents/commands/upskill.md` |
+| `outcome` | `.agents/commands/outcome.md` |
+| `expand` | `.agents/commands/expand.md` |
+| `html-report` | `.agents/commands/html-report.md` |
+| `add-portal` | `.agents/commands/add-portal.md` |
+| `add-template` | `.agents/commands/add-template.md` |
+| `gmail-sync` | `.agents/commands/gmail-sync.md` |
+| `notion-sync` | `.agents/commands/notion-sync.md` |
+| `reset` | `.agents/commands/reset.md` |
 
 ## Context Loading
-Read `AGENTS.md` for candidate profile and shared workflow rules, then read and execute the requested mode file in `.claude/commands/`.
+Read `AGENTS.md` for candidate profile and shared workflow rules, then read and execute the requested mode file in `.agents/commands/`.
 
 ## Artifact Placement
 

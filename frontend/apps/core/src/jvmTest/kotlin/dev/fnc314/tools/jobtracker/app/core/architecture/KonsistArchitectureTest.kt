@@ -8,9 +8,9 @@ import kotlin.test.Test
 import kotlin.test.assertTrue as kotlinAssertTrue
 
 /**
- * Global architecture test suite for `ui/kmp` multiplatform workspace.
+ * Global architecture test suite for `frontend` multiplatform workspace.
  *
- * Verifies critical structural invariants defined in `ui/kmp/AGENTS.md`:
+ * Verifies critical structural invariants defined in `frontend/AGENTS.md`:
  * 1. Zero rogue `Color()` calls outside of `Color.kt`.
  * 2. Option A UI Decoupling: UI feature modules depend on `core.widgets` and never import `core.designsystem` directly.
  * 3. All ViewModel declarations adhere to naming conventions.

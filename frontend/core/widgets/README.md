@@ -1,17 +1,17 @@
-# Module: `:core-widgets`
+# Module: `:frontend:core-widgets`
 
 > [!NOTE]
 > **Quick Facts for AI Agents & Developers**
-> - **Subproject**: `:core-widgets`
+> - **Subproject**: `:frontend:core-widgets`
 > - **Package Root**: `dev.fnc314.tools.jobtracker.core.widgets`
 > - **Primary Contributions**: Universal shared Compose components (`StatusBadge`, `FitBadge`, `NotesWidget`, `TooltipIconButton`), re-exports `core:design-system`
 > - **Architectural Invariant**: Acts as the single shared UI entry point for feature modules; re-exports `projects.coreDesignSystem` via `api(...)`.
-> - **Key Build/Verification Command**: `./gradlew :core-widgets:compileCommonMainKotlinMetadata`
+> - **Key Build/Verification Command**: `./gradlew :frontend:core-widgets:compileCommonMainKotlinMetadata`
 
 ---
 
 ## 1. Module Overview
-`:core-widgets` houses reusable, theme-aware Compose presentation components that are shared across multiple feature modules. It serves as the universal shared UI layer, eliminating duplicate widget implementations and standardizing micro-interactions, badge styling, and accessibility across all screens.
+`:frontend:core-widgets` houses reusable, theme-aware Compose presentation components that are shared across multiple feature modules. It serves as the universal shared UI layer, eliminating duplicate widget implementations and standardizing micro-interactions, badge styling, and accessibility across all screens.
 
 ---
 
@@ -58,9 +58,9 @@ core/widgets/src/
 
 | Task | Scope | Purpose |
 | :--- | :--- | :--- |
-| `./gradlew :core-widgets:compileCommonMainKotlinMetadata` | Module | Validates explicit API compliance and Compose widget compilation |
-| `./gradlew :core-widgets:assemble` | Module | Compiles multiplatform library targets |
-| `mise run ui:kmp:build` | Workspace | Builds full application hierarchy |
+| `./gradlew :frontend:core-widgets:compileCommonMainKotlinMetadata` | Module | Validates explicit API compliance and Compose widget compilation |
+| `./gradlew :frontend:core-widgets:assemble` | Module | Compiles multiplatform library targets |
+| `mise run frontend:build` | Workspace | Builds full application hierarchy |
 
 ---
 

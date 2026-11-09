@@ -18,8 +18,8 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-PROFILE_FILE = REPO_ROOT / ".claude" / "skills" / "job-application-assistant" / "01-candidate-profile.md"
-EVAL_FILE = REPO_ROOT / ".claude" / "skills" / "job-application-assistant" / "04-job-evaluation.md"
+PROFILE_FILE = REPO_ROOT / ".agents" / "skills" / "job-application-assistant" / "01-candidate-profile.md"
+EVAL_FILE = REPO_ROOT / ".agents" / "skills" / "job-application-assistant" / "04-job-evaluation.md"
 
 # Scoring weights matching the /rank workflow
 WEIGHTS = {

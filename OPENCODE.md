@@ -3,7 +3,7 @@
 
 > **🤖 OPENCODE SYSTEM INSTRUCTION:**
 > You are operating in the `ai-job-search` workspace. **Do not invent workflows.**
-> Your single source of truth for all commands and execution logic is located in `AGENTS.md` and the `.claude/commands/` directory. 
+> Your single source of truth for all commands and execution logic is located in `AGENTS.md` and the `.agents/commands/` directory. 
 > Whenever the user triggers a mode (setup, scrape, apply, etc.), you must strictly read and execute the instructions defined in those core files to prevent workflow drift.
 
 
@@ -22,17 +22,17 @@ If you want OpenCode to automatically generate PDF files on your local machine, 
 
 ### 2. Initial Setup (Profile Generation)
 Start OpenCode in this directory and run the setup command to populate your candidate profile:
-> *"Run the `setup` command from `.claude/commands/`"*
+> *"Run the `setup` command from `.agents/commands/`"*
 
-OpenCode will ask you a few questions or read your existing CV from the `documents/` folder to populate your candidate profile in `.claude/skills/job-application-assistant/01-candidate-profile.md` with your personal details.
+OpenCode will ask you a few questions or read your existing CV from the `documents/` folder to populate your candidate profile in `.agents/skills/job-application-assistant/01-candidate-profile.md` with your personal details.
 
 ### 3. Find a Job (Scraping)
 To automatically search for live job postings that match your newly created profile:
-> *"Run the `scrape` command from `.claude/commands/`"*
+> *"Run the `scrape` command from `.agents/commands/`"*
 
 ### 4. Apply for a Job (Tailored CV & Cover Letter)
 When you have a link to a job you want to apply for, use this command to evaluate the fit and generate a tailored CV and Cover Letter:
-> *"Run the `apply` command from `.claude/commands/` for this link: [insert_job_url_here]"*
+> *"Run the `apply` command from `.agents/commands/` for this link: [insert_job_url_here]"*
 
 If you installed LaTeX in Step 1, you will instantly find ready-to-send PDF files in your `templates/cv/` and `templates/cover-letters/` folders!
 

@@ -1,16 +1,16 @@
-# Module: `:core-network`
+# Module: `:frontend:core-network`
 
 > [!NOTE]
 > **Quick Facts for AI Agents & Developers**
-> - **Subproject**: `:core-network`
+> - **Subproject**: `:frontend:core-network`
 > - **Package Root**: `dev.fnc314.tools.jobtracker.core.network`
 > - **Primary Contributions**: Multiplatform Ktor engine abstraction (`createPlatformHttpClient`), preconfigured JSON serialization client (`createJsonHttpClient`)
-> - **Key Build/Verification Command**: `./gradlew :core-network:compileCommonMainKotlinMetadata`
+> - **Key Build/Verification Command**: `./gradlew :frontend:core-network:compileCommonMainKotlinMetadata`
 
 ---
 
 ## 1. Module Overview
-`:core-network` encapsulates low-level multiplatform HTTP networking for the application. It configures platform-specific Ktor client engines, JSON content negotiation, timeout policies, and logging so upstream repositories can interact with remote REST/Cloud endpoints uniformly.
+`:frontend:core-network` encapsulates low-level multiplatform HTTP networking for the application. It configures platform-specific Ktor client engines, JSON content negotiation, timeout policies, and logging so upstream repositories can interact with remote REST/Cloud endpoints uniformly.
 
 ---
 
@@ -56,9 +56,9 @@ core/network/src/
 
 | Task | Scope | Purpose |
 | :--- | :--- | :--- |
-| `./gradlew :core-network:compileCommonMainKotlinMetadata` | Module | Validates expect/actual metadata across all platform targets |
-| `./gradlew :core-network:assemble` | Module | Builds platform library artifacts |
-| `mise run ui:kmp:build` | Workspace | Builds full application hierarchy |
+| `./gradlew :frontend:core-network:compileCommonMainKotlinMetadata` | Module | Validates expect/actual metadata across all platform targets |
+| `./gradlew :frontend:core-network:assemble` | Module | Builds platform library artifacts |
+| `mise run frontend:build` | Workspace | Builds full application hierarchy |
 
 ---
 

@@ -17,7 +17,7 @@ except ImportError:
     _HAVE_YAML = False
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-COMMAND_FILE = REPO_ROOT / ".claude" / "commands" / "html-report.md"
+COMMAND_FILE = REPO_ROOT / ".agents" / "commands" / "html-report.md"
 LINT_SCRIPT = REPO_ROOT / "scripts" / "lint_skills.py"
 GITIGNORE = REPO_ROOT / ".gitignore"
 

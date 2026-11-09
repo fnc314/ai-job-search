@@ -6,7 +6,7 @@ configured search queries, deduplicates against seen_jobs.json and the
 application tracker, then outputs a JSON report to stdout.
 
 This is the mechanical search portion of the /scrape workflow.  The agent
-skill (.claude/skills/job-scraper/SKILL.md) adds fit assessment, detail
+skill (.agents/skills/job-scraper/SKILL.md) adds fit assessment, detail
 fetches, referral links, and health checks on top of this output.
 """
 
@@ -25,7 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRAPE_COLLECTION = "scraped-postings"
 SKILLS_DIR = REPO_ROOT / ".agents" / "skills"
 SEEN_FILE = REPO_ROOT / "job-scraper" / "seen_jobs.json"
-QUERIES_FILE = REPO_ROOT / ".claude" / "skills" / "job-scraper" / "search-queries.md"
+QUERIES_FILE = REPO_ROOT / ".agents" / "skills" / "job-scraper" / "search-queries.md"
 
 # Portal-specific flag mapping: each portal's keyword flag and any required flags.
 PORTAL_FLAGS: dict[str, dict[str, object]] = {

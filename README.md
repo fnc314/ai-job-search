@@ -69,16 +69,15 @@ files ready    with fit ratings     (Tailored LaTeX)             v
 ai-job-search/
 ├── .agents/                           # Universal Agent Index & Portable Skills
 │   ├── README.md                      # Canonical index of all skills and CLI entry points
+│   ├── commands/                      # Slash command definitions (/apply, /outcome, /setup, etc.)
 │   └── skills/                        # Portable Agent Skills (CLIs and workflows)
+│       ├── job-application-assistant/ # Methodology guides and candidate profile
 │       ├── job-tracker/               # System-of-record invariants, commands, & schemas
 │       ├── job-search/                # Orchestration skill for setup, apply, and interview prep
 │       ├── freehire-search/           # Tech job aggregator search CLI
 │       ├── linkedin-search/           # Country-agnostic LinkedIn job query CLI
 │       ├── composio/                  # Composio tooling integration
 │       └── jobindex-search/ ...       # Regional job search portals (Jobnet, Jobbank, etc.)
-├── .claude/                           # Claude-specific commands and skill references
-│   ├── commands/                      # Slash command definitions (/apply, /outcome, /setup, etc.)
-│   └── skills/job-application-assistant/ # Methodology guides and candidate profile
 ├── templates/                         # Master Application Templates
 │   ├── cv/main_example.tex            # Master LaTeX CV (Inconsolata headings, Sans-serif body)
 │   └── cover-letters/                 # Custom LaTeX cover letter class (cover.cls) & fonts
@@ -96,11 +95,10 @@ ai-job-search/
 │   ├── web/                           # Standalone Web Dashboard
 │   │   ├── application-dashboard.html # Interactive HTML/SVG pipeline report
 │   │   └── application-dashboard-server.py # Lightweight localhost preview server
-│   └── kmp/                           # Native Kotlin Multiplatform Suite (Android, Desktop, Web, iOS)
-│       ├── apps/                      # Platform targets: android, desktop, web (Wasm/JS), ios
-│       ├── core/                      # core-design-system (Material 3), core-widgets, core-data
-│       ├── features/                  # features/sign-in
-│       └── shared/                    # Shared business logic, Koin DI, Firestore repositories
+├── frontend/                          # Native Kotlin Multiplatform Suite (Android, Desktop, Web, iOS)
+│   ├── apps/                          # Platform targets: android, desktop, web (Wasm/JS), ios
+│   ├── core/                          # core-design-system (Material 3), core-widgets, core-data, core-network, core-navigation
+│   └── features/                      # Modular features (sign-in, job-applications-list, etc.)
 ├── records/                           # Protobuf contracts and parser bridge
 │   ├── proto/                         # tracker/v1/application.proto definitions
 │   └── parser/                        # Java/Kotlin data bridge

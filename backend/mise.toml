@@ -1,6 +1,0 @@
-[tools]
-  java = "26.0.2+101"
-  gradle = "9.9.0"
-
-[env]
-  JAVA_HOME = "/Users/fnc314/.local/share/mise/installs/java/26.0.2+101/Contents/Home"

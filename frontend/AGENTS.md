@@ -1,6 +1,6 @@
-# Agent Guidelines: Kotlin Multiplatform Workspace (`ui/kmp`)
+# Agent Guidelines: Frontend Multiplatform Workspace (`frontend`)
 
-This document defines architecture invariants, development workflows, and mandatory rules for AI coding assistants working in the `ui/kmp` multiplatform workspace.
+This document defines architecture invariants, development workflows, and mandatory rules for AI coding assistants working in the `frontend` multiplatform workspace.
 
 ---
 
@@ -50,7 +50,7 @@ graph TD
 ### Rule 1: Synchronize Module `README.md` Files
 Every contributing module under `core/` and `features/` maintains a root `README.md` (e.g. `core/data/README.md`, `features/sign-in/README.md`).
 - **Mandate**: Whenever you add, modify, or delete public APIs, use cases, navigation routes, dependencies, or architectural responsibilities in any module, you **MUST** update the corresponding module `README.md` within the same batch of changes.
-- **Verification**: Run `mise run ui:kmp:docs:readmes` (or `bash scripts/check-kmp-readmes.sh`) to ensure all module documentation exists and is up to date.
+- **Verification**: Run `mise run frontend:readmes` to ensure all module documentation exists and is up to date.
 
 ### Rule 2: Strict Kotlin Explicit API Mode
 All modules enforce explicit API mode (`explicitApi()` or `explicitApiWarning()`):
@@ -75,10 +75,10 @@ Build scripts must apply the local convention plugins declared in `gradle/libs.v
 - Do not configure target SDKs, compiler options, or toolchains manually in module build scripts.
 
 ### Rule 6: Architecture & Design Plans in `.agents/plans/` (MANDATORY)
-All technical architecture, design, and migration plans for `ui/kmp` must adhere to these rules:
-- **Location**: Technical architecture and design plans oriented specifically to `ui/kmp` must be housed in `ui/kmp/.agents/plans/` and indexed in `ui/kmp/.agents/plans/README.md`. Any plan that spans across multiple subsystems (e.g. `records` + `ui/kmp`) belongs in root `.agents/plans/`.
+All technical architecture, design, and migration plans for `frontend` must adhere to these rules:
+- **Location**: Technical architecture and design plans oriented specifically to `frontend` must be housed in `frontend/.agents/plans/` and indexed in `frontend/.agents/plans/README.md`. Any plan that spans across multiple subsystems (e.g. `records` + `frontend`) belongs in root `.agents/plans/`.
 - **Date Subdirectory & 24-Hour Timestamp Filename**: Plans must **NEVER** be stored as flat files. Each plan must be placed in a `YYYY-MM-DD/` folder based on its creation date and prefixed with a 24-hour clock timestamp: `HHMMSS_<plan-name>.md` (using `00`-`23` for `HH`).
-- **Registry Synchronization**: Upon creating or updating any plan, the agent must immediately update `ui/kmp/.agents/plans/README.md` with the link (`./YYYY-MM-DD/HHMMSS_<plan-name>.md`), status, and scope description.
+- **Registry Synchronization**: Upon creating or updating any plan, the agent must immediately update `frontend/.agents/plans/README.md` with the link (`./YYYY-MM-DD/HHMMSS_<plan-name>.md`), status, and scope description.
 - **Mandatory Opening Frontmatter**: Every plan must start from the canonical template [`.agents/plans/TEMPLATE.md`](../../.agents/plans/TEMPLATE.md): an H1 `# <Type> Plan: <Title>`, then `**Status:**`, `**Date:**`, `**Target:**` (plus optional `Evaluates` / `Schema Authority` / `Depends On` / `Supersedes`), then `---`. No YAML `sessionId` blocks.
 - **Repository Root Execution**: Always execute `git` and `mise` commands from the repository root (`/Users/fnc314/Work/Search/waleedtarbosh-ai-job-search`) so pre-commit hooks and `mise.toml` task sources resolve properly.
 
@@ -97,8 +97,11 @@ All technical architecture, design, and migration plans for `ui/kmp` must adhere
 
 | Command | Purpose |
 | :--- | :--- |
-| `./gradlew compileCommonMainKotlinMetadata` | Fast compiler check across all KMP modules verifying explicit API mode and metadata |
-| `mise run ui:kmp:android:assemble` | Assembles Android debug APK (`:apps-android:assembleDebug`) |
-| `mise run ui:kmp:desktop:run` | Runs the Compose Desktop JVM application |
-| `mise run ui:kmp:web:wasm:dev` | Runs Wasm development server in browser |
-| `mise run ui:kmp:docs:readmes` | Verifies presence and completeness of all module `README.md` files |
+| `./gradlew :frontend:compileCommonMainKotlinMetadata` | Fast compiler check across all KMP modules verifying explicit API mode and metadata |
+| `mise run frontend:build` | Compiles full frontend application suite across all platform targets |
+| `mise run frontend:test` | Runs frontend unit and architectural tests (:core-data:jvmTest, :apps-core:jvmTest) |
+| `mise run frontend:detekt` | Executes Detekt static analysis across all frontend submodules |
+| `mise run frontend:android:assemble` | Assembles Android debug APK (`:apps-android:assembleDebug`) |
+| `mise run frontend:desktop:run` | Runs the Compose Desktop JVM application |
+| `mise run frontend:web:wasm:dev` | Runs Wasm development server in browser |
+| `mise run frontend:readmes` | Verifies presence and completeness of all module `README.md` files |

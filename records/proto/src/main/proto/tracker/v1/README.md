@@ -51,10 +51,10 @@ All timestamp fields use `google.protobuf.Timestamp` instead of ISO date strings
 
 ```bash
 # Generate Kotlin classes from protos
-cd records && ./gradlew :records-proto:generateProto
+./gradlew :records:records-proto:generateProto
 
 # Build all modules
-cd records && ./gradlew assemble
+./gradlew :records:assemble
 
 # Via mise
 mise run records:build

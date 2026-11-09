@@ -5,7 +5,7 @@ Shared agent instructions are in `.agents/`:
 - `.agents/README.md` — index and rules
 - `.agents/skills/` — canonical skills (`job-tracker`, `job-scraper`, `upskill`, …)
 - `AGENTS.md` — workspace role, candidate profile, shared rules
-- `.claude/commands/` — the one implementation of the workflow commands
+- `.agents/commands/` — the one implementation of the workflow commands
 
 ## Interface Execution Rule
 Always use the `mise` interface (`mise run <task>` or `mise <task>`) for database mutations, tracker queries, TUI, and dashboard servers. Never invoke raw Python scripts or `.venv` binaries directly.
@@ -15,3 +15,15 @@ Always use the `mise` interface (`mise run <task>` or `mise <task>`) for databas
 - Dashboard: `mise run dashboard` / `mise run report`
 
 Do not mirror these into `.gemini/`. Edit the source and leave this pointer.
+
+## Plan Management Rule (MANDATORY)
+
+All architecture, design, and migration plans **MUST** live in `.agents/plans/` following the invariants in [`.agents/plans/README.md`](../.agents/plans/README.md).
+
+- **Never store plans in `.gemini/`**. The `.gemini/` directory is strictly for agent session configuration.
+- Plans must use the `YYYY-MM-DD/HHMMSS_plan-name.md` filename hierarchy.
+- Every plan must start from [`.agents/plans/TEMPLATE.md`](../.agents/plans/TEMPLATE.md).
+- Register every plan in `.agents/plans/README.md` with status and scope.
+- Subsystem-specific plans go in `<subsystem>/.agents/plans/` (e.g., `records/.agents/plans/`, `frontend/.agents/plans/`).
+
+This rule is non-negotiable. No exceptions.

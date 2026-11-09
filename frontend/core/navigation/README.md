@@ -1,17 +1,17 @@
-# Module: `:core-navigation`
+# Module: `:frontend:core-navigation`
 
 > [!NOTE]
 > **Quick Facts for AI Agents & Developers**
-> - **Subproject**: `:core-navigation`
+> - **Subproject**: `:frontend:core-navigation`
 > - **Package Root**: `dev.fnc314.tools.jobtracker.core.navigation`
 > - **Primary Contributions**: Multiplatform navigation abstractions (`NavKeyRoute`, `FeatureNavigationHook`, `TopLevelDestination`, `BackHandler`)
 > - **Architectural Invariant**: Completely agnostic of individual feature destinations; feature UI modules register their routes via `NavKeyRoute` and `FeatureNavigationHook`.
-> - **Key Build/Verification Command**: `./gradlew :core-navigation:compileCommonMainKotlinMetadata`
+> - **Key Build/Verification Command**: `./gradlew :frontend:core-navigation:compileCommonMainKotlinMetadata`
 
 ---
 
 ## 1. Module Overview
-`:core-navigation` defines the core multiplatform navigation contracts, abstractions, and platform-specific back-handling logic. It enables a completely decoupled navigation architecture where features define their own type-safe routes and navigation contribution hooks without having `core` depend on any feature.
+`:frontend:core-navigation` defines the core multiplatform navigation contracts, abstractions, and platform-specific back-handling logic. It enables a completely decoupled navigation architecture where features define their own type-safe routes and navigation contribution hooks without having `core` depend on any feature.
 
 ---
 
@@ -45,3 +45,13 @@ core/navigation/src/
 - `public fun interface FeatureNavigationHook`: Functional interface with `operator fun invoke(navGraphBuilder: NavGraphBuilder, navController: NavHostController)`.
 - `public interface TopLevelDestination`: ABI-stable interface with companion factory `from(...)` and internal data class implementation.
 - `public expect fun BackHandler(enabled: Boolean = true, onBack: () -> Unit)`: Multiplatform back handler.
+
+---
+
+## 5. Key Gradle & Mise Tasks
+
+| Task | Scope | Purpose |
+| :--- | :--- | :--- |
+| `./gradlew :frontend:core-navigation:compileCommonMainKotlinMetadata` | Module | Validates expect/actual metadata across all platform targets |
+| `./gradlew :frontend:core-navigation:assemble` | Module | Builds platform library artifacts |
+| `mise run frontend:build` | Workspace | Builds full application hierarchy |

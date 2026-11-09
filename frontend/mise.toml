@@ -1,8 +1,0 @@
-[tools]
-  bun = "1.4.4"
-  node = "26.13.0"
-  usage = { version = "7.3.0", workflow = "publish-cli.yml" }
-  java = "26.0.2+101"
-
-[env]
-  JAVA_HOME = "/Users/fnc314/.local/share/mise/installs/java/26.0.2+101/Contents/Home"

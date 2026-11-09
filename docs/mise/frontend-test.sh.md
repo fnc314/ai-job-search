@@ -2,4 +2,4 @@
 
 - **Usage:** `frontend:test`
 
-Run frontend unit tests
+Run frontend unit and architectural tests (core-data, apps-core Konsist)

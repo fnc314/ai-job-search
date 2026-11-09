@@ -6,7 +6,7 @@
 > - **Package Root**: `dev.fnc314.tools.jobtracker.core.designsystem`
 > - **Primary Contributions**: Material 3 theme engine (`JobTrackerTheme`), dynamic color schemes, `SeedColors`, typography tokens, window size classification, spacing, shapes, and dimensions
 > - **Architectural Invariant**: **Contains ZERO composable widgets.** Exclusive location for `Color(...)` constructor invocations in the repository.
-> - **Key Build/Verification Command**: `./gradlew :core-design-system:compileCommonMainKotlinMetadata`
+> - **Key Build/Verification Command**: `./gradlew :frontend:core-design-system:compileCommonMainKotlinMetadata`
 
 ---
 
@@ -66,9 +66,9 @@ core/design-system/src/
 
 | Task | Scope | Purpose |
 | :--- | :--- | :--- |
-| `./gradlew :core-design-system:compileCommonMainKotlinMetadata` | Module | Checks explicit API mode and verifies token compilation |
-| `./gradlew :core-design-system:assemble` | Module | Builds all multiplatform library binaries |
-| `mise run ui:kmp:build` | Workspace | Builds all modules across the application |
+| `./gradlew :frontend:core-design-system:compileCommonMainKotlinMetadata` | Module | Checks explicit API mode and verifies token compilation |
+| `./gradlew :frontend:core-design-system:assemble` | Module | Builds all multiplatform library binaries |
+| `mise run frontend:build` | Workspace | Builds all modules across the application |
 
 ---
 

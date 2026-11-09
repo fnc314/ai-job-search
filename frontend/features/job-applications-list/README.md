@@ -2,14 +2,14 @@
 
 > [!NOTE]
 > **Quick Facts**
-> - **Gradle Project IDs**: `:features-job-applications-list-domain`, `:features-job-applications-list-data`, `:features-job-applications-list-ui`
+> - **Gradle Project IDs**: `:frontend:features-job-applications-list-domain`, `:frontend:features-job-applications-list-data`, `:frontend:features-job-applications-list-ui`
 > - **Module Tier**: Feature / User Experience (Clean Architecture: Domain, Data, UI)
 > - **Package Base**: `dev.fnc314.tools.jobtracker.features.jobapplicationslist`
 > - **Target Platforms**: Android (`androidTarget`), Desktop JVM (`jvm`), iOS (`iosX64`, `iosArm64`, `iosSimulatorArm64`), Web (`js`, `wasmJs`)
 > - **Internal Project Dependencies**:
->   - Domain: `:core-data`
->   - Data: `:features-job-applications-list-domain`, `:core-data`
->   - UI: `:features-job-applications-list-domain`, `:features-job-applications-list-data`, `:core-widgets`, `:core-navigation`, `:core-data`
+>   - Domain: `:frontend:core-data`
+>   - Data: `:frontend:features-job-applications-list-domain`, `:frontend:core-data`
+>   - UI: `:frontend:features-job-applications-list-domain`, `:frontend:features-job-applications-list-data`, `:frontend:core-widgets`, `:frontend:core-navigation`, `:frontend:core-data`
 
 ---
 
@@ -35,38 +35,38 @@ graph TD
 
 ### 1. `:features-job-applications-list-domain`
 Houses pure Kotlin business rules and filtering algorithms:
-- [`JobApplicationsListRepository`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/domain/repository/JobApplicationsListRepository.kt): Domain repository abstraction interface defining the contract for loading, caching, and filtering job applications.
-- [`LoadAllJobApplicationsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/domain/usecase/LoadAllJobApplicationsUseCase.kt): Contract for fetching the complete set of applications with optional forced remote refresh.
-- [`FilterJobApplicationsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/domain/usecase/FilterJobApplicationsUseCase.kt): Multi-criteria filter engine evaluating status, application age (`ApplicationAge`), and freeform search queries across company, role, tags, and notes.
-- [`SortJobApplicationsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/domain/usecase/SortJobApplicationsUseCase.kt): Column-based sorting supporting `DATE_CREATED`, `DATE_UPDATED`, `COMPANY`, `STATUS`, `FIT`, and `ROLE` in ascending or descending order.
+- [`JobApplicationsListRepository`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/domain/repository/JobApplicationsListRepository.kt): Domain repository abstraction interface defining the contract for loading, caching, and filtering job applications.
+- [`LoadAllJobApplicationsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/domain/usecase/LoadAllJobApplicationsUseCase.kt): Contract for fetching the complete set of applications with optional forced remote refresh.
+- [`FilterJobApplicationsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/domain/usecase/FilterJobApplicationsUseCase.kt): Multi-criteria filter engine evaluating status, application age (`ApplicationAge`), and freeform search queries across company, role, tags, and notes.
+- [`SortJobApplicationsUseCase`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/domain/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/domain/usecase/SortJobApplicationsUseCase.kt): Column-based sorting supporting `DATE_CREATED`, `DATE_UPDATED`, `COMPANY`, `STATUS`, `FIT`, and `ROLE` in ascending or descending order.
 
 ### 2. `:features-job-applications-list-data`
 Provides concrete data sources and repository implementations:
 
 - [
-  `JobApplicationsListRepository`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/repository/JobApplicationsListRepository.kt):
+  `JobApplicationsListRepository`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/repository/JobApplicationsListRepository.kt):
   `internal` repository implementation coordinating `LocalJobApplicationsListDataSource` and
   `RemoteJobApplicationsListDataSource`.
-- [`JobApplicationsListRepositoryImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/repository/impl/JobApplicationsListRepositoryImpl.kt): `internal` repository implementation coordinating `LocalJobApplicationsListDataSource` and `RemoteJobApplicationsListDataSource`.
-- [`LocalJobApplicationsListDataSource`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/source/LocalJobApplicationsListDataSource.kt): Local data source interface and `internal class LocalJobApplicationsListDataSourceImpl` backed by Room 3 SQLite database (`DatabaseHolder` / `JobApplicationDao`) with in-memory fallback.
-- [`RemoteJobApplicationsListDataSource`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/source/RemoteJobApplicationsListDataSource.kt): Remote data source interface and `internal class RemoteJobApplicationsListDataSourceImpl` backed by `RemoteDataSource` / Firestore.
-- [`LoadAllJobApplicationsUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/LoadAllJobApplicationsUseCaseImpl.kt): Queries `JobApplicationsListRepository`.
-- [`FilterJobApplicationsUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/FilterJobApplicationsUseCaseImpl.kt): In-memory filtering implementation.
-- [`SortJobApplicationsUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/SortJobApplicationsUseCaseImpl.kt): In-memory multi-column sorting implementation.
-- [`jobApplicationsListDataModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/di/JobApplicationsListModule.kt): Koin DI definitions registering data layer dependencies.
+- [`JobApplicationsListRepositoryImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/repository/impl/JobApplicationsListRepositoryImpl.kt): `internal` repository implementation coordinating `LocalJobApplicationsListDataSource` and `RemoteJobApplicationsListDataSource`.
+- [`LocalJobApplicationsListDataSource`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/source/LocalJobApplicationsListDataSource.kt): Local data source interface and `internal class LocalJobApplicationsListDataSourceImpl` backed by Room 3 SQLite database (`DatabaseHolder` / `JobApplicationDao`) with in-memory fallback.
+- [`RemoteJobApplicationsListDataSource`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/source/RemoteJobApplicationsListDataSource.kt): Remote data source interface and `internal class RemoteJobApplicationsListDataSourceImpl` backed by `RemoteDataSource` / Firestore.
+- [`LoadAllJobApplicationsUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/LoadAllJobApplicationsUseCaseImpl.kt): Queries `JobApplicationsListRepository`.
+- [`FilterJobApplicationsUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/FilterJobApplicationsUseCaseImpl.kt): In-memory filtering implementation.
+- [`SortJobApplicationsUseCaseImpl`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/SortJobApplicationsUseCaseImpl.kt): In-memory multi-column sorting implementation.
+- [`jobApplicationsListDataModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/data/di/JobApplicationsListModule.kt): Koin DI definitions registering data layer dependencies.
 
 ### 3. `:features-job-applications-list-ui`
 Delivers the Compose presentation and responsive UI components using strict MVI architecture:
-- [`JobApplicationsListUiState`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListUiState.kt): Sealed interface modeling UI states (`Loading`, `Content`, `Error`) and navigation side-effects (`NavigateToDetail`, `NavigateToAddApplication`, `NavigateToAddLead`, `NavigateToEdits`, `NavigateToSettings`).
-- [`JobApplicationsListUiIntent`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListUiIntent.kt): Sealed interface capturing user interactions (`SelectApplication`, `ChangeFilter`, `ChangeSort`, `Refresh`, `ClickAddApplication`, `ClickAddLead`, `ClickEdits`, `ClickSettings`).
-- [`JobApplicationItemUiModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationItemUiModel.kt): Immutable presentation model separating UI rendering from raw domain models with pre-formatted dates, status labels, fit score text, and click intents.
-- [`JobApplicationsListViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListViewModel.kt): MVI ViewModel strictly exposing a single `uiState: StateFlow<JobApplicationsListUiState>` and intent handler `onIntent(JobApplicationsListUiIntent): Unit`.
-- [`JobApplicationsListScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListScreen.kt): Adaptive screen switching between a single-column `LazyColumn` for compact screens and a multi-column `LazyVerticalGrid` for expanded displays based on `WindowWidthSizeClass`. Renders `JobApplicationsListUiState` and delegates all actions through `onIntent`.
-- [`JobApplicationRow`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/component/JobApplicationRow.kt): Pure stateless card row consuming `JobApplicationItemUiModel` with zero inline formatting or calculations.
-- [`ListRoute`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListNavigation.kt): Type-safe destination key implementing `NavKeyRoute`.
-- [`jobApplicationsListNavHook`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListNavigation.kt): `FeatureNavigationHook` registering the `composable<ListRoute>` entry in the root `NavGraphBuilder`.
-- [`jobApplicationsListUiModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListUiModule.kt): Koin DI module registering `JobApplicationsListViewModel`.
-- [`jobApplicationsListFeatureModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListUiModule.kt): Umbrella module including data, domain, and UI modules.
+- [`JobApplicationsListUiState`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListUiState.kt): Sealed interface modeling UI states (`Loading`, `Content`, `Error`) and navigation side-effects (`NavigateToDetail`, `NavigateToAddApplication`, `NavigateToAddLead`, `NavigateToEdits`, `NavigateToSettings`).
+- [`JobApplicationsListUiIntent`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListUiIntent.kt): Sealed interface capturing user interactions (`SelectApplication`, `ChangeFilter`, `ChangeSort`, `Refresh`, `ClickAddApplication`, `ClickAddLead`, `ClickEdits`, `ClickSettings`).
+- [`JobApplicationItemUiModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationItemUiModel.kt): Immutable presentation model separating UI rendering from raw domain models with pre-formatted dates, status labels, fit score text, and click intents.
+- [`JobApplicationsListViewModel`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListViewModel.kt): MVI ViewModel strictly exposing a single `uiState: StateFlow<JobApplicationsListUiState>` and intent handler `onIntent(JobApplicationsListUiIntent): Unit`.
+- [`JobApplicationsListScreen`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListScreen.kt): Adaptive screen switching between a single-column `LazyColumn` for compact screens and a multi-column `LazyVerticalGrid` for expanded displays based on `WindowWidthSizeClass`. Renders `JobApplicationsListUiState` and delegates all actions through `onIntent`.
+- [`JobApplicationRow`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/component/JobApplicationRow.kt): Pure stateless card row consuming `JobApplicationItemUiModel` with zero inline formatting or calculations.
+- [`ListRoute`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListNavigation.kt): Type-safe destination key implementing `NavKeyRoute`.
+- [`jobApplicationsListNavHook`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListNavigation.kt): `FeatureNavigationHook` registering the `composable<ListRoute>` entry in the root `NavGraphBuilder`.
+- [`jobApplicationsListUiModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListUiModule.kt): Koin DI module registering `JobApplicationsListViewModel`.
+- [`jobApplicationsListFeatureModule`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/features/job-applications-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/jobapplicationslist/ui/JobApplicationsListUiModule.kt): Umbrella module including data, domain, and UI modules.
 
 ---
 
@@ -84,19 +84,19 @@ The route supports automatic redirection from `SignInRoute` upon authentication,
 
 ## Key Gradle Tasks
 
-Run the following commands from the `ui/kmp` directory:
+Run the following commands from the repository root:
 
 ```bash
 # Compile CommonMain Kotlin metadata across all 3 subprojects
-./gradlew :features-job-applications-list-domain:compileCommonMainKotlinMetadata \
-          :features-job-applications-list-data:compileCommonMainKotlinMetadata \
-          :features-job-applications-list-ui:compileCommonMainKotlinMetadata
+./gradlew :frontend:features-job-applications-list-domain:compileCommonMainKotlinMetadata \
+          :frontend:features-job-applications-list-data:compileCommonMainKotlinMetadata \
+          :frontend:features-job-applications-list-ui:compileCommonMainKotlinMetadata
 
 # Run unit tests
-./gradlew :features-job-applications-list-domain:allTests \
-          :features-job-applications-list-data:allTests \
-          :features-job-applications-list-ui:allTests
+./gradlew :frontend:features-job-applications-list-domain:allTests \
+          :frontend:features-job-applications-list-data:allTests \
+          :frontend:features-job-applications-list-ui:allTests
 
 # Assemble Android debug variant for UI module
-./gradlew :features-job-applications-list-ui:assembleDebug
+./gradlew :frontend:features-job-applications-list-ui:assembleDebug
 ```

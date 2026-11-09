@@ -1,8 +1,8 @@
 """Evaluates job application fit against the candidate profile and evaluation framework.
 
 Grounded in:
-- .claude/skills/job-application-assistant/01-candidate-profile.md
-- .claude/skills/job-application-assistant/04-job-evaluation.md
+- .agents/skills/job-application-assistant/01-candidate-profile.md
+- .agents/skills/job-application-assistant/04-job-evaluation.md
 """
 
 from __future__ import annotations

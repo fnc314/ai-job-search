@@ -3,7 +3,7 @@
 This directory contains technical design and implementation plans oriented specifically to the `records` subsystem (`records-proto` and `records-parser`).
 
 > [!NOTE]
-> For repository-wide cross-subsystem plans that span multiple components (such as `records` + `ui/kmp` or root tracker CLI), refer to the root architectural plans directory at [`.agents/plans/`](../../.agents/plans/README.md).
+> For repository-wide cross-subsystem plans that span multiple components (such as `records` + `frontend` or root tracker CLI), refer to the root architectural plans directory at [`.agents/plans/`](../../.agents/plans/README.md).
 
 ---
 
