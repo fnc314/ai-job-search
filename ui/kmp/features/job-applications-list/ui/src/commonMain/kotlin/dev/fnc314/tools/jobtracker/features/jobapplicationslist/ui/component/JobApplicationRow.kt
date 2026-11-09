@@ -6,6 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalGridApi
+import androidx.compose.foundation.layout.Grid
+import androidx.compose.foundation.layout.GridTrackSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,8 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,11 +44,40 @@ import dev.fnc314.tools.jobtracker.core.widgets.StatusBadge
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationItemUiModel
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationsListUiIntent
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.data_missing
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_action_view_details
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_cd
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_click_cd
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_created
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_created_applied
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_header_applied_on
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_header_fit_score
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_header_updated
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_no_role
 import org.jetbrains.compose.resources.stringResource
 
+private const val GRID_COLUMNS = 3
+private const val GRID_ROWS = 3
+
+@Composable
+private fun GridHeader(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.primary,
+    )
+}
+
+@Composable
+private fun GridValue(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+    )
+}
+
+@OptIn(ExperimentalGridApi::class)
 @Composable
 internal fun JobApplicationRow(
     model: JobApplicationItemUiModel,
@@ -66,6 +98,7 @@ internal fun JobApplicationRow(
         model.statusDisplayName,
         fitDesc,
     )
+    val dataMissing: String = stringResource(Res.string.data_missing)
 
     if (isCompact) {
         var isExpanded by remember { mutableStateOf(false) }
@@ -126,9 +159,12 @@ internal fun JobApplicationRow(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Created on ${model.createdDateYyyyMmDd}",
+                        text = stringResource(
+                            Res.string.list_row_created,
+                            model.createdDateDisplay(backup = dataMissing),
+                        ),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     StatusBadge(
                         status = model.status,
@@ -147,7 +183,7 @@ internal fun JobApplicationRow(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight,
+                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = null,
                         modifier = Modifier
                             .size(32.dp)
@@ -157,55 +193,33 @@ internal fun JobApplicationRow(
                 }
             }
 
-            // EXPANDED STATE: 3x3 grid body & primary button
+            // EXPANDED STATE: flat 3x3 grid (headers / values / action)
             AnimatedVisibility(visible = isExpanded) {
-                Column(
+                val gridGap = MaterialTheme.spacing.small
+                Grid(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = MaterialTheme.spacing.medium),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                    config = {
+                        repeat(GRID_COLUMNS) { column(1.fr) }
+                        repeat(GRID_ROWS) { row(GridTrackSize.Auto) }
+                        gap(gridGap)
+                    },
                 ) {
-                    // ROW1: Headers
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Text(text = "Fit Score", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                        Text(text = "Applied on", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                        Text(text = "Updated", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                    }
+                    GridHeader(stringResource(Res.string.list_row_header_fit_score))
+                    GridHeader(stringResource(Res.string.list_row_header_applied_on))
+                    GridHeader(stringResource(Res.string.list_row_header_updated))
 
-                    // ROW2: Values (Fit Score as Text, not FitTag)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Text(
-                            text = model.fitScore?.toString() ?: "-",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Text(
-                            text = model.appliedDateYyyyMmDd,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Text(
-                            text = model.updatedDateText,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
+                    GridValue(model.fitScoreDisplay(backup = dataMissing))
+                    GridValue(model.appliedDateDisplay(backup = dataMissing))
+                    GridValue(model.updatedDateDisplay(backup = dataMissing))
 
-                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
-
-                    // ROW3: Primary Button to launch features/job-application-details
                     Button(
                         onClick = { onIntent(model.onClickIntent) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.gridItem(columnSpan = GRID_COLUMNS),
                         shape = MaterialTheme.shapes.small,
                     ) {
-                        Text("View Details")
+                        Text(stringResource(Res.string.list_row_action_view_details))
                     }
                 }
             }
@@ -278,14 +292,18 @@ internal fun JobApplicationRow(
                 ) {
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            text = "Created on ${model.createdDateYyyyMmDd} • Applied on ${model.appliedDateYyyyMmDd}",
+                            text = stringResource(
+                                Res.string.list_row_created_applied,
+                                model.createdDateDisplay(backup = dataMissing),
+                                model.appliedDateDisplay(backup = dataMissing),
+                            ),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            text = model.updatedDateText,
+                            text = model.updatedDateDisplay(backup = dataMissing),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 

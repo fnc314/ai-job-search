@@ -47,4 +47,13 @@
     <string name="list_row_click_cd">View %s details</string>
     <string name="list_row_no_role">No role</string>
     <string name="list_row_cd">%1$s, %2$s, %3$s%4$s</string>
+
+    <string name="list_row_created">Created %s</string>
+    <string name="list_row_created_applied">Created %1$s • Applied %2$s</string>
+    <string name="list_row_header_fit_score">Fit Score</string>
+    <string name="list_row_header_applied_on">Applied on</string>
+    <string name="list_row_header_updated">Updated</string>
+    <string name="list_row_action_view_details">View Details</string>
+    <string name="data_missing">DATA MISSING</string>
+    <string name="parsing_error">PARSING ERROR</string>
 </resources>

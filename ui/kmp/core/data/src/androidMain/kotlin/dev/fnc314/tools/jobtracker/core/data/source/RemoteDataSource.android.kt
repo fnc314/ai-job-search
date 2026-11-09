@@ -1,7 +1,9 @@
 package dev.fnc314.tools.jobtracker.core.data.source
 
 import com.google.firebase.FirebaseApp
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlin.time.Instant
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -19,7 +21,7 @@ internal class AndroidRemoteDataSource(
                 return@addSnapshotListener
             }
             val records = snapshot?.documents?.map { doc ->
-                MapRemoteRecord(id = doc.id, fields = doc.data ?: emptyMap())
+                MapRemoteRecord(id = doc.id, fields = sanitizeFirestoreMap(doc.data ?: emptyMap()))
             } ?: emptyList()
             trySend(records)
         }
@@ -29,7 +31,7 @@ internal class AndroidRemoteDataSource(
     override suspend fun getDocument(collectionPath: String, documentId: String): RemoteRecord? {
         val doc = firestore.collection(collectionPath).document(documentId).get().await()
         if (!doc.exists()) return null
-        return MapRemoteRecord(id = doc.id, fields = doc.data ?: emptyMap())
+        return MapRemoteRecord(id = doc.id, fields = sanitizeFirestoreMap(doc.data ?: emptyMap()))
     }
 
     override suspend fun setDocument(collectionPath: String, documentId: String, record: RemoteRecord): DataResult {
@@ -49,6 +51,20 @@ internal class AndroidRemoteDataSource(
             DataResult.Failure(e)
         }
     }
+}
+
+/**
+ * Converts platform-specific Firestore values into multiplatform types so SDK classes never leak into common code.
+ * `DocumentSnapshot.getData()` yields [Timestamp] for timestamp fields; read via [Timestamp.seconds] / [Timestamp.nanoseconds].
+ */
+private fun sanitizeFirestoreMap(map: Map<String, Any?>): Map<String, Any?> =
+    map.mapValues { (_, value) -> sanitizeFirestoreValue(value) }
+
+private fun sanitizeFirestoreValue(value: Any?): Any? = when (value) {
+    is Timestamp -> Instant.fromEpochSeconds(value.seconds, value.nanoseconds.toLong())
+    is Map<*, *> -> value.entries.associate { (k, v) -> k.toString() to sanitizeFirestoreValue(v) }
+    is List<*> -> value.map { sanitizeFirestoreValue(it) }
+    else -> value
 }
 
 public actual fun createRemoteDataSource(): RemoteDataSource = AndroidRemoteDataSource()

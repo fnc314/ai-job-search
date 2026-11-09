@@ -49,3 +49,5 @@ This directory contains design and implementation plans for the `ui/kmp` project
 | [`sorting-and-timestamp-investigation-and-fix.md`](./2026-11-08/162542_sorting-and-timestamp-investigation-and-fix.md) | Draft / Proposed | Investigation and fix for sorting mechanism and timestamp formatting |
 | [`expandable-job-application-tiles-plan.md`](./2026-11-08/165857_expandable-job-application-tiles-plan.md) | Draft / Proposed | Expandable job application tiles with 90x90 logo, chevron, and 3x3 grid details on compact screen widths |
 | [`add-coil-version-catalog.md`](./2026-11-08/173039_add-coil-version-catalog.md) | Draft / Proposed | Add Coil 3.6.3 version catalog entries for CMP-compatible images |
+| [`android-date-display-and-style-fix-plan.md`](./2026-11-08/191000_android-date-display-and-style-fix-plan.md) | Completed | Android date display, timestamp deserialization, and typography/color contrast resolution |
+| [`koin-annotations-entry-point-and-build-logs-resolution.md`](./2026-11-08/193000_koin-annotations-entry-point-and-build-logs-resolution.md) | Completed | Koin Annotations entry point migration and assembleDebug build logs resolution |

@@ -3,10 +3,11 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationslist.data.source.imp
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.ApplicationChannel
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
+import dev.fnc314.tools.jobtracker.core.data.model.Timeline
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.source.RemoteDataSource
+import dev.fnc314.tools.jobtracker.core.data.util.InstantParser
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.data.source.RemoteJobApplicationsListDataSource
-import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -20,10 +21,17 @@ internal class RemoteJobApplicationsListDataSourceImpl(
         .observeCollection("applications")
         .first()
         .map { record ->
-          val createdAt = record.fields["createdAt"]?.toInstantOrNull()
-            ?: record.fields["created_at"]?.toInstantOrNull()
-          val updatedAt = record.fields["updatedAt"]?.toInstantOrNull()
-            ?: record.fields["updated_at"]?.toInstantOrNull()
+          val createdAt = InstantParser.parse(record.fields["createdAt"] ?: record.fields["created_at"])
+          val updatedAt = InstantParser.parse(record.fields["updatedAt"] ?: record.fields["updated_at"])
+
+          val timeline = (record.fields["timeline"] as? Map<*, *>)?.let { map ->
+            Timeline(
+              firstActivityAt = InstantParser.parse(map["firstActivityAt"] ?: map["first_activity_at"]),
+              lastActivityAt = InstantParser.parse(map["lastActivityAt"] ?: map["last_activity_at"]),
+              daysSinceActivity = ((map["daysSinceActivity"] ?: map["days_since_activity"]) as? Number)?.toInt() ?: 0,
+              nextFollowUpAt = InstantParser.parse(map["nextFollowUpAt"] ?: map["next_follow_up_at"]),
+            )
+          }
 
           Factory.createJobApplication(
             id = record.id,
@@ -36,21 +44,12 @@ internal class RemoteJobApplicationsListDataSourceImpl(
             jobUrl = record.getString("jobUrl"),
             description = record.getString("description"),
             fitRating = record.getLong("fitScore")?.toInt() ?: record.getLong("fitRating")?.toInt(),
+            timeline = timeline,
             notesRendered = record.getString("notesRendered"),
             createdAt = createdAt,
             updatedAt = updatedAt,
           )
         }
     }
-  }
-}
-
-private fun Any?.toInstantOrNull(): Instant? {
-  return when (this) {
-    null -> null
-    is Instant -> this
-    is Long -> Instant.fromEpochMilliseconds(this)
-    is String -> runCatching { Instant.parse(this) }.getOrNull()
-    else -> runCatching { Instant.parse(this.toString()) }.getOrNull()
   }
 }

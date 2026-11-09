@@ -49,9 +49,10 @@ public interface FilterJobApplicationsUseCase : UseCase<FilterJobApplicationsUse
          * @param now Current reference timestamp.
          * @return True if the timestamp satisfies the age criteria.
          */
-        public fun matches(createdAt: Instant?, now: Instant): Boolean {
+        public fun matches(createdAt: Instant, now: Instant): Boolean {
             if (this == NONE) return true
-            val date = createdAt ?: return false
+            if (createdAt == Instant.DISTANT_PAST) return false
+            val date = createdAt
             val elapsed = now - date
             return when (this) {
                 NONE -> true

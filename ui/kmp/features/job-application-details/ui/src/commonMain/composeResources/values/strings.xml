@@ -74,4 +74,8 @@
     <string name="artifacts_size_mb">%d MB</string>
     <string name="artifacts_size_kb">%d KB</string>
     <string name="artifacts_size_bytes">%d B</string>
+
+    <string name="detail_last_updated">Last updated %s</string>
+    <string name="data_missing">DATA MISSING</string>
+    <string name="parsing_error">PARSING ERROR</string>
 </resources>

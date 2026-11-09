@@ -72,6 +72,7 @@ import fnc314jobsearchtracker.features_job_application_details_ui.generated.reso
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.dialog_status_note_label
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.dialog_status_note_placeholder
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.dialog_status_title
+import kotlin.time.Instant
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -390,7 +391,7 @@ internal fun EventDetailDialog(
                         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
                     ) {
                         Text(
-                            text = stringResource(Res.string.dialog_event_timestamp, event.createdAt?.toString() ?: naText),
+                            text = stringResource(Res.string.dialog_event_timestamp, event.createdAt.takeUnless { it == Instant.DISTANT_PAST }?.toString() ?: naText),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )

@@ -38,7 +38,7 @@ class SortJobApplicationsTest {
 
     @Test
     fun testSort_DateCreatedNullTimestampFallback() {
-        val nullDate = Factory.createJobApplication(id = "null-date", company = "Zebra", createdAt = null)
+        val nullDate = Factory.createJobApplication(id = "null-date", company = "Zebra", createdAt = Instant.DISTANT_PAST)
         val oldDate = Factory.createJobApplication(id = "old-date", company = "Beta", createdAt = now - 10.days)
         val recentDate = Factory.createJobApplication(id = "recent-date", company = "Alpha", createdAt = now - 1.days)
 
@@ -72,13 +72,13 @@ class SortJobApplicationsTest {
             id = "only-created",
             company = "B",
             createdAt = now - 5.days,
-            updatedAt = null,
+            updatedAt = Instant.DISTANT_PAST,
         )
         val appWithNeither = Factory.createJobApplication(
             id = "neither",
             company = "C",
-            createdAt = null,
-            updatedAt = null,
+            createdAt = Instant.DISTANT_PAST,
+            updatedAt = Instant.DISTANT_PAST,
         )
 
         val paramsAsc = SortJobApplicationsUseCase.Params(

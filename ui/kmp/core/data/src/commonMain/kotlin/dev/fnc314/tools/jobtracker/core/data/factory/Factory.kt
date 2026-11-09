@@ -87,8 +87,8 @@ public object Factory {
         counters: TrackerCounts? = null,
         timeline: Timeline? = null,
         notesRendered: String? = null,
-        createdAt: Instant? = Clock.System.now(),
-        updatedAt: Instant? = Clock.System.now(),
+        createdAt: Instant = Clock.System.now(),
+        updatedAt: Instant = Clock.System.now(),
         jobApplicationUrl: String? = null,
         uuid: Uuid7? = null,
         schemaVersion: Int = 8,
@@ -151,7 +151,7 @@ public object Factory {
         actor: EventActor = EventActor.USER,
         derivedFrom: DerivedFrom = DerivedFrom.MANUAL,
         confidence: Confidence = Confidence.HIGH,
-        createdAt: Instant? = Clock.System.now(),
+        createdAt: Instant = Clock.System.now(),
     ): TrackerEvent = TrackerEvent(
         id = id,
         applicationId = applicationId,
@@ -401,10 +401,10 @@ public object Factory {
      * @return A constructed [Timeline] instance.
      */
     public fun createTimeline(
-        firstActivityAt: Instant? = null,
-        lastActivityAt: Instant? = null,
+        firstActivityAt: Instant = Instant.DISTANT_PAST,
+        lastActivityAt: Instant = Instant.DISTANT_PAST,
         daysSinceActivity: Int = 0,
-        nextFollowUpAt: Instant? = null,
+        nextFollowUpAt: Instant = Instant.DISTANT_PAST,
     ): Timeline = Timeline(
         firstActivityAt = firstActivityAt,
         lastActivityAt = lastActivityAt,

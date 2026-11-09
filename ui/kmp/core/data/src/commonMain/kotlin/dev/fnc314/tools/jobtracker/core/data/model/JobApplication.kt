@@ -64,8 +64,8 @@ public data class JobApplication(
     public val counters: TrackerCounts?,
     public val timeline: Timeline?,
     public val notesRendered: String?,
-    public val createdAt: Instant?,
-    public val updatedAt: Instant?,
+    public val createdAt: Instant = Instant.DISTANT_PAST,
+    public val updatedAt: Instant = Instant.DISTANT_PAST,
     public val jobApplicationUrl: String?,
 ) {
     /**

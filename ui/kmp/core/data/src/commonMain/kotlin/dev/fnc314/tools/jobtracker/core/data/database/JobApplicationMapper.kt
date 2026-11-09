@@ -4,6 +4,7 @@ import dev.fnc314.tools.jobtracker.core.data.database.entity.JobApplicationEntit
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.Uuid7
+import kotlin.time.Instant
 
 /**
  * Bidirectional mapper converting between domain [JobApplication] instances and SQLite [JobApplicationEntity] records.
@@ -35,8 +36,8 @@ public object JobApplicationMapper {
             contactIds = domain.contactIds,
             fitScore = domain.fitScore,
             notesRendered = domain.notesRendered,
-            createdAt = domain.createdAt,
-            updatedAt = domain.updatedAt,
+            createdAt = domain.createdAt.takeUnless { it == Instant.DISTANT_PAST },
+            updatedAt = domain.updatedAt.takeUnless { it == Instant.DISTANT_PAST },
             jobApplicationUrl = domain.jobApplicationUrl,
         )
     }
@@ -64,8 +65,8 @@ public object JobApplicationMapper {
             contactIds = entity.contactIds,
             fitRating = entity.fitScore,
             notesRendered = entity.notesRendered,
-            createdAt = entity.createdAt,
-            updatedAt = entity.updatedAt,
+            createdAt = entity.createdAt ?: Instant.DISTANT_PAST,
+            updatedAt = entity.updatedAt ?: Instant.DISTANT_PAST,
             jobApplicationUrl = entity.jobApplicationUrl,
             uuid = entity.uuid,
             schemaVersion = entity.schemaVersion,

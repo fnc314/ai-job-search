@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import dev.fnc314.tools.jobtracker.app.core.di.MainApplication
 import dev.fnc314.tools.jobtracker.app.core.di.appModule
 import dev.fnc314.tools.jobtracker.app.core.ui.AppScaffold
 import dev.fnc314.tools.jobtracker.core.data.model.AuthState
@@ -39,7 +40,7 @@ import dev.fnc314.tools.jobtracker.features.trackeredits.ui.EditsRoute
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.trackerEditsNavHook
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
-import org.koin.dsl.koinConfiguration
+import org.koin.plugin.module.dsl.koinConfiguration
 
 /**
  * Root multiplatform application entry composable.
@@ -51,11 +52,9 @@ import org.koin.dsl.koinConfiguration
 public fun App() {
   KoinApplication(
     configuration =
-      koinConfiguration(
-        declaration = {
-          modules(appModule)
-        },
-      ),
+      koinConfiguration<MainApplication> {
+        modules(appModule)
+      },
   ) {
     val settingsRepository = koinInject<AppSettingsRepository>()
     val settings by settingsRepository.settings.collectAsState()

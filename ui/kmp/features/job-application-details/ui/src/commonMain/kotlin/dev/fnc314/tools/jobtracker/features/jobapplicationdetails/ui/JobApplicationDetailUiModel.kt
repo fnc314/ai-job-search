@@ -1,5 +1,6 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import dev.fnc314.tools.jobtracker.core.data.model.ApplicationChannel
 import dev.fnc314.tools.jobtracker.core.data.model.Company
@@ -12,10 +13,14 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
-import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticTimestamp
+import dev.fnc314.tools.jobtracker.core.widgets.formatRelativeInstant
+import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.data_missing
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlin.time.Instant
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Decoupled UI presentation model encapsulating the complete detail view state for a single application.
@@ -39,7 +44,8 @@ import kotlinx.collections.immutable.toImmutableList
  * @property notesRendered Rendered markdown text.
  * @property jobUrl Live posting URL.
  * @property jobApplicationUrl Direct candidate portal link.
- * @property formattedLastUpdated Semantic relative update timestamp.
+ * @property createdAt Record creation timestamp, or [Instant.DISTANT_PAST] when unknown.
+ * @property updatedAt Last modification timestamp, or [Instant.DISTANT_PAST] when unknown.
  * @property company Associated employer profile [Company].
  * @property timelineEvents Ordered list of audit events [TrackerEvent] forming the timeline.
  * @property artifacts Attached document artifacts [TrackerArtifact].
@@ -63,11 +69,19 @@ public data class JobApplicationDetailUiModel(
     public val notesRendered: String?,
     public val jobUrl: String?,
     public val jobApplicationUrl: String?,
-    public val formattedLastUpdated: String?,
+    public val createdAt: Instant = Instant.DISTANT_PAST,
+    public val updatedAt: Instant = Instant.DISTANT_PAST,
     public val company: Company?,
     public val timelineEvents: ImmutableList<TrackerEvent>,
     public val artifacts: ImmutableList<TrackerArtifact>,
-)
+) {
+    /** Localized relative last-update text (falls back to creation), or [backup] when unknown. */
+    @Composable
+    public fun lastUpdatedDisplay(backup: String = stringResource(Res.string.data_missing)): String {
+        val target = if (updatedAt != Instant.DISTANT_PAST) updatedAt else createdAt
+        return formatRelativeInstant(target) ?: backup
+    }
+}
 
 internal fun createJobApplicationDetailUiModel(
     app: JobApplication,
@@ -94,7 +108,8 @@ internal fun createJobApplicationDetailUiModel(
         notesRendered = app.notesRendered,
         jobUrl = app.jobUrl,
         jobApplicationUrl = app.jobApplicationUrl,
-        formattedLastUpdated = formatSemanticTimestamp(app.updatedAt, app.createdAt),
+        createdAt = app.createdAt,
+        updatedAt = app.updatedAt,
         company = company,
         timelineEvents = derivedEvents,
         artifacts = artifacts.toImmutableList(),
@@ -107,7 +122,7 @@ internal fun deriveTimelineEvents(
 ): ImmutableList<TrackerEvent> {
     if (events.isNotEmpty()) return events.toImmutableList()
     return buildList {
-        app.createdAt?.let { created ->
+        if (app.createdAt != Instant.DISTANT_PAST) {
             add(
                 TrackerEvent(
                     id = "evt_created",
@@ -120,11 +135,11 @@ internal fun deriveTimelineEvents(
                     actor = EventActor.USER,
                     derivedFrom = DerivedFrom.MANUAL,
                     confidence = Confidence.HIGH,
-                    createdAt = created,
+                    createdAt = app.createdAt,
                 )
             )
         }
-        if (app.updatedAt != null && app.updatedAt != app.createdAt) {
+        if (app.updatedAt != Instant.DISTANT_PAST && app.updatedAt != app.createdAt) {
             add(
                 TrackerEvent(
                     id = "evt_updated",

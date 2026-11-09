@@ -164,15 +164,6 @@ Compose:
     active: true
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Rule: ParameterOrder
-  # ELI5: Enforces standard parameter ordering: required parameters first, then optional parameters, then trailing lambda.
-  # Type: Boolean
-  # Docs: https://mrmike.github.io/compose-rules/rules/parameter-order
-  # ─────────────────────────────────────────────────────────────────────────────
-  ParameterOrder:
-    active: true
-
-  # ─────────────────────────────────────────────────────────────────────────────
   # Rule: RememberContentMissing
   # ELI5: Flags creating complex or heavy objects inside Composables without wrapping them in remember {}.
   # Type: Boolean

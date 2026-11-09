@@ -65,6 +65,7 @@ import fnc314jobsearchtracker.features_job_application_details_ui.generated.reso
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_fab_cd
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_fit_rating_label
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_label_gaps
+import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_last_updated
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_prefix_app_url
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_prefix_channel
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_prefix_compensation
@@ -478,13 +479,11 @@ internal fun ApplicationSummarySection(
                 )
             }
 
-            model.formattedLastUpdated?.let { timeLabel ->
-                Text(
-                    text = timeLabel,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            Text(
+                text = stringResource(Res.string.detail_last_updated, model.lastUpdatedDisplay()),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

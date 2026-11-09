@@ -64,8 +64,8 @@ internal class JobApplicationDetailViewModelTest {
         aliases = listOf("Acme"),
         website = "https://acme.com",
         industry = "Technology",
-        createdAt = null,
-        updatedAt = null,
+        createdAt = Instant.DISTANT_PAST,
+        updatedAt = Instant.DISTANT_PAST,
     )
 
     private class FakeLoadJobApplicationUseCase(

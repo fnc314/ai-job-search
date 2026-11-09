@@ -58,10 +58,11 @@ public interface SortJobApplicationsUseCase : UseCase<SortJobApplicationsUseCase
          */
         public fun sort(): List<JobApplication> {
             val comparator = when (column) {
-                SortColumn.DATE_CREATED -> compareBy<JobApplication> { it.createdAt ?: Instant.DISTANT_PAST }
+                SortColumn.DATE_CREATED -> compareBy<JobApplication> { it.createdAt }
                     .thenBy { it.company }
-                SortColumn.DATE_UPDATED -> compareBy<JobApplication> { it.updatedAt ?: it.createdAt ?: Instant.DISTANT_PAST }
-                    .thenBy { it.company }
+                SortColumn.DATE_UPDATED -> compareBy<JobApplication> {
+                    if (it.updatedAt != Instant.DISTANT_PAST) it.updatedAt else it.createdAt
+                }.thenBy { it.company }
                 SortColumn.COMPANY -> compareBy { it.company.lowercase() }
                 SortColumn.STATUS -> compareBy { it.status.displayName }
                 SortColumn.FIT -> compareBy { it.fitScore ?: 0 }

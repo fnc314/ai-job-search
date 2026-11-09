@@ -34,5 +34,5 @@ public data class TrackerEvent(
     public val actor: EventActor,
     public val derivedFrom: DerivedFrom,
     public val confidence: Confidence,
-    public val createdAt: Instant?,
+    public val createdAt: Instant = Instant.DISTANT_PAST,
 )

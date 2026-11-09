@@ -28,12 +28,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
-import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticInstant
+import dev.fnc314.tools.jobtracker.core.widgets.formatRelativeInstant
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.EventDetailDialog
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.data_missing
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.timeline_empty
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.timeline_event_cd
 import org.jetbrains.compose.resources.stringResource
@@ -138,13 +139,11 @@ internal fun EventsTimeline(
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
-                            event.createdAt?.let { ts ->
-                                Text(
-                                    text = formatSemanticInstant(ts),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.outline,
-                                )
-                            }
+                            Text(
+                                text = formatRelativeInstant(event.createdAt) ?: stringResource(Res.string.data_missing),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
 
                         event.note?.let { note ->

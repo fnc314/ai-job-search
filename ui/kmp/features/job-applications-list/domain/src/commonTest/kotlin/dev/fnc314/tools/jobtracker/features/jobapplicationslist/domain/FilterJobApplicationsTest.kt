@@ -94,11 +94,11 @@ class FilterJobApplicationsTest {
     @Test
     fun testAgeFilter_NullCreatedAtHandling() {
         // Null createdAt must return false for all specific age windows, but true for NONE
-        assertTrue(FilterJobApplicationsUseCase.ApplicationAge.NONE.matches(null, now))
-        assertFalse(FilterJobApplicationsUseCase.ApplicationAge.LESS_THAN_1_WEEK.matches(null, now))
-        assertFalse(FilterJobApplicationsUseCase.ApplicationAge.LESS_THAN_1_MONTH.matches(null, now))
-        assertFalse(FilterJobApplicationsUseCase.ApplicationAge.LESS_THAN_1_YEAR.matches(null, now))
-        assertFalse(FilterJobApplicationsUseCase.ApplicationAge.MORE_THAN_1_YEAR.matches(null, now))
+        assertTrue(FilterJobApplicationsUseCase.ApplicationAge.NONE.matches(Instant.DISTANT_PAST, now))
+        assertFalse(FilterJobApplicationsUseCase.ApplicationAge.LESS_THAN_1_WEEK.matches(Instant.DISTANT_PAST, now))
+        assertFalse(FilterJobApplicationsUseCase.ApplicationAge.LESS_THAN_1_MONTH.matches(Instant.DISTANT_PAST, now))
+        assertFalse(FilterJobApplicationsUseCase.ApplicationAge.LESS_THAN_1_YEAR.matches(Instant.DISTANT_PAST, now))
+        assertFalse(FilterJobApplicationsUseCase.ApplicationAge.MORE_THAN_1_YEAR.matches(Instant.DISTANT_PAST, now))
     }
 
     @Test

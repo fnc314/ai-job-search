@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.model.displayName
-import dev.fnc314.tools.jobtracker.core.data.util.formatSemanticTimestamp
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.FilterJobApplicationsUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.FilterJobApplicationsUseCase.ApplicationAge
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.LoadAllJobApplicationsUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.SortJobApplicationsUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.SortJobApplicationsUseCase.SortColumn
+import kotlin.time.Instant
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -145,17 +145,6 @@ public class JobApplicationsListViewModel(
     }
 
     private fun JobApplication.toUiModel(): JobApplicationItemUiModel {
-        val dateText = formatSemanticTimestamp(
-            updatedAt = updatedAt,
-            createdAt = createdAt,
-        ) ?: ""
-        val createdYyyyMmDd = createdAt?.toString()?.substringBefore('T') ?: ""
-        val appliedYyyyMmDd = timeline?.firstActivityAt?.toString()?.substringBefore('T') ?: createdYyyyMmDd
-        val updatedText = formatSemanticTimestamp(
-            updatedAt = updatedAt,
-            createdAt = createdAt,
-        ) ?: createdYyyyMmDd
-
         return JobApplicationItemUiModel(
             id = id,
             companyName = company,
@@ -165,10 +154,9 @@ public class JobApplicationsListViewModel(
             statusDisplayName = status.displayName(),
             fitScore = fitScore,
             fitScoreText = fitScore?.let { "Fit $it" },
-            formattedCreatedDate = dateText,
-            createdDateYyyyMmDd = createdYyyyMmDd,
-            appliedDateYyyyMmDd = appliedYyyyMmDd,
-            updatedDateText = updatedText,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            firstActivityAt = timeline?.firstActivityAt ?: Instant.DISTANT_PAST,
             onClickIntent = JobApplicationsListUiIntent.SelectApplication(id),
         )
     }
