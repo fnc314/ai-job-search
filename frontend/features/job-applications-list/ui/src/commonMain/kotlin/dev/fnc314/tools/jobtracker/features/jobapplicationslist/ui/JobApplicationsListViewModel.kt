@@ -174,6 +174,8 @@ public class JobApplicationsListViewModel(
       updatedAt = updatedAt,
       firstActivityAt = timeline?.firstActivityAt
         ?: Instant.DISTANT_PAST,
+      isAutoSynced = emailMessageIds.isNotEmpty(),
+      emailCount = emailMessageIds.size,
       onClickIntent = JobApplicationsListUiIntent.SelectApplication(id),
     )
   }

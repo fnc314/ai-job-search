@@ -326,11 +326,23 @@ private fun CompactJobApplicationRow(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                StatusBadge(
-                    status = model.status,
-                    textAlign = TextAlign.Start,
-                    maxLines = 1,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+                ) {
+                    StatusBadge(
+                        status = model.status,
+                        textAlign = TextAlign.Start,
+                        maxLines = 1,
+                    )
+                    if (model.isAutoSynced) {
+                        Text(
+                            text = "[AUTO-SYNCED]",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.width(MaterialTheme.spacing.extraSmall))
@@ -506,6 +518,13 @@ private fun WideJobApplicationRow(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                 ) {
+                    if (model.isAutoSynced) {
+                        Text(
+                            text = "[AUTO-SYNCED]",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                     StatusBadge(
                         status = model.status,
                         textAlign = TextAlign.End,

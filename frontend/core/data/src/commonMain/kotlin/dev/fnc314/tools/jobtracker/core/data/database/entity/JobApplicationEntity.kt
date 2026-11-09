@@ -58,4 +58,5 @@ public data class JobApplicationEntity(
     public val createdAt: Instant?,
     public val updatedAt: Instant?,
     public val jobApplicationUrl: String?,
+    public val emailMessageIds: List<String> = emptyList(),
 )

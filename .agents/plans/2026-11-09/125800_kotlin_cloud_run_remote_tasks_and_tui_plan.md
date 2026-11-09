@@ -1,6 +1,6 @@
 # Architecture & Implementation Plan: Screaming Monorepo, Root Composite Build, Kotlin Cloud Run Backend & Unified Frontend
 
-**Status:** Draft / Proposed  
+**Status:** Completed  
 **Date:** 2026-11-09  
 **Target:** repository-wide  
 **Model:** gemini-3.8-flash  
@@ -331,6 +331,14 @@ mise run dev:lint
 ## 10. Bookkeeping & Completion
 - [x] Plan persisted at `.agents/plans/2026-11-09/125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md`
 - [x] Registry `README.md` row updated
+- [x] Root composite build and shared convention settings established
+- [x] Reorganized monorepo structure (`records/`, `backend/`, `frontend/`)
+- [x] Added `repeated string emailMessageIds = 23;` to proto, schema, domain, and entities
+- [x] Implemented unified Kotlin CLI (`frontend/apps/cli`) and `mise run tracker:backfill:emails`
+- [x] Verified and applied retroactive email backfill to Firestore
+- [x] Implemented Kotlin TUI (`frontend/apps/terminal`) with Related Emails card & `[AUTO-SYNCED]` badges
+- [x] Implemented Ktor backend Cloud Run service (`backend/`) with routine sweep handlers
+- [x] Documented remote deployment and scale-to-zero free tier setup in `SETUP.md`
 - [ ] Craft a single commit of all changed files
 - [ ] Stage changed files and commit using exact message: `125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md`
 - [ ] Push to `origin main` (`git push origin main`)

@@ -684,6 +684,13 @@
         "jobApplicationUrl": {
           "$ref": "#/$defs/nullableString"
         },
+        "emailMessageIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of associated email message IDs linked to this application record."
+        },
         "uuid": {
           "oneOf": [
             {

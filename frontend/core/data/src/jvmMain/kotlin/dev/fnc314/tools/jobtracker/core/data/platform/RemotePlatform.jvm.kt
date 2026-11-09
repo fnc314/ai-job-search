@@ -14,10 +14,10 @@ import java.io.FileInputStream
  * 3. GOOGLE_APPLICATION_CREDENTIALS environment variable
  * 4. Application Default Credentials (ADC)
  */
-internal object RemotePlatform {
+public object RemotePlatform {
     private var initialized: Boolean = false
 
-    fun initialize(): Unit {
+    public fun initialize(): Unit {
         if (initialized) return
         try {
             val saKeyEnv = System.getenv("TRACKER_SA_KEY")
@@ -39,9 +39,13 @@ internal object RemotePlatform {
                 }
             }.createScoped(listOf("https://www.googleapis.com/auth/cloud-platform"))
 
+            val projectId = System.getenv("TRACKER_PROJECT")
+                ?: System.getenv("REMOTE_GCP_PROJECT")
+                ?: "job-search-fnc314-dev"
+
             val options = FirebaseOptions.builder()
                 .setCredentials(credentials)
-                .setProjectId("job-search-fnc314-dev")
+                .setProjectId(projectId)
                 .build()
 
             if (FirebaseApp.getApps().none { it.name == FirebaseApp.DEFAULT_APP_NAME }) {

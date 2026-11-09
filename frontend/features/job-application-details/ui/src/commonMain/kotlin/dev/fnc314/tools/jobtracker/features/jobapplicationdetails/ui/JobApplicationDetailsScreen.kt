@@ -228,6 +228,7 @@ private fun JobApplicationDetailContent(
                                 onAdjustFitClick = { showFitDialog = true },
                             )
                             model.company?.let { CompanyProfileSection(company = it) }
+                            ApplicationEmailsSection(model = model)
                             model.notesRendered?.let { notes ->
                                 SectionHeader(stringResource(Res.string.detail_section_notes))
                                 OutlinedCard(
@@ -273,6 +274,7 @@ private fun JobApplicationDetailContent(
                             onAdjustFitClick = { showFitDialog = true },
                         )
                         model.company?.let { CompanyProfileSection(company = it) }
+                        ApplicationEmailsSection(model = model)
 
                         SectionHeader(stringResource(Res.string.detail_section_artifacts))
                         ArtifactsList(
@@ -497,6 +499,52 @@ internal fun ApplicationSummarySection(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    }
+}
+
+@Composable
+internal fun ApplicationEmailsSection(
+    model: JobApplicationDetailUiModel,
+    modifier: Modifier = Modifier,
+): Unit {
+    if (model.emailMessageIds.isEmpty()) return
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = MaterialTheme.spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+    ) {
+        SectionHeader("Related Emails (${model.emailMessageIds.size})")
+        OutlinedCard(
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(MaterialTheme.spacing.medium),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+            ) {
+                model.emailMessageIds.forEach { emailId ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "• $emailId",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(
+                            text = "Linked",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
         }
     }
 }

@@ -5,6 +5,7 @@
 
 set -euo pipefail
 
+REPO_ROOT="$(git rev-parse --show-toplevel)"
 PROJECT="${REMOTE_GCP_PROJECT:-${TRACKER_PROJECT:-}}"
 REGION="${REMOTE_GCP_REGION:-us-east1}"
 MODE="${REMOTE_BUILD_MODE:-local}"
@@ -21,11 +22,11 @@ IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT}/job-tracker-backend/backend:lates
 echo "Building and deploying ${SERVICE_NAME} to ${REGION} in project ${PROJECT} (mode: ${MODE})..."
 
 if [ "$MODE" = "local" ]; then
-  ./frontend/gradlew -p backend installDist
-  docker build -t "${IMAGE_URI}" backend/
+  "${REPO_ROOT}/frontend/gradlew" -p "${REPO_ROOT}/backend" installDist
+  docker build -t "${IMAGE_URI}" "${REPO_ROOT}/backend"
   docker push "${IMAGE_URI}"
 else
-  gcloud builds submit --tag "${IMAGE_URI}" backend/ --project="${PROJECT}"
+  gcloud builds submit --tag "${IMAGE_URI}" "${REPO_ROOT}/backend" --project="${PROJECT}"
 fi
 
 gcloud run deploy "${SERVICE_NAME}" \

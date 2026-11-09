@@ -90,6 +90,7 @@ public object Factory {
         createdAt: Instant = Clock.System.now(),
         updatedAt: Instant = Clock.System.now(),
         jobApplicationUrl: String? = null,
+        emailMessageIds: List<String> = emptyList(),
         uuid: Uuid7? = null,
         schemaVersion: Int = 8,
     ): JobApplication {
@@ -121,6 +122,7 @@ public object Factory {
             createdAt = createdAt,
             updatedAt = updatedAt,
             jobApplicationUrl = jobApplicationUrl,
+            emailMessageIds = emailMessageIds.toImmutableList(),
         )
     }
 

@@ -74,6 +74,7 @@ public data class JobApplicationDetailUiModel(
     public val company: Company?,
     public val timelineEvents: ImmutableList<TrackerEvent>,
     public val artifacts: ImmutableList<TrackerArtifact>,
+    public val emailMessageIds: ImmutableList<String> = persistentListOf(),
 ) {
     /** Localized relative last-update text (falls back to creation), or [backup] when unknown. */
     @Composable
@@ -113,6 +114,7 @@ internal fun createJobApplicationDetailUiModel(
         company = company,
         timelineEvents = derivedEvents,
         artifacts = artifacts.toImmutableList(),
+        emailMessageIds = app.emailMessageIds,
     )
 }
 

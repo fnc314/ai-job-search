@@ -529,3 +529,60 @@ Shared Claude Code permissions now live in `.claude/settings.json` (scoped to `b
 ```bash
 rm .claude/settings.local.json
 ```
+
+---
+
+## 7. Remote Task Offload (Google Cloud Run & Cloud Scheduler)
+
+You can offload routine sweeps (such as proposal expiration, due-sync processing, and background email inbox scanning) to execute unattended on Google Cloud Run while remaining **strictly $0 / always free tier** using Google Cloud Free Tier quotas:
+- **Cloud Run**: Minimum instances = 0 (scale-to-zero compute). First 2M requests/month free.
+- **Cloud Scheduler**: 1 scheduled routine sweep CRON job (Google provides 3 free jobs/month).
+- **Artifact Registry & Cloud Build**: Sized within free tier limits.
+
+### 1. Enable Required GCP APIs
+```bash
+gcloud services enable run.googleapis.com \
+  cloudscheduler.googleapis.com \
+  artifactregistry.googleapis.com \
+  cloudbuild.googleapis.com \
+  --project YOUR_PROJECT_ID
+```
+
+### 2. Create Artifact Registry Repository
+```bash
+gcloud artifacts repositories create job-tracker-backend \
+  --repository-format=docker \
+  --location=us-east1 \
+  --description="Docker repository for job search tracker backend" \
+  --project YOUR_PROJECT_ID
+```
+
+### 3. Configure Environment Variables
+In your `.env.local`:
+```bash
+REMOTE_GCP_PROJECT=job-search-fnc314-dev
+REMOTE_GCP_REGION=us-east1
+REMOTE_SWEEP_CRON="0 */6 * * *"
+REMOTE_BUILD_MODE=local   # "local" (uses Docker) or "cloud" (uses Cloud Build)
+```
+
+### 4. Deploy via Mise Tasks
+All deployment and execution workflows are hidden behind `mise`:
+
+```bash
+# Build and deploy Cloud Run service (supporting --local Docker or --cloud Cloud Build)
+mise run remote:deploy:service --local
+
+# Deploy Cloud Scheduler CRON job (default: 4x/day routine sweep)
+mise run remote:deploy:scheduler
+
+# Or deploy both service and scheduler in sequence:
+mise run remote:deploy:all --local
+
+# Trigger an on-demand remote routine sweep:
+mise run remote:sweep
+
+# Tear down remote service and scheduler (guarantee $0 cost):
+mise run remote:destroy
+```
+

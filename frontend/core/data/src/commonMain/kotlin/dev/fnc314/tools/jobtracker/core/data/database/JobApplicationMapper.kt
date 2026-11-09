@@ -39,6 +39,7 @@ public object JobApplicationMapper {
             createdAt = domain.createdAt.takeUnless { it == Instant.DISTANT_PAST },
             updatedAt = domain.updatedAt.takeUnless { it == Instant.DISTANT_PAST },
             jobApplicationUrl = domain.jobApplicationUrl,
+            emailMessageIds = domain.emailMessageIds,
         )
     }
 
@@ -68,6 +69,7 @@ public object JobApplicationMapper {
             createdAt = entity.createdAt ?: Instant.DISTANT_PAST,
             updatedAt = entity.updatedAt ?: Instant.DISTANT_PAST,
             jobApplicationUrl = entity.jobApplicationUrl,
+            emailMessageIds = entity.emailMessageIds,
             uuid = entity.uuid,
             schemaVersion = entity.schemaVersion,
         )

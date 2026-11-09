@@ -42,6 +42,8 @@ public data class JobApplicationItemUiModel(
     public val updatedAt: Instant = Instant.DISTANT_PAST,
     public val firstActivityAt: Instant = Instant.DISTANT_PAST,
     public val isExpanded: Boolean = false,
+    public val isAutoSynced: Boolean = false,
+    public val emailCount: Int = 0,
     public val onClickIntent: JobApplicationsListUiIntent,
 ) {
     /** Single uppercase alphanumeric character representing the company monogram, or `"?"` when blank. */

@@ -3,6 +3,7 @@ package dev.fnc314.tools.jobtracker.core.data.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlin.time.Instant
 
 /**
@@ -67,6 +68,7 @@ public data class JobApplication(
     public val createdAt: Instant = Instant.DISTANT_PAST,
     public val updatedAt: Instant = Instant.DISTANT_PAST,
     public val jobApplicationUrl: String?,
+    public val emailMessageIds: ImmutableList<String> = persistentListOf(),
 ) {
     /**
      * Resolves the primary fit score (0..100) by prioritizing [fitRating] over [fitEvaluation.score].

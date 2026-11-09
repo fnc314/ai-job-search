@@ -3,28 +3,42 @@ package dev.fnc314.tools.jobtracker.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.core.subcommands
-import com.github.ajalt.mordant.rendering.TextColors.cyan
-import com.github.ajalt.mordant.terminal.Terminal
+import dev.fnc314.tools.jobtracker.cli.commands.AddApplicationCommand
+import dev.fnc314.tools.jobtracker.cli.commands.AddEventCommand
+import dev.fnc314.tools.jobtracker.cli.commands.AlignCommand
+import dev.fnc314.tools.jobtracker.cli.commands.BackfillParentCommand
+import dev.fnc314.tools.jobtracker.cli.commands.CheckCommand
+import dev.fnc314.tools.jobtracker.cli.commands.GetApplicationCommand
+import dev.fnc314.tools.jobtracker.cli.commands.ListApplicationsCommand
+import dev.fnc314.tools.jobtracker.cli.commands.SeedCommand
+import dev.fnc314.tools.jobtracker.cli.commands.UpdateScoreCommand
+import dev.fnc314.tools.jobtracker.cli.commands.UpdateStatusCommand
 
-class JobSearchCli : CliktCommand(name = "jobsearch") {
-    override fun run() = Unit
+public class JobSearchCli : CliktCommand(name = "jobsearch") {
+    override fun run(): Unit = Unit
 }
 
-class TrackerCommand : CliktCommand(name = "tracker") {
-    override fun run() = Unit
-}
-
-class ListApplications : CliktCommand(name = "list") {
-    override fun run() {
-        val t = Terminal()
-        t.println(cyan("Loaded job applications via unified Kotlin CLI"))
-    }
-}
-
-fun main(args: Array<String>) {
-    JobSearchCli()
-        .subcommands(
-            TrackerCommand().subcommands(ListApplications())
+public class TrackerCommand : CliktCommand(name = "tracker") {
+    init {
+        subcommands(
+            CheckCommand(),
+            ListApplicationsCommand(),
+            GetApplicationCommand(),
+            AddApplicationCommand(),
+            UpdateStatusCommand(),
+            UpdateScoreCommand(),
+            AddEventCommand(),
+            BackfillParentCommand(),
+            AlignCommand(),
+            SeedCommand(),
         )
+    }
+
+    override fun run(): Unit = Unit
+}
+
+public fun main(args: Array<String>) {
+    JobSearchCli()
+        .subcommands(TrackerCommand())
         .main(args)
 }
