@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md`](./2026-11-09/125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md) | Draft / Proposed | Architecture & implementation plan for Kotlin Cloud Run service, shared proto3 models, remote task offloading, and Kotlin TUI migration |
 | [`python-to-mise-tasks-migration-plan.md`](./2026-11-08/180500_python-to-mise-tasks-migration-plan.md) | Completed | Migrate away from direct Python invocations to file-based Mise tasks with environment/virtualenv auto-binding |
 | [`tui-triage-and-fix.md`](./2026-11-06/052500_tui-triage-and-fix.md) | Completed | TUI screen flash and navigation fixes, Firestore erroneously withdrawn applications remediation |
 | [`mise-task-changes.md`](./2026-11-05/230500_mise-task-changes.md) | Completed | Inverted `mise scrape` defaults (markdown output, save-seen), added `mise apply` and `mise rank` tasks |
