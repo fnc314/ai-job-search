@@ -11,7 +11,6 @@ import dev.fnc314.tools.jobtracker.core.data.util.InstantParser
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.data.source.RemoteJobApplicationsListDataSource
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 internal class RemoteJobApplicationsListDataSourceImpl(
@@ -20,8 +19,7 @@ internal class RemoteJobApplicationsListDataSourceImpl(
   override suspend operator fun invoke(): List<JobApplication> {
     return withContext(Dispatchers.Default) {
       remoteDataSource
-        .observeCollection("applications")
-        .first()
+        .getCollection("applications")
         .map(::mapRecordToJobApplication)
     }
   }

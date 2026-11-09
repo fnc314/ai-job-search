@@ -16,16 +16,17 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -69,304 +70,322 @@ import org.koin.compose.viewmodel.koinViewModel
  * responsive grids on [WindowWidthSizeClass.Medium] and [WindowWidthSizeClass.Expanded] displays.
  *
  * @param viewModel Backing [JobApplicationsListViewModel] instance resolved via Koin.
+ * @param modifier Layout modifier applied to the screen root.
+ * @param settings Active user preferences [AppSettings].
  * @param onApplicationClick Callback invoked when user selects an application card, passing its slug/UUID.
  * @param onAddApplicationClick Callback invoked to navigate to the Add Application screen.
  * @param onAddLeadClick Callback invoked to navigate to the Add Lead screen.
  * @param onEditsClick Callback invoked to navigate to the Pending Edits screen.
  * @param onSettingsClick Callback invoked to open application preferences.
- * @param settings Active user preferences [AppSettings].
  * @param onSettingsChange Callback invoked when settings are modified.
- * @param modifier Layout modifier applied to the screen root.
  */
 @Composable
 public fun JobApplicationsListScreen(
-    viewModel: JobApplicationsListViewModel = koinViewModel(),
-    onApplicationClick: (String) -> Unit,
-    onAddApplicationClick: () -> Unit = {},
-    onAddLeadClick: () -> Unit = {},
-    onEditsClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
-    settings: AppSettings = AppSettings(),
-    onSettingsChange: (AppSettings) -> Unit = {},
-    modifier: Modifier = Modifier,
-): Unit {
-    val state by viewModel.uiState.collectAsState()
+  viewModel: JobApplicationsListViewModel = koinViewModel(),
+  modifier: Modifier = Modifier,
+  settings: AppSettings = AppSettings(),
+  onApplicationClick: (String) -> Unit,
+  onAddApplicationClick: () -> Unit = {},
+  onAddLeadClick: () -> Unit = {},
+  onEditsClick: () -> Unit = {},
+  onSettingsClick: () -> Unit = {},
+  onSettingsChange: (AppSettings) -> Unit = {},
+) {
+  val state by viewModel.uiState.collectAsState()
 
-    var lastContent by remember { mutableStateOf<JobApplicationsListUiState.Content?>(null) }
-    if (state is JobApplicationsListUiState.Content) {
-        lastContent = state as JobApplicationsListUiState.Content
+  var lastContent by remember { mutableStateOf<JobApplicationsListUiState.Content?>(null) }
+  if (state is JobApplicationsListUiState.Content) {
+    lastContent = state as JobApplicationsListUiState.Content
+  }
+
+  when (val s = state) {
+    JobApplicationsListUiState.Loading -> {
+      LoadingWidget(modifier = modifier)
     }
 
-    when (val s = state) {
-        JobApplicationsListUiState.Loading -> {
-            LoadingWidget(modifier = modifier)
-        }
-        is JobApplicationsListUiState.Error -> {
-            ErrorBannerWidget(
-                message = stringResource(Res.string.list_error_prefix, s.message),
-                onRetry = { viewModel.onIntent(JobApplicationsListUiIntent.Refresh) },
-                modifier = modifier.padding(MaterialTheme.spacing.medium),
-            )
-        }
-        is JobApplicationsListUiState.Content -> {
-            JobApplicationsListContent(
-                content = s,
-                onIntent = viewModel::onIntent,
-                modifier = modifier,
-            )
-        }
-        is JobApplicationsListUiState.NavigateToDetail -> {
-            LaunchedEffect(s) {
-                onApplicationClick(s.applicationId)
-            }
-            lastContent?.let { content ->
-                JobApplicationsListContent(
-                    content = content,
-                    onIntent = viewModel::onIntent,
-                    modifier = modifier,
-                )
-            }
-        }
-        JobApplicationsListUiState.NavigateToAddApplication -> {
-            LaunchedEffect(s) {
-                onAddApplicationClick()
-            }
-            lastContent?.let { content ->
-                JobApplicationsListContent(
-                    content = content,
-                    onIntent = viewModel::onIntent,
-                    modifier = modifier,
-                )
-            }
-        }
-        JobApplicationsListUiState.NavigateToAddLead -> {
-            LaunchedEffect(s) {
-                onAddLeadClick()
-            }
-            lastContent?.let { content ->
-                JobApplicationsListContent(
-                    content = content,
-                    onIntent = viewModel::onIntent,
-                    modifier = modifier,
-                )
-            }
-        }
-        JobApplicationsListUiState.NavigateToEdits -> {
-            LaunchedEffect(s) {
-                onEditsClick()
-            }
-            lastContent?.let { content ->
-                JobApplicationsListContent(
-                    content = content,
-                    onIntent = viewModel::onIntent,
-                    modifier = modifier,
-                )
-            }
-        }
-        JobApplicationsListUiState.NavigateToSettings -> {
-            LaunchedEffect(s) {
-                onSettingsClick()
-            }
-            lastContent?.let { content ->
-                JobApplicationsListContent(
-                    content = content,
-                    onIntent = viewModel::onIntent,
-                    modifier = modifier,
-                )
-            }
-        }
+    is JobApplicationsListUiState.Error -> {
+      ErrorBannerWidget(
+        message = stringResource(Res.string.list_error_prefix, s.message),
+        onRetry = { viewModel.onIntent(JobApplicationsListUiIntent.Refresh) },
+        modifier = modifier.padding(MaterialTheme.spacing.medium),
+      )
     }
+
+    is JobApplicationsListUiState.Content -> {
+      JobApplicationsListContent(
+        content = s,
+        onIntent = viewModel::onIntent,
+        modifier = modifier,
+      )
+    }
+
+    is JobApplicationsListUiState.NavigateToDetail -> {
+      LaunchedEffect(s) {
+        onApplicationClick(s.applicationId)
+      }
+      lastContent?.let { content ->
+        JobApplicationsListContent(
+          content = content,
+          onIntent = viewModel::onIntent,
+          modifier = modifier,
+        )
+      }
+    }
+
+    JobApplicationsListUiState.NavigateToAddApplication -> {
+      LaunchedEffect(s) {
+        onAddApplicationClick()
+      }
+      lastContent?.let { content ->
+        JobApplicationsListContent(
+          content = content,
+          onIntent = viewModel::onIntent,
+          modifier = modifier,
+        )
+      }
+    }
+
+    JobApplicationsListUiState.NavigateToAddLead -> {
+      LaunchedEffect(s) {
+        onAddLeadClick()
+      }
+      lastContent?.let { content ->
+        JobApplicationsListContent(
+          content = content,
+          onIntent = viewModel::onIntent,
+          modifier = modifier,
+        )
+      }
+    }
+
+    JobApplicationsListUiState.NavigateToEdits -> {
+      LaunchedEffect(s) {
+        onEditsClick()
+      }
+      lastContent?.let { content ->
+        JobApplicationsListContent(
+          content = content,
+          onIntent = viewModel::onIntent,
+          modifier = modifier,
+        )
+      }
+    }
+
+    JobApplicationsListUiState.NavigateToSettings -> {
+      LaunchedEffect(s) {
+        onSettingsClick()
+      }
+      lastContent?.let { content ->
+        JobApplicationsListContent(
+          content = content,
+          onIntent = viewModel::onIntent,
+          modifier = modifier,
+        )
+      }
+    }
+  }
 }
 
 @Composable
 internal fun JobApplicationsListContent(
-    content: JobApplicationsListUiState.Content,
-    onIntent: (JobApplicationsListUiIntent) -> Unit,
-    modifier: Modifier = Modifier,
-): Unit {
-    var fabMenuExpanded by remember { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
-    val windowSizeClass = LocalWindowSizeClass.current
+  content: JobApplicationsListUiState.Content,
+  onIntent: (JobApplicationsListUiIntent) -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  var fabMenuExpanded by remember { mutableStateOf(false) }
+  val focusManager = LocalFocusManager.current
+  val windowSizeClass = LocalWindowSizeClass.current
 
-    Box(
-        modifier = modifier.fillMaxSize(),
+  Box(
+    modifier = modifier.fillMaxSize(),
+  ) {
+    Column(
+      modifier = Modifier.fillMaxSize(),
     ) {
-        Column(
+      // Toolbar row: FilterMenu opposite SortMenu & Action buttons
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(
+            horizontal = MaterialTheme.spacing.medium,
+            vertical = MaterialTheme.spacing.extraSmall,
+          ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        FilterMenu(
+          selectedStatus = content.statusFilter,
+          selectedAge = content.ageFilter,
+          onFilterChange = { status, age ->
+            onIntent(JobApplicationsListUiIntent.ChangeFilter(status, age))
+          },
+        )
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+        ) {
+          SortMenu(
+            sortColumn = content.sortColumn,
+            sortAscending = content.sortAscending,
+            onSortChange = { col, asc ->
+              onIntent(JobApplicationsListUiIntent.ChangeSort(col, asc))
+            },
+          )
+          TooltipIconButton(
+            tooltip = stringResource(Res.string.list_tooltip_refresh),
+            icon = Icons.Default.Refresh,
+            onClick = {
+              onIntent(JobApplicationsListUiIntent.Refresh)
+            },
+          )
+        }
+      }
+
+      // Content with pull-to-refresh
+      @OptIn(ExperimentalMaterial3Api::class)
+      PullToRefreshBox(
+        isRefreshing = content.isRefreshing,
+        onRefresh = { onIntent(JobApplicationsListUiIntent.Refresh) },
+        modifier = Modifier.fillMaxSize(),
+      ) {
+        if (content.applications.isEmpty()) {
+          EmptyStateWidget(
+            title = stringResource(Res.string.list_empty_message),
             modifier = Modifier.fillMaxSize(),
-        ) {
-            // Toolbar row: FilterMenu opposite SortMenu & Action buttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = MaterialTheme.spacing.medium,
-                        vertical = MaterialTheme.spacing.extraSmall,
-                    ),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                FilterMenu(
-                    selectedStatus = content.statusFilter,
-                    selectedAge = content.ageFilter,
-                    onFilterChange = { status, age ->
-                        onIntent(JobApplicationsListUiIntent.ChangeFilter(status, age))
-                    },
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-                ) {
-                    SortMenu(
-                        sortColumn = content.sortColumn,
-                        sortAscending = content.sortAscending,
-                        onSortChange = { col, asc ->
-                            onIntent(JobApplicationsListUiIntent.ChangeSort(col, asc))
-                        },
+          )
+        } else {
+          val listPadding = PaddingValues(
+            start = MaterialTheme.spacing.medium,
+            top = MaterialTheme.spacing.small,
+            end = MaterialTheme.spacing.medium,
+            bottom = MaterialTheme.spacing.fabBottomPadding,
+          )
+
+          when (windowSizeClass.widthSizeClass) {
+            WindowWidthSizeClass.Compact -> {
+              LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = listPadding,
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+              ) {
+                items(content.applications, key = { it.id }) { item ->
+                  OutlinedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium,
+                  ) {
+                    JobApplicationRow(
+                      model = item,
+                      onIntent = onIntent,
                     )
-                    TooltipIconButton(
-                        tooltip = stringResource(Res.string.list_tooltip_refresh),
-                        icon = Icons.Default.Refresh,
-                        onClick = { onIntent(JobApplicationsListUiIntent.Refresh) },
+                  }
+                }
+              }
+            }
+
+            WindowWidthSizeClass.Medium -> {
+              LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = listPadding,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+              ) {
+                items(content.applications, key = { it.id }) { item ->
+                  OutlinedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium,
+                  ) {
+                    JobApplicationRow(
+                      model = item,
+                      onIntent = onIntent,
                     )
+                  }
                 }
+              }
             }
 
-            // Content
-            if (content.applications.isEmpty()) {
-                EmptyStateWidget(
-                    title = stringResource(Res.string.list_empty_message),
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else {
-                val listPadding = PaddingValues(
-                    start = MaterialTheme.spacing.medium,
-                    top = MaterialTheme.spacing.small,
-                    end = MaterialTheme.spacing.medium,
-                    bottom = MaterialTheme.spacing.fabBottomPadding,
-                )
-
-                when (windowSizeClass.widthSizeClass) {
-                    WindowWidthSizeClass.Compact -> {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = listPadding,
-                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                        ) {
-                            items(content.applications, key = { it.id }) { item ->
-                                OutlinedCard(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = MaterialTheme.shapes.medium,
-                                ) {
-                                    JobApplicationRow(
-                                        model = item,
-                                        onIntent = onIntent,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    WindowWidthSizeClass.Medium -> {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = listPadding,
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                        ) {
-                            items(content.applications, key = { it.id }) { item ->
-                                OutlinedCard(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = MaterialTheme.shapes.medium,
-                                ) {
-                                    JobApplicationRow(
-                                        model = item,
-                                        onIntent = onIntent,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    WindowWidthSizeClass.Expanded -> {
-                        LazyVerticalGrid(
-                            columns = GridCells.Adaptive(minSize = MaterialTheme.componentSizes.listCardAdaptiveMin),
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = listPadding,
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-                        ) {
-                            items(content.applications, key = { it.id }) { item ->
-                                OutlinedCard(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = MaterialTheme.shapes.medium,
-                                ) {
-                                    JobApplicationRow(
-                                        model = item,
-                                        onIntent = onIntent,
-                                    )
-                                }
-                            }
-                        }
-                    }
+            WindowWidthSizeClass.Expanded -> {
+              LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = MaterialTheme.componentSizes.listCardAdaptiveMin),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = listPadding,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+              ) {
+                items(content.applications, key = { it.id }) { item ->
+                  OutlinedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium,
+                  ) {
+                    JobApplicationRow(
+                      model = item,
+                      onIntent = onIntent,
+                    )
+                  }
                 }
+              }
             }
+          }
         }
-
-        // Floating Action Button with dropdown
-        val fabCd: String = stringResource(Res.string.list_fab_cd)
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(MaterialTheme.spacing.medium),
-        ) {
-            FloatingActionButton(
-                onClick = {
-                    focusManager.clearFocus()
-                    fabMenuExpanded = true
-                },
-                modifier = Modifier.semantics { contentDescription = fabCd },
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                containerColor = MaterialTheme.colorScheme.primary,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(Res.string.list_fab_icon_cd),
-                )
-            }
-            DropdownMenu(
-                expanded = fabMenuExpanded,
-                onDismissRequest = { fabMenuExpanded = false },
-            ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(Res.string.list_action_add_application)) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-                        )
-                    },
-                    onClick = {
-                        fabMenuExpanded = false
-                        onIntent(JobApplicationsListUiIntent.ClickAddApplication)
-                    },
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(Res.string.list_action_add_lead)) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-                        )
-                    },
-                    onClick = {
-                        fabMenuExpanded = false
-                        onIntent(JobApplicationsListUiIntent.ClickAddLead)
-                    },
-                )
-            }
-        }
+      }
     }
+
+    // Floating Action Button with dropdown
+    val fabCd: String = stringResource(Res.string.list_fab_cd)
+    Box(
+      modifier = Modifier
+        .align(Alignment.BottomEnd)
+        .padding(MaterialTheme.spacing.medium),
+    ) {
+      FloatingActionButton(
+        onClick = {
+          focusManager.clearFocus()
+          fabMenuExpanded = true
+        },
+        modifier = Modifier.semantics { contentDescription = fabCd },
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        containerColor = MaterialTheme.colorScheme.primary,
+      ) {
+        Icon(
+          imageVector = Icons.Default.Add,
+          contentDescription = stringResource(Res.string.list_fab_icon_cd),
+        )
+      }
+      DropdownMenu(
+        expanded = fabMenuExpanded,
+        onDismissRequest = { fabMenuExpanded = false },
+      ) {
+        DropdownMenuItem(
+          text = { Text(stringResource(Res.string.list_action_add_application)) },
+          leadingIcon = {
+            Icon(
+              imageVector = Icons.Default.Add,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+            )
+          },
+          onClick = {
+            fabMenuExpanded = false
+            onIntent(JobApplicationsListUiIntent.ClickAddApplication)
+          },
+        )
+        DropdownMenuItem(
+          text = { Text(stringResource(Res.string.list_action_add_lead)) },
+          leadingIcon = {
+            Icon(
+              imageVector = Icons.Default.Person,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.secondary,
+              modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+            )
+          },
+          onClick = {
+            fabMenuExpanded = false
+            onIntent(JobApplicationsListUiIntent.ClickAddLead)
+          },
+        )
+      }
+    }
+  }
 }

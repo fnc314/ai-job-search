@@ -4,14 +4,18 @@ import com.google.cloud.Timestamp
 import com.google.cloud.firestore.Firestore
 import com.google.firebase.FirebaseApp
 import com.google.firebase.cloud.FirestoreClient
+import dev.fnc314.tools.jobtracker.core.data.platform.RemotePlatform
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 private class JvmRemoteDataSource(
-    private val firebase: FirebaseApp = FirebaseApp.getInstance(),
+    private val firebaseProvider: () -> FirebaseApp = {
+        RemotePlatform.initialize()
+        FirebaseApp.getInstance()
+    },
 ) : RemoteDataSource {
-    private val firestore: Firestore = FirestoreClient.getFirestore(firebase)
+    private val firestore: Firestore by lazy { FirestoreClient.getFirestore(firebaseProvider()) }
 
     override fun observeCollection(collectionPath: String): Flow<List<RemoteRecord>> = flow {
         val snapshot = firestore.collection(collectionPath).get().get()
@@ -19,6 +23,13 @@ private class JvmRemoteDataSource(
             MapRemoteRecord(id = doc.id, fields = sanitizeFirestoreMap(doc.data))
         }
         emit(records)
+    }
+
+    override suspend fun getCollection(collectionPath: String): List<RemoteRecord> {
+        val snapshot = firestore.collection(collectionPath).get().get()
+        return snapshot.documents.map { doc ->
+            MapRemoteRecord(id = doc.id, fields = sanitizeFirestoreMap(doc.data))
+        }
     }
 
     override suspend fun getDocument(collectionPath: String, documentId: String): RemoteRecord? {
@@ -60,4 +71,7 @@ private fun sanitizeFirestoreValue(value: Any?): Any? = when (value) {
     else -> value
 }
 
-public actual fun createRemoteDataSource(): RemoteDataSource = JvmRemoteDataSource()
+public actual fun createRemoteDataSource(): RemoteDataSource {
+    RemotePlatform.initialize()
+    return JvmRemoteDataSource()
+}

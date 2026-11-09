@@ -16,6 +16,14 @@ public interface RemoteDataSource {
     public fun observeCollection(collectionPath: String): Flow<List<RemoteRecord>>
 
     /**
+     * Retrieves all documents from the specified remote collection path.
+     *
+     * @param collectionPath Target collection path (e.g. `"applications"`).
+     * @return List of current [RemoteRecord] documents.
+     */
+    public suspend fun getCollection(collectionPath: String): List<RemoteRecord>
+
+    /**
      * Retrieves a single remote document by path and identifier.
      *
      * @param collectionPath Parent collection path.

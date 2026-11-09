@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.flowOf
 
 internal class JsRemoteDataSource : RemoteDataSource {
     override fun observeCollection(collectionPath: String): Flow<List<RemoteRecord>> = flowOf(emptyList())
+    override suspend fun getCollection(collectionPath: String): List<RemoteRecord> = emptyList()
     override suspend fun getDocument(collectionPath: String, documentId: String): RemoteRecord? = null
     override suspend fun setDocument(collectionPath: String, documentId: String, record: RemoteRecord): DataResult = DataResult.Success
     override suspend fun updateDocument(collectionPath: String, documentId: String, record: RemoteRecord): DataResult = DataResult.Success

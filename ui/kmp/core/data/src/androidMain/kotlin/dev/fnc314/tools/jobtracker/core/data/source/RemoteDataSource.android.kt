@@ -3,6 +3,7 @@ package dev.fnc314.tools.jobtracker.core.data.source
 import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import kotlin.time.Instant
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +27,17 @@ private class AndroidRemoteDataSource(
             trySend(records)
         }
         awaitClose { listener.remove() }
+    }
+
+    override suspend fun getCollection(collectionPath: String): List<RemoteRecord> {
+        val snapshot = try {
+            firestore.collection(collectionPath).get(Source.SERVER).await()
+        } catch (_: Throwable) {
+            firestore.collection(collectionPath).get().await()
+        }
+        return snapshot.documents.map { doc ->
+            MapRemoteRecord(id = doc.id, fields = sanitizeFirestoreMap(doc.data ?: emptyMap()))
+        }
     }
 
     override suspend fun getDocument(collectionPath: String, documentId: String): RemoteRecord? {
