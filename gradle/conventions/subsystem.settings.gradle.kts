@@ -1,7 +1,15 @@
+val rootRepoDir = if (file("${rootDir}/gradle/libs.versions.toml").exists()) {
+    rootDir
+} else {
+    file("${rootDir}/..")
+}
+
 dependencyResolutionManagement {
     versionCatalogs {
-        create("libs") {
-            from(files("${rootDir}/../gradle/libs.versions.toml"))
+        if (findByName("libs") == null) {
+            create("libs") {
+                from(files("${rootRepoDir}/gradle/libs.versions.toml"))
+            }
         }
     }
 }

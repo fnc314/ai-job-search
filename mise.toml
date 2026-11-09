@@ -24,7 +24,7 @@ monorepo_root = true
 
 [monorepo]
   lockfile = true
-  config_roots = [ "records", "frontend" ]
+  config_roots = [ "records", "backend", "frontend" ]
 
 [hooks]
   cd = "bash scripts/cleanup-tui-logs.sh"
