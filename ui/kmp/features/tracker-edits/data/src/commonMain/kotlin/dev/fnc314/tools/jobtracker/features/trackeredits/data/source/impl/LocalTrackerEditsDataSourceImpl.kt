@@ -1,14 +1,14 @@
 package dev.fnc314.tools.jobtracker.features.trackeredits.data.source.impl
 
-import dev.fnc314.tools.jobtracker.core.data.database.AppDatabase
+import dev.fnc314.tools.jobtracker.core.data.database.DatabaseHolder
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEdit
 import dev.fnc314.tools.jobtracker.core.data.source.LocalDataSource
 import dev.fnc314.tools.jobtracker.features.trackeredits.data.source.LocalTrackerEditsDataSource
 
 @Suppress("UnusedPrivateProperty")
 internal class LocalTrackerEditsDataSourceImpl(
+    private val databaseHolder: DatabaseHolder? = null,
     private val localDataSource: LocalDataSource? = null,
-    private val appDatabase: AppDatabase? = null,
 ) : LocalTrackerEditsDataSource {
     private val edits = mutableListOf<TrackerEdit>()
 

@@ -55,3 +55,4 @@ This directory contains design and implementation plans for the `ui/kmp` project
 | [`migrate-apps-to-navigation3-plan.md`](./2026-11-08/230400_migrate-apps-to-navigation3-plan.md) | Completed | Migrate ui/kmp/apps/* and core:navigation to Jetpack Navigation 3 (NavDisplay, NavBackStack, EntryProvider) |
 | [`refresh-firebase-room-sync-plan.md`](./2026-11-09/010500_refresh-firebase-room-sync-plan.md) | Completed | Force refresh mechanism re-reading from Firebase, updating Room, and updating UI |
 | [`pull-to-refresh-and-firebase-sync-plan.md`](./2026-11-09/044100_pull-to-refresh-and-firebase-sync-plan.md) | Completed | Pull-to-refresh experience with PullToRefreshBox, ViewModel isRefreshing fix, and fresh Firebase server queries |
+| [`fix-tracker-edits-koin-crash-plan.md`](./2026-11-09/045300_fix-tracker-edits-koin-crash-plan.md) | Completed | Resolve TrackerEdits Koin NoDefinitionFoundException crash by injecting DatabaseHolder |
