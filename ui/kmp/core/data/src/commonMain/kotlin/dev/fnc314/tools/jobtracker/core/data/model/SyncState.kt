@@ -10,19 +10,19 @@ public sealed interface SyncState : WireContract {
         override val wireTag: Int = -1,
     ) : SyncState {
         /** Fallback when state is unspecified. */
-        UNSPECIFIED("Unspecified", "sync:unspecified", 0),
+        UNSPECIFIED("Unspecified", "sync:unspecified", wireTag = 0),
 
         /** Queued and awaiting a worker. */
-        PENDING("Pending", "sync:pending", 1),
+        PENDING("Pending", "sync:pending", wireTag = 1),
 
         /** Claimed by a worker and in flight. */
-        CLAIMED("Claimed", "sync:claimed", 2),
+        CLAIMED("Claimed", "sync:claimed", wireTag = 2),
 
         /** Completed successfully. */
-        DONE("Done", "sync:done", 3),
+        DONE("Done", "sync:done", wireTag = 3),
 
         /** Terminated with an error. */
-        FAILED("Failed", "sync:failed", 4);
+        FAILED("Failed", "sync:failed", wireTag = 4);
     }
 
     /** Associated-value carrier for unmapped sync state strings. */

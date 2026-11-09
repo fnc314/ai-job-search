@@ -8,11 +8,11 @@ import dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository
 import dev.fnc314.tools.jobtracker.core.data.settings.SettingsStorage
 import dev.fnc314.tools.jobtracker.core.data.settings.createSettingsStorage
 import dev.fnc314.tools.jobtracker.core.data.source.LocalDataSource
-import dev.fnc314.tools.jobtracker.core.data.source.LocalDataSourceImpl
 import dev.fnc314.tools.jobtracker.core.data.source.NetworkDataSource
-import dev.fnc314.tools.jobtracker.core.data.source.NetworkDataSourceImpl
 import dev.fnc314.tools.jobtracker.core.data.source.RemoteDataSource
 import dev.fnc314.tools.jobtracker.core.data.source.createRemoteDataSource
+import dev.fnc314.tools.jobtracker.core.data.source.impl.LocalDataSourceImpl
+import dev.fnc314.tools.jobtracker.core.data.source.impl.NetworkDataSourceImpl
 import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf

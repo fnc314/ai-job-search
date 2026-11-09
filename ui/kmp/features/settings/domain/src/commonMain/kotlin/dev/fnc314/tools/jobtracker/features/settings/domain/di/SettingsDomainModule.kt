@@ -5,9 +5,10 @@ import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.UpdateSettin
 import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.impl.ObserveSettingsUseCaseImpl
 import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.impl.UpdateSettingsUseCaseImpl
 import org.koin.core.module.Module
-import org.koin.dsl.*
+import org.koin.dsl.module
 
 public val settingsDomainModule: Module = module {
     factory<ObserveSettingsUseCase> { ObserveSettingsUseCaseImpl(get()) }
     factory<UpdateSettingsUseCase> { UpdateSettingsUseCaseImpl(get()) }
 }
+

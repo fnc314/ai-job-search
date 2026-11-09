@@ -23,11 +23,18 @@ This plan migrates the existing application DI bootstrap to **Koin Annotations (
 ## 3. Proposed Changes & Implementation Steps
 1. **`AppDI.kt`**: Add `@Module public class AppModule` and `@KoinApplication(modules = [AppModule::class]) public class MainApplication`.
 2. **`App.kt`**: Migrate from `org.koin.dsl.koinConfiguration` to `org.koin.plugin.module.dsl.koinConfiguration<MainApplication>`.
-3. **`KoinDependenciesConventionPlugin.kt`**: Set `aiAssist.set(false)` to disable promotional marketing log lines while retaining `compileSafety.set(true)` and `strictSafety.set(true)`.
-4. **`JobApplicationRow.kt`**: Replace deprecated `Icons.Default.KeyboardArrowRight` with `Icons.AutoMirrored.Filled.KeyboardArrowRight`.
+3. **`KoinDependenciesConventionPlugin.kt`**: Retain `aiAssist.set(true)`, `compileSafety.set(true)`, and `strictSafety.set(true)`.
+4. **`JobApplicationRow.kt`**: Replace deprecated `Icons.Default.KeyboardArrowRight` with `Icons.AutoMirrored.Filled.KeyboardArrowRight`, remove invalid top-level `fr` import, and extract `val gridGap = MaterialTheme.spacing.small` before `Grid(config = { ... })`.
+5. **Unit Tests, Konsist & Detekt Alignment**:
+   - Update `.config/mise/tasks/ui/kmp/test.sh` to run `./gradlew jvmTest`.
+   - Align feature unit tests (`SettingsRepositoryTest`, `AddJobApplicationUseCasesTest`, `DetailsUseCasesTest`, `TrackerEditsUseCasesTest`, `JobApplicationsListUseCasesTest`, `JobApplicationsListRepositoryTest`) with `.impl` packaging and module boundaries.
+   - Move `LocalDataSourceImpl` and `NetworkDataSourceImpl` into `core/data/.../source/impl/`, make `TopLevelDestinationImpl` file-private, and scope `KonsistArchitectureTest` rules accurately.
+   - Restore `-Djava.version=21.0.2` and `systemProp.java.version=21.0.2` in `ui/kmp/gradle.properties` and `records/gradle.properties` for Detekt's embedded Kotlin `JavaVersion.parse`, and resolve all Detekt findings across `ui/kmp`.
 
 ## 4. Verification Plan & Testing Checklist
 - [x] `mise run :ui:kmp:android:assemble` completes with 0 compiler warnings and 0 compiler problems.
+- [x] `mise run :ui:kmp:test` completes with all unit tests and Konsist architecture tests passing.
+- [x] `mise run :ui:kmp:detekt` completes with 0 static analysis violations across all 24 modules.
 - [x] `JobApplicationRow.kt` Compose `Grid` track sizing (`1.fr` member property on `GridConfigurationScope`) and `@Composable` `MaterialTheme.spacing.small` extraction verified.
 - [x] `SortJobApplicationsUseCase.kt` non-nullable `Instant` comparator verified with 0 warnings.
 

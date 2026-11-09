@@ -10,61 +10,61 @@ public sealed interface Tag : WireContract {
         override val wireTag: Int = -1,
     ) : Tag {
         /** Fallback when tag is unspecified. */
-        UNSPECIFIED("Unspecified", "tag:unspecified", 0),
+        UNSPECIFIED("Unspecified", "tag:unspecified", wireTag = 0),
 
         /** Relocation is required. */
-        RELOCATION_REQUIRED("Relocation Required", "relocation:required", 1),
+        RELOCATION_REQUIRED("Relocation Required", "relocation:required", wireTag = 1),
 
         /** Relocation was accepted. */
-        RELOCATION_ACCEPTED("Relocation Accepted", "relocation:accepted", 2),
+        RELOCATION_ACCEPTED("Relocation Accepted", "relocation:accepted", wireTag = 2),
 
         /** Relocation was declined. */
-        RELOCATION_DECLINED("Relocation Declined", "relocation:declined", 3),
+        RELOCATION_DECLINED("Relocation Declined", "relocation:declined", wireTag = 3),
 
         /** Compensation above the NYC super-commuter threshold. */
-        COMPENSATION_ABOVE_SUPER_COMMUTER_NYC("Above Super-Commuter (NYC)", "compensation:above-super-commuter:NYC", 4),
+        COMPENSATION_ABOVE_SUPER_COMMUTER_NYC("Above Super-Commuter (NYC)", "compensation:above-super-commuter:NYC", wireTag = 4),
 
         /** Compensation above the SF super-commuter threshold. */
-        COMPENSATION_ABOVE_SUPER_COMMUTER_SF("Above Super-Commuter (SF)", "compensation:above-super-commuter:SF", 5),
+        COMPENSATION_ABOVE_SUPER_COMMUTER_SF("Above Super-Commuter (SF)", "compensation:above-super-commuter:SF", wireTag = 5),
 
         /** Compensation below the NYC floor. */
-        COMPENSATION_BELOW_NYC_FLOOR("Below NYC Floor", "compensation:below-nyc-floor", 6),
+        COMPENSATION_BELOW_NYC_FLOOR("Below NYC Floor", "compensation:below-nyc-floor", wireTag = 6),
 
         /** Compensation below the target band. */
-        COMPENSATION_BELOW_BAND("Below Band", "compensation:below-band", 7),
+        COMPENSATION_BELOW_BAND("Below Band", "compensation:below-band", wireTag = 7),
 
         /** Compensation at the target band. */
-        COMPENSATION_AT_BAND("At Band", "compensation:at-band", 8),
+        COMPENSATION_AT_BAND("At Band", "compensation:at-band", wireTag = 8),
 
         /** Compensation above the target band. */
-        COMPENSATION_ABOVE_BAND("Above Band", "compensation:above-band", 9),
+        COMPENSATION_ABOVE_BAND("Above Band", "compensation:above-band", wireTag = 9),
 
         /** Compensation weighted toward equity. */
-        COMPENSATION_EQUITY_HEAVY("Equity Heavy", "compensation:equity-heavy", 10),
+        COMPENSATION_EQUITY_HEAVY("Equity Heavy", "compensation:equity-heavy", wireTag = 10),
 
         /** Strong fit. */
-        FIT_STRONG("Strong Fit", "fit:strong", 11),
+        FIT_STRONG("Strong Fit", "fit:strong", wireTag = 11),
 
         /** Stretch fit. */
-        FIT_STRETCH("Stretch Fit", "fit:stretch", 12),
+        FIT_STRETCH("Stretch Fit", "fit:stretch", wireTag = 12),
 
         /** iOS experience gap. */
-        FIT_GAP_IOS("iOS Gap", "fit:gap-ios", 13),
+        FIT_GAP_IOS("iOS Gap", "fit:gap-ios", wireTag = 13),
 
         /** Cross-platform experience gap. */
-        FIT_GAP_CROSS_PLATFORM("Cross-Platform Gap", "fit:gap-cross-platform", 14),
+        FIT_GAP_CROSS_PLATFORM("Cross-Platform Gap", "fit:gap-cross-platform", wireTag = 14),
 
         /** Process includes a take-home. */
-        PROCESS_TAKE_HOME("Take-Home", "process:take-home", 15),
+        PROCESS_TAKE_HOME("Take-Home", "process:take-home", wireTag = 15),
 
         /** Process originated from a referral. */
-        PROCESS_REFERRAL("Referral", "process:referral", 16),
+        PROCESS_REFERRAL("Referral", "process:referral", wireTag = 16),
 
         /** Process has an internal contact. */
-        PROCESS_INTERNAL_CONTACT("Internal Contact", "process:internal-contact", 17),
+        PROCESS_INTERNAL_CONTACT("Internal Contact", "process:internal-contact", wireTag = 17),
 
         /** No response for 30+ days. */
-        PROCESS_NO_RESPONSE_30D("No Response (30d)", "process:no-response-30d", 18),
+        PROCESS_NO_RESPONSE_30D("No Response (30d)", "process:no-response-30d", wireTag = 18),
 
         /** Recruiter-initiated outreach. */
         PROCESS_RECRUITER_OUTREACH("Recruiter Outreach", "process:recruiter:outreach");
@@ -78,7 +78,7 @@ public sealed interface Tag : WireContract {
     public companion object {
         public val DEFAULT: Tag = Known.UNSPECIFIED
 
-                private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
+        private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
             val legacy = when (entry) {
                 Known.RELOCATION_REQUIRED -> "relocation:required"
                 Known.RELOCATION_ACCEPTED -> "relocation:accepted"

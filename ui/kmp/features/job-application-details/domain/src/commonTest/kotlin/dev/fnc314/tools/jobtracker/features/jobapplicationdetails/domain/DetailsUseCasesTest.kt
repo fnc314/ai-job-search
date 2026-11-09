@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data
+package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain
 
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.Company
@@ -12,6 +12,9 @@ import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.reposit
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.RecordEventUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.UpdateApplicationStatusUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.UpdateFitScoreUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.RecordEventUseCaseImpl
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.UpdateApplicationStatusUseCaseImpl
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.UpdateFitScoreUseCaseImpl
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

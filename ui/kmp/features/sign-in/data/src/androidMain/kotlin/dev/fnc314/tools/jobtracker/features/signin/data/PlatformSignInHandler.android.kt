@@ -84,6 +84,10 @@ public actual class PlatformSignInHandler(
         }
 
         val credential = result.credential
+        exchangeCredentialForAccount(credential)
+    }
+
+    private suspend fun exchangeCredentialForAccount(credential: androidx.credentials.Credential): UserAccount {
         if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
             Log.d(TAG, "signIn: Received Google ID token credential")
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
@@ -99,9 +103,9 @@ public actual class PlatformSignInHandler(
                 Log.e(TAG, "signIn: Firebase authentication failed", e)
                 throw e
             }
-            val user = authResult.user ?: throw IllegalStateException("Firebase User is null after sign in")
+            val user = checkNotNull(authResult.user) { "Firebase User is null after sign in" }
 
-            UserAccount(
+            return UserAccount(
                 uid = user.uid,
                 email = user.email,
                 displayName = user.displayName,

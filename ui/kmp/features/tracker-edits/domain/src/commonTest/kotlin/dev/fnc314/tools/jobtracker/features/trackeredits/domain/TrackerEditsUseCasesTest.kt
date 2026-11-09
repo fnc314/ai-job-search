@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.features.trackeredits.data
+package dev.fnc314.tools.jobtracker.features.trackeredits.domain
 
 import dev.fnc314.tools.jobtracker.core.data.model.Confidence
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEdit
@@ -10,6 +10,10 @@ import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.ApproveE
 import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.ExpireStaleEditsUseCase
 import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.LoadPendingEditsUseCase
 import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.RejectEditUseCase
+import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.impl.ApproveEditUseCaseImpl
+import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.impl.ExpireStaleEditsUseCaseImpl
+import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.impl.LoadPendingEditsUseCaseImpl
+import dev.fnc314.tools.jobtracker.features.trackeredits.domain.usecase.impl.RejectEditUseCaseImpl
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

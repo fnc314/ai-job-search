@@ -8,7 +8,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-internal class JvmRemoteDataSource(
+private class JvmRemoteDataSource(
     private val firebase: FirebaseApp = FirebaseApp.getInstance(),
 ) : RemoteDataSource {
     private val firestore: Firestore = FirestoreClient.getFirestore(firebase)
@@ -31,8 +31,8 @@ internal class JvmRemoteDataSource(
         return try {
             firestore.collection(collectionPath).document(documentId).set(record.fields).get()
             DataResult.Success
-        } catch (e: Throwable) {
-            DataResult.Failure(e)
+        } catch (expected: Throwable) {
+            DataResult.Failure(expected)
         }
     }
 
@@ -40,8 +40,8 @@ internal class JvmRemoteDataSource(
         return try {
             firestore.collection(collectionPath).document(documentId).update(record.fields).get()
             DataResult.Success
-        } catch (e: Throwable) {
-            DataResult.Failure(e)
+        } catch (expected: Throwable) {
+            DataResult.Failure(expected)
         }
     }
 }

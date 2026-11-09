@@ -27,10 +27,11 @@ public interface TopLevelDestination {
     }
 }
 
-internal data class TopLevelDestinationImpl(
+private data class TopLevelDestinationImpl(
     override val route: NavKey,
     override val labelRes: StringResource,
     override val selectedIcon: ImageVector,
     override val unselectedIcon: ImageVector,
     override val contentDescriptionRes: StringResource,
 ) : TopLevelDestination
+

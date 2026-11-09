@@ -10,25 +10,25 @@ public sealed interface Region : WireContract {
         override val wireTag: Int = -1,
     ) : Region {
         /** Fallback when region is unspecified. */
-        UNSPECIFIED("Unspecified", "UNSPECIFIED", 0),
+        UNSPECIFIED("Unspecified", "UNSPECIFIED", wireTag = 0),
 
         /** Pittsburgh. */
-        US_PIT("Pittsburgh", "US_PIT", 1),
+        US_PIT("Pittsburgh", "US_PIT", wireTag = 1),
 
         /** New York City. */
-        US_NYC("New York City", "US_NYC", 2),
+        US_NYC("New York City", "US_NYC", wireTag = 2),
 
         /** San Francisco. */
-        US_SF("San Francisco", "US_SF", 3),
+        US_SF("San Francisco", "US_SF", wireTag = 3),
 
         /** Los Angeles. */
-        US_LA("Los Angeles", "US_LA", 4),
+        US_LA("Los Angeles", "US_LA", wireTag = 4),
 
         /** Washington, D.C. */
-        US_DC("Washington, D.C.", "US_DC", 5),
+        US_DC("Washington, D.C.", "US_DC", wireTag = 5),
 
         /** Remote within the United States. */
-        US_REMOTE("Remote (US)", "US_REMOTE", 6);
+        US_REMOTE("Remote (US)", "US_REMOTE", wireTag = 6);
     }
 
     /** Associated-value carrier for unmapped region strings. */

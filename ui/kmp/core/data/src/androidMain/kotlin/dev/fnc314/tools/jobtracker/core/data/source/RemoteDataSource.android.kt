@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-internal class AndroidRemoteDataSource(
+private class AndroidRemoteDataSource(
     private val firebase: FirebaseApp = FirebaseApp.getInstance(),
 ) : RemoteDataSource {
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(firebase)
@@ -38,8 +38,8 @@ internal class AndroidRemoteDataSource(
         return try {
             firestore.collection(collectionPath).document(documentId).set(record.fields).await()
             DataResult.Success
-        } catch (e: Throwable) {
-            DataResult.Failure(e)
+        } catch (expected: Throwable) {
+            DataResult.Failure(expected)
         }
     }
 
@@ -47,8 +47,8 @@ internal class AndroidRemoteDataSource(
         return try {
             firestore.collection(collectionPath).document(documentId).update(record.fields).await()
             DataResult.Success
-        } catch (e: Throwable) {
-            DataResult.Failure(e)
+        } catch (expected: Throwable) {
+            DataResult.Failure(expected)
         }
     }
 }
