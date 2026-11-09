@@ -27,17 +27,19 @@ import org.jetbrains.compose.resources.stringResource
 /**
  * Prominent Material 3 error card alerting the user to operation failures or network disconnects.
  *
- * Utilizes [MaterialTheme.colorScheme.errorContainer] and provides an optional retry action button.
+ * Utilizes [MaterialTheme.colorScheme.errorContainer] and provides optional retry and secondary action buttons.
  *
  * @param message Descriptive error message describing the failure.
  * @param modifier Layout modifier applied to the card.
  * @param onRetry Optional callback invoked when the user taps the retry button.
+ * @param secondaryAction Optional label and callback pair for an alternative action (e.g. "Go Back").
  */
 @Composable
 public fun ErrorBannerWidget(
     message: String,
     modifier: Modifier = Modifier,
     onRetry: (() -> Unit)? = null,
+    secondaryAction: Pair<String, () -> Unit>? = null,
 ): Unit {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -68,13 +70,22 @@ public fun ErrorBannerWidget(
                     color = MaterialTheme.colorScheme.onErrorContainer,
                 )
             }
-            if (onRetry != null) {
+            if (onRetry != null || secondaryAction != null) {
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
-                Button(
-                    onClick = onRetry,
+                Row(
                     modifier = Modifier.align(Alignment.End),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                 ) {
-                    Text(stringResource(Res.string.widget_retry_action))
+                    if (secondaryAction != null) {
+                        Button(onClick = secondaryAction.second) {
+                            Text(secondaryAction.first)
+                        }
+                    }
+                    if (onRetry != null) {
+                        Button(onClick = onRetry) {
+                            Text(stringResource(Res.string.widget_retry_action))
+                        }
+                    }
                 }
             }
         }

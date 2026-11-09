@@ -17,8 +17,20 @@ import org.koin.dsl.module
  * Koin module declaring data layer dependencies for the job application details feature.
  */
 public val jobApplicationDetailsDataModule: Module = module {
-    singleOf(::RemoteJobApplicationDetailsDataSourceImpl) bind RemoteJobApplicationDetailsDataSource::class
-    singleOf(::NetworkJobApplicationDetailsDataSourceImpl) bind NetworkJobApplicationDetailsDataSource::class
-    singleOf(::LocalJobApplicationDetailsDataSourceImpl) bind LocalJobApplicationDetailsDataSource::class
-    singleOf(::JobApplicationDetailsRepositoryImpl) bind JobApplicationDetailsRepository::class
+    single<RemoteJobApplicationDetailsDataSource> {
+        RemoteJobApplicationDetailsDataSourceImpl(remoteDataSource = get())
+    }
+    single<NetworkJobApplicationDetailsDataSource> {
+        NetworkJobApplicationDetailsDataSourceImpl(networkDataSource = get())
+    }
+    single<LocalJobApplicationDetailsDataSource> {
+        LocalJobApplicationDetailsDataSourceImpl(databaseHolder = get())
+    }
+    single<JobApplicationDetailsRepository> {
+        JobApplicationDetailsRepositoryImpl(
+            remoteDataSource = get(),
+            networkDataSource = get(),
+            localDataSource = get(),
+        )
+    }
 }

@@ -50,6 +50,7 @@ import dev.fnc314.tools.jobtracker.core.designsystem.WindowWidthSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
+import dev.fnc314.tools.jobtracker.core.navigation.BackHandler
 import dev.fnc314.tools.jobtracker.core.widgets.ErrorBannerWidget
 import dev.fnc314.tools.jobtracker.core.widgets.FitBadge
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
@@ -58,6 +59,7 @@ import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.component.A
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.component.EventsTimeline
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_adjust_fit_cd
+import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_go_back
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_record_event
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_update_fit
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_update_status
@@ -106,6 +108,10 @@ public fun JobApplicationDetailsScreen(
 ): Unit {
     val uiState by viewModel.uiState.collectAsState()
 
+    BackHandler(enabled = true) {
+        onNavigateBack()
+    }
+
     LaunchedEffect(applicationId) {
         viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
     }
@@ -120,11 +126,13 @@ public fun JobApplicationDetailsScreen(
             LoadingWidget(modifier = modifier)
         }
         is JobApplicationDetailUiState.Error -> {
+            val goBackText = stringResource(Res.string.detail_action_go_back)
             ErrorBannerWidget(
                 message = stringResource(Res.string.detail_error_prefix, state.message),
                 onRetry = {
                     viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
                 },
+                secondaryAction = goBackText to onNavigateBack,
                 modifier = modifier.padding(MaterialTheme.spacing.medium),
             )
         }

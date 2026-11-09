@@ -42,6 +42,7 @@ public class JobApplicationsListViewModel(
   private var currentAgeFilter: ApplicationAge = ApplicationAge.NONE
   private var currentSortColumn: SortColumn = SortColumn.DATE_CREATED
   private var currentSortAscending: Boolean = false
+  private var lastContentState: JobApplicationsListUiState.Content? = null
 
   init {
     loadApplications(isRefresh = false)
@@ -91,6 +92,10 @@ public class JobApplicationsListViewModel(
       JobApplicationsListUiIntent.ClickSettings -> {
         _uiState.value = JobApplicationsListUiState.NavigateToSettings
       }
+
+      JobApplicationsListUiIntent.ResetNavigation -> {
+        lastContentState?.let { _uiState.value = it }
+      }
     }
   }
 
@@ -135,7 +140,7 @@ public class JobApplicationsListViewModel(
           ),
         )
         val uiModels = sorted.map { it.toUiModel() }.toImmutableList()
-        _uiState.value = JobApplicationsListUiState.Content(
+        val content = JobApplicationsListUiState.Content(
           applications = uiModels,
           statusFilter = currentStatusFilter,
           ageFilter = currentAgeFilter,
@@ -143,6 +148,8 @@ public class JobApplicationsListViewModel(
           sortAscending = currentSortAscending,
           isRefreshing = isRefreshing,
         )
+        lastContentState = content
+        _uiState.value = content
       } catch (e: Exception) {
         _uiState.value = JobApplicationsListUiState.Error(
           message = e.message

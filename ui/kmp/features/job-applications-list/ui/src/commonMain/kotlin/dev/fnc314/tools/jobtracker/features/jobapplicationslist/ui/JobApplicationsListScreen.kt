@@ -122,6 +122,7 @@ public fun JobApplicationsListScreen(
     is JobApplicationsListUiState.NavigateToDetail -> {
       LaunchedEffect(s) {
         onApplicationClick(s.applicationId)
+        viewModel.onIntent(JobApplicationsListUiIntent.ResetNavigation)
       }
       lastContent?.let { content ->
         JobApplicationsListContent(
@@ -135,6 +136,7 @@ public fun JobApplicationsListScreen(
     JobApplicationsListUiState.NavigateToAddApplication -> {
       LaunchedEffect(s) {
         onAddApplicationClick()
+        viewModel.onIntent(JobApplicationsListUiIntent.ResetNavigation)
       }
       lastContent?.let { content ->
         JobApplicationsListContent(
@@ -148,6 +150,7 @@ public fun JobApplicationsListScreen(
     JobApplicationsListUiState.NavigateToAddLead -> {
       LaunchedEffect(s) {
         onAddLeadClick()
+        viewModel.onIntent(JobApplicationsListUiIntent.ResetNavigation)
       }
       lastContent?.let { content ->
         JobApplicationsListContent(
@@ -161,6 +164,7 @@ public fun JobApplicationsListScreen(
     JobApplicationsListUiState.NavigateToEdits -> {
       LaunchedEffect(s) {
         onEditsClick()
+        viewModel.onIntent(JobApplicationsListUiIntent.ResetNavigation)
       }
       lastContent?.let { content ->
         JobApplicationsListContent(
@@ -174,6 +178,7 @@ public fun JobApplicationsListScreen(
     JobApplicationsListUiState.NavigateToSettings -> {
       LaunchedEffect(s) {
         onSettingsClick()
+        viewModel.onIntent(JobApplicationsListUiIntent.ResetNavigation)
       }
       lastContent?.let { content ->
         JobApplicationsListContent(

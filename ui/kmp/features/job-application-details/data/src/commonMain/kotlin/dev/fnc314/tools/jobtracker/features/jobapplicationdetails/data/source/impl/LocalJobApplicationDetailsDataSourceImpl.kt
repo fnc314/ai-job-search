@@ -8,16 +8,14 @@ import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.source.LocalDataSource
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source.LocalJobApplicationDetailsDataSource
 
-@Suppress("UnusedPrivateProperty")
 internal class LocalJobApplicationDetailsDataSourceImpl(
-    private val databaseHolder: DatabaseHolder? = null,
-    private val localDataSource: LocalDataSource? = null,
+    private val databaseHolder: DatabaseHolder,
 ) : LocalJobApplicationDetailsDataSource {
     private val applicationCache = mutableMapOf<String, JobApplication>()
     private val companyCache = mutableListOf<Company>()
 
     private val dao: JobApplicationDao?
-        get() = databaseHolder?.dao
+        get() = databaseHolder.dao
 
     override suspend fun getJobApplication(id: String): JobApplication? {
         val dbDao = dao

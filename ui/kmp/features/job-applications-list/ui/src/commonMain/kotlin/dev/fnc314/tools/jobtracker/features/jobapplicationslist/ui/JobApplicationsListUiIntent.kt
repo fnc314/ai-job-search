@@ -52,4 +52,7 @@ public sealed interface JobApplicationsListUiIntent {
 
     /** User clicked button to open application preferences. */
     public data object ClickSettings : JobApplicationsListUiIntent
+
+    /** Acknowledges a one-shot navigation transition, resetting the active state back to content. */
+    public data object ResetNavigation : JobApplicationsListUiIntent
 }
