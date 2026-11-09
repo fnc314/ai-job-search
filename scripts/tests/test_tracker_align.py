@@ -30,7 +30,7 @@ class TestTrackerAlign(unittest.TestCase):
             "fitRating": 95,
             "uuid": "0192e1b4-7b00-7000-8000-000000000001",
             "location": {"city": "Remote"},
-            "notesRendered": "2026-11-02 · event:note-added — C1 Role Meet and Greet",
+            "notesRendered": "2026-11-02 · ADD_NOTE — C1 Role Meet and Greet",
         }
 
     def test_update_running_documentation_creates_and_updates_outcome_md(self):

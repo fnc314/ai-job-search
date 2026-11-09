@@ -46,4 +46,6 @@ Every architecture plan created by any agent must strictly adhere to these parad
 | [`firestore-data-optimization.md`](./2026-10-31/135442_firestore-data-optimization.md) | Completed | Firestore schema optimization, projection queries, and index alignment |
 | [`tracker-migration-plan.md`](./2026-10-31/021052_tracker-migration-plan.md) | Completed | 10-phase authoritative migration from CSV tracker to Firestore store |
 | [`hunter-logo-integration.md`](./2026-11-08/171648_hunter-logo-integration.md) | Completed | Hunter.io Logo API integration: Company logo metadata in Firestore, `tracker logo-fetch` CLI, KMP & TUI logo wiring |
+| [`fix-email-collect-contract-error.md`](./2026-11-08/214000_fix-email-collect-contract-error.md) | Completed | Align namespaced enum values in `proposals.py` and `tracker.py` with canonical schema enum names |
+| [`fix-event-type-and-email-pipeline-docs.md`](./2026-11-08/215200_fix-event-type-and-email-pipeline-docs.md) | Completed | Fix `event:*` prefixed event type strings in `buildEvent()` calls and create email-to-Firebase pipeline documentation |
 | [`ai-job-search-plan.md`](../../ai-job-search-plan.md) | Canonical | Universal multi-agent architecture and single source of truth specifications |

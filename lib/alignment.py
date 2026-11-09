@@ -347,7 +347,7 @@ def align_application(
     if needs_key_migration or needs_id_update or note:
         audit_note = note or f"Data alignment: aligned document id to {canonical_id}"
         audit_event = eventsModule.buildEvent(
-            "event:note-added",
+            "ADD_NOTE",
             date=now[:10],
             note=audit_note,
             actor="actor:user",

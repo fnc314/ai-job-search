@@ -25,9 +25,9 @@ import render
 # also says "thank you for applying" is filed as a rejection.
 CLASSIFIERS = [
     (
-        "event:rejection",
-        "status:rejected",
-        "high",
+        "REJECT",
+        "REJECTED",
+        "HIGH_CONFIDENCE",
         [
             r"\bunfortunately\b",
             r"not moving forward",
@@ -42,9 +42,9 @@ CLASSIFIERS = [
         ],
     ),
     (
-        "event:offer",
-        "status:offer",
-        "high",
+        "OFFER",
+        "OFFER_EXPECTED",
+        "HIGH_CONFIDENCE",
         [
             r"\bjob offer\b",
             r"pleased to offer",
@@ -53,9 +53,9 @@ CLASSIFIERS = [
         ],
     ),
     (
-        "event:interview-scheduled",
-        "status:interview",
-        "medium",
+        "SCHEDULE_INTERVIEW",
+        "INTERVIEW",
+        "MEDIUM_CONFIDENCE",
         [
             r"\binterview\b",
             r"schedule (?:a )?(?:call|chat|conversation)",
@@ -64,9 +64,9 @@ CLASSIFIERS = [
         ],
     ),
     (
-        "event:assessment",
+        "ASSESS",
         None,
-        "medium",
+        "MEDIUM_CONFIDENCE",
         [
             r"\bcoding (?:challenge|assessment)\b",
             r"\btake[- ]home\b",
@@ -75,9 +75,9 @@ CLASSIFIERS = [
         ],
     ),
     (
-        "event:acknowledged",
+        "ACKNOWLEDGE",
         None,
-        "low",
+        "LOW_CONFIDENCE",
         [
             r"thank you for applying",
             r"application (?:has been |was )?received",
@@ -86,9 +86,9 @@ CLASSIFIERS = [
         ],
     ),
     (
-        "event:recruiter-outreach",
+        "RECRUITER_OUTREACH",
         None,
-        "medium",
+        "MEDIUM_CONFIDENCE",
         [
             r"came across your profile",
             r"we have opportunities",
@@ -104,7 +104,7 @@ CLASSIFIERS = [
     ),
 ]
 
-PENDING = "proposal:pending"
+PENDING = "PENDING"
 
 
 def nowIso() -> str:
@@ -185,7 +185,7 @@ def buildProposal(
     messages: list[dict],
     applications: dict[str, dict],
     *,
-    trigger: str = "trigger:manual",
+    trigger: str = "MANUAL",
     lookbackFrom: str | None = None,
     query: str | None = None,
     now: str | None = None,
@@ -210,7 +210,7 @@ def buildProposal(
 
         # Outreach detection: if classified as outreach and no application matches,
         # stage as a lead change instead of unmatched
-        if classification is not None and classification[0] == "event:recruiter-outreach":
+        if classification is not None and classification[0] == "RECRUITER_OUTREACH":
             if applicationId is None:
                 # Try to extract company for lead creation
                 company = _extractCompany(message)
@@ -218,12 +218,12 @@ def buildProposal(
                     changes.append(
                         {
                             "applicationId": None,
-                            "eventType": "event:recruiter-outreach",
+                            "eventType": "RECRUITER_OUTREACH",
                             "statusFrom": None,
                             "statusTo": None,
                             "confidence": classification[2],
                             "leadCompany": company,
-                            "leadChannel": "channel:outreach:email",
+                            "leadChannel": "OUTREACH_EMAIL",
                             "sourceEmail": {
                                 "messageId": messageId,
                                 "subject": message.get("subject"),
@@ -281,7 +281,7 @@ def buildProposal(
         "createdAt": timestamp,
         "dueAt": (dt.datetime.fromisoformat(timestamp) + dt.timedelta(days=1)).isoformat(timespec="seconds"),
         "collectedAt": timestamp,
-        "kind": "proposal:gmail-sync",
+        "kind": "EMAIL_SYNC",
         "state": PENDING,
         "trigger": trigger,
         "scope": {
@@ -366,7 +366,7 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
             snapshot = db.collection(client.APPLICATIONS).document(applicationId).get()
             if snapshot.exists:
                 existing = contract.fromFirestore(snapshot.to_dict())
-                if existing.get("status") == "status:lead":
+                if existing.get("status") == "LEAD":
                     skipped.append(
                         {
                             "applicationId": applicationId,
@@ -382,8 +382,8 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
                 "date": timestamp[:10],
                 "company": company,
                 "companyId": applicationId,
-                "channel": change.get("leadChannel") or "channel:outreach:email",
-                "status": "status:lead",
+                "channel": change.get("leadChannel") or "OUTREACH_EMAIL",
+                "status": "LEAD",
                 "statusRank": 0,
                 "isOpen": True,
                 "tags": ["process:recruiter:outreach"],
@@ -397,12 +397,12 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
             # Build the outreach event
             sourceEmail = change.get("sourceEmail") or {}
             event = eventsModule.buildEvent(
-                "event:recruiter-outreach",
+                "RECRUITER_OUTREACH",
                 date=sourceEmail.get("receivedAt"),
                 note=sourceEmail.get("subject"),
-                actor="actor:gmail-sync",
-                derivedFrom="gmail",
-                confidence=change.get("confidence") or "medium",
+                actor="EMAIL_SYNC",
+                derivedFrom="EMAIL",
+                confidence=change.get("confidence") or "MEDIUM_CONFIDENCE",
                 emailMessageId=sourceEmail.get("messageId"),
             )
             leadDoc.update(render.project(leadDoc, [event]))
@@ -434,9 +434,9 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
             change["eventType"],
             date=(change.get("sourceEmail") or {}).get("receivedAt"),
             note=note,
-            actor="actor:gmail-sync",
-            derivedFrom="gmail",
-            confidence=change.get("confidence") or "medium",
+            actor="EMAIL_SYNC",
+            derivedFrom="EMAIL",
+            confidence=change.get("confidence") or "MEDIUM_CONFIDENCE",
             statusFrom=current,
             statusTo=change.get("statusTo"),
             emailMessageId=(change.get("sourceEmail") or {}).get("messageId"),
@@ -491,7 +491,7 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
             operations = 0
 
     resolved = {
-        "state": "proposal:approved",
+        "state": "APPROVED",
         "reviewedAt": nowIso(),
         "reviewedBy": reviewedBy,
         "resolution": note or f"approved {len(written)} change(s)",
@@ -511,7 +511,7 @@ def reject(db, proposalId: str, *, reviewedBy: str = "actor:user", reason: str |
             f"proposal {proposalId} is {proposal['state']}, not {PENDING}"
         )
     resolved = {
-        "state": "proposal:rejected",
+        "state": "REJECTED",
         "reviewedAt": nowIso(),
         "reviewedBy": reviewedBy,
         "resolution": reason or "rejected without changes",
@@ -529,7 +529,7 @@ def expire(db, now: str | None = None) -> list[str]:
     for proposal in listing(db, PENDING):
         if (proposal.get("dueAt") or "") <= moment:
             db.collection(client.PENDING_PROPOSALS).document(proposal["proposalId"]).update(
-                {"state": "proposal:expired", "reviewedAt": moment, "resolution": "expired un-reviewed"}
+                {"state": "EXPIRED", "reviewedAt": moment, "resolution": "expired un-reviewed"}
             )
             expired.append(proposal["proposalId"])
     return expired

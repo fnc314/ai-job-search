@@ -767,7 +767,7 @@ def commandLead(args) -> int:
         for note_text in args.note:
             pendingEvents.append(
                 eventsModule.buildEvent(
-                    "event:note-added",
+                    "ADD_NOTE",
                     note=note_text,
                     actor="actor:user",
                     derivedFrom="manual",
@@ -1164,7 +1164,7 @@ def commandAdd(args) -> int:
     for note_text in notes_from_payload:
         pendingEvents.append(
             eventsModule.buildEvent(
-                "event:note-added",
+                "ADD_NOTE",
                 note=note_text,
                 actor="actor:user",
                 derivedFrom="manual",
@@ -1631,7 +1631,7 @@ def commandEdit(args, extra_args: list[str] | None = None) -> int:
         return EXIT_OK
 
     note_text = getattr(args, "note", None) or f"Edited fields: {', '.join(diff.keys())}"
-    event_type = "event:status-corrected" if "status" in diff else "event:note-added"
+    event_type = "CORRECT_STATUS" if "status" in diff else "ADD_NOTE"
     audit_event = eventsModule.buildEvent(
         event_type,
         date=now[:10],
@@ -1733,7 +1733,7 @@ def commandStatus(args) -> int:
         )
 
     eventType = (
-        "event:status-corrected" if args.correction else eventsModule.statusEventType(target)
+        "CORRECT_STATUS" if args.correction else eventsModule.statusEventType(target)
     )
     event = eventsModule.buildEvent(
         eventType,
@@ -1850,7 +1850,7 @@ def commandScore(args) -> int:
     previous = application.get("fitRating")
 
     event = eventsModule.buildEvent(
-        "event:fit-recalculated",
+        "RECALCULATE_FIT",
         date=args.date,
         note=args.note,
         actor="actor:user",
@@ -1963,7 +1963,7 @@ def commandArtifact(args) -> int:
     now = eventsModule.nowIso()
     document = artifactsModule.artifactDocument(entry, source="manual", now=now)
     event = eventsModule.buildEvent(
-        "event:artifact-added",
+        "ADD_ARTIFACT",
         note=document["filename"],
         actor="actor:user",
         derivedFrom="manual",
@@ -2711,7 +2711,7 @@ def commandSyncDue(args) -> int:
             outcome = collectOnce(
                 db,
                 inboxPath=args.json,
-                trigger="trigger:cron",
+                trigger="CRON",
                 dryRun=False,
             )
             tasks.complete(db, request["requestId"])
@@ -3173,8 +3173,8 @@ def buildParser() -> argparse.ArgumentParser:
     )
     collect.add_argument(
         "--trigger",
-        default="trigger:manual",
-        help="trigger:manual | trigger:cron | trigger:application-updated",
+        default="MANUAL",
+        help="MANUAL | CRON | APPLICATION_UPDATED",
     )
     collect.add_argument("--dry-run", action="store_true")
     collect.set_defaults(handler=commandCollect)
