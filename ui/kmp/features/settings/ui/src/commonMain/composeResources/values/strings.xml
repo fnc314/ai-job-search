@@ -15,4 +15,7 @@
     <string name="settings_section_account">Account</string>
     <string name="settings_signed_in_default">Signed in</string>
     <string name="settings_action_sign_out">Sign Out</string>
+  <string name="settings_kmp_inspector_toggle_label">KMP Inspector</string>
+  <string name="settings_kmp_inspector_toggle_enabled">KMP Inspector is enabled</string>
+  <string name="settings_kmp_inspector_toggle_disabled">KMP Inspector is disabled</string>
 </resources>

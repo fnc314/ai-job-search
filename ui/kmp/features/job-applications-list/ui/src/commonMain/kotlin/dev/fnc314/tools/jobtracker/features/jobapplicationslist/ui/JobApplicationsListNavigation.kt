@@ -1,6 +1,5 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui
 
-import androidx.navigation.compose.composable
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureNavigationHook
 import dev.fnc314.tools.jobtracker.core.navigation.NavKey
@@ -25,8 +24,8 @@ public fun jobApplicationsListNavHook(
     settings: AppSettings = AppSettings(),
     onSettingsChange: (AppSettings) -> Unit = {},
 ): FeatureNavigationHook =
-    FeatureNavigationHook { navGraphBuilder, _ ->
-        navGraphBuilder.composable<ListRoute> {
+    FeatureNavigationHook { scope, _ ->
+        scope.entry<ListRoute> {
             JobApplicationsListScreen(
                 onApplicationClick = onApplicationClick,
                 onAddApplicationClick = onAddApplicationClick,

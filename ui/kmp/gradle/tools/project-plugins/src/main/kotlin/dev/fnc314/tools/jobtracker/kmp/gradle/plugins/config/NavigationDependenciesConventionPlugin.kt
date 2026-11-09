@@ -20,7 +20,7 @@ public class NavigationDependenciesConventionPlugin : Plugin<Project>, BaseConve
             commonMain {
                 dependencies {
                     implementation(CatalogTypes.Libraries.KOTLINX_SERIALIZATION_JSON(project))
-                    implementation(CatalogTypes.Libraries.NAVIGATION_COMPOSE(project))
+                    implementation(CatalogTypes.Bundles.NAVIGATION3(project))
                 }
             }
         }

@@ -34,13 +34,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
+import dev.fnc314.tools.jobtracker.core.navigation.Navigator
 import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestination
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddApplicationRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadRoute
@@ -65,7 +62,7 @@ import org.jetbrains.compose.resources.stringResource
  * Responsive application scaffold adapting navigation chrome between mobile (bottom navigation bar)
  * and tablet/desktop (navigation rail).
  *
- * @param navController Navigation host controller tracking active destination.
+ * @param navigator Navigation coordinator tracking active destination and back stack.
  * @param isAuthenticated Whether a valid authenticated user session is active.
  * @param snackbarHostState State manager for displaying transient snackbar alerts.
  * @param modifier Composable layout modifier.
@@ -76,7 +73,7 @@ import org.jetbrains.compose.resources.stringResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun AppScaffold(
-  navController: NavHostController,
+  navigator: Navigator,
   isAuthenticated: Boolean,
   snackbarHostState: SnackbarHostState,
   modifier: Modifier = Modifier,
@@ -87,18 +84,17 @@ public fun AppScaffold(
   val windowSizeClass = LocalWindowSizeClass.current
   val isCompact = windowSizeClass.isCompact
 
-  val navBackStackEntry by navController.currentBackStackEntryAsState()
-  val currentDestination = navBackStackEntry?.destination
+  val currentDestination = navigator.backStack.lastOrNull()
 
-  val isListSelected = currentDestination?.hasRoute<ListRoute>() == true
-  val isEditsSelected = currentDestination?.hasRoute<EditsRoute>() == true
-  val isSettingsSelected = currentDestination?.hasRoute<SettingsRoute>() == true
-  val isDetailSelected = currentDestination?.hasRoute<DetailRoute>() == true
-  val isAddAppSelected = currentDestination?.hasRoute<AddApplicationRoute>() == true
-  val isAddLeadSelected = currentDestination?.hasRoute<AddLeadRoute>() == true
+  val isListSelected = currentDestination is ListRoute
+  val isEditsSelected = currentDestination is EditsRoute
+  val isSettingsSelected = currentDestination is SettingsRoute
+  val isDetailSelected = currentDestination is DetailRoute
+  val isAddAppSelected = currentDestination is AddApplicationRoute
+  val isAddLeadSelected = currentDestination is AddLeadRoute
 
   val showNav = isAuthenticated && (isListSelected || isEditsSelected || isSettingsSelected)
-  val canNavigateBack = navController.previousBackStackEntry != null && !isListSelected
+  val canNavigateBack = navigator.backStack.size > 1 && !isListSelected
 
   val titleRes: StringResource = when {
     isListSelected -> ListRoute.titleRes
@@ -149,7 +145,7 @@ public fun AppScaffold(
         },
         navigationIcon = {
           if (canNavigateBack) {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = { navigator.popBackStack() }) {
               Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(Res.string.app_action_back),
@@ -193,11 +189,10 @@ public fun AppScaffold(
               selected = selected,
               onClick = {
                 if (!selected) {
-                  navController.navigate(destination.route) {
-                    if (destination.route is ListRoute) {
-                      popUpTo(ListRoute) { inclusive = true }
-                    }
-                    launchSingleTop = true
+                  if (destination.route is ListRoute) {
+                    navigator.popToRoot()
+                  } else {
+                    navigator.navigate(destination.route)
                   }
                 }
               },
@@ -236,11 +231,10 @@ public fun AppScaffold(
               selected = selected,
               onClick = {
                 if (!selected) {
-                  navController.navigate(destination.route) {
-                    if (destination.route is ListRoute) {
-                      popUpTo(ListRoute) { inclusive = true }
-                    }
-                    launchSingleTop = true
+                  if (destination.route is ListRoute) {
+                    navigator.popToRoot()
+                  } else {
+                    navigator.navigate(destination.route)
                   }
                 }
               },

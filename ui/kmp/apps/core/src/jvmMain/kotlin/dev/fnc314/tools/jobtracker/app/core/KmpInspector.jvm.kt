@@ -4,6 +4,6 @@ import androidx.compose.runtime.Composable
 import com.waqas028.kmpinspector.KmpInspector
 
 @Composable
-public actual fun KmpInspector(content: @Composable () -> Unit) {
-  KmpInspector(content = content)
+public actual fun KmpInspector(enabled: Boolean, content: @Composable () -> Unit) {
+  KmpInspector(content = content, enabled = enabled)
 }

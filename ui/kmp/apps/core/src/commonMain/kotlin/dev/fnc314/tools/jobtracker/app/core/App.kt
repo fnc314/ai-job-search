@@ -13,8 +13,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
+import androidx.savedstate.serialization.SavedStateConfiguration
 import dev.fnc314.tools.jobtracker.app.core.di.MainApplication
 import dev.fnc314.tools.jobtracker.app.core.di.appModule
 import dev.fnc314.tools.jobtracker.app.core.ui.AppScaffold
@@ -24,6 +26,8 @@ import dev.fnc314.tools.jobtracker.core.designsystem.JobTrackerTheme
 import dev.fnc314.tools.jobtracker.core.designsystem.ProvideWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.core.designsystem.toColorOrNull
+import dev.fnc314.tools.jobtracker.core.navigation.NavKey
+import dev.fnc314.tools.jobtracker.core.navigation.Navigator
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddApplicationRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.addJobApplicationNavHook
@@ -38,9 +42,26 @@ import dev.fnc314.tools.jobtracker.features.signin.ui.SignInRoute
 import dev.fnc314.tools.jobtracker.features.signin.ui.signInNavHook
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.EditsRoute
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.trackerEditsNavHook
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.plugin.module.dsl.koinConfiguration
+
+private val navigationSavedStateConfig = SavedStateConfiguration {
+  serializersModule = SerializersModule {
+    polymorphic(androidx.navigation3.runtime.NavKey::class) {
+      subclass(SignInRoute::class, SignInRoute.serializer())
+      subclass(ListRoute::class, ListRoute.serializer())
+      subclass(DetailRoute::class, DetailRoute.serializer())
+      subclass(AddApplicationRoute::class, AddApplicationRoute.serializer())
+      subclass(AddLeadRoute::class, AddLeadRoute.serializer())
+      subclass(SettingsRoute::class, SettingsRoute.serializer())
+      subclass(EditsRoute::class, EditsRoute.serializer())
+    }
+  }
+}
 
 /**
  * Root multiplatform application entry composable.
@@ -79,19 +100,17 @@ public fun App() {
     val authState by authRepository.authState.collectAsState()
     val isAuthenticated = authState is AuthState.Authenticated
 
-    val navController = rememberNavController()
+    val initialRoute: NavKey = if (isAuthenticated) ListRoute else SignInRoute
+    val backStack = rememberNavBackStack(navigationSavedStateConfig, initialRoute)
+    val navigator = remember(backStack) { Navigator(backStack) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     // React to authentication changes
     LaunchedEffect(isAuthenticated) {
       if (isAuthenticated) {
-        navController.navigate(ListRoute) {
-          popUpTo(SignInRoute) { inclusive = true }
-        }
+        navigator.switchRoot(ListRoute)
       } else {
-        navController.navigate(SignInRoute) {
-          popUpTo(0) { inclusive = true }
-        }
+        navigator.switchRoot(SignInRoute)
       }
     }
 
@@ -100,62 +119,67 @@ public fun App() {
       seedColor = seedColor,
     ) {
       ProvideWindowSizeClass {
-        KmpInspector {
+        val appContent: @Composable () -> Unit = {
           Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background,
           ) {
             AppScaffold(
-              navController = navController,
+              navigator = navigator,
               isAuthenticated = isAuthenticated,
               snackbarHostState = snackbarHostState,
             ) { _ ->
-              NavHost(
-                navController = navController,
-                startDestination = if (isAuthenticated) ListRoute else SignInRoute,
+              NavDisplay(
+                backStack = navigator.backStack,
+                onBack = { navigator.popBackStack() },
+                entryProvider = entryProvider {
+                  signInNavHook(this, navigator)
+
+                  jobApplicationsListNavHook(
+                    onApplicationClick = { id -> navigator.navigate(DetailRoute(id)) },
+                    onAddApplicationClick = { navigator.navigate(AddApplicationRoute) },
+                    onAddLeadClick = { navigator.navigate(AddLeadRoute) },
+                    onEditsClick = { navigator.navigate(EditsRoute) },
+                    onSettingsClick = { navigator.navigate(SettingsRoute) },
+                    settings = settings,
+                    onSettingsChange = { settingsRepository.updateSettings(it) },
+                  )(this, navigator)
+
+                  jobApplicationDetailsNavHook(
+                    settings = settings,
+                    onNavigateBack = { navigator.popBackStack() },
+                  )(this, navigator)
+
+                  addJobApplicationNavHook(
+                    onNavigateBack = { navigator.popBackStack() },
+                  )(this, navigator)
+
+                  trackerEditsNavHook(
+                    onNavigateBack = { navigator.popBackStack() },
+                    onEditClick = { appId -> navigator.navigate(DetailRoute(appId)) },
+                    settings = settings,
+                    onSettingsChange = { settingsRepository.updateSettings(it) },
+                  )(this, navigator)
+
+                  settingsNavHook(
+                    settings = settings,
+                    onSettingsChange = { settingsRepository.updateSettings(it) },
+                    onNavigateBack = { navigator.popBackStack() },
+                    onSignOut = {
+                      navigator.switchRoot(SignInRoute)
+                    },
+                  )(this, navigator)
+                },
                 modifier = Modifier.fillMaxSize(),
-              ) {
-                signInNavHook(this, navController)
-
-                jobApplicationsListNavHook(
-                  onApplicationClick = { id -> navController.navigate(DetailRoute(id)) },
-                  onAddApplicationClick = { navController.navigate(AddApplicationRoute) },
-                  onAddLeadClick = { navController.navigate(AddLeadRoute) },
-                  onEditsClick = { navController.navigate(EditsRoute) },
-                  onSettingsClick = { navController.navigate(SettingsRoute) },
-                  settings = settings,
-                  onSettingsChange = { settingsRepository.updateSettings(it) },
-                )(this, navController)
-
-                jobApplicationDetailsNavHook(
-                  settings = settings,
-                  onNavigateBack = { navController.popBackStack() },
-                )(this, navController)
-
-                addJobApplicationNavHook(
-                  onNavigateBack = { navController.popBackStack() },
-                )(this, navController)
-
-                trackerEditsNavHook(
-                  onNavigateBack = { navController.popBackStack() },
-                  onEditClick = { appId -> navController.navigate(DetailRoute(appId)) },
-                  settings = settings,
-                  onSettingsChange = { settingsRepository.updateSettings(it) },
-                )(this, navController)
-
-                settingsNavHook(
-                  settings = settings,
-                  onSettingsChange = { settingsRepository.updateSettings(it) },
-                  onNavigateBack = { navController.popBackStack() },
-                  onSignOut = {
-                    navController.navigate(SignInRoute) {
-                      popUpTo(0) { inclusive = true }
-                    }
-                  },
-                )(this, navController)
-              }
+              )
             }
           }
+        }
+
+        if (settings.enableKmpInspector) {
+          KmpInspector(enabled = true, content = appContent)
+        } else {
+          appContent()
         }
       }
     }

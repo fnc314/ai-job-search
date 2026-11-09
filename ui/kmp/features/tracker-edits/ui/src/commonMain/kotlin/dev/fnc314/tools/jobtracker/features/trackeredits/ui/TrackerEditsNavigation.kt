@@ -1,6 +1,5 @@
 package dev.fnc314.tools.jobtracker.features.trackeredits.ui
 
-import androidx.navigation.compose.composable
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureNavigationHook
 import dev.fnc314.tools.jobtracker.core.navigation.NavKey
@@ -34,8 +33,8 @@ public fun trackerEditsNavHook(
   settings: AppSettings = AppSettings(),
   onSettingsChange: (AppSettings) -> Unit = {},
 ): FeatureNavigationHook =
-  FeatureNavigationHook { navGraphBuilder, _ ->
-    navGraphBuilder.composable<EditsRoute> {
+  FeatureNavigationHook { scope, _ ->
+    scope.entry<EditsRoute> {
       TrackerEditsScreen(
         onNavigateBack = onNavigateBack,
         onEditClick = onEditClick,

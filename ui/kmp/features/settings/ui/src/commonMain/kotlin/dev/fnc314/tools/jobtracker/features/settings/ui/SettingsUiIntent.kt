@@ -18,6 +18,8 @@ public sealed interface SettingsUiIntent {
 
     /** Requests back navigation to the preceding screen. */
     public data object ClickBack : SettingsUiIntent
+
+  public data class ToggleKmpInspector(public val enabled: Boolean) : SettingsUiIntent
 }
 
 /**
@@ -34,4 +36,5 @@ public data class SettingsUiModel(
     public val seedColorHex: String,
     public val isSystemDark: Boolean,
     public val randomSeedSuggestions: List<String>,
+    public val kmpInspectorEnabled: Boolean,
 )

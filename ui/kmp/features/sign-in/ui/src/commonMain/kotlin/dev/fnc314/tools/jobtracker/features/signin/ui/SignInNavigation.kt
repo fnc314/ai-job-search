@@ -1,6 +1,5 @@
 package dev.fnc314.tools.jobtracker.features.signin.ui
 
-import androidx.navigation.compose.composable
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureNavigationHook
 import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.Res
@@ -20,11 +19,11 @@ public data object SignInRoute : NavKey {
 }
 
 /**
- * Navigation hook registering the [SignInRoute] composable in the root navigation graph.
+ * Navigation hook registering the [SignInRoute] entry in the navigation display.
  */
 public val signInNavHook: FeatureNavigationHook =
-  FeatureNavigationHook { navGraphBuilder, _ ->
-    navGraphBuilder.composable<SignInRoute> {
+  FeatureNavigationHook { scope, _ ->
+    scope.entry<SignInRoute> {
       val viewModel = koinViewModel<SignInViewModel>()
       SignInScreen(
         viewModel = viewModel,

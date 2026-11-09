@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -41,6 +42,9 @@ import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.designsystem.toHexString
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_kmp_inspector_toggle_label
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_kmp_inspector_toggle_enabled
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_kmp_inspector_toggle_disabled
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_action_sign_out
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_cd_custom_seed_hex
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_cd_theme_color
@@ -185,7 +189,7 @@ internal fun SettingsContent(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
+                  Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
 
                     Text(
                         text = stringResource(Res.string.settings_label_accent_seed),
@@ -268,7 +272,50 @@ internal fun SettingsContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
+
+          OutlinedCard(
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            Column(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(MaterialTheme.spacing.medium),
+              verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+            ) {
+              Text(
+                text = stringResource(Res.string.settings_kmp_inspector_toggle_label),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+              )
+              Row(
+                modifier = Modifier
+                  .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                verticalAlignment = Alignment.CenterVertically,
+              ) {
+                Checkbox(
+                  modifier = Modifier
+                    .fillMaxWidth(0.25F),
+                  checked = model.kmpInspectorEnabled,
+                  onCheckedChange = { isChecked: Boolean ->
+                    onIntent(SettingsUiIntent.ToggleKmpInspector(enabled = isChecked))
+                  }
+                )
+                Text(
+                  text = if (model.kmpInspectorEnabled) {
+                    stringResource(Res.string.settings_kmp_inspector_toggle_enabled)
+                  } else {
+                    stringResource(Res.string.settings_kmp_inspector_toggle_disabled)
+                  },
+                  style = MaterialTheme.typography.labelLarge,
+                  modifier = Modifier.fillMaxWidth(0.75F)
+                )
+              }
+
+            }
+          }
         }
     }
 }

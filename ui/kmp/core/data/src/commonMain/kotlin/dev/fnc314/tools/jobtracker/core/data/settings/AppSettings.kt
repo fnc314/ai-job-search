@@ -42,6 +42,7 @@ public data class AppSettings(
     public val dynamicColor: Boolean = false,
     public val seedColorHex: String = "#2F5597",
     public val renderMarkdownInternally: Boolean = false,
+    public val enableKmpInspector: Boolean = false,
 ) {
     /**
      * Resolves whether the active theme should be dark given the host platform's current dark state.

@@ -1,7 +1,5 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui
 
-import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureNavigationHook
 import dev.fnc314.tools.jobtracker.core.navigation.NavKey
@@ -25,21 +23,20 @@ public data class DetailRoute(public val applicationId: String) : NavKey {
 /**
  * Creates the [FeatureNavigationHook] for the application details destination.
  *
- * Registers the [DetailRoute] composable within the root navigation graph.
+ * Registers the [DetailRoute] composable within the navigation scope.
  *
  * @param settings Current [AppSettings] controlling visual and regional preferences.
  * @param onNavigateBack Callback invoked when the user requests returning to the prior screen.
- * @return Configured [FeatureNavigationHook] ready for graph registration.
+ * @return Configured [FeatureNavigationHook] ready for scope registration.
  */
 public fun jobApplicationDetailsNavHook(
     settings: AppSettings = AppSettings(),
     onNavigateBack: () -> Unit,
 ): FeatureNavigationHook =
-    FeatureNavigationHook { navGraphBuilder, _ ->
-        navGraphBuilder.composable<DetailRoute> { backStackEntry ->
-            val route: DetailRoute = backStackEntry.toRoute()
+    FeatureNavigationHook { scope, _ ->
+        scope.entry<DetailRoute> { key ->
             JobApplicationDetailsScreen(
-                applicationId = route.applicationId,
+                applicationId = key.applicationId,
                 onNavigateBack = onNavigateBack,
                 settings = settings,
             )
