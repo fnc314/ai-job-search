@@ -37,4 +37,16 @@ internal class LocalJobApplicationsListDataSourceImpl(
       }
     }
   }
+
+  override suspend fun clearAndSaveJobApplications(applications: List<JobApplication>): Unit {
+    memoryCache.clear()
+    memoryCache.addAll(applications)
+    val dbDao = dao
+    if (dbDao != null) {
+      runCatching {
+        dbDao.deleteAll()
+        dbDao.insertAll(JobApplicationMapper.toEntityList(applications))
+      }
+    }
+  }
 }

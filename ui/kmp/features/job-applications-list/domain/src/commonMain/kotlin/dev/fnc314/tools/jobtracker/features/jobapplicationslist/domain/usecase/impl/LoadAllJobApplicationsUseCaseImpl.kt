@@ -8,5 +8,5 @@ public class LoadAllJobApplicationsUseCaseImpl(
     private val repository: JobApplicationsListRepository,
 ) : LoadAllJobApplicationsUseCase {
     override suspend fun invoke(params: LoadAllJobApplicationsUseCase.Params): List<JobApplication> =
-        repository()
+        repository(forceRefresh = params.forceRefresh)
 }

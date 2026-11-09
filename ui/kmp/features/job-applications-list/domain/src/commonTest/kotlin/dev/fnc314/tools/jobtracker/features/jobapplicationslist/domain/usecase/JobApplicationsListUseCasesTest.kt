@@ -13,7 +13,11 @@ class JobApplicationsListUseCasesTest {
     private class FakeJobApplicationsListRepository(
         private val apps: List<JobApplication>,
     ) : JobApplicationsListRepository {
-        override suspend operator fun invoke(): List<JobApplication> = apps
+        var lastForceRefresh: Boolean? = null
+        override suspend operator fun invoke(forceRefresh: Boolean): List<JobApplication> {
+            lastForceRefresh = forceRefresh
+            return apps
+        }
     }
 
     @Test
@@ -26,5 +30,17 @@ class JobApplicationsListUseCasesTest {
         assertEquals(1, result.size)
         assertEquals("app-repo", result.first().id)
         assertEquals("Meta", result.first().company)
+        assertEquals(false, repo.lastForceRefresh)
+    }
+
+    @Test
+    fun testLoadAllJobApplicationsUseCase_ForwardsForceRefreshParam() = runTest {
+        val testApps = listOf(Factory.createJobApplication(id = "app-repo", company = "Meta"))
+        val repo = FakeJobApplicationsListRepository(testApps)
+        val useCase = LoadAllJobApplicationsUseCaseImpl(repo)
+
+        val result = useCase(LoadAllJobApplicationsUseCase.Params(forceRefresh = true))
+        assertEquals(1, result.size)
+        assertEquals(true, repo.lastForceRefresh)
     }
 }

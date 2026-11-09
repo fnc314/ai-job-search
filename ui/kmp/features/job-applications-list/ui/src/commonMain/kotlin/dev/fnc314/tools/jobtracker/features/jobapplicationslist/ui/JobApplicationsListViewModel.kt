@@ -99,7 +99,7 @@ public class JobApplicationsListViewModel(
                 }
             }
             try {
-                val apps = loadAll(LoadAllJobApplicationsUseCase.Params(forceRefresh = true))
+                val apps = loadAll(LoadAllJobApplicationsUseCase.Params(forceRefresh = isRefresh))
                 rawApplications = apps
                 applyFilterAndSort(isRefreshing = false)
             } catch (e: Exception) {

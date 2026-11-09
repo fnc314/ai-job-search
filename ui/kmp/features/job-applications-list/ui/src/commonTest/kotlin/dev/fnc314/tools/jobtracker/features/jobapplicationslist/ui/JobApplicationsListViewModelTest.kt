@@ -47,7 +47,9 @@ internal class JobApplicationsListViewModelTest {
 
     private val fakeLoadAll = object : LoadAllJobApplicationsUseCase {
         var shouldFail: Boolean = false
+        var lastParams: LoadAllJobApplicationsUseCase.Params? = null
         override suspend fun invoke(params: LoadAllJobApplicationsUseCase.Params): List<JobApplication> {
+            lastParams = params
             if (shouldFail) throw IllegalStateException("Load failed")
             return sampleApps
         }
@@ -98,6 +100,26 @@ internal class JobApplicationsListViewModelTest {
         assertEquals("Acme Corp", state.applications[1].companyName)
         assertEquals(TrackerStatus.NONE, state.statusFilter)
         assertEquals(ApplicationAge.NONE, state.ageFilter)
+        assertEquals(false, fakeLoadAll.lastParams?.forceRefresh)
+    }
+
+    @Test
+    fun testRefreshIntent_TriggersForceRefresh(): Unit = runTest(testDispatcher) {
+        val viewModel = JobApplicationsListViewModel(
+            loadAll = fakeLoadAll,
+            filterApplications = fakeFilter,
+            sortApplications = fakeSort,
+        )
+        advanceUntilIdle()
+        assertEquals(false, fakeLoadAll.lastParams?.forceRefresh)
+
+        viewModel.onIntent(JobApplicationsListUiIntent.Refresh)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertIs<JobApplicationsListUiState.Content>(state)
+        assertEquals(true, fakeLoadAll.lastParams?.forceRefresh)
+        assertFalse(state.isRefreshing)
     }
 
     @Test

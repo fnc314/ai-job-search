@@ -104,6 +104,7 @@ Using the `android` CLI documentation and Android knowledge base (`kb://android/
 - Update `libs.versions.toml`:
   - Ensure `navigation3-runtime` and `navigation3-ui` dependencies are bundled in `navigation3`.
   - Update `NavigationDependenciesConventionPlugin.kt` to depend on `CatalogTypes.Bundles.NAVIGATION3` instead of `NAVIGATION_COMPOSE`.
+  - Handle AndroidX Navigation 3 atomic group resolution across multiplatform targets: `navigation3-runtime` contains an atomic group dependencyConstraint on `navigation3-ui:1.2.1`. Because `navigation3-ui` is only published for Android/JVM (and has stub jars for other targets), `NavigationDependenciesConventionPlugin` configures a `resolutionStrategy.eachDependency` substitution on non-Android/non-JVM configurations (`ios`, `js`, `wasm`, `apple`, `native`, `web`) to substitute `navigation3-ui` with `navigation3-runtime`. This prevents Gradle metadata variant resolution failures while preserving full Navigation 3 UI capabilities on Android and JVM.
   - Remove all legacy `androidx.navigation:navigation-compose` dependencies once migration is complete.
 
 ---
@@ -125,6 +126,7 @@ Using the `android` CLI documentation and Android knowledge base (`kb://android/
 
 #### [MODIFY] [`NavigationDependenciesConventionPlugin.kt`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/ui/kmp/gradle/tools/project-plugins/src/main/kotlin/dev/fnc314/tools/jobtracker/kmp/gradle/plugins/config/NavigationDependenciesConventionPlugin.kt)
 - Replace `CatalogTypes.Libraries.NAVIGATION_COMPOSE(project)` with `CatalogTypes.Bundles.NAVIGATION3(project)`.
+- Configure `configurations.configureEach` resolution strategy to resolve the atomic group dependency constraint between `navigation3-runtime` and `navigation3-ui` across KMP compilation targets.
 
 ---
 
@@ -191,12 +193,17 @@ Using the `android` CLI documentation and Android knowledge base (`kb://android/
    mise run :ui:kmp:detekt
    ```
    Verify 0 static analysis errors or warnings.
-3. **Android Debug Build**:
+3. **Android Debug Build & Install**:
    ```bash
-   mise run :ui:kmp:android:assemble
+   mise run ui:kmp:android:install
    ```
-   Verify `BUILD SUCCESSFUL` with 0 warnings.
-4. **Android CLI Inspection**:
+   Verify APK builds cleanly without dependency resolution errors and installs onto connected device/emulator.
+4. **Desktop Compilation**:
+   ```bash
+   ./ui/kmp/gradlew -p ui/kmp :apps-desktop:compileKotlin
+   ```
+   Verify JVM target compilation succeeds with Navigation 3.
+5. **Android CLI Inspection**:
    Use `android layout` or `android screen capture` if a device/emulator is running to inspect the rendered Navigation 3 tree.
 
 ### Manual Verification

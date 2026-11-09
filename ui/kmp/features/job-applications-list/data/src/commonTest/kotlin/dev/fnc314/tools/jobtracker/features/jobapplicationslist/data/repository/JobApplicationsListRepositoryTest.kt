@@ -13,9 +13,16 @@ class JobApplicationsListRepositoryTest {
 
     internal class FakeLocalJobApplicationsListDataSource : LocalJobApplicationsListDataSource {
         var applications = mutableListOf<JobApplication>()
+        var clearAndSaveCalled = false
 
         override suspend fun getJobApplications(): List<JobApplication> = applications.toList()
         override suspend fun saveJobApplications(applications: List<JobApplication>) {
+            this.applications.clear()
+            this.applications.addAll(applications)
+        }
+
+        override suspend fun clearAndSaveJobApplications(applications: List<JobApplication>) {
+            clearAndSaveCalled = true
             this.applications.clear()
             this.applications.addAll(applications)
         }
@@ -77,5 +84,21 @@ class JobApplicationsListRepositoryTest {
         remote.remoteApps = emptyList()
         val secondCall = repo()
         assertEquals(2, secondCall.size)
+    }
+
+    @Test
+    fun testRepositoryImpl_ForceRefreshFetchesRemoteAndClearsLocal() = runTest {
+        val local = FakeLocalJobApplicationsListDataSource().apply {
+            applications.add(Factory.createJobApplication(id = "old-local", company = "OldCo"))
+        }
+        val remote = FakeRemoteJobApplicationsListDataSource()
+        val repo = JobApplicationsListRepositoryImpl(remote, local)
+
+        val result = repo(forceRefresh = true)
+        assertEquals(2, result.size)
+        assertEquals("app-1", result.first().id)
+        assertEquals(2, local.applications.size)
+        assertEquals("app-1", local.applications.first().id)
+        assertEquals(true, local.clearAndSaveCalled)
     }
 }
