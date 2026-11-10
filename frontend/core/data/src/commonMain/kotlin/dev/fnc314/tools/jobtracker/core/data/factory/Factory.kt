@@ -66,7 +66,8 @@ public object Factory {
      * @param jobApplicationUrl Direct candidate portal link.
      * @param uuid Primary key [Uuid7]. Automatically synthesized via [Uuid7.generate] if null.
      * @param schemaVersion Schema version number. Defaults to `8`.
-     * @param appliedAt An [Instant] for when the application was recorded as submitted
+     * @param submittedAt An [Instant] for when the application was recorded as submitted
+     * @param submissionConfirmedAt An [Instant] for when the application submission was confirmed
      * @return Fully constructed and immutable [JobApplication] instance.
      */
     public fun createJobApplication(
@@ -94,7 +95,8 @@ public object Factory {
         emailMessageIds: List<String> = emptyList(),
         uuid: Uuid7? = null,
         schemaVersion: Int = 8,
-        appliedAt: Instant? = null,
+        submittedAt: Instant? = null,
+        submissionConfirmedAt: Instant? = null,
     ): JobApplication {
         val resolvedScore = fitRating ?: fitEvaluation?.score
         val resolvedFitEvaluation = fitEvaluation ?: resolvedScore?.let {
@@ -125,7 +127,8 @@ public object Factory {
             updatedAt = updatedAt,
             jobApplicationUrl = jobApplicationUrl,
             emailMessageIds = emailMessageIds.toImmutableList(),
-            appliedAt = appliedAt,
+            submittedAt = submittedAt,
+            submissionConfirmedAt = submissionConfirmedAt,
         )
     }
 

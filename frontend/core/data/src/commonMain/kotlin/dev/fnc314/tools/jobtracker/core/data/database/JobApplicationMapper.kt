@@ -40,7 +40,8 @@ public object JobApplicationMapper {
             updatedAt = domain.updatedAt.takeUnless { it == Instant.DISTANT_PAST },
             jobApplicationUrl = domain.jobApplicationUrl,
             emailMessageIds = domain.emailMessageIds,
-            appliedAt = domain.appliedAt,
+            submittedAt = domain.submittedAt,
+            submissionConfirmedAt = domain.submissionConfirmedAt,
         )
     }
 
@@ -73,7 +74,8 @@ public object JobApplicationMapper {
             emailMessageIds = entity.emailMessageIds,
             uuid = entity.uuid,
             schemaVersion = entity.schemaVersion,
-            appliedAt = entity.appliedAt,
+            submittedAt = entity.submittedAt,
+            submissionConfirmedAt = entity.submissionConfirmedAt,
         )
     }
 

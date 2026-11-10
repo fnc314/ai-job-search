@@ -86,7 +86,8 @@ public class RoomDatabaseMappingTest {
             contactIds = listOf("contact-1"),
             uuid = originalUuid,
             schemaVersion = 8,
-            appliedAt = Instant.fromEpochSeconds(epochSeconds = 2_000_000L)
+            submittedAt = Instant.fromEpochSeconds(epochSeconds = 2_000_000L),
+            submissionConfirmedAt = Instant.fromEpochSeconds(epochSeconds = 2_000_100L),
         )
 
         val entity = JobApplicationMapper.toEntity(domain)
@@ -96,6 +97,8 @@ public class RoomDatabaseMappingTest {
         assertEquals("PNC Financial Services", entity.company)
         assertEquals(TrackerStatus.APPLIED, entity.status)
         assertEquals(95, entity.fitScore)
+        assertEquals(domain.submittedAt, entity.submittedAt)
+        assertEquals(domain.submissionConfirmedAt, entity.submissionConfirmedAt)
 
         val reconstructed = JobApplicationMapper.toDomain(entity)
         assertEquals(domain.id, reconstructed.id)
@@ -107,6 +110,8 @@ public class RoomDatabaseMappingTest {
         assertEquals(domain.channel, reconstructed.channel)
         assertEquals(domain.fitScore, reconstructed.fitScore)
         assertEquals(domain.tags, reconstructed.tags)
+        assertEquals(domain.submittedAt, reconstructed.submittedAt)
+        assertEquals(domain.submissionConfirmedAt, reconstructed.submissionConfirmedAt)
     }
 
     @Test

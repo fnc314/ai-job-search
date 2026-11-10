@@ -51,7 +51,8 @@ import kotlin.time.Instant
  * @property company Associated employer profile [Company].
  * @property timelineEvents Ordered list of audit events [TrackerEvent] forming the timeline.
  * @property artifacts Attached document artifacts [TrackerArtifact].
- * @property appliedAt An [Instant] (default of [Instant.DISTANT_FUTURE]) for when the application was marked as submitted.
+ * @property submittedAt An [Instant] (default of [Instant.DISTANT_FUTURE]) for when the application was marked as submitted.
+ * @property submissionConfirmedAt An [Instant]? for when external email or portal confirmed the submission.
  */
 @Immutable
 public data class JobApplicationDetailUiModel(
@@ -78,7 +79,8 @@ public data class JobApplicationDetailUiModel(
   public val timelineEvents: ImmutableList<TrackerEvent>,
   public val artifacts: ImmutableList<TrackerArtifact>,
   public val emailMessageIds: ImmutableList<String> = persistentListOf(),
-  public val appliedAt: Instant = Instant.DISTANT_FUTURE,
+  public val submittedAt: Instant = Instant.DISTANT_FUTURE,
+  public val submissionConfirmedAt: Instant? = null,
 ) {
 
   /** Localized relative last-update text (falls back to creation), or [backup] when unknown. */
@@ -90,9 +92,9 @@ public data class JobApplicationDetailUiModel(
   }
 
   @Composable
-  public fun appliedAt(): String = when (appliedAt) {
+  public fun submittedAt(): String = when (submittedAt) {
     Instant.DISTANT_FUTURE -> stringResource(resource = Res.string.detail_not_applied)
-    else -> stringResource(Res.string.detail_applied_on, "$appliedAt")
+    else -> stringResource(Res.string.detail_applied_on, "$submittedAt")
   }
 }
 
@@ -129,7 +131,8 @@ internal fun createJobApplicationDetailUiModel(
     timelineEvents = derivedEvents,
     artifacts = artifacts.toImmutableList(),
     emailMessageIds = app.emailMessageIds,
-    appliedAt = app.appliedAt ?: Instant.DISTANT_FUTURE,
+    submittedAt = app.submittedAt ?: Instant.DISTANT_FUTURE,
+    submissionConfirmedAt = app.submissionConfirmedAt,
   )
 }
 

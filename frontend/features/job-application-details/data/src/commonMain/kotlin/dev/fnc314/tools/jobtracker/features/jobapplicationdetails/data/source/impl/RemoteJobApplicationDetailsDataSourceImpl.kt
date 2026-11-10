@@ -107,7 +107,8 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     val timeline = parseTimeline(record.fields["timeline"] as? Map<*, *>)
     val createdAt = resolveCreatedAt(record)
     val updatedAt = resolveUpdatedAt(record, timeline, createdAt)
-    val appliedAt = resolveAppliedAt(record = record)
+    val submittedAt = resolveSubmittedAt(record = record)
+    val submissionConfirmedAt = resolveSubmissionConfirmedAt(record = record)
 
     @Suppress("UNCHECKED_CAST")
     val tags = (record.fields["tags"] as? List<String>)
@@ -134,7 +135,8 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
       createdAt = createdAt,
       updatedAt = updatedAt,
       jobApplicationUrl = record.getString("jobApplicationUrl"),
-      appliedAt = appliedAt,
+      submittedAt = submittedAt,
+      submissionConfirmedAt = submissionConfirmedAt,
     )
   }
 
@@ -223,7 +225,7 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     }
   }
 
-  private fun resolveAppliedAt(record: RemoteRecord): Instant {
+  private fun resolveSubmittedAt(record: RemoteRecord): Instant {
     val submittedAt = record.getInstant("submittedAt")
     if (submittedAt != Instant.DISTANT_PAST) {
       return submittedAt
@@ -232,6 +234,11 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
       Instant.DISTANT_PAST -> Instant.DISTANT_FUTURE
       else -> rawData
     }
+  }
+
+  private fun resolveSubmissionConfirmedAt(record: RemoteRecord): Instant? {
+    val confirmedAt = record.getInstant("submissionConfirmedAt")
+    return if (confirmedAt != Instant.DISTANT_PAST) confirmedAt else null
   }
 
   private fun RemoteRecord.nonBlankString(key: String): String? =

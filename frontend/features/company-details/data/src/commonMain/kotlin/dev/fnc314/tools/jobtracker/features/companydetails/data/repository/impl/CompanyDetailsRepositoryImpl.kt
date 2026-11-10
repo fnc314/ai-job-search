@@ -16,6 +16,7 @@ import dev.fnc314.tools.jobtracker.features.companydetails.data.repository.Compa
 import dev.fnc314.tools.jobtracker.core.data.model.CompanyWithApplications
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
 
 internal class CompanyDetailsRepositoryImpl(
     private val remoteDataSource: RemoteDataSource,
@@ -87,7 +88,8 @@ internal class CompanyDetailsRepositoryImpl(
         val timeline = parseTimeline(record.fields["timeline"] as? Map<*, *>)
         val createdAt = InstantParser.parse(record.fields["createdAt"] ?: record.fields["created_at"])
         val updatedAt = InstantParser.parse(record.fields["updatedAt"] ?: record.fields["updated_at"])
-        val appliedAt = record.getInstant("date")
+        val submittedAt = resolveSubmittedAt(record)
+        val submissionConfirmedAt = resolveSubmissionConfirmedAt(record)
 
         return Factory.createJobApplication(
             id = record.id,
@@ -104,7 +106,8 @@ internal class CompanyDetailsRepositoryImpl(
             notesRendered = record.getString("notesRendered"),
             createdAt = createdAt,
             updatedAt = updatedAt,
-            appliedAt = appliedAt,
+            submittedAt = submittedAt,
+            submissionConfirmedAt = submissionConfirmedAt,
         )
     }
 
@@ -116,6 +119,20 @@ internal class CompanyDetailsRepositoryImpl(
             daysSinceActivity = ((map["daysSinceActivity"] ?: map["days_since_activity"]) as? Number)?.toInt() ?: 0,
             nextFollowUpAt = InstantParser.parse(map["nextFollowUpAt"] ?: map["next_follow_up_at"]),
         )
+    }
+
+    private fun resolveSubmittedAt(record: RemoteRecord): Instant? {
+        val submittedAt = record.getInstant("submittedAt")
+        if (submittedAt != Instant.DISTANT_PAST) {
+            return submittedAt
+        }
+        val legacyDate = record.getInstant("date")
+        return if (legacyDate != Instant.DISTANT_PAST) legacyDate else null
+    }
+
+    private fun resolveSubmissionConfirmedAt(record: RemoteRecord): Instant? {
+        val confirmedAt = record.getInstant("submissionConfirmedAt")
+        return if (confirmedAt != Instant.DISTANT_PAST) confirmedAt else null
     }
 
     private fun RemoteRecord.nonBlankString(key: String): String? =

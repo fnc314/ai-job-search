@@ -501,7 +501,7 @@ internal fun ApplicationSummarySection(
       }
 
       Text(
-        text = model.appliedAt(),
+        text = model.submittedAt(),
         style = MaterialTheme.typography.bodySmallEmphasized,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )

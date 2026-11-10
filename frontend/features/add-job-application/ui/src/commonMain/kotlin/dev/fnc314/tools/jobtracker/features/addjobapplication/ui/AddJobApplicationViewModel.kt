@@ -110,7 +110,7 @@ public class AddJobApplicationViewModel(
                     notesRendered = notesString,
                     createdAt = now,
                     updatedAt = now,
-                    appliedAt = now,
+                    submittedAt = now,
                 )
 
                 val id = createApplication(CreateJobApplicationUseCase.Params(app))
