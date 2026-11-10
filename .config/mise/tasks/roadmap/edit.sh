@@ -1,7 +1,6 @@
-#MISE description="Open the interactive roadmap manager (Kotlin TUI)"
-#USAGE roadmap:edit — Launch the interactive roadmap TUI for managing ROADMAP.md items
-
 #!/usr/bin/env bash
+#MISE description="Open the interactive roadmap manager (Kotlin TUI)"
+
 set -euo pipefail
 
 TUI_BIN="${MISE_PROJECT_ROOT}/frontend/apps/terminal/build/install/apps-terminal/bin/apps-terminal"
