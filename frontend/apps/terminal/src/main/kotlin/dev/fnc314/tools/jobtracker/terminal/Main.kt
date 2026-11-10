@@ -29,7 +29,10 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.awt.Desktop
 import java.io.File
 import java.net.URI
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Scanner
+import java.util.concurrent.TimeUnit
 
 public data class ApplicationRecord(
     val id: String,
@@ -63,10 +66,895 @@ public data class ProposalRecord(
     val state: String,
     val changesCount: Int,
     val unmatchedCount: Int,
-    var enabled: Boolean = true,
+    var enabled: Boolean = false,
     val changes: List<Map<String, Any?>> = emptyList(),
     val unmatched: List<Map<String, Any?>> = emptyList()
 )
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Roadmap Data Models
+// ─────────────────────────────────────────────────────────────────────────────
+
+public data class RoadmapItem(
+    val id: String,
+    val title: String,
+    val shortDesc: String,
+    val criticality: String,
+    val priority: String,
+    val complexity: Int,
+    val status: String,
+    val completionPercent: Int,
+    val creationDate: String,
+    val objective: String,
+    val scope: String,
+    val dependencies: String,
+    val acceptanceCriteria: String,
+    val notes: String,
+    val linkedPlans: List<String>,
+    val changelog: List<RoadmapChangelogEntry>
+)
+
+public data class RoadmapChangelogEntry(
+    val date: String,
+    val change: String,
+    val details: String
+)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Roadmap Parser & Writer
+// ─────────────────────────────────────────────────────────────────────────────
+
+public object RoadmapParser {
+    private val idPattern = Regex("### \\[(RM-\\d+)\\]\\s+(.+)")
+    private val fieldPattern = Regex("^\\*\\*(.+?):\\*\\*\\s+(.+)$")
+    private val frozenSection = Regex("^## Frozen Items", RegexOption.MULTILINE)
+
+    public fun parse(roadmapFile: File, plansReadme: File? = null): List<RoadmapItem> {
+        if (!roadmapFile.exists()) return emptyList()
+        val content = roadmapFile.readText()
+
+        // Check file size guard
+        val sizeKb = content.length / 1024.0
+        if (sizeKb > 50) {
+            System.err.println(yellow("⚠ ROADMAP.md is ${sizeKb.toInt()}KB (limit ~50KB). Consider freezing old items."))
+        }
+
+        // Find the frozen section — items after it are frozen
+        val frozenMatch = frozenSection.find(content)
+        val activeContent = if (frozenMatch != null) {
+            content.substring(0, frozenMatch.range.first)
+        } else {
+            content
+        }
+
+        // Split into item blocks by "### [RM-"
+        val itemBlocks = activeContent.split(Regex("(?=### \\[RM-\\d+\\])")).filter {
+            it.contains("### [RM-")
+        }
+
+        val items = itemBlocks.mapNotNull { block -> parseItemBlock(block, plansReadme) }
+        return items
+    }
+
+    private fun parseItemBlock(block: String, plansReadme: File? = null): RoadmapItem? {
+        val idMatch = idPattern.find(block) ?: return null
+        val id = idMatch.groupValues[1]
+        val title = idMatch.groupValues[2].trim()
+
+        val fields = mutableMapOf<String, String>()
+        var currentSection: String? = null
+        val sectionBuilder = StringBuilder()
+
+        for (line in block.lines().drop(1)) {
+            val fieldMatch = fieldPattern.matchEntire(line)
+            if (fieldMatch != null) {
+                // Save previous section
+                if (currentSection != null) {
+                    fields[currentSection] = sectionBuilder.toString().trim()
+                    sectionBuilder.clear()
+                }
+                fields[fieldMatch.groupValues[1]] = fieldMatch.groupValues[2].trim()
+                currentSection = null
+            } else if (line.startsWith("**Linked Plans**")) {
+                if (currentSection != null) {
+                    fields[currentSection] = sectionBuilder.toString().trim()
+                    sectionBuilder.clear()
+                }
+                currentSection = "LinkedPlans"
+            } else if (line.startsWith("**Changelog**")) {
+                if (currentSection != null) {
+                    fields[currentSection] = sectionBuilder.toString().trim()
+                    sectionBuilder.clear()
+                }
+                currentSection = "Changelog"
+            } else if (currentSection != null) {
+                sectionBuilder.appendLine(line)
+            }
+        }
+        if (currentSection != null) {
+            fields[currentSection] = sectionBuilder.toString().trim()
+        }
+
+        // Parse linked plans
+        val linkedPlans = parseLinkedPlans(fields["LinkedPlans"], plansReadme)
+
+        // Parse changelog
+        val changelog = parseChangelog(fields["Changelog"])
+
+        val complexity = fields["Complexity"]?.split("—")?.firstOrNull()?.trim()?.toIntOrNull()
+            ?: fields["Complexity"]?.toIntOrNull() ?: 0
+
+        return RoadmapItem(
+            id = id,
+            title = title,
+            shortDesc = fields["Short Desc"] ?: "",
+            criticality = fields["Criticality"] ?: "NOT_SET",
+            priority = fields["Priority"] ?: "NOT_SET",
+            complexity = complexity,
+            status = fields["Status"] ?: "OPEN",
+            completionPercent = fields["Completion %"]?.toIntOrNull() ?: 0,
+            creationDate = fields["Creation Date"] ?: "",
+            objective = fields["Objective"] ?: "",
+            scope = fields["Scope"] ?: "",
+            dependencies = fields["Dependencies"] ?: "None",
+            acceptanceCriteria = fields["Acceptance Criteria"] ?: "",
+            notes = fields["Notes"] ?: "",
+            linkedPlans = linkedPlans,
+            changelog = changelog
+        )
+    }
+
+    private fun parseLinkedPlans(raw: String?, plansReadme: File?): List<String> {
+        if (raw.isNullOrBlank()) return emptyList()
+        val plans = raw.lines().mapNotNull {
+            val trimmed = it.trim().removePrefix("- ")
+            if (trimmed.isNotEmpty() && trimmed != "None") trimmed else null
+        }
+        return plans
+    }
+
+    private fun parseChangelog(raw: String?): List<RoadmapChangelogEntry> {
+        if (raw.isNullOrBlank()) return emptyList()
+        val entries = mutableListOf<RoadmapChangelogEntry>()
+        val datePattern = Regex("^\\|\\s*(\\d{4}-\\d{2}-\\d{2})\\s*\\|\\s*(.+?)\\s*\\|\\s*(.+?)\\s*\\|\\s*$")
+
+        for (line in raw.lines()) {
+            val match = datePattern.matchEntire(line)
+            if (match != null) {
+                entries.add(RoadmapChangelogEntry(
+                    date = match.groupValues[1],
+                    change = match.groupValues[2].trim(),
+                    details = match.groupValues[3].trim()
+                ))
+            }
+        }
+        return entries
+    }
+
+    public fun findLinkedPlansForItem(itemId: String, plansReadme: File): List<String> {
+        if (!plansReadme.exists()) return emptyList()
+        val content = plansReadme.readText()
+        val plans = mutableListOf<String>()
+        for (line in content.lines()) {
+            if (line.contains(itemId, ignoreCase = true)) {
+                // Extract the plan path from the markdown link
+                val linkPattern = Regex("\\[`([^`]+)`\\]\\(\\.?/([^)]+)\\)")
+                val match = linkPattern.find(line)
+                if (match != null) {
+                    plans.add(match.groupValues[2])
+                }
+            }
+        }
+        return plans
+    }
+}
+
+public object RoadmapWriter {
+    private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+    public fun addItem(roadmapFile: File, item: RoadmapItem): Boolean {
+        val content = if (roadmapFile.exists()) roadmapFile.readText() else ""
+        val frozenMatch = Regex("^## Frozen Items", RegexOption.MULTILINE).find(content)
+        val insertPoint = frozenMatch?.range?.first ?: content.length
+
+        val itemBlock = buildString {
+            appendLine()
+            appendLine("---")
+            appendLine()
+            appendLine("### [${item.id}] ${item.title}")
+            appendLine()
+            appendLine("**Short Desc:** ${item.shortDesc}")
+            appendLine("**Criticality:** ${item.criticality}")
+            appendLine("**Priority:** ${item.priority}")
+            appendLine("**Complexity:** ${item.complexity} — ${complexityLabel(item.complexity)}")
+            appendLine("**Status:** ${item.status}")
+            appendLine("**Completion %:** ${item.completionPercent}")
+            appendLine("**Creation Date:** ${item.creationDate}")
+            appendLine("**Objective:** ${item.objective}")
+            appendLine()
+            if (item.scope.isNotBlank()) {
+                appendLine(item.scope)
+                appendLine()
+            }
+            if (item.dependencies.isNotBlank()) {
+                appendLine("**Dependencies:** ${item.dependencies}")
+                appendLine()
+            }
+            if (item.acceptanceCriteria.isNotBlank()) {
+                appendLine("**Acceptance Criteria:**")
+                appendLine(item.acceptanceCriteria)
+                appendLine()
+            }
+            if (item.notes.isNotBlank()) {
+                appendLine("**Notes:**")
+                appendLine(item.notes)
+                appendLine()
+            }
+            appendLine("**Linked Plans:**")
+            if (item.linkedPlans.isEmpty()) {
+                appendLine("- None")
+            } else {
+                item.linkedPlans.forEach { appendLine("- $it") }
+            }
+            appendLine()
+            appendLine("**Changelog:**")
+            appendLine("| Date       | Change            | Details                              |")
+            appendLine("|------------|-------------------|--------------------------------------|")
+            item.changelog.forEach {
+                appendLine("| ${it.date} | ${it.change}      | ${it.details}                        |")
+            }
+        }
+
+        val updated = content.substring(0, insertPoint) + itemBlock + content.substring(insertPoint)
+        roadmapFile.writeText(updated)
+        return true
+    }
+
+    public fun updateField(roadmapFile: File, itemId: String, field: String, value: String): Boolean {
+        val content = roadmapFile.readText()
+        val itemStart = content.indexOf("### [$itemId]")
+        if (itemStart == -1) return false
+
+        // Find the next item or frozen section
+        val nextItem = Regex("### \\[RM-\\d+\\]").find(content, itemStart + 1)
+        val frozenSection = Regex("## Frozen Items").find(content, itemStart + 1)
+        val endBound = minOf(
+            nextItem?.range?.first ?: Int.MAX_VALUE,
+            frozenSection?.range?.first ?: Int.MAX_VALUE,
+            content.length
+        )
+        val itemBlock = content.substring(itemStart, endBound)
+
+        val fieldKey = when (field.lowercase()) {
+            "criticality" -> "Criticality"
+            "priority" -> "Priority"
+            "status" -> "Status"
+            "completion" -> "Completion %"
+            else -> field
+        }
+
+        val fieldPattern = Regex("(^\\*\\*$fieldKey:\\*\\*\\s+).*$", RegexOption.MULTILINE)
+        val updatedBlock = itemBlock.replace(fieldPattern, "$1$value")
+
+        if (updatedBlock == itemBlock) {
+            System.err.println(yellow("⚠ Could not find field '$fieldKey' in $itemId"))
+            return false
+        }
+
+        val updated = content.substring(0, itemStart) + updatedBlock + content.substring(endBound)
+        roadmapFile.writeText(updated)
+
+        // Append changelog entry
+        appendChangelog(roadmapFile, itemId, field, value)
+        return true
+    }
+
+    public fun appendChangelog(roadmapFile: File, itemId: String, change: String, details: String) {
+        val content = roadmapFile.readText()
+        val itemStart = content.indexOf("### [$itemId]")
+        if (itemStart == -1) return
+
+        val nextItem = Regex("### \\[RM-\\d+\\]").find(content, itemStart + 1)
+        val frozenSection = Regex("## Frozen Items").find(content, itemStart + 1)
+        val endBound = minOf(
+            nextItem?.range?.first ?: Int.MAX_VALUE,
+            frozenSection?.range?.first ?: Int.MAX_VALUE,
+            content.length
+        )
+        val itemBlock = content.substring(itemStart, endBound)
+
+        val today = LocalDate.now().format(dateFormat)
+        val changelogLine = "| $today | $change      | $details                        |"
+
+        // Find the changelog table and append the line
+        val changelogStart = itemBlock.indexOf("**Changelog:**")
+        if (changelogStart != -1) {
+            // Find the last line of the changelog table
+            val changelogSection = itemBlock.substring(changelogStart)
+            val lines = changelogSection.lines()
+            var lastDataLine = -1
+            for (i in lines.indices) {
+                if (lines[i].startsWith("|")) {
+                    lastDataLine = i
+                }
+            }
+            if (lastDataLine >= 0) {
+                // Find the last changelog data line and insert after it
+                val changelogPattern = Regex("(\\|\\s*\\d{4}-\\d{2}-\\d{2}.*\\|\\n)(?=\\n)")
+                val updatedBlock = changelogPattern.replace(itemBlock, "$1$changelogLine\n")
+                val updated = content.substring(0, itemStart) + updatedBlock + content.substring(endBound)
+                roadmapFile.writeText(updated)
+            }
+        }
+    }
+
+    public fun freezeAllItems(roadmapFile: File, reason: String): Boolean {
+        val content = roadmapFile.readText()
+        val frozenMatch = Regex("^## Frozen Items", RegexOption.MULTILINE).find(content)
+        if (frozenMatch == null) return false
+
+        val activeContent = content.substring(0, frozenMatch.range.first).trim()
+        val frozenSection = content.substring(frozenMatch.range.first)
+
+        if (activeContent.isBlank()) return true
+
+        val today = LocalDate.now().format(dateFormat)
+        val frozenBlock = buildString {
+            appendLine("## Frozen Items")
+            appendLine()
+            appendLine("Items in this section have been frozen via the nuclear clear roadmap option. They are archived and should not be considered active work items.")
+            appendLine()
+            appendLine("**Frozen on:** $today")
+            appendLine("**Reason:** $reason")
+            appendLine()
+            appendLine("---")
+            appendLine()
+
+            // Parse and rewrite each item with frozen status
+            val itemBlocks = activeContent.split(Regex("(?=### \\[RM-\\d+\\])")).filter { it.contains("### [RM-") }
+            for (block in itemBlocks) {
+                val frozenItem = block.replace(
+                    Regex("(^\\*\\*Status:\\*\\*\\s+).*$", RegexOption.MULTILINE),
+                    "$1FROZEN"
+                ).replace(
+                    Regex("(^\\*\\*Completion %:\\*\\*\\s+).*$", RegexOption.MULTILINE),
+                    "$10"
+                )
+                appendLine(frozenItem)
+                appendLine()
+                appendLine("---")
+                appendLine()
+            }
+        }
+
+        // Remove the old frozen section and replace with new one
+        val updated = content.substring(0, frozenMatch.range.first) + frozenSection.replace(
+            Regex("## Frozen Items.*", RegexOption.DOT_MATCHES_ALL),
+            frozenBlock
+        )
+
+        // Clear active items (keep only header, scales, TOC, and frozen section)
+        val headerEnd = content.indexOf("---", frozenMatch.range.first - 500)
+        if (headerEnd > 0) {
+            // Keep header through TOC, then frozen section
+            val tocEnd = content.indexOf("---", frozenMatch.range.first - 100)
+            if (tocEnd > 0) {
+                val header = content.substring(0, tocEnd + 3)
+                val finalContent = header + "\n\n" + frozenBlock
+                roadmapFile.writeText(finalContent)
+            }
+        }
+
+        return true
+    }
+
+    private fun complexityLabel(level: Int): String {
+        return when (level) {
+            1 -> "Trivial"
+            2 -> "Simple"
+            3 -> "Moderate"
+            4 -> "Complex"
+            5 -> "Critical"
+            else -> "Unknown"
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Roadmap Interactive TUI
+// ─────────────────────────────────────────────────────────────────────────────
+
+public object RoadmapApp {
+    private val t: Terminal = Terminal()
+    private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    private val scanner = Scanner(System.`in`)
+    private var selectedItem: RoadmapItem? = null
+
+    private fun findRepoRoot(): File {
+        var cur: File? = File(".").canonicalFile
+        while (cur != null) {
+            if (File(cur, "mise.toml").exists() || File(cur, "settings.gradle.kts").exists()) {
+                return cur
+            }
+            cur = cur.parentFile
+        }
+        return File(".").canonicalFile
+    }
+
+    private val repoRoot: File by lazy { findRepoRoot() }
+    private val roadmapFile: File by lazy { File(repoRoot, "ROADMAP.md") }
+    private val plansReadme: File by lazy { File(repoRoot, ".agents/plans/README.md") }
+
+    public fun run() {
+        if (!roadmapFile.exists()) {
+            t.println(red("ROADMAP.md not found. Nothing to manage."))
+            return
+        }
+
+        var items = RoadmapParser.parse(roadmapFile, plansReadme.takeIf { it.exists() })
+        var currentView: String = "list" // list, detail, add
+        selectedItem = null
+
+        while (true) {
+            when (currentView) {
+                "list" -> {
+                    currentView = renderListView(items)
+                    if (currentView == "detail") {
+                        // selectedItem already set
+                    }
+                }
+                "detail" -> {
+                    if (selectedItem != null) {
+                        val next = renderDetailView(selectedItem!!, items)
+                        if (next == "updated") {
+                            items = RoadmapParser.parse(roadmapFile, plansReadme.takeIf { it.exists() })
+                        }
+                        currentView = if (next == "updated" || next == "back") "list" else currentView
+                    } else {
+                        currentView = "list"
+                    }
+                }
+                "add" -> {
+                    val added = renderAddForm(items)
+                    if (added != null) {
+                        items = RoadmapParser.parse(roadmapFile, plansReadme.takeIf { it.exists() })
+                    }
+                    currentView = "list"
+                }
+                "exit" -> return
+            }
+        }
+    }
+
+    private fun renderListView(items: List<RoadmapItem>): String {
+        t.println()
+        t.println(t.render(
+            Panel(
+                content = bold(brightBlue("Roadmap Manager")) + "\n" +
+                    dim("Select an item to inspect • + to add • clear to freeze all • q to quit"),
+                title = cyan("★ Roadmap ★")
+            )
+        ))
+
+        t.println()
+        t.println(cyan("ACTIVE ITEMS") + white(" | ") + bold("${items.size} items"))
+        t.println()
+
+        if (items.isEmpty()) {
+            t.println(gray("No active roadmap items. Press + to add one."))
+            t.println()
+            t.print(brightBlue("roadmap [+ add, q quit] > "))
+            if (!scanner.hasNextLine()) return "exit"
+            val line = scanner.nextLine().trim()
+            return when {
+                line == "+" || line == "add" -> "add"
+                line == "q" || line == "quit" -> "exit"
+                else -> "list"
+            }
+        }
+
+        val tbl = table {
+            header {
+                row(cyan("ID"), cyan("Name"), cyan("Short Desc"), cyan("Criticality"), cyan("Age"))
+            }
+            body {
+                items.forEach { item ->
+                    val age = calculateAge(item.creationDate)
+                    val critColor = when (item.criticality.uppercase()) {
+                        "PIVOTAL" -> bold(red(item.criticality))
+                        "HIGH" -> yellow(item.criticality)
+                        "MEDIUM" -> item.criticality
+                        "LOW" -> gray(item.criticality)
+                        else -> item.criticality
+                    }
+                    row(item.id, item.title, item.shortDesc, critColor, age)
+                }
+            }
+        }
+        t.println(t.render(tbl))
+
+        t.println()
+        t.print(brightBlue("roadmap [id to inspect, + add, clear, q quit] > "))
+        if (!scanner.hasNextLine()) return "exit"
+        val line = scanner.nextLine().trim()
+
+        return when {
+            line == "q" || line == "quit" -> "exit"
+            line == "+" || line == "add" -> "add"
+            line == "clear" -> {
+                handleClearRoadmap(items)
+                "list"
+            }
+            items.any { it.id.lowercase() == line.lowercase() || it.id == line } -> {
+                selectedItem = items.find { it.id.lowercase() == line.lowercase() || it.id == line }
+                "detail"
+            }
+            else -> {
+                t.println(red("Unknown item: $line"))
+                "list"
+            }
+        }
+    }
+
+    private fun renderDetailView(item: RoadmapItem, items: List<RoadmapItem>): String {
+        t.println()
+        val statusColor = when (item.status.uppercase()) {
+            "DONE" -> green(item.status)
+            "IN_PROGRESS" -> yellow(item.status)
+            "OPEN" -> cyan(item.status)
+            "CANCELLED" -> gray(item.status)
+            "FROZEN" -> dim(item.status)
+            else -> item.status
+        }
+
+        val content = buildString {
+            appendLine("Title:         ${bold(item.title)}")
+            appendLine("Short Desc:    ${item.shortDesc}")
+            appendLine("Criticality:   ${item.criticality}")
+            appendLine("Priority:      ${item.priority}")
+            appendLine("Complexity:    ${item.complexity} — ${complexityLabel(item.complexity)}")
+            appendLine("Status:        $statusColor")
+            appendLine("Completion:    ${item.completionPercent}%")
+            appendLine("Created:       ${item.creationDate}")
+            appendLine("Age:           ${calculateAge(item.creationDate)}")
+            appendLine()
+            appendLine(bold("Objective:"))
+            appendLine(item.objective)
+            if (item.dependencies.isNotBlank() && item.dependencies != "None") {
+                appendLine()
+                appendLine(bold("Dependencies:"))
+                appendLine(item.dependencies)
+            }
+        }
+
+        t.println(t.render(
+            Panel(content = content, title = cyan("Item: ${item.id}"))
+        ))
+
+        // Linked Plans
+        if (item.linkedPlans.isNotEmpty()) {
+            val plansContent = item.linkedPlans.joinToString("\n") { "  • ${green(it)}" }
+            t.println(t.render(
+                Panel(content = plansContent, title = green("Linked Plans (${item.linkedPlans.size})"))
+            ))
+        } else {
+            t.println(t.render(
+                Panel(content = gray("No linked plans"), title = gray("Linked Plans"))
+            ))
+        }
+
+        // Changelog
+        if (item.changelog.isNotEmpty()) {
+            t.println()
+            t.println(cyan("=== Changelog (${item.changelog.size} entries) ==="))
+            val clTbl = table {
+                header {
+                    row(cyan("Date"), cyan("Change"), cyan("Details"))
+                }
+                body {
+                    item.changelog.forEach { entry ->
+                        row(entry.date, entry.change, entry.details)
+                    }
+                }
+            }
+            t.println(t.render(clTbl))
+        }
+
+        t.println()
+        t.print(brightBlue("${item.id} [c:criticality, p:priority, d:done, x:cancel, b:back] > "))
+        if (!scanner.hasNextLine()) return "back"
+        val line = scanner.nextLine().trim()
+
+        return when {
+            line == "b" || line == "back" -> "back"
+            line == "c" || line == "criticality" -> {
+                updateCriticality(item)
+                "updated"
+            }
+            line == "p" || line == "priority" -> {
+                updatePriority(item)
+                "updated"
+            }
+            line == "d" || line == "done" -> {
+                markComplete(item)
+                "updated"
+            }
+            line == "x" || line == "cancel" -> {
+                markCancelled(item)
+                "updated"
+            }
+            else -> {
+                t.println(red("Unknown command. Use: c, p, d, x, b"))
+                "detail"
+            }
+        }
+    }
+
+    private fun renderAddForm(items: List<RoadmapItem>): RoadmapItem? {
+        t.println()
+        t.println(t.render(
+            Panel(content = bold(brightBlue("Add New Roadmap Item")) + "\n" +
+                dim("Fill in the fields below. ID and date will be auto-generated."),
+                title = cyan("★ New Item ★")
+            )
+        ))
+
+        // Auto-generate next ID
+        val nextNum = (items.mapNotNull { it.id.substringAfter("RM-").toIntOrNull() }.maxOrNull() ?: 0) + 1
+        val newId = String.format("RM-%03d", nextNum)
+        val today = LocalDate.now().format(dateFormat)
+
+        t.println()
+        t.print(brightBlue("Name: "))
+        if (!scanner.hasNextLine()) return null
+        val name = scanner.nextLine().trim()
+        if (name.isBlank()) {
+            t.println(yellow("Name is required. Cancelled."))
+            return null
+        }
+
+        t.print(brightBlue("Description (long): "))
+        if (!scanner.hasNextLine()) return null
+        val description = scanner.nextLine().trim()
+        if (description.isBlank()) {
+            t.println(yellow("Description is required. Cancelled."))
+            return null
+        }
+
+        t.println()
+        t.println("Criticality options: PIVOTAL, HIGH, MEDIUM, LOW, NOT_SET")
+        t.print(brightBlue("Criticality: "))
+        if (!scanner.hasNextLine()) return null
+        val criticality = scanner.nextLine().trim().uppercase()
+        if (criticality !in listOf("PIVOTAL", "HIGH", "MEDIUM", "LOW", "NOT_SET")) {
+            t.println(yellow("Invalid criticality. Defaulting to NOT_SET."))
+        }
+        val finalCriticality = if (criticality in listOf("PIVOTAL", "HIGH", "MEDIUM", "LOW", "NOT_SET")) criticality else "NOT_SET"
+
+        t.println()
+        t.println("Priority options: CRITICAL, HIGH, MEDIUM, LOW, NOT_SET")
+        t.print(brightBlue("Priority: "))
+        if (!scanner.hasNextLine()) return null
+        val priority = scanner.nextLine().trim().uppercase()
+        if (priority !in listOf("CRITICAL", "HIGH", "MEDIUM", "LOW", "NOT_SET")) {
+            t.println(yellow("Invalid priority. Defaulting to NOT_SET."))
+        }
+        val finalPriority = if (priority in listOf("CRITICAL", "HIGH", "MEDIUM", "LOW", "NOT_SET")) priority else "NOT_SET"
+
+        // Generate short description
+        t.println()
+        t.println(yellow("Generating short description..."))
+        val generatedShortDesc = generateShortDescription(name, description, finalCriticality)
+        t.println()
+        t.println(green("Generated: ") + generatedShortDesc)
+        t.println()
+        t.print(brightBlue("[a]ccept, [e]dit, [r]eplace: "))
+        if (!scanner.hasNextLine()) return null
+        val shortDescChoice = scanner.nextLine().trim().lowercase()
+
+        val shortDesc = when (shortDescChoice) {
+            "a", "accept" -> generatedShortDesc
+            "e", "edit" -> {
+                t.print(brightBlue("Edit short description: "))
+                if (!scanner.hasNextLine()) return null
+                val edited = scanner.nextLine().trim()
+                if (edited.isBlank()) generatedShortDesc else edited
+            }
+            "r", "replace" -> {
+                t.print(brightBlue("Enter new short description: "))
+                if (!scanner.hasNextLine()) return null
+                val replaced = scanner.nextLine().trim()
+                if (replaced.isBlank()) {
+                    t.println(yellow("Empty replacement. Using generated version."))
+                    generatedShortDesc
+                } else replaced
+            }
+            else -> {
+                t.println(yellow("Invalid choice. Using generated version."))
+                generatedShortDesc
+            }
+        }
+
+        // Confirm
+        t.println()
+        t.println(bold("Summary:"))
+        t.println("  ID:          $newId")
+        t.println("  Name:        $name")
+        t.println("  Short Desc:  $shortDesc")
+        t.println("  Criticality: $finalCriticality")
+        t.println("  Priority:    $finalPriority")
+        t.println("  Created:     $today")
+        t.println()
+        t.print(brightBlue("[c]reate or [c]ancel: "))
+        if (!scanner.hasNextLine()) return null
+        val confirm = scanner.nextLine().trim().lowercase()
+
+        if (confirm == "c" || confirm == "create") {
+            val newItem = RoadmapItem(
+                id = newId,
+                title = name,
+                shortDesc = shortDesc,
+                criticality = finalCriticality,
+                priority = finalPriority,
+                complexity = 0,
+                status = "OPEN",
+                completionPercent = 0,
+                creationDate = today,
+                objective = description,
+                scope = "",
+                dependencies = "None",
+                acceptanceCriteria = "",
+                notes = "",
+                linkedPlans = emptyList(),
+                changelog = listOf(RoadmapChangelogEntry(today, "Item created", "Initial entry"))
+            )
+            RoadmapWriter.addItem(roadmapFile, newItem)
+            t.println(green("✔ Created $newId: $name"))
+            return newItem
+        } else {
+            t.println(yellow("Cancelled."))
+            return null
+        }
+    }
+
+    private fun handleClearRoadmap(items: List<RoadmapItem>) {
+        if (items.isEmpty()) {
+            t.println(yellow("No active items to freeze."))
+            return
+        }
+
+        t.println()
+        t.println(red(bold("⚠ NUCLEAR OPTION: Clear Roadmap")))
+        t.println(red("This will freeze all ${items.size} active roadmap items."))
+        t.println(red("They will be archived and hidden from the active list."))
+        t.println()
+
+        // Confirmation 1
+        t.print(brightBlue("Type 'CLEAR' to continue: "))
+        if (!scanner.hasNextLine()) return
+        if (scanner.nextLine().trim() != "CLEAR") {
+            t.println(yellow("Cancelled."))
+            return
+        }
+
+        // Confirmation 2
+        t.print(brightBlue("Type 'CLEAR ROADMAP' to continue: "))
+        if (!scanner.hasNextLine()) return
+        if (scanner.nextLine().trim() != "CLEAR ROADMAP") {
+            t.println(yellow("Cancelled."))
+            return
+        }
+
+        // Confirmation 3
+        t.print(brightBlue("Type 'CLEAR ALL' to confirm: "))
+        if (!scanner.hasNextLine()) return
+        if (scanner.nextLine().trim() != "CLEAR ALL") {
+            t.println(yellow("Cancelled."))
+            return
+        }
+
+        // Reason (min 50 chars)
+        t.println()
+        t.print(brightBlue("Provide a reason (minimum 50 characters): "))
+        if (!scanner.hasNextLine()) return
+        var reason = scanner.nextLine().trim()
+        while (reason.length < 50) {
+            t.println(yellow("Reason must be at least 50 characters (currently ${reason.length})."))
+            t.print(brightBlue("Reason: "))
+            if (!scanner.hasNextLine()) return
+            reason = scanner.nextLine().trim()
+        }
+
+        RoadmapWriter.freezeAllItems(roadmapFile, reason)
+        t.println()
+        t.println(green(bold("✔ Roadmap frozen! All ${items.size} items have been archived.")))
+        t.println(dim("Reason: $reason"))
+    }
+
+    private fun updateCriticality(item: RoadmapItem) {
+        t.println()
+        t.println("Current criticality: ${item.criticality}")
+        t.println("Options: PIVOTAL, HIGH, MEDIUM, LOW, NOT_SET")
+        t.print(brightBlue("New criticality: "))
+        if (!scanner.hasNextLine()) return
+        val value = scanner.nextLine().trim().uppercase()
+        if (value in listOf("PIVOTAL", "HIGH", "MEDIUM", "LOW", "NOT_SET")) {
+            RoadmapWriter.updateField(roadmapFile, item.id, "criticality", value)
+            t.println(green("✔ Updated criticality to $value"))
+        } else {
+            t.println(yellow("Invalid criticality."))
+        }
+    }
+
+    private fun updatePriority(item: RoadmapItem) {
+        t.println()
+        t.println("Current priority: ${item.priority}")
+        t.println("Options: CRITICAL, HIGH, MEDIUM, LOW, NOT_SET")
+        t.print(brightBlue("New priority: "))
+        if (!scanner.hasNextLine()) return
+        val value = scanner.nextLine().trim().uppercase()
+        if (value in listOf("CRITICAL", "HIGH", "MEDIUM", "LOW", "NOT_SET")) {
+            RoadmapWriter.updateField(roadmapFile, item.id, "priority", value)
+            t.println(green("✔ Updated priority to $value"))
+        } else {
+            t.println(yellow("Invalid priority."))
+        }
+    }
+
+    private fun markComplete(item: RoadmapItem) {
+        RoadmapWriter.updateField(roadmapFile, item.id, "status", "DONE")
+        RoadmapWriter.updateField(roadmapFile, item.id, "completion", "100")
+        RoadmapWriter.appendChangelog(roadmapFile, item.id, "Marked complete", "Status changed to DONE, completion 100%")
+        t.println(green("✔ Marked ${item.id} as complete"))
+    }
+
+    private fun markCancelled(item: RoadmapItem) {
+        RoadmapWriter.updateField(roadmapFile, item.id, "status", "CANCELLED")
+        RoadmapWriter.appendChangelog(roadmapFile, item.id, "Marked cancelled", "Status changed to CANCELLED")
+        t.println(yellow("✔ Marked ${item.id} as cancelled"))
+    }
+
+    private fun generateShortDescription(name: String, description: String, criticality: String): String {
+        // Template-based generation
+        val action = when {
+            name.contains("migrate", ignoreCase = true) -> "Migrate"
+            name.contains("implement", ignoreCase = true) -> "Implement"
+            name.contains("add", ignoreCase = true) -> "Add"
+            name.contains("fix", ignoreCase = true) -> "Fix"
+            name.contains("update", ignoreCase = true) -> "Update"
+            name.contains("investigate", ignoreCase = true) -> "Investigate"
+            name.contains("enrich", ignoreCase = true) -> "Enrich"
+            name.contains("plugin", ignoreCase = true) -> "Enable"
+            name.contains("backend", ignoreCase = true) -> "Expose"
+            else -> "Address"
+        }
+        // Take first few words of name as the core subject
+        val coreSubject = name.split(" ").take(3).joinToString(" ")
+        return "$action $coreSubject to address $criticality concern"
+    }
+
+    private fun calculateAge(creationDate: String): String {
+        if (creationDate.isBlank()) return "Unknown"
+        return try {
+            val created = LocalDate.parse(creationDate, dateFormat)
+            val days = java.time.temporal.ChronoUnit.DAYS.between(created, LocalDate.now())
+            "${days} d"
+        } catch (e: Exception) {
+            "Unknown"
+        }
+    }
+
+    private fun complexityLabel(level: Int): String {
+        return when (level) {
+            1 -> "Trivial"
+            2 -> "Simple"
+            3 -> "Moderate"
+            4 -> "Complex"
+            5 -> "Critical"
+            else -> "Unknown"
+        }
+    }
+}
 
 public object TerminalApp {
     private val t: Terminal = Terminal()
@@ -117,9 +1005,16 @@ public object TerminalApp {
     public fun run(args: Array<String>) {
         val argsList = args.toList()
 
-        // 1. Check for proposals review mode
+        // 1. Check for roadmap mode
+        if (argsList.contains("--roadmap") || argsList.firstOrNull() == "roadmap") {
+            RoadmapApp.run()
+            return
+        }
+
+        // 2. Check for proposals review mode
         if (argsList.contains("--proposals") || argsList.firstOrNull() == "proposals") {
-            runProposalsMode()
+            val autoYes = argsList.contains("-y") || argsList.contains("--yes")
+            runProposalsMode(autoYes = autoYes)
             return
         }
 
@@ -437,7 +1332,7 @@ public object TerminalApp {
     // Interactive Proposals Review Mode (--proposals)
     // ─────────────────────────────────────────────────────────────────────────────
 
-    public fun runProposalsMode() {
+    public fun runProposalsMode(autoYes: Boolean = false) {
         val proposals = loadPendingProposals().toMutableList()
 
         if (proposals.isEmpty()) {
@@ -451,7 +1346,7 @@ public object TerminalApp {
         System.err.println(t.render(
             Panel(
                 content = bold(brightBlue("AI Job Search Tracker — Interactive Proposals Review")) +
-                    "\n" + dim("Review staged inbox proposals • Press Space to toggle selection, [a] approve, [r] reject, [q] quit"),
+                    "\n" + dim("Review staged inbox proposals • Select: [t <id>] toggle, [all] select all, [none] clear, [i <id>] inspect, [a] approve, [r] reject, [q] quit"),
                 title = cyan("★ Staged Proposals Review ★")
             )
         ))
@@ -486,9 +1381,18 @@ public object TerminalApp {
         renderProposalsList()
 
         val scanner = Scanner(System.`in`)
+
+        fun confirmAction(prompt: String): Boolean {
+            if (autoYes) return true
+            System.err.print(t.render(yellow("$prompt [y/N] > ")))
+            if (!scanner.hasNextLine()) return false
+            val ans = scanner.nextLine().trim().lowercase()
+            return ans == "y" || ans == "yes"
+        }
+
         while (true) {
             System.err.println()
-            System.err.print(t.render(brightBlue("proposals [a:approve, r:reject, t <id>:toggle, i <id>:inspect, q:quit] > ")))
+            System.err.print(t.render(brightBlue("proposals [a:approve, r:reject, t <id>:toggle, all, none, i <id>:inspect, q:quit] > ")))
             if (!scanner.hasNextLine()) break
             val line = scanner.nextLine().trim()
             if (line.isEmpty()) continue
@@ -498,6 +1402,18 @@ public object TerminalApp {
 
             when (cmd) {
                 "q", "quit", "exit" -> break
+
+                "all" -> {
+                    proposals.forEach { it.enabled = true }
+                    System.err.println(green("Selected all ${proposals.size} proposals."))
+                    renderProposalsList()
+                }
+
+                "none", "clear" -> {
+                    proposals.forEach { it.enabled = false }
+                    System.err.println(yellow("Cleared all proposal selections."))
+                    renderProposalsList()
+                }
 
                 "t", "toggle" -> {
                     if (parts.size > 1) {
@@ -511,7 +1427,7 @@ public object TerminalApp {
                         }
                     } else {
                         // Toggle first or prompt
-                        System.err.println(yellow("Usage: t <id-prefix> to toggle selection"))
+                        System.err.println(yellow("Usage: t <id-prefix> to toggle selection (or 'all' / 'none')"))
                     }
                 }
 
@@ -531,7 +1447,19 @@ public object TerminalApp {
                     }
 
                     if (toApprove.isEmpty()) {
-                        System.err.println(yellow("No proposals selected for approval."))
+                        System.err.println(yellow("No proposals selected for approval. Use 't <id>' or 'all' to select proposals to approve."))
+                        continue
+                    }
+
+                    val totalChanges = toApprove.sumOf { it.changesCount }
+                    val prompt = if (parts.size > 1) {
+                        "Approve proposal ${toApprove.first().proposalId} ($totalChanges change(s))?"
+                    } else {
+                        "Approve ${toApprove.size} proposal(s) with total $totalChanges change(s)?"
+                    }
+
+                    if (!confirmAction(prompt)) {
+                        System.err.println(yellow("Approval aborted."))
                         continue
                     }
 
@@ -568,7 +1496,18 @@ public object TerminalApp {
                     }
 
                     if (toReject.isEmpty()) {
-                        System.err.println(yellow("No proposals selected for rejection."))
+                        System.err.println(yellow("No proposals selected for rejection. Use 't <id>' or 'all' to select proposals to reject."))
+                        continue
+                    }
+
+                    val prompt = if (parts.size > 1) {
+                        "Reject proposal ${toReject.first().proposalId}?"
+                    } else {
+                        "Reject ${toReject.size} proposal(s)?"
+                    }
+
+                    if (!confirmAction(prompt)) {
+                        System.err.println(yellow("Rejection aborted."))
                         continue
                     }
 
@@ -598,7 +1537,7 @@ public object TerminalApp {
                 }
 
                 else -> {
-                    System.err.println(red("Unknown command '$cmd'. Commands: 'a' (approve), 'r' (reject), 't <id>' (toggle), 'i <id>' (inspect), 'q' (quit)."))
+                    System.err.println(red("Unknown command '$cmd'. Commands: 't <id>' (toggle), 'all', 'none', 'i <id>' (inspect), 'a' (approve), 'r' (reject), 'q' (quit)."))
                 }
             }
         }
