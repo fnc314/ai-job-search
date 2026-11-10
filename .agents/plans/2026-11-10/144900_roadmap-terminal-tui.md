@@ -144,6 +144,6 @@ The ROADMAP.md file remains the system of record, supported by cross-references 
 ## 5. Bookkeeping
 - [x] Plan persisted at `.agents/plans/2026-11-10/144900_roadmap-terminal-tui.md`
 - [x] Registry `README.md` row added / status synchronized
-- [ ] Craft a single commit of all changed files
-- [ ] Stage changed files and craft a commit message based on the name of this file
+- [x] Craft a single commit of all changed files
+- [x] Stage changed files and craft a commit message based on the name of this file
 - [ ] Push `git push origin main`
