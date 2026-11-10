@@ -46,6 +46,8 @@ import fnc314jobsearchtracker.features_company_details_ui.generated.resources.co
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_industry_label
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_locations_label
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_no_applications
+import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_linkedin_label
+import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_open_linkedin_tooltip
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_open_website_tooltip
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_overview_header
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_salary_label
@@ -224,15 +226,29 @@ private fun CompanyOverviewCard(
                     }
                 }
 
-                if (!details.website.isNullOrBlank() && onOpenUrl != null) {
-                    TooltipIconButton(
-                        tooltip = stringResource(
-                            Res.string.company_details_open_website_tooltip,
-                            details.companyName,
-                        ),
-                        icon = Icons.Default.Public,
-                        onClick = { onOpenUrl(details.website) },
-                    )
+                if (onOpenUrl != null) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall)) {
+                        if (!details.website.isNullOrBlank()) {
+                            TooltipIconButton(
+                                tooltip = stringResource(
+                                    Res.string.company_details_open_website_tooltip,
+                                    details.companyName,
+                                ),
+                                icon = Icons.Default.Public,
+                                onClick = { onOpenUrl(details.website) },
+                            )
+                        }
+                        if (!details.linkedinUrl.isNullOrBlank()) {
+                            TooltipIconButton(
+                                tooltip = stringResource(
+                                    Res.string.company_details_open_linkedin_tooltip,
+                                    details.companyName,
+                                ),
+                                icon = Icons.Default.Public,
+                                onClick = { onOpenUrl(details.linkedinUrl) },
+                            )
+                        }
+                    }
                 }
             }
 

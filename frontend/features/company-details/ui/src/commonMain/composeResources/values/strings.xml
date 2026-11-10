@@ -10,4 +10,6 @@
     <string name="company_details_salary_label">Salary Range:</string>
     <string name="company_details_source_label">Primary Source:</string>
     <string name="company_details_avg_fit_label">Average Fit Score:</string>
+    <string name="company_details_linkedin_label">LinkedIn</string>
+    <string name="company_details_open_linkedin_tooltip">Open %1$s LinkedIn page in browser</string>
 </resources>

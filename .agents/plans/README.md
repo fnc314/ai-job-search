@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`160200_retroactive-company-enrichment.md`](./2026-11-10/160200_retroactive-company-enrichment.md) | Completed | Retroactive batch enrichment of existing Firestore company records (sector, linkedinUrl), mise task, frontend display, and sector→industry mapping fix |
 | [`154500_pure_kotlin_migration_render_py.md`](./2026-11-10/154500_pure_kotlin_migration_render_py.md) | Completed | Pure Kotlin migration of event projection & history rendering (scripts/render.py & scripts/events.py to records/parser) |
 | [`152500_linkedin_company_enrichment_plan.md`](./2026-11-10/152500_linkedin_company_enrichment_plan.md) | Completed | Enrich companies collection with LinkedIn industry tags and logo metadata during scrape (RM-005) |
 | [`145600_fix-roadmap-edit-usage-spec-plan.md`](./2026-11-10/145600_fix-roadmap-edit-usage-spec-plan.md) | Completed | Fix invalid #USAGE spec key in .config/mise/tasks/roadmap/edit.sh and align task formatting |

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.features.companieslist.domain.CompanySortOption
+import dev.fnc314.tools.jobtracker.features.companieslist.domain.CompanyStatusFilter
 import dev.fnc314.tools.jobtracker.features.companieslist.domain.FilterCompaniesUseCase
 import dev.fnc314.tools.jobtracker.features.companieslist.domain.LoadAllCompaniesUseCase
 import dev.fnc314.tools.jobtracker.features.companieslist.domain.SortCompaniesUseCase
@@ -25,6 +26,7 @@ public class CompaniesListViewModel(
     private var rawCompanies: List<Company> = emptyList()
     private var currentSearchQuery: String = ""
     private var currentSortOption: CompanySortOption = CompanySortOption.NAME_ASC
+    private var currentStatusFilter: CompanyStatusFilter = CompanyStatusFilter.ALL
     private val expandedCompanyIds = mutableSetOf<String>()
 
     init {
@@ -42,6 +44,10 @@ public class CompaniesListViewModel(
             }
             is CompaniesListUiIntent.ChangeSort -> {
                 currentSortOption = intent.sortOption
+                recalculateContent(isRefreshing = false)
+            }
+            is CompaniesListUiIntent.ChangeStatusFilter -> {
+                currentStatusFilter = intent.filter
                 recalculateContent(isRefreshing = false)
             }
             is CompaniesListUiIntent.ToggleExpand -> {
@@ -83,7 +89,11 @@ public class CompaniesListViewModel(
     }
 
     private fun recalculateContent(isRefreshing: Boolean) {
-        val filtered = filterCompanies(rawCompanies, currentSearchQuery)
+        val filtered = filterCompanies(
+            companies = rawCompanies,
+            query = currentSearchQuery,
+            statusFilter = currentStatusFilter,
+        )
         val sorted = sortCompanies(filtered, currentSortOption)
         val uiModels = sorted.map { company ->
             company.toUiModel(isExpanded = expandedCompanyIds.contains(company.id))
@@ -94,6 +104,7 @@ public class CompaniesListViewModel(
             isRefreshing = isRefreshing,
             searchQuery = currentSearchQuery,
             sortOption = currentSortOption,
+            statusFilter = currentStatusFilter,
         )
     }
 }

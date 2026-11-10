@@ -2,6 +2,7 @@
     <string name="app_action_back">Back</string>
     <string name="app_action_search">Search</string>
     <string name="app_action_calendar">Calendar</string>
+    <string name="app_action_refresh">Refresh</string>
     <string name="app_action_globe">Open website in browser</string>
     <string name="app_nav_applications">Applications</string>
     <string name="app_nav_applications_cd">Job Applications</string>

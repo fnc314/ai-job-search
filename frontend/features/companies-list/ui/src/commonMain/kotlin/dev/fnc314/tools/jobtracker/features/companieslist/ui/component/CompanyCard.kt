@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
@@ -44,15 +45,13 @@ import dev.fnc314.tools.jobtracker.core.designsystem.WindowWidthSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.widgets.CompanyLogoImage
 import dev.fnc314.tools.jobtracker.core.widgets.CompanyMetricsTextRow
-import dev.fnc314.tools.jobtracker.core.widgets.FitBadge
 import dev.fnc314.tools.jobtracker.features.companieslist.ui.CompanyCardUiModel
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.company_card_action_view_details
-import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.company_card_avg_fit
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.company_card_cd
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.company_card_industry_na
+import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.company_card_last_submitted_label
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.company_card_locations_label
-import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.company_card_not_available
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.company_card_salary_label
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.company_card_source_label
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.company_card_submitted_label
@@ -109,7 +108,6 @@ private fun CompactCompanyCard(
         Res.string.company_card_cd,
         model.name,
         model.totalApplications,
-        model.averageFitScoreText,
     )
 
     Card(
@@ -159,17 +157,26 @@ private fun CompactCompanyCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                    ) {
-                        Text(
-                            text = "${stringResource(Res.string.company_card_submitted_label)}: ${model.submittedApplications} · ${stringResource(Res.string.company_card_total_label)}: ${model.totalApplications}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        if (model.averageFitScore > 0.0) {
-                            FitBadge(score = model.averageFitScore.toInt())
+                    Text(
+                        text = "${stringResource(Res.string.company_card_submitted_label)}: ${model.submittedApplications} · ${stringResource(Res.string.company_card_total_label)}: ${model.totalApplications}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+
+                    // Suppressed when 0 applications submitted; vertically stacked when present
+                    if (!model.lastApplicationSubmittedDate.isNullOrBlank()) {
+                        Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                            Text(
+                                text = stringResource(Res.string.company_card_last_submitted_label),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text = model.lastApplicationSubmittedDate,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
                         }
                     }
                 }
@@ -267,7 +274,6 @@ private fun WideCompanyCard(
         Res.string.company_card_cd,
         model.name,
         model.totalApplications,
-        model.averageFitScoreText,
     )
 
     Card(
@@ -334,14 +340,33 @@ private fun WideCompanyCard(
                     horizontalAlignment = Alignment.End,
                     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
                 ) {
-                    if (model.averageFitScore > 0.0) {
-                        FitBadge(score = model.averageFitScore.toInt())
-                    }
                     Text(
-                        text = "${stringResource(Res.string.company_card_total_label)}: ${model.totalApplications}",
+                        text = "${stringResource(Res.string.company_card_submitted_label)}: ${model.submittedApplications} · ${stringResource(Res.string.company_card_total_label)}: ${model.totalApplications}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
+                    // Suppressed when 0 applications submitted; vertically stacked date
+                    if (!model.lastApplicationSubmittedDate.isNullOrBlank()) {
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                            verticalArrangement = Arrangement.spacedBy(1.dp),
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.company_card_last_submitted_label),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.End,
+                            )
+                            Text(
+                                text = model.lastApplicationSubmittedDate,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textAlign = TextAlign.End,
+                            )
+                        }
+                    }
                 }
             }
 

@@ -38,6 +38,7 @@ public enum class LogoShape {
  * @property logoHeight Detected image height in pixels.
  * @property logoShape Aspect shape (SQUARE vs RECTANGLE).
  * @property logoFetchedAt Timestamp when the logo was fetched and verified.
+ * @property linkedinUrl LinkedIn company page URL.
  */
 public data class Company(
     public val id: String,
@@ -54,6 +55,7 @@ public data class Company(
     public val logoShape: LogoShape = LogoShape.UNKNOWN,
     public val logoFetchedAt: Instant = Instant.DISTANT_PAST,
     public val metrics: CompanyMetrics? = null,
+    public val linkedinUrl: String? = null,
 ) {
     /** Whether the logo has equal width and height dimensions. */
     public val isSquare: Boolean get() = logoShape == LogoShape.SQUARE

@@ -19,7 +19,7 @@ class CompaniesListDomainTest {
             createdAt = null,
             updatedAt = null,
             metrics = CompanyMetrics(
-                counts = CompanyMetrics.ApplicationCounts(total = 5),
+                counts = CompanyMetrics.ApplicationCounts(total = 5, submitted = 2, interview = 1),
                 averageFitScore = 90.0,
                 locations = listOf("Mountain View, CA"),
             ),
@@ -33,7 +33,7 @@ class CompaniesListDomainTest {
             createdAt = null,
             updatedAt = null,
             metrics = CompanyMetrics(
-                counts = CompanyMetrics.ApplicationCounts(total = 2),
+                counts = CompanyMetrics.ApplicationCounts(total = 2, draft = 2),
                 averageFitScore = 95.0,
                 locations = listOf("Cupertino, CA"),
             ),
@@ -47,7 +47,7 @@ class CompaniesListDomainTest {
             createdAt = null,
             updatedAt = null,
             metrics = CompanyMetrics(
-                counts = CompanyMetrics.ApplicationCounts(total = 10),
+                counts = CompanyMetrics.ApplicationCounts(total = 10, offer = 1),
                 averageFitScore = 80.0,
                 locations = listOf("Pittsburgh, PA"),
             ),
@@ -67,6 +67,18 @@ class CompaniesListDomainTest {
 
         val emptyFilter = filter(sampleCompanies, "")
         assertEquals(3, emptyFilter.size)
+
+        val openAppsFilter = filter(sampleCompanies, "", CompanyStatusFilter.OPEN_APPLICATIONS)
+        assertEquals(1, openAppsFilter.size)
+        assertEquals("google", openAppsFilter.first().id)
+
+        val interviewFilter = filter(sampleCompanies, "", CompanyStatusFilter.ONGOING_INTERVIEW)
+        assertEquals(1, interviewFilter.size)
+        assertEquals("google", interviewFilter.first().id)
+
+        val offerFilter = filter(sampleCompanies, "", CompanyStatusFilter.OPEN_OFFER)
+        assertEquals(1, offerFilter.size)
+        assertEquals("pnc", offerFilter.first().id)
     }
 
     @Test

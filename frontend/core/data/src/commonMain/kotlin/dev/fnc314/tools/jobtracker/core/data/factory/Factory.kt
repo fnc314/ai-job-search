@@ -271,6 +271,7 @@ public object Factory {
      * @param industry Industry sector.
      * @param createdAt Creation timestamp. Defaults to [Clock.System.now].
      * @param updatedAt Last update timestamp. Defaults to [Clock.System.now].
+     * @param linkedinUrl LinkedIn company page URL.
      * @return A constructed [Company] instance.
      */
     public fun createCompany(
@@ -288,6 +289,7 @@ public object Factory {
         logoShape: dev.fnc314.tools.jobtracker.core.data.model.LogoShape = dev.fnc314.tools.jobtracker.core.data.model.LogoShape.UNKNOWN,
         logoFetchedAt: Instant = Instant.DISTANT_PAST,
         metrics: dev.fnc314.tools.jobtracker.core.data.model.CompanyMetrics? = null,
+        linkedinUrl: String? = null,
     ): Company = Company(
         id = id,
         name = name,
@@ -303,6 +305,7 @@ public object Factory {
         logoShape = logoShape,
         logoFetchedAt = logoFetchedAt,
         metrics = metrics,
+        linkedinUrl = linkedinUrl,
     )
 
     /**

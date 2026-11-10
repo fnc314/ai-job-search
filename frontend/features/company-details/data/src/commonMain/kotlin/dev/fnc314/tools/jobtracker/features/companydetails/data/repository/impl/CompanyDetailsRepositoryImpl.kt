@@ -67,7 +67,7 @@ internal class CompanyDetailsRepositoryImpl(
                 ?: record.id,
             aliases = aliases,
             website = record.getString("website"),
-            industry = record.getString("industry"),
+            industry = record.getString("sector") ?: record.getString("industry"),
             createdAt = InstantParser.parse(
                 record.fields["createdAt"] ?: record.fields["created_at"],
             ),
@@ -81,6 +81,7 @@ internal class CompanyDetailsRepositoryImpl(
             logoShape = logoShape,
             logoFetchedAt = InstantParser.parse(record.fields["logoFetchedAt"]),
             metrics = metrics,
+            linkedinUrl = record.getString("linkedinUrl"),
         )
     }
 

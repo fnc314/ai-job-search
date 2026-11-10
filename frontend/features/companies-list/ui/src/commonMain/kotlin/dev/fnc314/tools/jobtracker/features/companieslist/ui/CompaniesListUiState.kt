@@ -2,6 +2,7 @@ package dev.fnc314.tools.jobtracker.features.companieslist.ui
 
 import androidx.compose.runtime.Immutable
 import dev.fnc314.tools.jobtracker.features.companieslist.domain.CompanySortOption
+import dev.fnc314.tools.jobtracker.features.companieslist.domain.CompanyStatusFilter
 
 @Immutable
 public sealed interface CompaniesListUiState {
@@ -14,5 +15,6 @@ public sealed interface CompaniesListUiState {
         public val isRefreshing: Boolean = false,
         public val searchQuery: String = "",
         public val sortOption: CompanySortOption = CompanySortOption.NAME_ASC,
+        public val statusFilter: CompanyStatusFilter = CompanyStatusFilter.ALL,
     ) : CompaniesListUiState
 }

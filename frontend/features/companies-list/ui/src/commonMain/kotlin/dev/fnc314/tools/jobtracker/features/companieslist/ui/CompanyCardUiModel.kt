@@ -2,6 +2,7 @@ package dev.fnc314.tools.jobtracker.features.companieslist.ui
 
 import androidx.compose.runtime.Immutable
 import dev.fnc314.tools.jobtracker.core.data.model.Company
+import kotlin.time.Instant
 
 /**
  * Decoupled UI presentation model for rendering an employer tile/card.
@@ -13,6 +14,7 @@ public data class CompanyCardUiModel(
     public val logoUrl: String? = null,
     public val website: String? = null,
     public val industry: String? = null,
+    public val linkedinUrl: String? = null,
     public val totalApplications: Int = 0,
     public val submittedApplications: Int = 0,
     public val draftApplications: Int = 0,
@@ -29,6 +31,7 @@ public data class CompanyCardUiModel(
     public val salaryRangeDisplay: String = "",
     public val primaryChannelDisplay: String = "",
     public val locationsText: String = "",
+    public val lastApplicationSubmittedDate: String? = null,
     public val isExpanded: Boolean = false,
 ) {
     /** Initial monogram letter. */
@@ -43,6 +46,16 @@ public fun Company.toUiModel(isExpanded: Boolean = false): CompanyCardUiModel {
     val m = metrics
     val counts = m?.counts
     val percentages = m?.percentages
+    val submittedCount = counts?.submitted ?: 0
+
+    val lastSubmittedDate = if (submittedCount > 0) {
+        val dateInstant = m?.lastApplicationSubmittedAt
+            ?: m?.lastCalculatedAt?.takeUnless { it == Instant.DISTANT_PAST }
+            ?: updatedAt?.takeUnless { it == Instant.DISTANT_PAST }
+        dateInstant?.toString()?.substringBefore('T')
+    } else {
+        null
+    }
 
     return CompanyCardUiModel(
         id = id,
@@ -50,8 +63,9 @@ public fun Company.toUiModel(isExpanded: Boolean = false): CompanyCardUiModel {
         logoUrl = logoUrl,
         website = website,
         industry = industry,
+        linkedinUrl = linkedinUrl,
         totalApplications = counts?.total ?: 0,
-        submittedApplications = counts?.submitted ?: 0,
+        submittedApplications = submittedCount,
         draftApplications = counts?.draft ?: 0,
         interviewApplications = counts?.interview ?: 0,
         offerApplications = counts?.offer ?: 0,
@@ -65,6 +79,7 @@ public fun Company.toUiModel(isExpanded: Boolean = false): CompanyCardUiModel {
         salaryRangeDisplay = m?.salaryRange?.display.orEmpty(),
         primaryChannelDisplay = m?.primaryChannel?.displayName().orEmpty(),
         locationsText = m?.locations?.joinToString(", ").orEmpty(),
+        lastApplicationSubmittedDate = lastSubmittedDate,
         isExpanded = isExpanded,
     )
 }

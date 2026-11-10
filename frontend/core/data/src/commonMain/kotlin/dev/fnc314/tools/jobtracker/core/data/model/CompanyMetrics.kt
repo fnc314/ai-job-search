@@ -17,6 +17,7 @@ public data class CompanyMetrics(
     public val primaryChannel: ApplicationChannel = ApplicationChannel.DEFAULT,
     public val locations: List<String> = emptyList(),
     public val lastCalculatedAt: Instant = Instant.DISTANT_PAST,
+    public val lastApplicationSubmittedAt: Instant? = null,
 ) {
     public data class ApplicationCounts(
         public val total: Int = 0,
@@ -83,6 +84,15 @@ public data class CompanyMetrics(
             val lastCalc = InstantParser.parse(
                 map["lastCalculatedAt"] ?: map["last_calculated_at"]
             )
+            val lastSubmittedRaw = map["lastApplicationSubmittedAt"]
+                ?: map["last_application_submitted_at"]
+                ?: map["lastSubmittedAt"]
+                ?: map["last_submitted_at"]
+            val lastSubmitted = if (lastSubmittedRaw != null) {
+                InstantParser.parse(lastSubmittedRaw).takeUnless { it == Instant.DISTANT_PAST }
+            } else {
+                null
+            }
 
             return CompanyMetrics(
                 counts = counts,
@@ -92,6 +102,7 @@ public data class CompanyMetrics(
                 primaryChannel = primaryChannel,
                 locations = locsList,
                 lastCalculatedAt = lastCalc,
+                lastApplicationSubmittedAt = lastSubmitted,
             )
         }
     }

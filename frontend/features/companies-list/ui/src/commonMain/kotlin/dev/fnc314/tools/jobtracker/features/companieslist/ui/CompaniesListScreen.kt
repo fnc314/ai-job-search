@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -49,9 +48,9 @@ import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
 import dev.fnc314.tools.jobtracker.features.companieslist.domain.CompanySortOption
 import dev.fnc314.tools.jobtracker.features.companieslist.ui.component.CompanyCard
+import dev.fnc314.tools.jobtracker.features.companieslist.ui.component.CompanyFilterMenu
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.companies_empty_message
-import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.companies_refresh_tooltip
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.companies_search_placeholder
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.companies_sort_menu_tooltip
 import org.jetbrains.compose.resources.stringResource
@@ -102,7 +101,7 @@ internal fun CompaniesListContent(
     var sortMenuExpanded by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxSize()) {
-        // Toolbar: Search + Sort + Refresh
+        // Toolbar row 1: FilterMenu opposite SortMenu (following JobApplicationsListScreen pattern)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -113,38 +112,10 @@ internal fun CompaniesListContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            OutlinedTextField(
-                value = content.searchQuery,
-                onValueChange = { onIntent(CompaniesListUiIntent.Search(it)) },
-                placeholder = {
-                    Text(
-                        stringResource(Res.string.companies_search_placeholder),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                    )
-                },
-                trailingIcon = {
-                    if (content.searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { onIntent(CompaniesListUiIntent.Search("")) }) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Clear search",
-                                modifier = Modifier.size(20.dp),
-                            )
-                        }
-                    }
-                },
-                singleLine = true,
-                modifier = Modifier.weight(1f),
+            CompanyFilterMenu(
+                selectedFilter = content.statusFilter,
+                onFilterChange = { onIntent(CompaniesListUiIntent.ChangeStatusFilter(it)) },
             )
-
-            Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
 
             Box {
                 TooltipIconButton(
@@ -167,11 +138,49 @@ internal fun CompaniesListContent(
                     }
                 }
             }
+        }
 
-            TooltipIconButton(
-                tooltip = stringResource(Res.string.companies_refresh_tooltip),
-                icon = Icons.Default.Refresh,
-                onClick = { onIntent(CompaniesListUiIntent.Refresh) },
+        // Toolbar row 2: Non-wrapping search bar with clear icon
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = MaterialTheme.spacing.medium,
+                    vertical = MaterialTheme.spacing.extraSmall,
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedTextField(
+                value = content.searchQuery,
+                onValueChange = { onIntent(CompaniesListUiIntent.Search(it)) },
+                placeholder = {
+                    Text(
+                        text = stringResource(Res.string.companies_search_placeholder),
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                    )
+                },
+                trailingIcon = {
+                    if (content.searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { onIntent(CompaniesListUiIntent.Search("")) }) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = "Clear search",
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
+                maxLines = 1,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
 
