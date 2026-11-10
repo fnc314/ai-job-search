@@ -6,6 +6,8 @@
 **Depends On:** [`.agents/plans/2026-11-10/173600_unify_notes_and_events_timeline.md`](./173600_unify_notes_and_events_timeline.md) (predrafted from `.junie/plans/unify-notes-and-events-timeline.md`)  
 **Evaluates:** Artifact loading gap, interactive file launching, and platform-specific in-app text/markdown viewer (Android & iOS exclusive)  
 **Schema Authority:** `tracker.schema.json` v10 (`$defs/artifact`)  
+**Defects Fixed:**
+- `MarkdownPreviewDialog` ignored `localPath` and only tried cloud storage URLs, showing "No cloud storage URL available" for local-only artifacts. Added `PlatformFileReader` expect/actual class and fallback logic to read local files when cloud storage is unavailable.
 
 ---
 
@@ -54,6 +56,11 @@ There are 463 files in `job-applications/` across companies. Some applications i
 - On Desktop (JVM) and Web, the operating system and browser already provide rich external applications (e.g., default markdown editors, VS Code, native PDF viewers, browser tabs).
 - On mobile operating systems (Android and iOS), opening a local text file externally can fail if the user has no plain text viewer registered or prefers reviewing notes directly within the Job Tracker workflow.
 - Therefore, the toggle `enableInAppTextViewer` belongs strictly to **Android and iOS**, exposed conditionally in `SettingsScreen` via a platform discriminator (`isMobilePlatform: Boolean` or expect/actual helper in `core/data`).
+
+### F. MarkdownPreviewDialog Ignores Local Files (DEFECT - FIXED)
+- The `MarkdownPreviewDialog` in `DetailDialogs.kt` only attempted to fetch content from `externalUrl` and `storage` (GCS) paths.
+- When both were null (local-only artifacts like `outcome.md`), it displayed "No cloud storage URL available for this artifact."
+- **Fix**: Added `PlatformFileReader` expect/actual class in `core/data/platform/` that reads local text files across all platforms (JVM, Android, iOS, JS, wasmJs). The `MarkdownPreviewDialog` now tries: (1) external URL, (2) GCS storage, (3) local filesystem via `PlatformFileReader.readText(localPath)`.
 
 ---
 
@@ -118,6 +125,19 @@ sequenceDiagram
   - `jvmMain`: `supportsInAppTextViewerToggle = false`
   - `webMain` / `jsMain` / `wasmJsMain`: `supportsInAppTextViewerToggle = false`
 
+#### [NEW] `PlatformFileReader.kt` (expect/actual) in `core/data`
+- Define multiplatform local file reader:
+  ```kotlin
+  public expect object PlatformFileReader {
+      public fun readText(path: String): String?
+  }
+  ```
+  - `jvmMain`: Uses `File(path).readText(Charsets.UTF_8)`
+  - `androidMain`: Uses `File(path).readText(Charsets.UTF_8)`
+  - `iosMain`: Uses `kotlin.io.path.Path(path).readText()`
+  - `jsMain` / `wasmJsMain`: Returns `null` (web cannot access local filesystem)
+- Used by `MarkdownPreviewDialog` as a fallback when cloud storage is unavailable.
+
 #### [MODIFY] [`AppSettings.kt`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/core/data/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/core/data/settings/AppSettings.kt)
 - Add `enableInAppTextViewer: Boolean = false` (defaulting strictly to `false`).
 
@@ -172,7 +192,7 @@ sequenceDiagram
       - If `settings.enableInAppTextViewer`: Open in-app `MarkdownPreviewDialog` reading real contents.
       - If `!settings.enableInAppTextViewer`: Delegate to dedicated external app via `fileOpener.openFile(path)`.
   - Web URLs: Launch dedicated browser via `fileOpener.openUrl(url)`.
-- In `MarkdownPreviewDialog`: Read the file content from local disk (if `localPath` exists) using multiplatform file reading or platform helper, displaying real document text in a scrollable, monospace/styled container.
+- In `MarkdownPreviewDialog`: **Fixed defect** — added fallback chain: (1) external URL via `fetchContent`, (2) GCS storage URL, (3) local filesystem via `PlatformFileReader.readText(localPath)`. Previously only tried cloud storage, showing "No cloud storage URL available" for local-only artifacts. Reads the file content from local disk (if `localPath` exists) using multiplatform file reading, displaying real document text in a scrollable, monospace/styled container.
 
 ---
 

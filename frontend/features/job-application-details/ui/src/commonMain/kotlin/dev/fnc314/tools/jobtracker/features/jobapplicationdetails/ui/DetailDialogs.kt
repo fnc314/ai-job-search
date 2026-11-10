@@ -34,6 +34,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
+import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
@@ -320,23 +321,56 @@ internal fun UpdateFitScoreDialog(
 internal fun MarkdownPreviewDialog(
     artifact: TrackerArtifact,
     onDismiss: () -> Unit,
+    fetchContent: suspend (String) -> String? = { null },
 ): Unit {
     var content by remember { mutableStateOf<String?>(null) }
     var loadError by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(artifact) {
+        val storage = artifact.storage
+        val externalUrl = artifact.externalUrl
         val localPath = artifact.localPath
-        if (localPath != null) {
-            content = withContext(Dispatchers.Default) {
-                try {
-                    java.io.File(localPath).readText()
-                } catch (e: Exception) {
-                    loadError = "Could not read file: ${e.message}"
-                    null
-                }
+        var fetched = false
+
+        // Try 1: Fetch from external URL (signed URL or public link)
+        if (!fetched && externalUrl != null) {
+            val urlContent = fetchContent(externalUrl)
+            if (urlContent != null) {
+                content = urlContent
+                fetched = true
             }
-        } else {
-            loadError = "No local path available for this artifact"
+        }
+
+        // Try 2: Fall back to GCS storage URL
+        if (!fetched && storage != null) {
+            val gcsUrl = "https://storage.googleapis.com/${storage.bucket}/${storage.path}"
+            val gcsContent = fetchContent(gcsUrl)
+            if (gcsContent != null) {
+                content = gcsContent
+                fetched = true
+            }
+        }
+
+        // Try 3: Read from local filesystem
+        if (!fetched && localPath != null) {
+            val localContent = PlatformFileReader.readText(localPath)
+            if (localContent != null) {
+                content = localContent
+                fetched = true
+            }
+        }
+
+        // All attempts failed
+        if (!fetched) {
+            if (localPath != null) {
+                loadError = "Failed to read this artifact from local storage.\n\nPath: $localPath"
+            } else if (storage != null) {
+                loadError = "Failed to fetch this artifact from cloud storage.\n\nStorage: ${storage.bucket}/${storage.path}"
+            } else if (externalUrl != null) {
+                loadError = "Failed to fetch this artifact.\n\nURL: $externalUrl"
+            } else {
+                loadError = "No storage location available for this artifact."
+            }
         }
     }
 
