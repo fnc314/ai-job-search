@@ -2483,7 +2483,7 @@ def commandSheet(args) -> int:
     return EXIT_OK
 
 
-def _interactive_proposal_approve(db, note: str | None = None) -> int:
+def _interactive_proposal_approve(db, note: str | None = None, autoYes: bool = False) -> int:
     """Launch the TUI proposals review mode instead of readline-based interaction."""
     if not sys.stdin.isatty():
         raise contract.ContractError("interactive mode requires a terminal.")
@@ -2497,6 +2497,8 @@ def _interactive_proposal_approve(db, note: str | None = None) -> int:
             raise contract.ContractError(f"terminal TUI binary not found: {tui_bin}")
 
     cmd = [str(tui_bin), "--proposals"]
+    if autoYes:
+        cmd.append("--yes")
     proc = subprocess.run(cmd, stdout=subprocess.PIPE, text=True, env=os.environ.copy())
 
     # Parse the summary JSON the TUI emits on stdout
@@ -2532,8 +2534,11 @@ def commandProposals(args) -> int:
         emit({"proposal": proposalsModule.load(db, args.id)})
         return EXIT_OK
     if args.proposalsCommand == "approve":
-        if getattr(args, "interactive", False) and not args.id:
-            return _interactive_proposal_approve(db, note=args.note)
+        autoYes = getattr(args, "yes", False)
+        if not args.id:
+            if getattr(args, "interactive", False) or sys.stdin.isatty():
+                return _interactive_proposal_approve(db, note=args.note, autoYes=autoYes)
+            raise contract.ContractError("Proposal ID is required, or use -i/--interactive in an interactive terminal.")
         client.assertWritesAllowed("approved proposal changes")
         only = None
         if getattr(args, "only", None):
@@ -3177,6 +3182,8 @@ def buildParser() -> argparse.ArgumentParser:
     proposalApprove.add_argument("id", nargs="?", help="Proposal ID (optional with -i)")
     proposalApprove.add_argument("-i", "--interactive", action="store_true",
                                  help="Iterate through all pending proposals interactively")
+    proposalApprove.add_argument("-y", "--yes", action="store_true",
+                                 help="Confirm approval without interactive prompt")
     proposalApprove.add_argument("--note", help="resolution text")
     proposalApprove.add_argument(
         "--only",

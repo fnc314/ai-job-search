@@ -2,6 +2,7 @@
 #MISE description="Approve a proposal and apply changes"
 #USAGE arg "[id]" help="Proposal ID (optional with -i)"
 #USAGE flag "-i --interactive" help="Iterate through all pending proposals interactively"
+#USAGE flag "-y --yes" help="Skip interactive confirmation prompts"
 #USAGE flag "--note <note>" help="Resolution text"
 #USAGE flag "--only <only>" help="Comma-separated change indexes to approve"
 

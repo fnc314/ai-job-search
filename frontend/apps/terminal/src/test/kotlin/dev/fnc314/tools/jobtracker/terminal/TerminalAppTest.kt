@@ -94,4 +94,57 @@ class TerminalAppTest {
             }
         }
     }
+
+    @Test
+    fun testProposalRecordDefaultsToUnselected() {
+        val record = ProposalRecord(
+            proposalId = "01a1c1e7-5782-75a9-8256-da6470c416e2",
+            createdAt = "2026-11-10T12:00:00Z",
+            state = "PENDING",
+            changesCount = 2,
+            unmatchedCount = 1
+        )
+        assertFalse(record.enabled, "ProposalRecord must default to unselected (enabled = false)")
+    }
+
+    @Test
+    fun testTerminalBinaryDistributionExecution() {
+        var root: File? = File(".").canonicalFile
+        while (root != null && !File(root, "mise.toml").exists()) {
+            root = root.parentFile
+        }
+        val repoRoot = root ?: File(".")
+        val tuiBin = File(repoRoot, "frontend/apps/terminal/build/install/apps-terminal/bin/apps-terminal")
+        if (tuiBin.exists()) {
+            val pb = ProcessBuilder(tuiBin.absolutePath, "--proposals")
+            pb.directory(repoRoot)
+            pb.environment()["TRACKER_SOURCE"] = "cache"
+            val proc = pb.start()
+            val stdout = proc.inputStream.bufferedReader().readText()
+            val code = proc.waitFor()
+            assertEquals(0, code, "Binary should exit with 0")
+            assertTrue(stdout.contains("\"ok\": true") || stdout.contains("\"ok\":true"))
+            assertTrue(stdout.contains("proposals review complete"))
+        }
+    }
+
+    @Test
+    fun testTerminalBinaryOpenListWithCache() {
+        var root: File? = File(".").canonicalFile
+        while (root != null && !File(root, "mise.toml").exists()) {
+            root = root.parentFile
+        }
+        val repoRoot = root ?: File(".")
+        val tuiBin = File(repoRoot, "frontend/apps/terminal/build/install/apps-terminal/bin/apps-terminal")
+        if (tuiBin.exists()) {
+            val pb = ProcessBuilder(tuiBin.absolutePath, "--open", "list")
+            pb.directory(repoRoot)
+            pb.environment()["TRACKER_SOURCE"] = "cache"
+            val proc = pb.start()
+            val stdout = proc.inputStream.bufferedReader().readText()
+            val code = proc.waitFor()
+            assertEquals(0, code)
+            assertTrue(stdout.contains("Job Application Pipeline"))
+        }
+    }
 }
