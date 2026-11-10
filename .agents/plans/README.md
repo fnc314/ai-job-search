@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`141800_reformat-todo-md.md`](./2026-11-10/141800_reformat-todo-md.md) | Completed | Reformat TODO.md with structured blocks, complexity/priority scales, table of contents, and copy-pasteable template for AI agent ingestibility |
 | [`130500_proposal_approval_flow_and_tracker_actions_review_plan.md`](./2026-11-10/130500_proposal_approval_flow_and_tracker_actions_review_plan.md) | In Progress | Audit mise tracker proposal actions, eliminate auto-approval defaults, add interactive review confirmation gates, and align task taxonomy |
 | [`130500_official-submission-single-source-of-truth.md`](./2026-11-10/130500_official-submission-single-source-of-truth.md) | Proposed | Single source of truth for officially submitted job applications across @records, @backend, tracker.schema.json, and Firestore |
 | [`025642_companies-navigation-and-company-details-adaptive-feature-plan.md`](./2026-11-10/025642_companies-navigation-and-company-details-adaptive-feature-plan.md) | Completed | Companies top-level navigation, responsive grid tiles, and Company Details adaptive Supporting Pane experience |
