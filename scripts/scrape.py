@@ -244,7 +244,46 @@ def _save_seen_to_firestore(db, seen_dict: dict[str, dict[str, object]]) -> int:
             db.collection(SCRAPE_COLLECTION).document(doc_id).set(doc)
             written += 1
 
+        # Non-blocking company metadata enrichment (RM-005)
+        try:
+            _enrich_company_in_firestore(db, company_slug, company)
+        except Exception as e:
+            # Non-blocking: failure to enrich company metadata never aborts job scrape
+            pass
+
     return written
+
+
+def _enrich_company_in_firestore(db: Any, company_slug: str, company_name: str) -> None:
+    """Enriches company metadata in the Firestore `companies` collection."""
+    if not db or not company_slug:
+        return
+    comp_ref = db.collection("companies").document(company_slug)
+    snap = comp_ref.get()
+    now_iso = datetime.now(timezone.utc).isoformat()
+    if snap.exists:
+        data = snap.to_dict() or {}
+        # Only update if fields are missing
+        updates = {}
+        if not data.get("companyId"):
+            updates["companyId"] = company_slug
+        if not data.get("name"):
+            updates["name"] = company_name
+        if updates:
+            updates["updatedAt"] = now_iso
+            comp_ref.set(updates, merge=True)
+    else:
+        comp_ref.set(
+            {
+                "companyId": company_slug,
+                "name": company_name,
+                "sector": None,
+                "metadata": {},
+                "createdAt": now_iso,
+                "updatedAt": now_iso,
+            },
+            merge=True,
+        )
 
 
 def _load_tracker_ids() -> set[str]:

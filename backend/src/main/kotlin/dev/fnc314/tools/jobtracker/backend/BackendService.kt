@@ -623,4 +623,68 @@ public object BackendService {
             "companiesMetricsUpdated" to (metricsResult["companiesUpdated"] ?: 0)
         )
     }
+
+    /**
+     * Enriches a company record in Firestore with sector, logoUrl, and metadata.
+     * Non-destructive and idempotent.
+     */
+    public fun enrichCompany(
+        companyId: String,
+        companyName: String,
+        linkedinUrl: String? = null,
+        industry: String? = null,
+        logoUrl: String? = null,
+    ): Map<String, Any?> {
+        val db = firestore
+        val compRef = db.collection("companies").document(companyId)
+        val snap = compRef.get().get()
+
+        val existingData = if (snap.exists()) snap.data ?: emptyMap() else emptyMap()
+        val updates = mutableMapOf<String, Any?>()
+
+        if (!existingData.containsKey("companyId")) {
+            updates["companyId"] = companyId
+        }
+        if (!existingData.containsKey("name") || existingData["name"] == null) {
+            updates["name"] = companyName
+        }
+
+        if (linkedinUrl != null && (existingData["linkedinUrl"] as? String).isNullOrBlank()) {
+            updates["linkedinUrl"] = linkedinUrl
+        }
+
+        // Sector / Industry enrichment
+        if (industry != null && (existingData["sector"] as? String).isNullOrBlank()) {
+            val normalizedSector = when {
+                industry.contains("finance", ignoreCase = true) || industry.contains("bank", ignoreCase = true) -> "FinTech"
+                industry.contains("software", ignoreCase = true) || industry.contains("tech", ignoreCase = true) -> "Technology"
+                industry.contains("health", ignoreCase = true) || industry.contains("medical", ignoreCase = true) -> "Healthcare"
+                else -> industry
+            }
+            updates["sector"] = normalizedSector
+
+            val existingMeta = (existingData["metadata"] as? Map<*, *>)?.toMutableMap() ?: mutableMapOf<Any?, Any?>()
+            existingMeta["linkedinIndustry"] = industry
+            updates["metadata"] = existingMeta
+        }
+
+        // Logo enrichment
+        if (logoUrl != null && (existingData["logoUrl"] as? String).isNullOrBlank()) {
+            updates["logoUrl"] = logoUrl
+            updates["logoFetchedAt"] = Timestamp.now()
+        }
+
+        if (updates.isNotEmpty()) {
+            updates["updatedAt"] = Timestamp.now()
+            compRef.set(updates, SetOptions.merge()).get()
+        }
+
+        val finalDoc = compRef.get().get().data ?: updates
+        return mapOf(
+            "status" to "SUCCESS",
+            "companyId" to companyId,
+            "updated" to updates.isNotEmpty(),
+            "company" to finalDoc
+        )
+    }
 }

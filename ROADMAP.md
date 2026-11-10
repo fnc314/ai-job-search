@@ -47,7 +47,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-002   | AI-Portable Pluginization              | Make agent contributions portable   | LOW         | LOW      | 70 d   | OPEN   |
 | RM-003   | Backend Functionality Abstraction      | Expose deterministic tasks as services | HIGH       | HIGH     | 70 d   | IN_PROGRESS |
 | RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | OPEN   |
-| RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | OPEN   |
+| RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
 
 ---
 
@@ -223,8 +223,8 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Criticality:** HIGH
 **Priority:** HIGH
 **Complexity:** 1 — Trivial
-**Status:** OPEN
-**Completion %:** 0
+**Status:** DONE
+**Completion %:** 100
 **Creation Date:** 2026-10-06
 **Objective:** Integrate LinkedIn to enrich the `companies` collection with `industry` tags and `logo` metadata during `/scrape` for roles that are surfaced to `/apply`.
 
@@ -247,7 +247,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - Keep volume low per LinkedIn ToS
 
 **Linked Plans:**
-- None
+- `.agents/plans/2026-11-10/152500_linkedin_company_enrichment_plan.md`
+
+**Changelog:**
+| Date       | Change            | Details                              |
+|------------|-------------------|--------------------------------------|
+| 2026-11-10 | Completed         | Enriched company metadata during /scrape and implemented backend enrichment service |
+| 2026-11-10 | Status update     | Started implementation per approved plan 152500 |
+| 2026-11-10 | Item created      | Renamed from TODO-005 to RM-005      |
 
 **Changelog:**
 | Date       | Change            | Details                              |

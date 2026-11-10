@@ -16,7 +16,7 @@ import dev.fnc314.tools.jobtracker.features.companydetails.data.repository.Compa
 import dev.fnc314.tools.jobtracker.core.data.model.CompanyWithApplications
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 internal class CompanyDetailsRepositoryImpl(
     private val remoteDataSource: RemoteDataSource,
@@ -33,9 +33,9 @@ internal class CompanyDetailsRepositoryImpl(
                 val companyIdLower = company.id.lowercase().trim()
                 val appCompany = app.company.lowercase().trim()
                 appCompany == companyName ||
-                    appCompany == companyIdLower ||
-                    company.aliases.any { it.lowercase().trim() == appCompany } ||
-                    app.id.startsWith("$companyIdLower-")
+                        appCompany == companyIdLower ||
+                        company.aliases.any { it.lowercase().trim() == appCompany } ||
+                        app.id.startsWith("$companyIdLower-")
             }
 
             CompanyWithApplications(

@@ -103,6 +103,47 @@ public fun main(args: Array<String>) {
                     )
                 }
             }
+            post("/companies/enrich") {
+                try {
+                    val bodyText = call.receiveText()
+                    val jsonElement = Json.parseToJsonElement(bodyText).jsonObject
+                    val companyId = jsonElement["companyId"]?.jsonPrimitive?.contentOrNull
+                    val name = jsonElement["name"]?.jsonPrimitive?.contentOrNull ?: companyId ?: "unknown"
+                    val linkedinUrl = jsonElement["linkedinUrl"]?.jsonPrimitive?.contentOrNull
+                    val industry = jsonElement["industry"]?.jsonPrimitive?.contentOrNull
+                    val logoUrl = jsonElement["logoUrl"]?.jsonPrimitive?.contentOrNull
+
+                    if (companyId.isNullOrBlank()) {
+                        call.respondText(
+                            """{"status":"ERROR","message":"Missing companyId parameter"}""",
+                            io.ktor.http.ContentType.Application.Json,
+                            status = io.ktor.http.HttpStatusCode.BadRequest
+                        )
+                        return@post
+                    }
+
+                    val result = BackendService.enrichCompany(
+                        companyId = companyId,
+                        companyName = name,
+                        linkedinUrl = linkedinUrl,
+                        industry = industry,
+                        logoUrl = logoUrl
+                    )
+
+                    val responseJson = Json.encodeToString(JsonObject(result.mapValues { (_, v) -> JsonPrimitive(v?.toString() ?: "") }))
+                    call.respondText(
+                        responseJson,
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.OK
+                    )
+                } catch (e: Exception) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                    )
+                }
+            }
             post("/tasks/companies-recalculate-metrics") {
                 try {
                     val targetCompanyId = call.request.queryParameters["companyId"]

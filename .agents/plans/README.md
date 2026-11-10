@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`152500_linkedin_company_enrichment_plan.md`](./2026-11-10/152500_linkedin_company_enrichment_plan.md) | Completed | Enrich companies collection with LinkedIn industry tags and logo metadata during scrape (RM-005) |
 | [`145600_fix-roadmap-edit-usage-spec-plan.md`](./2026-11-10/145600_fix-roadmap-edit-usage-spec-plan.md) | Completed | Fix invalid #USAGE spec key in .config/mise/tasks/roadmap/edit.sh and align task formatting |
 | [`144900_roadmap-terminal-tui.md`](./2026-11-10/144900_roadmap-terminal-tui.md) | Completed | Interactive roadmap manager TUI in `frontend/apps/terminal` with `RoadmapParser`, `RoadmapWriter`, `RoadmapApp`, and mise tasks (`roadmap:edit`, `roadmap:status`) for ROADMAP.md management |
 | [`144500_centralized_event_cryptography_and_projections.md`](./2026-11-10/144500_centralized_event_cryptography_and_projections.md) | Completed | Idempotent HTTP Event-Appending endpoint in backend/ (Cloud Run), client integration in frontend/ (Android, Web, Desktop, CLI), and pure Kotlin cryptographic hash chaining & timeline projection in records/parser (TODO-001 & TODO-003) |
