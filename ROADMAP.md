@@ -3,6 +3,7 @@
 This file tracks outstanding work for the AI job search repository. Each entry is structured for AI agents to ingest quickly: every item includes priority, criticality, complexity, scope, dependencies, and acceptance criteria. Items are sorted from highest complexity to lowest.
 
 **How to use this file:**
+
 - Scan the Table of Contents for a quick overview of all items.
 - Read the detailed block for any item you plan to work on.
 - Use the Template at the bottom to add new entries.
@@ -46,9 +47,9 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-001   | Kotlin-Only Migration                  | Migrate all Python scripts to Kotlin | PIVOTAL    | MEDIUM   | 70 d   | IN_PROGRESS |
 | RM-002   | AI-Portable Pluginization              | Make agent contributions portable   | LOW         | LOW      | 70 d   | OPEN   |
 | RM-003   | Backend Functionality Abstraction      | Expose deterministic tasks as services | HIGH       | HIGH     | 70 d   | IN_PROGRESS |
-| RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | OPEN   |
+| RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | DONE   |
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
-| RM-006 | Add Email Top-Level Destination for in-app analysis | Add Add Email Top-Level to address MEDIUM concern | MEDIUM | MEDIUM | 0 d | OPEN |
+| RM-006   | Add Email Top-Level Destination for in-app analysis | Add Add Email Top-Level to address MEDIUM concern | MEDIUM | MEDIUM | 0 d | OPEN |
 
 ---
 
@@ -64,12 +65,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/terminal`).
 
 **Scope:**
+
 - In Scope: Migrating all 56 Python scripts to Kotlin Multiplatform, targeting KMP Compose where possible for UI layers. Existing Python is deprecated and closed to enhancement.
 - Out of Scope: Big-bang rewrite. This migration must be incremental and TDD-driven.
 
 **Dependencies:** None
 
 **Acceptance Criteria:**
+
 - All Python scripts in `scripts/` have Kotlin equivalents
 - Python dependencies are removed from the project
 - `mise` tasks invoke Kotlin JARs instead of Python scripts
@@ -77,12 +80,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - Migration follows TDD practices: tests written or ported before implementation
 
 **Notes:**
+
 - Migration should be incremental, not a one-time pass
 - Python is deprecated; new functionality is Kotlin-only
 - Target Kotlin Multiplatform architecture with Compose for UI layers
 - The `records/` module already contains Kotlin parser/proto code that can serve as a reference
 
 **Linked Plans:**
+
 - `.agents/plans/2026-11-10/154500_pure_kotlin_migration_render_py.md`
 - `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
 - `.agents/plans/2026-11-08/171648_hunter-logo-integration.md`
@@ -91,6 +96,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - `.agents/plans/2026-11-08/180500_python-to-mise-tasks-migration-plan.md`
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-10 | Progress update   | Migrated clean_url and URL query sanitization to pure Kotlin (records/parser UrlSanitizer.kt & JPypeBridge.cleanUrl), marked scripts/urls.py deprecated |
@@ -112,12 +118,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Objective:** Enforce `.agents/*` as the canonical and EXCLUSIVE home for all AI contributions from this repository. Encapsulate key operations (tool calls, database knowledge, workflows) into consumable, self-contained plugins for maximum AI-agent portability.
 
 **Scope:**
+
 - In Scope: Establishing `.agents/*` as the exclusive home for AI contributions. Any `.<AGENT>/*` directories contain only simple router files pointing to `.agents/*` equivalents. Grouping the minimum necessary functionality into portable units so any agent can conditionally consume them.
 - Out of Scope: Fundamentally changing how the project integrates across harnesses and models. This expands agent-agnostic integrations, not replaces them.
 
 **Dependencies:** None
 
 **Acceptance Criteria:**
+
 - `.agents/*` is documented as the canonical and exclusive home for AI contributions
 - Any `.<AGENT>/*` directories contain only router/pointer files to `.agents/*`
 - Key operations are encapsulated as self-contained, consumable plugins
@@ -125,11 +133,13 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - Dependencies between plugins are minimal and explicitly documented
 
 **Notes:**
+
 - Some AI agents accept `.<AGENT>/plugins/*` as an alternative abstraction akin to skills
 - Operations that don't make sense out of context should be grouped with the least amount of other functions necessary to provide a complete picture
 - Example: `/scrape`, `/apply`, `/outcome` command sequence should be encapsulated as a single portable unit
 
 **Linked Plans:**
+
 - `.agents/plans/2026-11-05/173850_plan-relocation-and-index-alignment.md`
 - `.agents/plans/2026-11-05/164709_plan-files-consolidation-and-gitignore-alignment.md`
 - `.agents/plans/2026-11-05/183738_plan-frontmatter-standardization-and-templating.md`
@@ -137,6 +147,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - `.agents/plans/2026-11-09/182733_consolidate-agent-directories.md`
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-10 | Item created      | Renamed from TODO-002 to RM-002      |
@@ -155,12 +166,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Objective:** Migrate existing deterministic Python functionalities and expose them to both `backend/` and `frontend/apps` projects. This sets the high-level requirement for any backend functionality created — deterministic tasks that don't require AI oversight should be offloaded to regular computation environments or automated processes.
 
 **Scope:**
+
 - In Scope: Identifying deterministic functionalities currently in Python scripts (e.g., cryptographic event chain alignment), migrating them to Kotlin, and exposing them via `backend/` and `frontend/apps`. Migration order: NEWEST functionality first.
 - Out of Scope: Treating existing implementations as enhancements. This is about refactoring existing deterministic logic, not adding new features.
 
 **Dependencies:** RM-001 (Kotlin migration provides the foundation)
 
 **Acceptance Criteria:**
+
 - Deterministic Python functionalities are identified and cataloged
 - Each identified functionality is migrated to Kotlin and exposed to `backend/` and `frontend/apps`
 - Migration follows NEWEST-first order
@@ -168,11 +181,13 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - Existing behavior is preserved — no functional regression
 
 **Notes:**
+
 - Cryptographic event chain alignment (`scripts/events.py`) is an example of deterministic logic
 - This encapsulates a high-level requirement for any "backend" functionality going forward
 - The `backend/` directory already exists as a small Kotlin service
 
 **Linked Plans:**
+
 - `.agents/plans/2026-11-10/160200_retroactive-company-enrichment.md`
 - `.agents/plans/2026-11-10/154500_pure_kotlin_migration_render_py.md`
 - `.agents/plans/2026-11-09/164500_post_monorepo_quality_gates_and_cloud_run_deployment_plan.md`
@@ -180,6 +195,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - `.agents/plans/2026-11-09/125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md`
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-10 | Status update     | Implemented application alignment route and service logic |
@@ -194,18 +210,20 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Criticality:** LOW
 **Priority:** LOW
 **Complexity:** 2 — Simple
-**Status:** OPEN
-**Completion %:** 0
+**Status:** DONE
+**Completion %:** 100
 **Creation Date:** 2026-10-06
 **Objective:** Investigate migrating `events` to a top-level collection aligned with `applications` and evaluate the value, query impact, and metrics implications. A no-op outcome is acceptable if the investigation shows no benefit.
 
 **Scope:**
+
 - In Scope: Analyzing the current `events` structure, evaluating the impact of migrating to a top-level collection, assessing query performance and metrics changes, and documenting findings.
 - Out of Scope: Actually performing the migration unless the investigation clearly shows significant benefit.
 
 **Dependencies:** None
 
 **Acceptance Criteria:**
+
 - Investigation document produced with findings
 - Query impact analysis completed (performance comparison before/after)
 - Metrics implications evaluated
@@ -213,16 +231,20 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - If no-op, reasoning is documented
 
 **Notes:**
+
 - Current events are nested; migration would align with `applications` at the top level
 - A no-op outcome is perfectly acceptable
 - Focus on whether the change improves or worsens queries and metrics
 
 **Linked Plans:**
-- None
+
+- `.agents/plans/2026-11-10/162700_firestore_events_migration_investigation.md`
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-10 | Completed         | Investigation complete: no-op recommendation — all event queries are per-application, no cross-app queries exist |
 | 2026-11-10 | Item created      | Renamed from TODO-004 to RM-004      |
 
 ---
@@ -239,12 +261,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Objective:** Integrate LinkedIn to enrich the `companies` collection with `industry` tags and `logo` metadata during `/scrape` for roles that are surfaced to `/apply`.
 
 **Scope:**
+
 - In Scope: Adding company metadata enrichment (industry tags, logo URLs) during the scrape workflow. Targeting the `companies` top-level collection.
 - Out of Scope: Enriching other collections or adding metadata beyond industry and logo.
 
 **Dependencies:** None
 
 **Acceptance Criteria:**
+
 - During `/scrape`, company metadata is fetched and enriched
 - `companies` collection includes `industry` tags
 - `companies` collection includes `logo` metadata (URL)
@@ -252,16 +276,19 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - Enriched data is available when `/apply` processes the job posting
 
 **Notes:**
+
 - LinkedIn search skill already exists at `.agents/skills/linkedin-search/`
 - Enrichment should happen during `/scrape` to ensure data is ready for `/apply`
 - Keep volume low per LinkedIn ToS
 
 **Linked Plans:**
+
 - `.agents/plans/2026-11-10/160200_retroactive-company-enrichment.md`
 - `.agents/plans/2026-11-10/152500_linkedin_company_enrichment_plan.md`
 - `.agents/plans/2026-11-08/171648_hunter-logo-integration.md`
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-10 | Progress update   | Retroactive batch enrichment of existing company records, frontend LinkedIn URL display, and sector to industry mapping fix |
@@ -270,7 +297,6 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | 2026-11-10 | Item created      | Renamed from TODO-005 to RM-005      |
 
 ---
-
 
 ---
 
@@ -288,12 +314,15 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Dependencies:** None
 
 **Linked Plans:**
+
 - None
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-10 | Item created      | Initial entry                        |
+
 ## Frozen Items
 
 Items in this section have been frozen via the nuclear clear roadmap option. They are archived and should not be considered active work items.
@@ -342,6 +371,7 @@ To add a new roadmap item, use `mise roadmap:edit` for the interactive experienc
 ```
 
 **Instructions:**
+
 1. Replace `XXX` with the next available number (e.g., 006).
 2. Choose a Criticality from the Criticality Scale.
 3. Choose a Priority from the Priority Scale.

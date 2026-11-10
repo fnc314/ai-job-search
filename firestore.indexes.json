@@ -34,14 +34,6 @@
       ]
     },
     {
-      "collectionGroup": "events",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [
-        { "fieldPath": "type", "order": "ASCENDING" },
-        { "fieldPath": "ts", "order": "DESCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "pending-proposals",
       "queryScope": "COLLECTION",
       "fields": [
@@ -109,16 +101,6 @@
     },
     {
       "collectionGroup": "applications",
-      "fieldPath": "metadata",
-      "indexes": []
-    },
-    {
-      "collectionGroup": "events",
-      "fieldPath": "note",
-      "indexes": []
-    },
-    {
-      "collectionGroup": "events",
       "fieldPath": "metadata",
       "indexes": []
     }
