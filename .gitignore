@@ -193,3 +193,4 @@ ui/kmp/androidApp/google-services.json
 # Local Maven repository for records project
 .m2/
 
+local.properties
