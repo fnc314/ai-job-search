@@ -194,3 +194,4 @@ ui/kmp/androidApp/google-services.json
 .m2/
 
 local.properties
+/focus.properties

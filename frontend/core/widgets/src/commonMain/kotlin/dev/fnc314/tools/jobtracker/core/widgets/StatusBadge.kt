@@ -1,5 +1,6 @@
 package dev.fnc314.tools.jobtracker.core.widgets
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -10,6 +11,7 @@ import androidx.compose.ui.text.style.TextAlign
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.model.displayName
+import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 
 /**
  * Material 3 pill badge rendering an application lifecycle [TrackerStatus].
@@ -37,11 +39,16 @@ public fun StatusBadge(
         shape = MaterialTheme.shapes.extraSmall,
         color = containerColor,
         contentColor = contentColor,
-        modifier = modifier,
+        modifier = modifier
+          .border(
+            width = MaterialTheme.spacing.hairline,
+            color = contentColor,
+            shape = MaterialTheme.shapes.extraSmall
+          ),
     ) {
         Text(
             text = displayName,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMediumEmphasized,
             textAlign = textAlign,
             maxLines = maxLines,
             modifier = Modifier.padding(

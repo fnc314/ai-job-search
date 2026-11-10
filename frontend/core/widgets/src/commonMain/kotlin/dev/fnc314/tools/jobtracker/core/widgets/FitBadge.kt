@@ -1,5 +1,6 @@
 package dev.fnc314.tools.jobtracker.core.widgets
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -8,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
+import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 
 /**
  * Material 3 pill badge displaying a numerical candidate-to-role fit rating score (0 to 100).
@@ -30,16 +32,20 @@ public fun FitBadge(
     maxLines: Int = 1,
 ): Unit {
     val (containerColor, contentColor) = when {
-        score >= 80 -> Pair(
-            MaterialTheme.colorScheme.primaryContainer,
-            MaterialTheme.colorScheme.onPrimaryContainer,
+        score >= 90 -> Pair(
+            MaterialTheme.colorScheme.primaryFixed,
+            MaterialTheme.colorScheme.onPrimaryFixed,
+        )
+        score >= 75 -> Pair(
+          MaterialTheme.colorScheme.secondaryFixed,
+          MaterialTheme.colorScheme.onSecondaryFixed,
         )
         score >= 60 -> Pair(
-            MaterialTheme.colorScheme.secondaryContainer,
-            MaterialTheme.colorScheme.onSecondaryContainer,
+          MaterialTheme.colorScheme.tertiaryFixed,
+          MaterialTheme.colorScheme.onTertiaryFixed,
         )
         else -> Pair(
-            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.surfaceContainerLow,
             MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
@@ -48,11 +54,16 @@ public fun FitBadge(
         shape = MaterialTheme.shapes.extraSmall,
         color = containerColor,
         contentColor = contentColor,
-        modifier = modifier,
+        modifier = modifier
+          .border(
+            width = MaterialTheme.spacing.hairline,
+            color = contentColor,
+            shape = MaterialTheme.shapes.extraSmall
+          ),
     ) {
         Text(
             text = "Fit $score",
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMediumEmphasized,
             textAlign = textAlign,
             maxLines = maxLines,
             modifier = Modifier.padding(

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalGridApi::class)
+
 package dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
@@ -67,6 +69,7 @@ import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resour
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_action_view_details
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_cd
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_click_cd
+import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_applied
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_created
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_updated
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_row_created_unavailable
@@ -86,7 +89,8 @@ private const val CHEVRON_ROTATION_COLLAPSED = 0f
 private const val CHEVRON_ROTATION_EXPANDED = 90f
 private const val VISIBLE_ALPHA = 1f
 private const val HIDDEN_ALPHA = 0f
-
+private const val JOB_TITLE_NUMBER_OF_LINES: Int = 3
+private const val JOB_UPDATED_AT_NUMBER_OF_LINES: Int = 2
 private val COMPACT_LOGO_SIZE = 90.dp
 private val WIDE_LOGO_SIZE = 70.dp
 private val CHEVRON_TOUCH_WIDTH = 40.dp
@@ -439,7 +443,6 @@ private fun ExpandedApplicationMetadataGrid(
   }
 }
 
-@OptIn(ExperimentalGridApi::class)
 @Composable
 private fun WideJobApplicationRow(
   model: JobApplicationItemUiModel,
@@ -458,273 +461,210 @@ private fun WideJobApplicationRow(
   val gridSizes = object {
     val columns = object {
       val avatar = GridTrackSize.Fixed(size = WIDE_LOGO_SIZE)
-      val roleCompany = GridTrackSize.Flex(weight = Fr(value = 1.0F))
-      val dates = GridTrackSize.Auto
-      val tags = GridTrackSize.Auto
+      val roleCompany = GridTrackSize.Flex(weight = Fr(value = 2.0F))
+      val dates = GridTrackSize.Flex(weight = Fr(value = 1.5F))
+      val tags = GridTrackSize.Flex(weight = Fr(value = 1.0F))
     }
     val rows = object {
       val size = GridTrackSize.Fixed(size = WIDE_LOGO_SIZE.div(2))
     }
     val gaps = object {
-      val column = MaterialTheme.spacing.extraSmall
+      val column = MaterialTheme.spacing.small
       val row = MaterialTheme.spacing.none
     }
   }
 
-  Card(
-    modifier = modifier
-      .fillMaxSize()
+  Grid(
+    modifier = Modifier
       .clickable(
         onClick = { onIntent(model.onClickIntent) },
         onClickLabel = clickLabel,
       )
+      .padding(all = MaterialTheme.spacing.small)
       .semantics {
         contentDescription = rowContentDescription
       },
+    config = {
+      column(size = gridSizes.columns.avatar)
+      column(size = gridSizes.columns.roleCompany)
+      column(size = gridSizes.columns.dates)
+      column(size = gridSizes.columns.tags)
+      gap(column = gridSizes.gaps.column, row = gridSizes.gaps.row)
+      row(size = gridSizes.rows.size)
+      row(size = gridSizes.rows.size)
+
+      area(
+        areaId = "thumbnail",
+        row = 1,
+        rowSpan = 2,
+        column = 1,
+        columnSpan = 1,
+      )
+      area(
+        areaId = "statusTag",
+        row = 2,
+        rowSpan = 1,
+        column = 1,
+        columnSpan = 1,
+      )
+
+      area(
+        areaId = "role",
+        row = 1,
+        rowSpan = 1,
+        column = 2,
+        columnSpan = 1,
+      )
+      area(
+        areaId = "company",
+        row = 2,
+        rowSpan = 1,
+        column = 2,
+        columnSpan = 1,
+      )
+
+      area(
+        areaId = "fitTag",
+        row = 1,
+        rowSpan = 1,
+        column = 3,
+        columnSpan = 1,
+      )
+      area(
+        areaId = "updated",
+        row = 2,
+        rowSpan = 1,
+        column = 3,
+        columnSpan = 1,
+      )
+
+      area(
+        areaId = "created",
+        row = 1,
+        rowSpan = 1,
+        column = 4,
+        columnSpan = 1,
+      )
+      area(
+        areaId = "applied",
+        row = 2,
+        rowSpan = 1,
+        column = 4,
+        columnSpan = 1,
+      )
+    }
   ) {
-    Grid(
-      modifier = Modifier.padding(all = MaterialTheme.spacing.small),
-      config = {
-        column(size = gridSizes.columns.avatar)
-        column(size = gridSizes.columns.roleCompany)
-        column(size = gridSizes.columns.dates)
-        column(size = gridSizes.columns.tags)
-        gap(column = gridSizes.gaps.column, row = gridSizes.gaps.row)
-        row(size = gridSizes.rows.size)
-        row(size = gridSizes.rows.size)
-
-        area(
-          areaId = "thumbnail",
-          rows = 1 .. 2,
-          columns = 1 .. 2,
-        )
-        area(
-          areaId = "role",
-          row = 1,
-          column = 2,
-        )
-        area(
-          areaId = "company",
-          row = 2,
-          column = 2,
-        )
-
-        area(
-          areaId = "created",
-          row = 1,
-          column = 3,
-        )
-        area(
-          areaId = "updated",
-          row = 2,
-          column = 3
-        )
-
-        area(
-          areaId = "statusTag",
-          row = 1,
-          column = 4,
-        )
-        area(
-          areaId = "fitTag",
-          row = 2,
-          column = 4,
-        )
-
-      }
+    Box(
+      modifier = Modifier
+        .gridItem(areaId = "thumbnail")
+        .fillMaxSize(),
+      contentAlignment = Alignment.Center,
     ) {
       CompanyLogoImage(
-        modifier = Modifier.gridItem(areaId = "thumbnail"),
         companyName = displayCompany,
         companyInitial = model.companyInitial,
         size = WIDE_LOGO_SIZE,
         textStyle = MaterialTheme.typography.titleMedium,
       )
+    }
+    Box(
+      modifier = Modifier
+        .gridItem(areaId = "role")
+        .fillMaxSize(),
+      contentAlignment = Alignment.CenterStart,
+    ) {
+      Text(
+        text = roleDesc,
+        style = MaterialTheme.typography.titleMediumEmphasized,
+        color = MaterialTheme.colorScheme.onSurface,
+        maxLines = JOB_TITLE_NUMBER_OF_LINES,
+        overflow = TextOverflow.Ellipsis,
+      )
+    }
+    Box(
+      modifier = Modifier
+        .gridItem(areaId = "company")
+        .fillMaxSize(),
+      contentAlignment = Alignment.CenterStart,
+    ) {
+      Text(
+        text = displayCompany,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+      )
+    }
+    Box(
+      modifier = Modifier
+        .gridItem(areaId = "created")
+        .fillMaxSize(),
+      contentAlignment = Alignment.CenterEnd,
+    ) {
+      Text(
+        text = stringResource(
+          Res.string.list_row_created,
+          createdDate,
+        ),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+    }
+    Box(
+      modifier = Modifier
+        .gridItem(areaId = "applied")
+        .fillMaxSize(),
+      contentAlignment = Alignment.CenterEnd,
+    ) {
+      Text(
+        text = stringResource(
+          Res.string.list_row_applied,
+          appliedDate
+        ),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = JOB_UPDATED_AT_NUMBER_OF_LINES,
+      )
+    }
+    Box(
+      modifier = Modifier
+        .gridItem(areaId = "updated")
+        .fillMaxSize(),
+      contentAlignment = Alignment.CenterEnd,
+    ) {
+      Text(
+        text = stringResource(
+          Res.string.list_row_updated,
+          model.updatedDateDisplay(backup = notAvailableText)
+        ),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = JOB_UPDATED_AT_NUMBER_OF_LINES,
+      )
+    }
+    Box(
+      modifier = Modifier
+        .gridItem(areaId = "statusTag")
+        .fillMaxSize(),
+      contentAlignment = Alignment.BottomStart,
+    ) {
+      StatusBadge(
+        status = model.status,
+        textAlign = TextAlign.End,
+        maxLines = 1,
+      )
+    }
+    if (model.fitScore != null) {
       Box(
         modifier = Modifier
-          .gridItem(areaId = "role")
-          // .padding(all = MaterialTheme.spacing.micro)
+          .gridItem(areaId = "fitTag")
           .fillMaxSize(),
-        contentAlignment = Alignment.TopStart,
+        contentAlignment = Alignment.CenterEnd,
       ) {
-        Text(
-          text = roleDesc,
-          style = MaterialTheme.typography.titleMedium,
-          color = MaterialTheme.colorScheme.onSurface,
-          maxLines = 2,
-          overflow = TextOverflow.Ellipsis,
+        FitBadge(
+          score = model.fitScore,
         )
-      }
-      Box(
-        modifier = Modifier
-          .gridItem(areaId = "company")
-          .padding(all = MaterialTheme.spacing.micro)
-          .fillMaxSize(),
-        contentAlignment = Alignment.BottomStart,
-      ) {
-        Text(
-          text = displayCompany,
-          style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-          maxLines = 1,
-          overflow = TextOverflow.Ellipsis,
-        )
-      }
-      Box(
-        modifier = Modifier
-          .gridItem(areaId = "created")
-          .padding(all = MaterialTheme.spacing.micro)
-          .fillMaxSize(),
-        contentAlignment = Alignment.TopCenter,
-      ) {
-        Text(
-          text = stringResource(
-            Res.string.list_row_created,
-            createdDate,
-          ),
-          style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-      }
-      Box(
-        modifier = Modifier
-          .gridItem(areaId = "updated")
-          .padding(all = MaterialTheme.spacing.micro)
-          .fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter,
-      ) {
-        Text(
-          text = stringResource(
-            Res.string.list_row_updated,
-            model.updatedDateDisplay(backup = notAvailableText)
-          ),
-          style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-      }
-      Box(
-        modifier = Modifier
-          .gridItem(areaId = "statusTag")
-          .padding(all = MaterialTheme.spacing.micro)
-          .fillMaxSize(),
-        contentAlignment = Alignment.TopCenter,
-      ) {
-        StatusBadge(
-          status = model.status,
-          textAlign = TextAlign.End,
-          maxLines = 1,
-        )
-      }
-      if (model.fitScore != null) {
-        Box(
-          modifier = Modifier
-            .gridItem(areaId = "fitTag")
-            .padding(all = MaterialTheme.spacing.micro)
-            .fillMaxSize(),
-          contentAlignment = Alignment.BottomCenter,
-        ) {
-          FitBadge(
-            score = model.fitScore,
-          )
-        }
       }
     }
   }
-
-//  Column(
-//    modifier = modifier
-//      .fillMaxWidth()
-//      .clickable(
-//        onClick = { onIntent(model.onClickIntent) },
-//        onClickLabel = clickLabel,
-//      )
-//      .padding(MaterialTheme.spacing.medium)
-//      .semantics {
-//        contentDescription = rowContentDescription
-//      },
-//    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-//  ) {
-//    Row(
-//      modifier = Modifier.fillMaxWidth(),
-//      horizontalArrangement = Arrangement.SpaceBetween,
-//      verticalAlignment = Alignment.CenterVertically,
-//    ) {
-//      Row(
-//        modifier = Modifier.weight(1f),
-//        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-//      ) {
-//        CompanyLogoImage(
-//          companyName = displayCompany,
-//          companyInitial = model.companyInitial,
-//          size = WIDE_LOGO_SIZE,
-//          textStyle = MaterialTheme.typography.titleMedium,
-//        )
-//
-//        Column(
-//          verticalArrangement = Arrangement.spacedBy(WIDE_TEXT_STACK_SPACING),
-//        ) {
-//          Text(
-//            text = roleDesc,
-//            style = MaterialTheme.typography.titleMedium,
-//            color = MaterialTheme.colorScheme.onSurface,
-//            maxLines = 1,
-//            overflow = TextOverflow.Ellipsis,
-//          )
-//          Text(
-//            text = displayCompany,
-//            style = MaterialTheme.typography.bodyMedium,
-//            color = MaterialTheme.colorScheme.onSurfaceVariant,
-//            maxLines = 1,
-//            overflow = TextOverflow.Ellipsis,
-//          )
-//        }
-//      }
-//
-//      Spacer(modifier = Modifier.width(MaterialTheme.spacing.medium))
-//
-//      Row(
-//        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-//      ) {
-//        Column(horizontalAlignment = Alignment.End) {
-//          Text(
-//            text = stringResource(
-//              Res.string.list_row_created_applied,
-//              createdDate,
-//              appliedDate,
-//            ),
-//            style = MaterialTheme.typography.bodySmall,
-//            color = MaterialTheme.colorScheme.onSurfaceVariant,
-//          )
-//          Text(
-//            text = model.updatedDateDisplay(backup = notAvailableText),
-//            style = MaterialTheme.typography.bodySmall,
-//            color = MaterialTheme.colorScheme.onSurfaceVariant,
-//          )
-//        }
-//
-//        Row(
-//          verticalAlignment = Alignment.CenterVertically,
-//          horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-//        ) {
-//          if (model.isAutoSynced) {
-//            Text(
-//              text = "[AUTO-SYNCED]",
-//              style = MaterialTheme.typography.labelSmall,
-//              color = MaterialTheme.colorScheme.primary,
-//            )
-//          }
-//          StatusBadge(
-//            status = model.status,
-//            textAlign = TextAlign.End,
-//            maxLines = 1,
-//          )
-//          if (model.fitScore != null) {
-//            FitBadge(score = model.fitScore)
-//          }
-//        }
-//      }
-//    }
-//  }
 }

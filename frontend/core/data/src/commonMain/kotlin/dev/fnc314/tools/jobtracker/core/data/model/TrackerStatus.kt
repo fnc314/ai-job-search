@@ -91,26 +91,26 @@ public sealed interface TrackerStatus : WireContract {
 
         @Composable
         override fun containerColor(): Color = when (this) {
-            LEAD, DRAFTING -> MaterialTheme.colorScheme.surfaceVariant
-            APPLIED -> MaterialTheme.colorScheme.primaryContainer
-            INTERVIEW -> MaterialTheme.colorScheme.secondaryContainer
-            OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.tertiaryContainer
+            LEAD, DRAFTING -> MaterialTheme.colorScheme.surfaceContainerLow
+            APPLIED -> MaterialTheme.colorScheme.tertiaryFixed
+            INTERVIEW -> MaterialTheme.colorScheme.secondaryFixed
+            OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.primaryFixed
             REJECTED -> MaterialTheme.colorScheme.errorContainer
-            NO_RESPONSE -> MaterialTheme.colorScheme.surfaceContainerHigh
-            OFFER_DECLINED, APPLICATION_WITHDRAWN -> MaterialTheme.colorScheme.surfaceVariant
-            NONE, UNSPECIFIED -> MaterialTheme.colorScheme.surfaceVariant
+            NO_RESPONSE -> MaterialTheme.colorScheme.surfaceContainerLow
+            OFFER_DECLINED, APPLICATION_WITHDRAWN -> MaterialTheme.colorScheme.error
+            NONE, UNSPECIFIED -> MaterialTheme.colorScheme.primaryFixedDim
         }
 
         @Composable
         override fun contentColor(): Color = when (this) {
             LEAD, DRAFTING -> MaterialTheme.colorScheme.onSurfaceVariant
-            APPLIED -> MaterialTheme.colorScheme.onPrimaryContainer
-            INTERVIEW -> MaterialTheme.colorScheme.onSecondaryContainer
-            OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.onTertiaryContainer
+            APPLIED -> MaterialTheme.colorScheme.onTertiaryFixed
+            INTERVIEW -> MaterialTheme.colorScheme.onSecondaryFixed
+            OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.onPrimaryFixed
             REJECTED -> MaterialTheme.colorScheme.onErrorContainer
-            NO_RESPONSE -> MaterialTheme.colorScheme.outline
-            OFFER_DECLINED, APPLICATION_WITHDRAWN -> MaterialTheme.colorScheme.onSurfaceVariant
-            NONE, UNSPECIFIED -> MaterialTheme.colorScheme.onSurfaceVariant
+            NO_RESPONSE -> MaterialTheme.colorScheme.onSurface
+            OFFER_DECLINED, APPLICATION_WITHDRAWN -> MaterialTheme.colorScheme.onError
+            NONE, UNSPECIFIED -> MaterialTheme.colorScheme.onPrimaryFixedVariant
         }
     }
 
