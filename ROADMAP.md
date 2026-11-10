@@ -257,6 +257,29 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 ---
 
+
+---
+
+### [RM-006] Add Email Top-Level Destination for in-app analysis
+
+**Short Desc:** Add Add Email Top-Level to address MEDIUM concern
+**Criticality:** MEDIUM
+**Priority:** MEDIUM
+**Complexity:** 0 — Unknown
+**Status:** OPEN
+**Completion %:** 0
+**Creation Date:** 2026-11-10
+**Objective:** Introduce a new UI experience in the `frontend/apps/core` KMC flows.  This will contain a pseudo-inbox for a user's emails and pull back *only* the emails used to determine the current state of affairs.  Data pulled from email platforms should be "from" "subject" "body" "labels" (if applicable), "date received" and this will be tied to existing companies and job applications.  The intent is to surface the evidence used behind automated decisions to records.
+
+**Dependencies:** None
+
+**Linked Plans:**
+- None
+
+**Changelog:**
+| Date       | Change            | Details                              |
+|------------|-------------------|--------------------------------------|
+| 2026-11-10 | Item created      | Initial entry                        |
 ## Frozen Items
 
 Items in this section have been frozen via the nuclear clear roadmap option. They are archived and should not be considered active work items.
