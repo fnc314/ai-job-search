@@ -274,15 +274,10 @@ internal fun JobApplicationsListContent(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
               ) {
                 items(content.applications, key = { it.id }) { item ->
-                  OutlinedCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                  ) {
-                    JobApplicationRow(
-                      model = item,
-                      onIntent = onIntent,
-                    )
-                  }
+                  JobApplicationRow(
+                    model = item,
+                    onIntent = onIntent,
+                  )
                 }
               }
             }
@@ -296,15 +291,10 @@ internal fun JobApplicationsListContent(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
               ) {
                 items(content.applications, key = { it.id }) { item ->
-                  OutlinedCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                  ) {
-                    JobApplicationRow(
-                      model = item,
-                      onIntent = onIntent,
-                    )
-                  }
+                  JobApplicationRow(
+                    model = item,
+                    onIntent = onIntent,
+                  )
                 }
               }
             }
@@ -318,15 +308,10 @@ internal fun JobApplicationsListContent(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
               ) {
                 items(content.applications, key = { it.id }) { item ->
-                  OutlinedCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                  ) {
-                    JobApplicationRow(
-                      model = item,
-                      onIntent = onIntent,
-                    )
-                  }
+                  JobApplicationRow(
+                    model = item,
+                    onIntent = onIntent,
+                  )
                 }
               }
             }

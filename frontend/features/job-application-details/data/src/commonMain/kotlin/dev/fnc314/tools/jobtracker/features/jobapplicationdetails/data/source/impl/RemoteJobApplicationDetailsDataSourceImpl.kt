@@ -174,6 +174,7 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
         ?: 0,
       logoShape = logoShape,
       logoFetchedAt = InstantParser.parse(record.fields["logoFetchedAt"]),
+      metrics = dev.fnc314.tools.jobtracker.core.data.model.CompanyMetrics.fromMap(record.fields["metrics"] as? Map<*, *>),
     )
   }
 

@@ -15,7 +15,10 @@ import org.jetbrains.compose.resources.StringResource
  * @property applicationId Unique Firestore identifier of the job application.
  */
 @Serializable
-public data class DetailRoute(public val applicationId: String) : NavKey {
+public data class DetailRoute(
+    public val applicationId: String,
+    public val roleTitle: String = "",
+) : NavKey {
     @Transient
     override val titleRes: StringResource = Res.string.detail_route_title
 }

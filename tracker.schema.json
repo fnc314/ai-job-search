@@ -1218,6 +1218,58 @@
         "metadata": {
           "type": "object",
           "additionalProperties": true
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "counts": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "draft": { "type": "integer", "minimum": 0 },
+                "submitted": { "type": "integer", "minimum": 0 },
+                "interviewing": { "type": "integer", "minimum": 0 },
+                "offer": { "type": "integer", "minimum": 0 },
+                "rejected": { "type": "integer", "minimum": 0 },
+                "total": { "type": "integer", "minimum": 0 }
+              }
+            },
+            "percentages": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "draft": { "type": "number", "minimum": 0, "maximum": 1 },
+                "submitted": { "type": "number", "minimum": 0, "maximum": 1 },
+                "interviewing": { "type": "number", "minimum": 0, "maximum": 1 },
+                "offer": { "type": "number", "minimum": 0, "maximum": 1 },
+                "rejected": { "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            },
+            "averageFitScore": {
+              "type": "integer"
+            },
+            "salaryRange": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "min": { "type": "number" },
+                "max": { "type": "number" },
+                "currency": { "type": "string" },
+                "display": { "type": "string" }
+              }
+            },
+            "primaryChannel": {
+              "type": "string"
+            },
+            "locations": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "lastCalculatedAt": {
+              "$ref": "#/$defs/isoDateTime"
+            }
+          }
         }
       }
     },

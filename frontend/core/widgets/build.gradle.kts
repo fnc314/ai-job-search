@@ -10,6 +10,7 @@ kotlin {
         commonMain.dependencies {
             api(projects.coreDesignSystem)
             api(projects.coreData)
+            implementation(libs.bundles.coil)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)

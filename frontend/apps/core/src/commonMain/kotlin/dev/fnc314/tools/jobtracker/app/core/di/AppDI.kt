@@ -3,6 +3,8 @@ package dev.fnc314.tools.jobtracker.app.core.di
 import dev.fnc314.tools.jobtracker.core.data.di.coreDataModule
 import dev.fnc314.tools.jobtracker.core.network.di.coreNetworkModule
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.di.addJobApplicationFeatureModule
+import dev.fnc314.tools.jobtracker.features.companieslist.ui.di.companiesListFeatureModule
+import dev.fnc314.tools.jobtracker.features.companydetails.ui.di.companyDetailsFeatureModule
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.di.jobApplicationDetailsFeatureModule
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.di.jobApplicationsListFeatureModule
 import dev.fnc314.tools.jobtracker.features.settings.ui.di.settingsFeatureModule
@@ -38,5 +40,7 @@ public val appModule: KoinModule = module {
     trackerEditsFeatureModule,
     jobApplicationsListFeatureModule,
     jobApplicationDetailsFeatureModule,
+    companiesListFeatureModule,
+    companyDetailsFeatureModule,
   )
 }

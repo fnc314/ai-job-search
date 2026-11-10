@@ -1,0 +1,18 @@
+<resources>
+    <string name="companies_route_title">Companies</string>
+    <string name="companies_empty_message">No companies found</string>
+    <string name="companies_search_placeholder">Search companies, industries, locations…</string>
+    <string name="companies_sort_menu_tooltip">Sort companies</string>
+    <string name="companies_refresh_tooltip">Refresh companies list</string>
+    <string name="company_card_cd">%1$s, %2$d applications, average fit %3$s</string>
+    <string name="company_card_submitted_label">Submitted</string>
+    <string name="company_card_total_label">Total</string>
+    <string name="company_card_avg_fit">Avg Fit</string>
+    <string name="company_card_industry_na">Industry N/A</string>
+    <string name="company_card_salary_label">Salary Range</string>
+    <string name="company_card_source_label">Primary Source</string>
+    <string name="company_card_locations_label">Locations</string>
+    <string name="company_card_website_tooltip">Open company website</string>
+    <string name="company_card_action_view_details">View Details</string>
+    <string name="company_card_not_available">N/A</string>
+</resources>

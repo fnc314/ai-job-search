@@ -1,0 +1,13 @@
+<resources>
+    <string name="company_details_title">Company Details</string>
+    <string name="company_details_overview_header">Company Overview</string>
+    <string name="company_details_applications_header">Applications (%1$d)</string>
+    <string name="company_details_no_applications">No recorded applications for this company yet.</string>
+    <string name="company_details_open_website_tooltip">Open %1$s website in browser</string>
+    <string name="company_details_error">Failed to load company details</string>
+    <string name="company_details_industry_label">Industry:</string>
+    <string name="company_details_locations_label">Locations:</string>
+    <string name="company_details_salary_label">Salary Range:</string>
+    <string name="company_details_source_label">Primary Source:</string>
+    <string name="company_details_avg_fit_label">Average Fit Score:</string>
+</resources>

@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Business
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
@@ -36,11 +39,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.navigation.Navigator
 import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestination
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddApplicationRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadRoute
+import dev.fnc314.tools.jobtracker.features.companieslist.ui.CompaniesListRoute
+import dev.fnc314.tools.jobtracker.features.companydetails.ui.CompanyDetailsRoute
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.DetailRoute
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.ListRoute
 import dev.fnc314.tools.jobtracker.features.settings.ui.SettingsRoute
@@ -48,9 +54,12 @@ import dev.fnc314.tools.jobtracker.features.trackeredits.ui.EditsRoute
 import fnc314jobsearchtracker.apps_core.generated.resources.Res
 import fnc314jobsearchtracker.apps_core.generated.resources.app_action_back
 import fnc314jobsearchtracker.apps_core.generated.resources.app_action_calendar
+import fnc314jobsearchtracker.apps_core.generated.resources.app_action_globe
 import fnc314jobsearchtracker.apps_core.generated.resources.app_action_search
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_applications
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_applications_cd
+import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_companies
+import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_companies_cd
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_edits
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_edits_cd
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_settings
@@ -87,24 +96,28 @@ public fun AppScaffold(
   val currentDestination = navigator.backStack.lastOrNull()
 
   val isListSelected = currentDestination is ListRoute
+  val isCompaniesSelected = currentDestination is CompaniesListRoute
   val isEditsSelected = currentDestination is EditsRoute
   val isSettingsSelected = currentDestination is SettingsRoute
   val isDetailSelected = currentDestination is DetailRoute
+  val isCompanyDetailsSelected = currentDestination is CompanyDetailsRoute
   val isAddAppSelected = currentDestination is AddApplicationRoute
   val isAddLeadSelected = currentDestination is AddLeadRoute
 
-  val isTopLevelDestination = isListSelected || isEditsSelected || isSettingsSelected
+  val isTopLevelDestination = isListSelected || isCompaniesSelected || isEditsSelected || isSettingsSelected
   val showNav = isAuthenticated && isTopLevelDestination
   val canNavigateBack = navigator.backStack.size > 1 && !isTopLevelDestination
 
-  val titleRes: StringResource = when {
-    isListSelected -> ListRoute.titleRes
-    isDetailSelected -> DetailRoute("").titleRes
-    isAddAppSelected -> AddApplicationRoute.titleRes
-    isAddLeadSelected -> AddLeadRoute.titleRes
-    isEditsSelected -> EditsRoute.titleRes
-    isSettingsSelected -> SettingsRoute.titleRes
-    else -> ListRoute.titleRes
+  val titleText: String = when (currentDestination) {
+    is CompanyDetailsRoute -> currentDestination.companyName.ifBlank { stringResource(currentDestination.titleRes) }
+    is DetailRoute -> currentDestination.roleTitle.ifBlank { stringResource(currentDestination.titleRes) }
+    is ListRoute -> stringResource(ListRoute.titleRes)
+    is CompaniesListRoute -> stringResource(CompaniesListRoute.titleRes)
+    is AddApplicationRoute -> stringResource(AddApplicationRoute.titleRes)
+    is AddLeadRoute -> stringResource(AddLeadRoute.titleRes)
+    is EditsRoute -> stringResource(EditsRoute.titleRes)
+    is SettingsRoute -> stringResource(SettingsRoute.titleRes)
+    else -> stringResource(ListRoute.titleRes)
   }
 
   val topLevelDestinations = remember {
@@ -115,6 +128,13 @@ public fun AppScaffold(
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home,
         contentDescriptionRes = Res.string.app_nav_applications_cd,
+      ),
+      TopLevelDestination.from(
+        route = CompaniesListRoute,
+        labelRes = Res.string.app_nav_companies,
+        selectedIcon = Icons.Filled.Business,
+        unselectedIcon = Icons.Outlined.Business,
+        contentDescriptionRes = Res.string.app_nav_companies_cd,
       ),
       TopLevelDestination.from(
         route = EditsRoute,
@@ -140,7 +160,7 @@ public fun AppScaffold(
       CenterAlignedTopAppBar(
         title = {
           Text(
-            text = stringResource(titleRes),
+            text = titleText,
             style = MaterialTheme.typography.titleLarge,
           )
         },
@@ -155,6 +175,15 @@ public fun AppScaffold(
           }
         },
         actions = {
+          val destinationWebsite = (currentDestination as? CompanyDetailsRoute)?.website
+          if (!destinationWebsite.isNullOrBlank()) {
+            IconButton(onClick = { PlatformFileOpener().openUrl(destinationWebsite) }) {
+              Icon(
+                imageVector = Icons.Filled.Public,
+                contentDescription = stringResource(Res.string.app_action_globe),
+              )
+            }
+          }
           if (isAuthenticated) {
             IconButton(onClick = onSearchClick) {
               Icon(
@@ -182,6 +211,7 @@ public fun AppScaffold(
           topLevelDestinations.forEach { destination ->
             val selected = when (destination.route) {
               is ListRoute -> isListSelected
+              is CompaniesListRoute -> isCompaniesSelected
               is EditsRoute -> isEditsSelected
               is SettingsRoute -> isSettingsSelected
               else -> false
@@ -224,6 +254,7 @@ public fun AppScaffold(
           topLevelDestinations.forEach { destination ->
             val selected = when (destination.route) {
               is ListRoute -> isListSelected
+              is CompaniesListRoute -> isCompaniesSelected
               is EditsRoute -> isEditsSelected
               is SettingsRoute -> isSettingsSelected
               else -> false

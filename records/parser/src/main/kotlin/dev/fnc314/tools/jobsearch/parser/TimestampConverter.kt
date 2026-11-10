@@ -1,16 +1,17 @@
 package dev.fnc314.tools.jobsearch.parser
 
 import com.google.protobuf.Timestamp
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 
 /**
  * Utility for converting between ISO-8601 calendar date strings and Google Protocol Buffer [Timestamp] objects.
  *
- * Implements civil calendar arithmetic algorithms to perform zero-dependency conversions between epoch seconds
- * and year/month/day components. Supports recursive map and collection traversal for batch document serialization.
+ * Uses [java.time.LocalDate] and [java.time.Instant] under UTC to perform robust conversions between epoch seconds
+ * and ISO date strings. Supports recursive map and collection traversal for batch document serialization.
  */
 public object TimestampConverter {
-
-    private const val SECONDS_IN_DAY: Long = 86400L
 
     /**
      * Parses an ISO-8601 calendar date or timestamp string into a protobuf [Timestamp].
@@ -22,16 +23,10 @@ public object TimestampConverter {
      */
     public fun isoToTimestamp(iso: String): Timestamp {
         val datePart = iso.substringBefore('T')
-        val parts = datePart.split("-")
-        val year = parts[0].toInt()
-        val month = parts[1].toInt()
-        val day = parts[2].toInt()
-        
-        val epochDays = daysFromCivil(year, month, day)
-        val seconds = epochDays * SECONDS_IN_DAY
-        
+        val localDate = LocalDate.parse(datePart)
+        val epochSeconds = localDate.atStartOfDay(ZoneOffset.UTC).toEpochSecond()
         return Timestamp.newBuilder()
-            .setSeconds(seconds)
+            .setSeconds(epochSeconds)
             .setNanos(0)
             .build()
     }
@@ -43,9 +38,8 @@ public object TimestampConverter {
      * @return The formatted calendar date string.
      */
     public fun timestampToIso(ts: Timestamp): String {
-        val epochDays = ts.seconds / SECONDS_IN_DAY
-        val (year, month, day) = civilFromDays(epochDays)
-        return String.format(java.util.Locale.ROOT, "%04d-%02d-%02d", year, month, day)
+        val instant = Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong())
+        return instant.atZone(ZoneOffset.UTC).toLocalDate().toString()
     }
 
     /**
@@ -86,26 +80,5 @@ public object TimestampConverter {
             is List<*> -> value.map { fromFirestore(it) }
             else -> value
         }
-    }
-
-    @Suppress("MagicNumber")
-    private fun daysFromCivil(y: Int, m: Int, d: Int): Long {
-        val ym = 12L * y + maxOf(0, m - 3)
-        return (365L * ym + ym / 4 - ym / 100 + ym / 400 + ((15L * (m + 9)) / 4) + d - 719469L)
-    }
-
-    @Suppress("MagicNumber")
-    private fun civilFromDays(z: Long): Triple<Int, Int, Int> {
-        val adjustedZ = z + 719469L
-        val era = if (adjustedZ >= 0) adjustedZ else (adjustedZ - 146096L) / 146097L
-        val doe = adjustedZ - era * 146097L
-        val yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
-        val y = yoe + era * 400
-        val doy = doe - (365 * yoe + yoe / 4 - yoe / 100)
-        val mp = (5 * doy + 2) / 153
-        val d = doy - (153 * mp + 2) / 5 + 1
-        val m = mp + if (mp < 10) 3 else -9
-        val year = y + if (m <= 2) 1 else 0
-        return Triple(year.toInt(), m.toInt(), d.toInt())
     }
 }

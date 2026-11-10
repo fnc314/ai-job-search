@@ -50,6 +50,14 @@
       ]
     },
     {
+      "collectionGroup": "pending-proposals",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "state", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "sync-requests",
       "queryScope": "COLLECTION",
       "fields": [

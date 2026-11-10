@@ -24,4 +24,20 @@
     <string name="time_weeks_ago">%1$d weeks ago</string>
     <string name="time_weeks_days_ago">%1$d weeks and %2$d days ago</string>
     <string name="time_months_ago">%1$s (%2$d months ago)</string>
+
+    <!-- Job Application Card Resources -->
+    <string name="card_unknown_company">Unknown Company</string>
+    <string name="card_no_role">Role Unavailable</string>
+    <string name="card_action_view_details">View Details</string>
+    <string name="card_header_fit_score">Fit Score</string>
+    <string name="card_header_applied_on">Applied on</string>
+    <string name="card_header_updated">Updated</string>
+    <string name="card_not_evaluated">Not Evaluated</string>
+    <string name="card_not_applied">Not Applied</string>
+    <string name="card_not_available">Not Available</string>
+    <string name="card_created">Created %s</string>
+    <string name="card_applied">Applied %s</string>
+    <string name="card_updated">Updated %s</string>
+    <string name="card_cd">%1$s, %2$s, %3$s</string>
+    <string name="card_click_cd">%1$s at %2$s. Double tap to view details.</string>
 </resources>

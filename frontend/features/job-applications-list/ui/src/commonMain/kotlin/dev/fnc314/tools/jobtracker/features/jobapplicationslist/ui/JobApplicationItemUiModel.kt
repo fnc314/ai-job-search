@@ -99,3 +99,24 @@ public data class JobApplicationItemUiModel(
     private fun Instant.dateOrNull(): String? =
         takeUnless { it == Instant.DISTANT_PAST }?.toString()?.substringBefore('T')
 }
+
+/**
+ * Maps this [JobApplicationItemUiModel] to the shared [JobApplicationCardUiModel] widget presentation model.
+ */
+public fun JobApplicationItemUiModel.toCardUiModel(): dev.fnc314.tools.jobtracker.core.widgets.JobApplicationCardUiModel =
+    dev.fnc314.tools.jobtracker.core.widgets.JobApplicationCardUiModel(
+        id = id,
+        companyName = companyName,
+        roleTitle = roleTitle,
+        locationText = locationText,
+        status = status,
+        statusDisplayName = statusDisplayName,
+        fitScore = fitScore,
+        fitScoreText = fitScoreText,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        firstActivityAt = firstActivityAt,
+        isExpanded = isExpanded,
+        isAutoSynced = isAutoSynced,
+        emailCount = emailCount,
+    )

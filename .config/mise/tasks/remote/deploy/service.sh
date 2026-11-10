@@ -6,7 +6,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-PROJECT="${REMOTE_GCP_PROJECT:-${TRACKER_PROJECT:-}}"
+PROJECT="${REMOTE_GCP_PROJECT:-${TRACKER_PROJECT:-$(gcloud config get-value project 2>/dev/null || echo "job-search-fnc314-dev")}}"
 REGION="${REMOTE_GCP_REGION:-us-east1}"
 MODE="${REMOTE_BUILD_MODE:-local}"
 
@@ -21,8 +21,9 @@ IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT}/job-tracker-backend/backend:lates
 
 echo "Building and deploying ${SERVICE_NAME} to ${REGION} in project ${PROJECT} (mode: ${MODE})..."
 
+"${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" installDist
+
 if [ "$MODE" = "local" ]; then
-  "${MISE_PROJECT_ROOT}/gradlew" :backend:installDist
   docker build -t "${IMAGE_URI}" "${MISE_PROJECT_ROOT}/backend"
   docker push "${IMAGE_URI}"
 else

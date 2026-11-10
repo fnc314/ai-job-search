@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`025642_companies-navigation-and-company-details-adaptive-feature-plan.md`](./2026-11-10/025642_companies-navigation-and-company-details-adaptive-feature-plan.md) | Completed | Companies top-level navigation, responsive grid tiles, and Company Details adaptive Supporting Pane experience |
 | [`195200_replace-legacy-ui-with-frontend-apps-parity-plan.md`](./2026-11-09/195200_replace-legacy-ui-with-frontend-apps-parity-plan.md) | Completed | Replace legacy `ui/` (terminal & web) with `frontend/apps/terminal` and `frontend/apps/web`, achieving full terminal parity and retiring `ui/` |
 | [`182733_consolidate-agent-directories.md`](./2026-11-09/182733_consolidate-agent-directories.md) | Completed | Consolidate all agent dot-directories (.claude, .junie, .gemini, .opencode, .qwen) to align with canonical .agents/ structure |
 | [`181300_mise_task_orchestration_and_documentation_alignment_plan.md`](./2026-11-09/181300_mise_task_orchestration_and_documentation_alignment_plan.md) | Completed | Mise task orchestration for Konsist/validation, root-only mise.toml consolidation, and monorepo documentation alignment |

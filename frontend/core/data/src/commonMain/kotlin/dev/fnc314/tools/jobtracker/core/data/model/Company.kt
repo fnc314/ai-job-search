@@ -53,6 +53,7 @@ public data class Company(
     public val logoHeight: Int = 0,
     public val logoShape: LogoShape = LogoShape.UNKNOWN,
     public val logoFetchedAt: Instant = Instant.DISTANT_PAST,
+    public val metrics: CompanyMetrics? = null,
 ) {
     /** Whether the logo has equal width and height dimensions. */
     public val isSquare: Boolean get() = logoShape == LogoShape.SQUARE

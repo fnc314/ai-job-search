@@ -28,9 +28,14 @@ import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.core.designsystem.toColorOrNull
 import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import dev.fnc314.tools.jobtracker.core.navigation.Navigator
+import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddApplicationRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.addJobApplicationNavHook
+import dev.fnc314.tools.jobtracker.features.companieslist.ui.CompaniesListRoute
+import dev.fnc314.tools.jobtracker.features.companieslist.ui.companiesListNavHook
+import dev.fnc314.tools.jobtracker.features.companydetails.ui.CompanyDetailsRoute
+import dev.fnc314.tools.jobtracker.features.companydetails.ui.companyDetailsNavHook
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.DetailRoute
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.jobApplicationDetailsNavHook
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.ListRoute
@@ -54,6 +59,8 @@ private val navigationSavedStateConfig = SavedStateConfiguration {
     polymorphic(androidx.navigation3.runtime.NavKey::class) {
       subclass(SignInRoute::class, SignInRoute.serializer())
       subclass(ListRoute::class, ListRoute.serializer())
+      subclass(CompaniesListRoute::class, CompaniesListRoute.serializer())
+      subclass(CompanyDetailsRoute::class, CompanyDetailsRoute.serializer())
       subclass(DetailRoute::class, DetailRoute.serializer())
       subclass(AddApplicationRoute::class, AddApplicationRoute.serializer())
       subclass(AddLeadRoute::class, AddLeadRoute.serializer())
@@ -143,6 +150,26 @@ public fun App() {
                     onSettingsClick = { navigator.navigate(SettingsRoute) },
                     settings = settings,
                     onSettingsChange = { settingsRepository.updateSettings(it) },
+                  )(this, navigator)
+
+                  companiesListNavHook(
+                    onCompanyClick = { id, name, website ->
+                      navigator.navigate(
+                        CompanyDetailsRoute(
+                          companyId = id,
+                          companyName = name,
+                          website = website,
+                        ),
+                      )
+                    },
+                  )(this, navigator)
+
+                  companyDetailsNavHook(
+                    onNavigateBack = { navigator.popBackStack() },
+                    onNavigateToApplication = { id ->
+                      navigator.navigate(DetailRoute(applicationId = id))
+                    },
+                    onOpenUrl = { url -> PlatformFileOpener().openUrl(url) },
                   )(this, navigator)
 
                   jobApplicationDetailsNavHook(

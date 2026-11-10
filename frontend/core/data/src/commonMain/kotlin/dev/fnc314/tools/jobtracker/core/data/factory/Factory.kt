@@ -284,6 +284,7 @@ public object Factory {
         logoHeight: Int = 0,
         logoShape: dev.fnc314.tools.jobtracker.core.data.model.LogoShape = dev.fnc314.tools.jobtracker.core.data.model.LogoShape.UNKNOWN,
         logoFetchedAt: Instant = Instant.DISTANT_PAST,
+        metrics: dev.fnc314.tools.jobtracker.core.data.model.CompanyMetrics? = null,
     ): Company = Company(
         id = id,
         name = name,
@@ -298,6 +299,7 @@ public object Factory {
         logoHeight = logoHeight,
         logoShape = logoShape,
         logoFetchedAt = logoFetchedAt,
+        metrics = metrics,
     )
 
     /**

@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-PROJECT="${REMOTE_GCP_PROJECT:-${TRACKER_PROJECT:-}}"
+PROJECT="${REMOTE_GCP_PROJECT:-${TRACKER_PROJECT:-$(gcloud config get-value project 2>/dev/null || echo "job-search-fnc314-dev")}}"
 REGION="${REMOTE_GCP_REGION:-us-east1}"
 CRON="${REMOTE_SWEEP_CRON:-0 */6 * * *}"
 SERVICE_NAME="job-tracker-backend"

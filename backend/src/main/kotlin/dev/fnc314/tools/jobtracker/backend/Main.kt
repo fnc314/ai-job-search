@@ -11,8 +11,24 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlin.system.exitProcess
 
-public fun main() {
+public fun main(args: Array<String>) {
+    if (args.contains("--recalculate")) {
+        val targetIndex = args.indexOf("--recalculate") + 1
+        val targetCompanyId = args.getOrNull(targetIndex)?.takeIf { !it.startsWith("--") && it.isNotBlank() }
+        println("Executing company metrics recalculation locally (target: ${targetCompanyId ?: "ALL"})...")
+        try {
+            val result = BackendService.recalculateCompanyMetrics(targetCompanyId)
+            println("Recalculation complete: $result")
+        } catch (e: Exception) {
+            System.err.println("Error during recalculation: ${e.message}")
+            e.printStackTrace()
+            exitProcess(1)
+        }
+        return
+    }
+
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
     embeddedServer(Netty, port = port) {
         routing {
@@ -25,6 +41,23 @@ public fun main() {
             post("/tasks/sweep") {
                 try {
                     val result = BackendService.performRoutineSweep()
+                    val jsonMap = result.mapValues { (_, v) -> JsonPrimitive(v.toString()) }
+                    call.respondText(
+                        Json.encodeToString(JsonObject(jsonMap)),
+                        io.ktor.http.ContentType.Application.Json
+                    )
+                } catch (e: Exception) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                    )
+                }
+            }
+            post("/tasks/companies-recalculate-metrics") {
+                try {
+                    val targetCompanyId = call.request.queryParameters["companyId"]
+                    val result = BackendService.recalculateCompanyMetrics(targetCompanyId)
                     val jsonMap = result.mapValues { (_, v) -> JsonPrimitive(v.toString()) }
                     call.respondText(
                         Json.encodeToString(JsonObject(jsonMap)),

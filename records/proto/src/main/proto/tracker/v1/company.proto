@@ -4,6 +4,7 @@ package tracker.v1;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
+import "tracker/v1/enums.proto";
 
 option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
 option java_multiple_files = true;
@@ -24,6 +25,38 @@ enum LogoShape {
   LOGO_SHAPE_RECTANGLE = 2;
 }
 
+// Company metrics pre-computed for fast lookup and display
+message CompanyMetrics {
+  message Counts {
+    int32 draft = 1;
+    int32 submitted = 2;
+    int32 interviewing = 3;
+    int32 offer = 4;
+    int32 rejected = 5;
+    int32 total = 6;
+  }
+  message Percentages {
+    float draft = 1;
+    float submitted = 2;
+    float interviewing = 3;
+    float offer = 4;
+    float rejected = 5;
+  }
+  message SalaryRange {
+    optional double min = 1;
+    optional double max = 2;
+    string currency = 3;
+    string display = 4;
+  }
+  Counts counts = 1;
+  Percentages percentages = 2;
+  optional int32 average_fit_score = 3;
+  SalaryRange salary_range = 4;
+  ApplicationChannel primary_channel = 5;
+  repeated string locations = 6;
+  google.protobuf.Timestamp last_calculated_at = 7;
+}
+
 // Company — normalized employer records
 message Company {
   string id = 1;
@@ -40,4 +73,5 @@ message Company {
   int32 logo_height = 12;
   LogoShape logo_shape = 13;
   google.protobuf.Timestamp logo_fetched_at = 14;
+  CompanyMetrics metrics = 15;
 }

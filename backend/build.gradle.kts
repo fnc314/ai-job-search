@@ -3,6 +3,10 @@ plugins {
     application
 }
 
+kotlin {
+    jvmToolchain(21)
+}
+
 application {
     mainClass.set("dev.fnc314.tools.jobtracker.backend.MainKt")
 }
@@ -16,4 +20,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.json)
+
+    testImplementation(kotlin("test"))
 }
