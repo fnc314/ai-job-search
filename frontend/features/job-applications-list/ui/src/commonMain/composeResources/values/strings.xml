@@ -50,6 +50,7 @@
     <string name="list_row_cd">%1$s, %2$s, %3$s%4$s</string>
 
     <string name="list_row_created">Created on %1$s</string>
+    <string name="list_row_updated">Updated %1$s</string>
     <string name="list_row_created_unavailable">Created date unavailable</string>
     <string name="list_row_created_applied">Created %1$s • Applied %2$s</string>
     <string name="list_row_header_fit_score">Fit Score</string>

@@ -11,7 +11,7 @@ complexity:
     threshold: 15
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ComplexCondition
-  # ELI5: Stops if-statements from chaining too many '&&' and '||' conditions together into unreadable logic.
+  # ELI5: Stops if-statements from chaining too many "&&" and "||" conditions together into unreadable logic.
   # Type: Int (max number of conditions)
   # Docs: https://detekt.dev/docs/rules/complexity#complexcondition
   # ─────────────────────────────────────────────────────────────────────────────
@@ -39,24 +39,24 @@ complexity:
   CyclomaticComplexMethod:
     active: true
     ignoreAnnotated:
-      - 'Composable'
+      - "Composable"
     ignoreNestingFunctions: false
     ignoreSimpleWhenEntries: true
     ignoreSingleWhenExpression: true
     nestingFunctions:
-      - 'also'
-      - 'apply'
-      - 'forEach'
-      - 'isNotNull'
-      - 'ifNull'
-      - 'let'
-      - 'run'
-      - 'use'
-      - 'with'
+      - "also"
+      - "apply"
+      - "forEach"
+      - "isNotNull"
+      - "ifNull"
+      - "let"
+      - "run"
+      - "use"
+      - "with"
     threshold: 15
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: LabeledExpression
-  # ELI5: Discourages labeled break/continue jumps (e.g., 'break@loop') that create confusing spaghetti flow.
+  # ELI5: Discourages labeled break/continue jumps (e.g., "break@loop") that create confusing spaghetti flow.
   # Type: List<String> (ignored labels)
   # Docs: https://detekt.dev/docs/rules/complexity#labeledexpression
   # ─────────────────────────────────────────────────────────────────────────────
@@ -65,7 +65,7 @@ complexity:
     ignoredLabels: []
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: LargeClass
-  # ELI5: Flags massive 'god classes' that contain too many lines of code and should be broken down.
+  # ELI5: Flags massive "god classes" that contain too many lines of code and should be broken down.
   # Type: Int (max lines of code)
   # Docs: https://detekt.dev/docs/rules/complexity#largeclass
   # ─────────────────────────────────────────────────────────────────────────────
@@ -80,9 +80,9 @@ complexity:
   # ─────────────────────────────────────────────────────────────────────────────
   LongMethod:
     active: true
-    excludes: ['**/PlatformSignInHandler*']
+    excludes: ["**/PlatformSignInHandler*"]
     ignoreAnnotated:
-      - 'Composable'
+      - "Composable"
     threshold: 60
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: LongParameterList
@@ -95,7 +95,7 @@ complexity:
     constructorThreshold: 10
     functionThreshold: 10
     ignoreAnnotated:
-      - 'Composable'
+      - "Composable"
     ignoreAnnotatedParameter: []
     ignoreDataClasses: true
     ignoreDefaultParameters: true
@@ -129,22 +129,22 @@ complexity:
     threshold: 4
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: NestedScopeFunctions
-  # ELI5: Discourages nesting scope functions (let inside apply inside run), which makes 'it' and 'this' confusing.
+  # ELI5: Discourages nesting scope functions (let inside apply inside run), which makes "it" and "this" confusing.
   # Type: List<String> (functions) / Int (threshold)
   # Docs: https://detekt.dev/docs/rules/complexity#nestedscopefunctions
   # ─────────────────────────────────────────────────────────────────────────────
   NestedScopeFunctions:
     active: false
     functions:
-      - 'kotlin.apply'
-      - 'kotlin.run'
-      - 'kotlin.with'
-      - 'kotlin.let'
-      - 'kotlin.also'
+      - "kotlin.apply"
+      - "kotlin.run"
+      - "kotlin.with"
+      - "kotlin.let"
+      - "kotlin.also"
     threshold: 1
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: ReplaceSafeCallChainWithRun
-  # ELI5: Suggests replacing repeated long safe call chains like 'x?.a?.b?.c' with a cleaner 'x?.run { ... }'.
+  # ELI5: Suggests replacing repeated long safe call chains like "x?.a?.b?.c" with a cleaner "x?.run { ... }".
   # Type: Boolean
   # Docs: https://detekt.dev/docs/rules/complexity#replacesafecallchainwithrun
   # ─────────────────────────────────────────────────────────────────────────────
@@ -158,10 +158,10 @@ complexity:
   # ─────────────────────────────────────────────────────────────────────────────
   StringLiteralDuplication:
     active: false
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    excludes: ["**/test/**", "**/androidTest/**", "**/commonTest/**", "**/jvmTest/**", "**/androidUnitTest/**", "**/androidInstrumentedTest/**", "**/jsTest/**", "**/iosTest/**"]
     excludeStringsWithLessThan5Characters: true
     ignoreAnnotation: true
-    ignoreStringsRegex: '$^'
+    ignoreStringsRegex: "$^"
     threshold: 3
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: TooManyFunctions
@@ -171,7 +171,7 @@ complexity:
   # ─────────────────────────────────────────────────────────────────────────────
   TooManyFunctions:
     active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
+    excludes: ["**/test/**", "**/androidTest/**", "**/commonTest/**", "**/jvmTest/**", "**/androidUnitTest/**", "**/androidInstrumentedTest/**", "**/jsTest/**", "**/iosTest/**"]
     ignoreAnnotatedFunctions: []
     ignoreDeprecated: false
     ignoreOverridden: false
