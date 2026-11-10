@@ -24,6 +24,9 @@ import java.io.FileInputStream
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Locale
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 public object BackendService {
     private var initialized = false
@@ -210,7 +213,7 @@ public object BackendService {
 
             transaction.set(eventsColl.document(chained.id), eventDoc)
 
-            // Re-project timeline and counters
+            // Re-project timeline, counters, notes, and submission confirmation
             val updatedEvents = existingEvents + chained
             val timeline = ApplicationTimelineProjector.projectTimeline(updatedEvents)
             val submissionConfirmation = ApplicationTimelineProjector.projectSubmissionConfirmation(
@@ -218,10 +221,12 @@ public object BackendService {
                 updatedEvents
             )
             val counters = ApplicationTimelineProjector.projectCounters(updatedEvents)
+            val renderedNotes = ApplicationTimelineProjector.projectNotes(updatedEvents)
 
             // Update parent application
             val parentUpdate = mutableMapOf<String, Any?>(
                 "updatedAt" to Timestamp.now(),
+                "notesRendered" to renderedNotes,
                 "timeline" to mapOf(
                     "submittedAt" to if (timeline.hasSubmittedAt() && timeline.submittedAt.seconds > 0)
                         Instant.ofEpochSecond(timeline.submittedAt.seconds).toString() else null,
@@ -625,6 +630,182 @@ public object BackendService {
     }
 
     /**
+     * Batch-enriches all company records in Firestore that are missing `sector` or `linkedinUrl`.
+     * Idempotent: skips companies that already have both fields populated, and skips companies
+     * enriched within the last 24 hours (based on `lastEnrichedAt`).
+     */
+    public fun batchEnrichCompanies(): Map<String, Any> {
+        val db = firestore
+        val snapshot = db.collection("companies").get().get()
+        var enriched = 0
+        var skipped = 0
+        var errors = 0
+        val errorDetails = mutableListOf<String>()
+
+        for (doc in snapshot.documents) {
+            val data = doc.data ?: continue
+            val companyId = doc.id
+            val hasSector = !(data["sector"] as? String).isNullOrBlank()
+            val hasLinkedinUrl = !(data["linkedinUrl"] as? String).isNullOrBlank()
+
+            // Skip if both fields are already populated
+            if (hasSector && hasLinkedinUrl) {
+                skipped++
+                continue
+            }
+
+            // Skip if enriched within the last 24 hours
+            val lastEnrichedAt = data["lastEnrichedAt"] as? Timestamp
+            if (lastEnrichedAt != null) {
+                val elapsed = ChronoUnit.HOURS.between(lastEnrichedAt.toDate().toInstant(), Instant.now())
+                if (elapsed < 24) {
+                    skipped++
+                    continue
+                }
+            }
+
+            // Try to enrich via Hunter.io logo API (returns industry data)
+            try {
+                val companyName = (data["name"] as? String) ?: companyId
+                val website = (data["website"] as? String) ?: run {
+                    // Try to derive website from company name
+                    val domain = companyName.lowercase().replace(Regex("[^a-z0-9]+"), ".")
+                    "https://www.$domain.com"
+                }
+
+                val hunterResult = fetchHunterCompanyInfo(website)
+                val hunterIndustry = hunterResult["industry"] as? String
+                val hunterLinkedinUrl = hunterResult["linkedin_url"] as? String
+
+                val enrichResult = enrichCompany(
+                    companyId = companyId,
+                    companyName = companyName,
+                    linkedinUrl = hunterLinkedinUrl,
+                    industry = hunterIndustry,
+                    logoUrl = hunterResult["logo_url"] as? String
+                )
+
+                if (enrichResult["updated"] as? Boolean == true) {
+                    enriched++
+                } else {
+                    skipped++
+                }
+            } catch (e: Exception) {
+                errors++
+                errorDetails.add("$companyId: ${e.message}")
+            }
+        }
+
+        return mapOf(
+            "status" to "SUCCESS",
+            "enriched" to enriched,
+            "skipped" to skipped,
+            "errors" to errors,
+            "errorDetails" to errorDetails,
+            "timestamp" to Timestamp.now().toString()
+        )
+    }
+
+    /**
+     * Fetches company info from Hunter.io API, including industry and LinkedIn URL.
+     */
+    private fun fetchHunterCompanyInfo(website: String): Map<String, Any?> {
+        val apiKey = System.getenv("HUNTER_API_KEY")
+        if (apiKey.isNullOrBlank()) {
+            return emptyMap()
+        }
+
+        // Normalize website to domain
+        val domain = try {
+            val url = java.net.URL(website)
+            url.host.removePrefix("www.")
+        } catch (_: Exception) {
+            website.removePrefix("https://").removePrefix("http://").removePrefix("www.").split("/").first()
+        }
+
+        val apiUrl = "https://api.hunter.io/v2/companies?domain=$domain&api_key=$apiKey"
+        val connection = java.net.URL(apiUrl).openConnection() as java.net.HttpURLConnection
+        connection.requestMethod = "GET"
+        connection.connectTimeout = 5000
+        connection.readTimeout = 10000
+
+        try {
+            if (connection.responseCode == 200) {
+                val response = connection.inputStream.bufferedReader().readText()
+                val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }.parseToJsonElement(response)
+                val data = json.jsonObject["data"]?.jsonObject?.get("company")?.jsonObject ?: return emptyMap()
+
+                return mapOf(
+                    "industry" to (data["industry"]?.jsonPrimitive?.contentOrNull),
+                    "linkedin_url" to (data["linkedin"]?.jsonPrimitive?.contentOrNull),
+                    "logo_url" to (data["website_pages"]?.jsonObject?.get("logo")?.jsonPrimitive?.contentOrNull)
+                )
+            }
+        } finally {
+            connection.disconnect()
+        }
+
+        return emptyMap()
+    }
+
+    /**
+     * Creates a new company record from name and optional website.
+     * Derives slug from name, resolves careersUrl from website if provided.
+     */
+    public fun addCompany(name: String, website: String? = null): Map<String, Any?> {
+        val db = firestore
+        val slug = name.lowercase()
+            .replace(Regex("[^a-z0-9]+"), "-")
+            .trim('-')
+            .takeIf { it.isNotBlank() }
+            ?: "unknown-company"
+
+        val companyDoc = db.collection("companies").document(slug)
+        val existingSnap = companyDoc.get().get()
+
+        if (existingSnap.exists()) {
+            return mapOf(
+                "status" to "EXISTS",
+                "companyId" to slug,
+                "company" to existingSnap.data
+            )
+        }
+
+        val careersUrl = when {
+            !website.isNullOrBlank() -> {
+                val normalizedWebsite = website.removeSuffix("/")
+                "$normalizedWebsite/careers"
+            }
+            else -> null
+        }
+
+        val now = Timestamp.now()
+        val payload = mutableMapOf<String, Any>(
+            "companyId" to slug,
+            "name" to name,
+            "createdAt" to now,
+            "updatedAt" to now
+        )
+
+        if (!website.isNullOrBlank()) {
+            payload["website"] = website.removeSuffix("/")
+        }
+
+        if (!careersUrl.isNullOrBlank()) {
+            payload["careersUrl"] = careersUrl
+        }
+
+        companyDoc.set(payload).get()
+
+        val finalDoc = companyDoc.get().get().data ?: payload
+        return mapOf(
+            "status" to "CREATED",
+            "companyId" to slug,
+            "company" to finalDoc
+        )
+    }
+
+    /**
      * Enriches a company record in Firestore with sector, logoUrl, and metadata.
      * Non-destructive and idempotent.
      */
@@ -675,7 +856,9 @@ public object BackendService {
         }
 
         if (updates.isNotEmpty()) {
-            updates["updatedAt"] = Timestamp.now()
+            val now = Timestamp.now()
+            updates["updatedAt"] = now
+            updates["lastEnrichedAt"] = now
             compRef.set(updates, SetOptions.merge()).get()
         }
 
@@ -685,6 +868,75 @@ public object BackendService {
             "companyId" to companyId,
             "updated" to updates.isNotEmpty(),
             "company" to finalDoc
+        )
+    }
+
+    /**
+     * Aligns an application's parent record with its events subcollection:
+     * recalculates derived notesRendered, timeline, counters, and submissionConfirmation,
+     * merging updates atomically into Firestore.
+     */
+    public fun alignApplication(
+        applicationId: String,
+        dryRun: Boolean = false,
+    ): Map<String, Any?> {
+        val db = firestore
+        val appRef = db.collection("applications").document(applicationId)
+        val snap = appRef.get().get()
+        if (!snap.exists()) {
+            throw IllegalArgumentException("Application not found: $applicationId")
+        }
+
+        val eventsDocs = appRef.collection("events").get().get().documents
+        val existingEvents = eventsDocs.map { mapToTrackerEvent(it.id, it.data) }
+
+        val timeline = ApplicationTimelineProjector.projectTimeline(existingEvents)
+        val submissionConfirmation = ApplicationTimelineProjector.projectSubmissionConfirmation(null, existingEvents)
+        val counters = ApplicationTimelineProjector.projectCounters(existingEvents)
+        val notesRendered = ApplicationTimelineProjector.projectNotes(existingEvents)
+        val latestStatus = ApplicationTimelineProjector.latestStatus(existingEvents)
+
+        val updates = mutableMapOf<String, Any?>(
+            "notesRendered" to notesRendered,
+            "timeline" to mapOf(
+                "submittedAt" to if (timeline.hasSubmittedAt() && timeline.submittedAt.seconds > 0)
+                    Instant.ofEpochSecond(timeline.submittedAt.seconds).toString() else null,
+                "submissionConfirmedAt" to if (timeline.hasSubmissionConfirmedAt() && timeline.submissionConfirmedAt.seconds > 0)
+                    Instant.ofEpochSecond(timeline.submissionConfirmedAt.seconds).toString() else null,
+                "firstActivityAt" to if (timeline.hasFirstActivityAt() && timeline.firstActivityAt.seconds > 0)
+                    Instant.ofEpochSecond(timeline.firstActivityAt.seconds).toString() else null,
+                "lastActivityAt" to if (timeline.hasLastActivityAt() && timeline.lastActivityAt.seconds > 0)
+                    Instant.ofEpochSecond(timeline.lastActivityAt.seconds).toString() else null,
+                "daysSinceActivity" to timeline.daysSinceActivity
+            ),
+            "submissionConfirmation" to mapOf(
+                "isConfirmed" to submissionConfirmation.isConfirmed,
+                "confidence" to submissionConfirmation.confidence.name,
+                "submittedAt" to if (submissionConfirmation.hasSubmittedAt() && submissionConfirmation.submittedAt.seconds > 0)
+                    Instant.ofEpochSecond(submissionConfirmation.submittedAt.seconds).toString() else null,
+                "confirmedAt" to if (submissionConfirmation.hasConfirmedAt() && submissionConfirmation.confirmedAt.seconds > 0)
+                    Instant.ofEpochSecond(submissionConfirmation.confirmedAt.seconds).toString() else null,
+                "confirmationEmailMessageId" to submissionConfirmation.confirmationEmailMessageId.takeIf { it.isNotBlank() },
+                "sourceSubject" to submissionConfirmation.sourceSubject.takeIf { it.isNotBlank() },
+                "notes" to submissionConfirmation.notes.takeIf { it.isNotBlank() }
+            ),
+            "counters" to counters
+        )
+
+        if (latestStatus != null && latestStatus != TrackerStatus.TRACKER_STATUS_UNSPECIFIED) {
+            updates["status"] = latestStatus.name
+        }
+
+        if (!dryRun) {
+            updates["updatedAt"] = Timestamp.now()
+            appRef.set(updates, SetOptions.merge()).get()
+        }
+
+        return mapOf(
+            "status" to "SUCCESS",
+            "applicationId" to applicationId,
+            "dryRun" to dryRun,
+            "updates" to updates
         )
     }
 }

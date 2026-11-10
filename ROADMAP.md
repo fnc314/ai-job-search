@@ -58,7 +58,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Priority:** MEDIUM
 **Complexity:** 5 — Critical
 **Status:** IN_PROGRESS
-**Completion %:** 25
+**Completion %:** 35
 **Creation Date:** 2026-09-01
 **Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/terminal`).
 
@@ -82,12 +82,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - The `records/` module already contains Kotlin parser/proto code that can serve as a reference
 
 **Linked Plans:**
+- `.agents/plans/2026-11-10/154500_pure_kotlin_migration_render_py.md`
 - `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
 - `.agents/plans/2026-11-08/180500_python-to-mise-tasks-migration-plan.md`
 
 **Changelog:**
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-10 | Progress update   | Migrated renderNotes and event projection logic to pure Kotlin (records/parser), marked render.py deprecated |
 | 2026-11-10 | Progress update   | Implemented pure Kotlin EventChainBuilder and ApplicationTimelineProjector in records/parser |
 | 2026-11-10 | Item created      | Renamed from TODO-001 to RM-001      |
 
@@ -139,7 +141,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Priority:** HIGH
 **Complexity:** 3 — Moderate
 **Status:** IN_PROGRESS
-**Completion %:** 60
+**Completion %:** 75
 **Creation Date:** 2026-09-01
 **Objective:** Migrate existing deterministic Python functionalities and expose them to both `backend/` and `frontend/apps` projects. This sets the high-level requirement for any backend functionality created — deterministic tasks that don't require AI oversight should be offloaded to regular computation environments or automated processes.
 
@@ -162,12 +164,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - The `backend/` directory already exists as a small Kotlin service
 
 **Linked Plans:**
+- `.agents/plans/2026-11-10/154500_pure_kotlin_migration_render_py.md`
 - `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
 - `.agents/plans/2026-11-09/125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md`
 
 **Changelog:**
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-10 | Status update     | Implemented application alignment route and service logic |
 | 2026-11-10 | Status update     | Implemented event chaining, projections, and backend service append |
 | 2026-11-10 | Item created      | Renamed from TODO-003 to RM-003      |
 

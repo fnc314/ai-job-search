@@ -1,4 +1,8 @@
-"""Derived, read-only projections of the event log.
+"""DEPRECATED: As part of RM-001/RM-003, projection logic has moved to Kotlin
+records/parser (ApplicationTimelineProjector & EventNoteRenderer).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+Derived, read-only projections of the event log.
 
 `notesRendered` is output, not input. It is regenerated from events so that the
 human-readable history can never drift from the recorded one, and so a UI never

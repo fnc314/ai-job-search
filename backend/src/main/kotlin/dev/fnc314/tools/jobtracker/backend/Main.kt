@@ -36,6 +36,19 @@ public fun main(args: Array<String>) {
         return
     }
 
+    if (args.contains("--enrich-batch")) {
+        println("Executing batch company enrichment locally...")
+        try {
+            val result = BackendService.batchEnrichCompanies()
+            println("Batch enrichment complete: $result")
+        } catch (e: Exception) {
+            System.err.println("Error during batch enrichment: ${e.message}")
+            e.printStackTrace()
+            exitProcess(1)
+        }
+        return
+    }
+
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
     embeddedServer(Netty, port = port) {
         routing {
@@ -73,6 +86,34 @@ public fun main(args: Array<String>) {
                         idempotencyKey = idempotencyKey
                     )
 
+                    val responseJson = Json.encodeToString(JsonObject(result.mapValues { (_, v) -> JsonPrimitive(v?.toString() ?: "") }))
+                    call.respondText(
+                        responseJson,
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.OK
+                    )
+                } catch (e: Exception) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                    )
+                }
+            }
+            post("/applications/{id}/align") {
+                val applicationId = call.parameters["id"]
+                if (applicationId.isNullOrBlank()) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"Missing applicationId parameter"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.BadRequest
+                    )
+                    return@post
+                }
+
+                try {
+                    val dryRun = call.request.queryParameters["dryRun"]?.toBooleanStrictOrNull() ?: false
+                    val result = BackendService.alignApplication(applicationId, dryRun = dryRun)
                     val responseJson = Json.encodeToString(JsonObject(result.mapValues { (_, v) -> JsonPrimitive(v?.toString() ?: "") }))
                     call.respondText(
                         responseJson,
@@ -129,6 +170,61 @@ public fun main(args: Array<String>) {
                         industry = industry,
                         logoUrl = logoUrl
                     )
+
+                    val responseJson = Json.encodeToString(JsonObject(result.mapValues { (_, v) -> JsonPrimitive(v?.toString() ?: "") }))
+                    call.respondText(
+                        responseJson,
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.OK
+                    )
+                } catch (e: Exception) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                    )
+                }
+            }
+            post("/companies/tasks/enrich/batch") {
+                try {
+                    val result = BackendService.batchEnrichCompanies()
+                    val jsonMap = result.mapValues { (_, v) ->
+                        when (v) {
+                            is List<*> -> {
+                                kotlinx.serialization.json.JsonArray(v.map { kotlinx.serialization.json.JsonPrimitive(it?.toString() ?: "") })
+                            }
+                            else -> kotlinx.serialization.json.JsonPrimitive(v?.toString() ?: "")
+                        }
+                    }
+                    call.respondText(
+                        Json.encodeToString(JsonObject(jsonMap)),
+                        io.ktor.http.ContentType.Application.Json
+                    )
+                } catch (e: Exception) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                    )
+                }
+            }
+            post("/companies/add") {
+                try {
+                    val bodyText = call.receiveText()
+                    val jsonElement = Json.parseToJsonElement(bodyText).jsonObject
+                    val name = jsonElement["name"]?.jsonPrimitive?.contentOrNull
+                    val website = jsonElement["website"]?.jsonPrimitive?.contentOrNull
+
+                    if (name.isNullOrBlank()) {
+                        call.respondText(
+                            """{"status":"ERROR","message":"Missing name parameter"}""",
+                            io.ktor.http.ContentType.Application.Json,
+                            status = io.ktor.http.HttpStatusCode.BadRequest
+                        )
+                        return@post
+                    }
+
+                    val result = BackendService.addCompany(name = name, website = website)
 
                     val responseJson = Json.encodeToString(JsonObject(result.mapValues { (_, v) -> JsonPrimitive(v?.toString() ?: "") }))
                     call.respondText(

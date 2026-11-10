@@ -5,6 +5,7 @@ import dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfirmation
 import dev.fnc314.tools.jobsearch.tracker.v1.Timeline
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
+import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import com.google.protobuf.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -159,5 +160,25 @@ public object ApplicationTimelineProjector {
             "rejections" to rejections,
             "followUpsSent" to followUpsSent,
         )
+    }
+
+    /**
+     * Resolves human-readable history formatted with timestamps and notes via [EventNoteRenderer].
+     */
+    public fun projectNotes(events: List<TrackerEvent>): String? {
+        return EventNoteRenderer.renderNotes(events)
+    }
+
+    /**
+     * Finds the latest implied funnel status from status-bearing events.
+     */
+    public fun latestStatus(events: List<TrackerEvent>): TrackerStatus? {
+        val sorted = events.sortedWith(
+            compareBy<TrackerEvent> { if (it.sequenceNumber > 0) it.sequenceNumber else Long.MAX_VALUE }
+                .thenBy { it.createdAt.seconds }
+                .thenBy { it.id }
+        )
+
+        return sorted.lastOrNull { it.statusTo != TrackerStatus.TRACKER_STATUS_UNSPECIFIED }?.statusTo
     }
 }
