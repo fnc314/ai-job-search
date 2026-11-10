@@ -57,6 +57,13 @@ public class KotlinMultiplatformConventionPlugin : Plugin<Project>, BaseConventi
             compilerOptions {
                 freeCompilerArgs.add("-Xexpect-actual-classes")
             }
+            sourceSets.apply {
+                commonMain.dependencies {
+                    implementation(
+                        CatalogTypes.Libraries.KOTLINX_DATETIME(project)
+                    )
+                }
+            }
         }
 
         // 3. Testing conventions (dependencies, logging, test tasks)

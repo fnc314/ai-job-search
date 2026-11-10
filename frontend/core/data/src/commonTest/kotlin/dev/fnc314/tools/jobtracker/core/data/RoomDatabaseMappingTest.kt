@@ -86,6 +86,7 @@ public class RoomDatabaseMappingTest {
             contactIds = listOf("contact-1"),
             uuid = originalUuid,
             schemaVersion = 8,
+            appliedAt = Instant.fromEpochSeconds(epochSeconds = 2_000_000L)
         )
 
         val entity = JobApplicationMapper.toEntity(domain)

@@ -32,6 +32,7 @@ import kotlin.time.Instant
  * @property createdAt Timestamp when the record was initially created.
  * @property updatedAt Timestamp when the record was last modified.
  * @property jobApplicationUrl Direct candidate portal link.
+ * @property appliedAt Timestamp when the application was submitted
  */
 @Entity(
     tableName = "job_applications",
@@ -59,4 +60,5 @@ public data class JobApplicationEntity(
     public val updatedAt: Instant?,
     public val jobApplicationUrl: String?,
     public val emailMessageIds: List<String> = emptyList(),
+    public val appliedAt: Instant?,
 )

@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import dev.fnc314.tools.jobtracker.core.data.model.Company
@@ -63,6 +64,7 @@ import fnc314jobsearchtracker.features_job_application_details_ui.generated.reso
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_record_event
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_update_fit
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_update_status
+import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_applied_on
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_company_aliases
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_company_industry
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_company_logo_cd
@@ -99,587 +101,600 @@ import org.koin.compose.koinInject
  */
 @Composable
 public fun JobApplicationDetailsScreen(
-    applicationId: String,
-    viewModel: JobApplicationDetailViewModel = koinInject(),
-    onNavigateBack: () -> Unit,
-    onArtifactClick: (TrackerArtifact) -> Unit = {},
-    settings: AppSettings = AppSettings(),
-    modifier: Modifier = Modifier,
-): Unit {
-    val uiState by viewModel.uiState.collectAsState()
+  applicationId: String,
+  viewModel: JobApplicationDetailViewModel = koinInject(),
+  onNavigateBack: () -> Unit,
+  onArtifactClick: (TrackerArtifact) -> Unit = {},
+  settings: AppSettings = AppSettings(),
+  modifier: Modifier = Modifier,
+) {
+  val uiState by viewModel.uiState.collectAsState()
 
-    BackHandler(enabled = true) {
+  BackHandler(enabled = true) {
+    onNavigateBack()
+  }
+
+  LaunchedEffect(applicationId) {
+    viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
+  }
+
+  when (val state = uiState) {
+    is JobApplicationDetailUiState.NavigateBack -> {
+      LaunchedEffect(state) {
         onNavigateBack()
+      }
     }
 
-    LaunchedEffect(applicationId) {
-        viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
+    is JobApplicationDetailUiState.Loading -> {
+      LoadingWidget(modifier = modifier)
     }
 
-    when (val state = uiState) {
-        is JobApplicationDetailUiState.NavigateBack -> {
-            LaunchedEffect(state) {
-                onNavigateBack()
-            }
-        }
-        is JobApplicationDetailUiState.Loading -> {
-            LoadingWidget(modifier = modifier)
-        }
-        is JobApplicationDetailUiState.Error -> {
-            val goBackText = stringResource(Res.string.detail_action_go_back)
-            ErrorBannerWidget(
-                message = stringResource(Res.string.detail_error_prefix, state.message),
-                onRetry = {
-                    viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
-                },
-                secondaryAction = goBackText to onNavigateBack,
-                modifier = modifier.padding(MaterialTheme.spacing.medium),
-            )
-        }
-        is JobApplicationDetailUiState.Content -> {
-            JobApplicationDetailContent(
-                state = state,
-                onIntent = viewModel::onIntent,
-                onArtifactClick = onArtifactClick,
-                settings = settings,
-                modifier = modifier,
-            )
-        }
+    is JobApplicationDetailUiState.Error -> {
+      val goBackText = stringResource(Res.string.detail_action_go_back)
+      ErrorBannerWidget(
+        message = stringResource(Res.string.detail_error_prefix, state.message),
+        onRetry = {
+          viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
+        },
+        secondaryAction = goBackText to onNavigateBack,
+        modifier = modifier.padding(MaterialTheme.spacing.medium),
+      )
     }
+
+    is JobApplicationDetailUiState.Content -> {
+      JobApplicationDetailContent(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onArtifactClick = onArtifactClick,
+        settings = settings,
+        modifier = modifier,
+      )
+    }
+  }
 }
 
 @Composable
 private fun JobApplicationDetailContent(
-    state: JobApplicationDetailUiState.Content,
-    onIntent: (JobApplicationDetailUiIntent) -> Unit,
-    onArtifactClick: (TrackerArtifact) -> Unit,
-    settings: AppSettings,
-    modifier: Modifier = Modifier,
-): Unit {
-    val model = state.model
-    var showStatusDialog by remember { mutableStateOf(false) }
-    var showEventDialog by remember { mutableStateOf(false) }
-    var showFitDialog by remember { mutableStateOf(false) }
-    var fabMenuExpanded by remember { mutableStateOf(false) }
+  state: JobApplicationDetailUiState.Content,
+  onIntent: (JobApplicationDetailUiIntent) -> Unit,
+  onArtifactClick: (TrackerArtifact) -> Unit,
+  settings: AppSettings,
+  modifier: Modifier = Modifier,
+) {
+  val model = state.model
+  var showStatusDialog by remember { mutableStateOf(false) }
+  var showEventDialog by remember { mutableStateOf(false) }
+  var showFitDialog by remember { mutableStateOf(false) }
+  var fabMenuExpanded by remember { mutableStateOf(false) }
 
-    if (showStatusDialog) {
-        UpdateStatusDialog(
-            currentStatus = model.status,
-            onConfirm = { status, date, note ->
-                onIntent(JobApplicationDetailUiIntent.UpdateStatus(newStatus = status, date = date, note = note))
-                showStatusDialog = false
-            },
-            onDismiss = { showStatusDialog = false },
-        )
-    }
+  if (showStatusDialog) {
+    UpdateStatusDialog(
+      currentStatus = model.status,
+      onConfirm = { status, date, note ->
+        onIntent(JobApplicationDetailUiIntent.UpdateStatus(newStatus = status, date = date, note = note))
+        showStatusDialog = false
+      },
+      onDismiss = { showStatusDialog = false },
+    )
+  }
 
-    if (showEventDialog) {
-        RecordEventDialog(
-            onConfirm = { type, note ->
-                onIntent(JobApplicationDetailUiIntent.RecordEvent(type = type, notes = note.orEmpty()))
-                showEventDialog = false
-            },
-            onDismiss = { showEventDialog = false },
-        )
-    }
+  if (showEventDialog) {
+    RecordEventDialog(
+      onConfirm = { type, note ->
+        onIntent(JobApplicationDetailUiIntent.RecordEvent(type = type, notes = note.orEmpty()))
+        showEventDialog = false
+      },
+      onDismiss = { showEventDialog = false },
+    )
+  }
 
-    if (showFitDialog) {
-        UpdateFitScoreDialog(
-            currentScore = model.fitScore,
-            onConfirm = { score ->
-                onIntent(JobApplicationDetailUiIntent.UpdateFitScore(newScore = score))
-                showFitDialog = false
-            },
-            onDismiss = { showFitDialog = false },
-        )
-    }
+  if (showFitDialog) {
+    UpdateFitScoreDialog(
+      currentScore = model.fitScore,
+      onConfirm = { score ->
+        onIntent(JobApplicationDetailUiIntent.UpdateFitScore(newScore = score))
+        showFitDialog = false
+      },
+      onDismiss = { showFitDialog = false },
+    )
+  }
 
-    val windowSizeClass = LocalWindowSizeClass.current
-    val isWide = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
+  val windowSizeClass = LocalWindowSizeClass.current
+  val isWide = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
 
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            if (state.isUpdating) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-            }
+  Box(modifier = modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()) {
+      if (state.isUpdating) {
+        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+      }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f),
-                contentAlignment = Alignment.TopCenter,
-            ) {
-                if (isWide) {
-                    // 2-column layout for Medium and Expanded viewports
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .widthIn(max = MaterialTheme.componentSizes.detailMaxWidth)
-                            .padding(MaterialTheme.spacing.medium)
-                            .verticalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-                        ) {
-                            ApplicationSummarySection(
-                                model = model,
-                                onAdjustFitClick = { showFitDialog = true },
-                            )
-                            model.company?.let { CompanyProfileSection(company = it) }
-                            ApplicationEmailsSection(model = model)
-                            model.notesRendered?.let { notes ->
-                                SectionHeader(stringResource(Res.string.detail_section_notes))
-                                OutlinedCard(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = MaterialTheme.shapes.medium,
-                                ) {
-                                    Text(
-                                        text = notes,
-                                        modifier = Modifier.padding(MaterialTheme.spacing.medium),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                    )
-                                }
-                            }
-                        }
-
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-                        ) {
-                            SectionHeader(stringResource(Res.string.detail_section_artifacts))
-                            ArtifactsList(
-                                artifacts = model.artifacts,
-                                onArtifactClick = { artifact ->
-                                    onIntent(JobApplicationDetailUiIntent.OpenArtifact(artifact.id))
-                                    onArtifactClick(artifact)
-                                },
-                                settings = settings,
-                            )
-
-                            ApplicationTimelineSection(model = model)
-                        }
-                    }
-                } else {
-                    // 1-column layout for Compact viewports
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-                    ) {
-                        ApplicationSummarySection(
-                            model = model,
-                            onAdjustFitClick = { showFitDialog = true },
-                        )
-                        model.company?.let { CompanyProfileSection(company = it) }
-                        ApplicationEmailsSection(model = model)
-
-                        SectionHeader(stringResource(Res.string.detail_section_artifacts))
-                        ArtifactsList(
-                            artifacts = model.artifacts,
-                            onArtifactClick = { artifact ->
-                                onIntent(JobApplicationDetailUiIntent.OpenArtifact(artifact.id))
-                                onArtifactClick(artifact)
-                            },
-                            settings = settings,
-                        )
-
-                        ApplicationTimelineSection(model = model)
-
-                        model.notesRendered?.let { notes ->
-                            SectionHeader(stringResource(Res.string.detail_section_notes))
-                            OutlinedCard(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = MaterialTheme.spacing.medium),
-                                shape = MaterialTheme.shapes.medium,
-                            ) {
-                                Text(
-                                    text = notes,
-                                    modifier = Modifier.padding(MaterialTheme.spacing.medium),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Details Menu FAB
-        Box(
+      Box(
+        modifier = Modifier
+          .fillMaxSize()
+          .weight(1f),
+        contentAlignment = Alignment.TopCenter,
+      ) {
+        if (isWide) {
+          // 2-column layout for Medium and Expanded viewports
+          Row(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(MaterialTheme.spacing.medium),
-        ) {
-            FloatingActionButton(
-                onClick = { fabMenuExpanded = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+              .fillMaxWidth()
+              .widthIn(max = MaterialTheme.componentSizes.detailMaxWidth)
+              .padding(MaterialTheme.spacing.medium)
+              .verticalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+          ) {
+            Column(
+              modifier = Modifier.weight(1f),
+              verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(Res.string.detail_fab_cd),
-                )
+              ApplicationSummarySection(
+                model = model,
+                onAdjustFitClick = { showFitDialog = true },
+              )
+              model.company?.let { CompanyProfileSection(company = it) }
+              ApplicationEmailsSection(model = model)
+              model.notesRendered?.let { notes ->
+                SectionHeader(stringResource(Res.string.detail_section_notes))
+                OutlinedCard(
+                  modifier = Modifier.fillMaxWidth(),
+                  shape = MaterialTheme.shapes.medium,
+                ) {
+                  Text(
+                    text = notes,
+                    modifier = Modifier.padding(MaterialTheme.spacing.medium),
+                    style = MaterialTheme.typography.bodyMedium,
+                  )
+                }
+              }
             }
-            DropdownMenu(
-                expanded = fabMenuExpanded,
-                onDismissRequest = { fabMenuExpanded = false },
+
+            Column(
+              modifier = Modifier.weight(1f),
+              verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(Res.string.detail_action_update_status)) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Sharp.Notifications,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-                        )
-                    },
-                    onClick = {
-                        fabMenuExpanded = false
-                        showStatusDialog = true
-                    },
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(Res.string.detail_action_record_event)) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Sharp.Edit,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-                        )
-                    },
-                    onClick = {
-                        fabMenuExpanded = false
-                        showEventDialog = true
-                    },
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(Res.string.detail_action_update_fit)) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Build,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-                        )
-                    },
-                    onClick = {
-                        fabMenuExpanded = false
-                        showFitDialog = true
-                    },
-                )
+              SectionHeader(stringResource(Res.string.detail_section_artifacts))
+              ArtifactsList(
+                artifacts = model.artifacts,
+                onArtifactClick = { artifact ->
+                  onIntent(JobApplicationDetailUiIntent.OpenArtifact(artifact.id))
+                  onArtifactClick(artifact)
+                },
+                settings = settings,
+              )
+
+              ApplicationTimelineSection(model = model)
             }
+          }
+        } else {
+          // 1-column layout for Compact viewports
+          Column(
+            modifier = Modifier
+              .fillMaxSize()
+              .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+          ) {
+            ApplicationSummarySection(
+              model = model,
+              onAdjustFitClick = { showFitDialog = true },
+            )
+            model.company?.let { CompanyProfileSection(company = it) }
+            ApplicationEmailsSection(model = model)
+
+            SectionHeader(stringResource(Res.string.detail_section_artifacts))
+            ArtifactsList(
+              artifacts = model.artifacts,
+              onArtifactClick = { artifact ->
+                onIntent(JobApplicationDetailUiIntent.OpenArtifact(artifact.id))
+                onArtifactClick(artifact)
+              },
+              settings = settings,
+            )
+
+            ApplicationTimelineSection(model = model)
+
+            model.notesRendered?.let { notes ->
+              SectionHeader(stringResource(Res.string.detail_section_notes))
+              OutlinedCard(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(horizontal = MaterialTheme.spacing.medium),
+                shape = MaterialTheme.shapes.medium,
+              ) {
+                Text(
+                  text = notes,
+                  modifier = Modifier.padding(MaterialTheme.spacing.medium),
+                  style = MaterialTheme.typography.bodyMedium,
+                )
+              }
+            }
+          }
         }
+      }
     }
+
+    // Details Menu FAB
+    Box(
+      modifier = Modifier
+        .align(Alignment.BottomEnd)
+        .padding(MaterialTheme.spacing.medium),
+    ) {
+      FloatingActionButton(
+        onClick = { fabMenuExpanded = true },
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+      ) {
+        Icon(
+          imageVector = Icons.Default.Edit,
+          contentDescription = stringResource(Res.string.detail_fab_cd),
+        )
+      }
+      DropdownMenu(
+        expanded = fabMenuExpanded,
+        onDismissRequest = { fabMenuExpanded = false },
+      ) {
+        DropdownMenuItem(
+          text = { Text(stringResource(Res.string.detail_action_update_status)) },
+          leadingIcon = {
+            Icon(
+              imageVector = Icons.Sharp.Notifications,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+            )
+          },
+          onClick = {
+            fabMenuExpanded = false
+            showStatusDialog = true
+          },
+        )
+        DropdownMenuItem(
+          text = { Text(stringResource(Res.string.detail_action_record_event)) },
+          leadingIcon = {
+            Icon(
+              imageVector = Icons.Sharp.Edit,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.secondary,
+              modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+            )
+          },
+          onClick = {
+            fabMenuExpanded = false
+            showEventDialog = true
+          },
+        )
+        DropdownMenuItem(
+          text = { Text(stringResource(Res.string.detail_action_update_fit)) },
+          leadingIcon = {
+            Icon(
+              imageVector = Icons.Default.Build,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.tertiary,
+              modifier = Modifier.size(MaterialTheme.iconSizes.standard),
+            )
+          },
+          onClick = {
+            fabMenuExpanded = false
+            showFitDialog = true
+          },
+        )
+      }
+    }
+  }
 }
 
 @Composable
 internal fun ApplicationSummarySection(
-    model: JobApplicationDetailUiModel,
-    modifier: Modifier = Modifier,
-    onAdjustFitClick: (() -> Unit)? = null,
-): Unit {
-    OutlinedCard(
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.spacing.medium),
+  model: JobApplicationDetailUiModel,
+  modifier: Modifier = Modifier,
+  onAdjustFitClick: (() -> Unit)? = null,
+) {
+  OutlinedCard(
+    shape = MaterialTheme.shapes.medium,
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(horizontal = MaterialTheme.spacing.medium),
+  ) {
+    Column(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(MaterialTheme.spacing.medium),
+      verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(MaterialTheme.spacing.medium),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = model.companyName,
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.weight(1f),
-                )
-                StatusBadge(status = model.status, textAlign = TextAlign.End)
-            }
-
-            model.role?.let { role ->
-                Text(
-                    text = role,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-            ) {
-                model.formattedLocation?.let { location ->
-                    Text(
-                        text = stringResource(Res.string.detail_prefix_location, location),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-                Text(
-                    text = stringResource(Res.string.detail_prefix_channel, model.channelDisplayText),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-
-            model.formattedCompensation?.let { compensation ->
-                Text(
-                    text = stringResource(Res.string.detail_prefix_compensation, compensation),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-
-            val fitScore = model.fitScore
-            val adjustFitLabel: String = stringResource(Res.string.detail_action_adjust_fit_cd)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                modifier = if (onAdjustFitClick != null) {
-                    Modifier.clickable(
-                        onClick = onAdjustFitClick,
-                        onClickLabel = adjustFitLabel,
-                    )
-                } else {
-                    Modifier
-                },
-            ) {
-                Text(
-                    text = stringResource(Res.string.detail_fit_rating_label, model.fitScoreDisplayText),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                if (fitScore != null) {
-                    FitBadge(score = fitScore)
-                }
-                if (onAdjustFitClick != null) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = adjustFitLabel,
-                        modifier = Modifier.size(MaterialTheme.iconSizes.small),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
-
-            if (model.fitGaps.isNotEmpty()) {
-                Text(
-                    text = stringResource(Res.string.detail_label_gaps, model.fitGaps.joinToString(", ")),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            model.jobUrl?.let { url ->
-                Text(
-                    text = stringResource(Res.string.detail_prefix_job_url, url),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-
-            model.jobApplicationUrl?.let { url ->
-                Text(
-                    text = stringResource(Res.string.detail_prefix_app_url, url),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-
-            Text(
-                text = stringResource(Res.string.detail_last_updated, model.lastUpdatedDisplay()),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        model.role?.let { role ->
+          Text(
+            text = role,
+            modifier = Modifier.weight(1.0F),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
         }
+        StatusBadge(status = model.status, textAlign = TextAlign.End)
+      }
+      Text(
+        text = model.companyName,
+        style = MaterialTheme.typography.bodyLarge,
+      )
+
+      Row(
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+      ) {
+        model.formattedLocation?.let { location ->
+          Text(
+            text = stringResource(Res.string.detail_prefix_location, location),
+            style = MaterialTheme.typography.bodyMedium,
+          )
+        }
+        Text(
+          text = stringResource(Res.string.detail_prefix_channel, model.channelDisplayText),
+          style = MaterialTheme.typography.bodyMedium,
+        )
+      }
+
+      model.formattedCompensation?.let { compensation ->
+        Text(
+          text = stringResource(Res.string.detail_prefix_compensation, compensation),
+          style = MaterialTheme.typography.bodyMedium,
+        )
+      }
+
+      val fitScore = model.fitScore
+      val adjustFitLabel: String = stringResource(Res.string.detail_action_adjust_fit_cd)
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+        modifier = if (onAdjustFitClick != null) {
+          Modifier.clickable(
+            onClick = onAdjustFitClick,
+            onClickLabel = adjustFitLabel,
+          )
+        } else {
+          Modifier
+        },
+      ) {
+        Text(
+          text = stringResource(Res.string.detail_fit_rating_label, model.fitScoreDisplayText),
+          style = MaterialTheme.typography.bodyMedium,
+        )
+        if (fitScore != null) {
+          FitBadge(score = fitScore)
+        }
+        if (onAdjustFitClick != null) {
+          Icon(
+            imageVector = Icons.Default.Edit,
+            contentDescription = adjustFitLabel,
+            modifier = Modifier.size(MaterialTheme.iconSizes.small),
+            tint = MaterialTheme.colorScheme.primary,
+          )
+        }
+      }
+
+      if (model.fitGaps.isNotEmpty()) {
+        Text(
+          text = stringResource(Res.string.detail_label_gaps, model.fitGaps.joinToString(", ")),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      }
+
+      model.jobUrl?.let { url ->
+        Text(
+          text = stringResource(Res.string.detail_prefix_job_url, url),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.primary,
+        )
+      }
+
+      model.jobApplicationUrl?.let { url ->
+        Text(
+          text = stringResource(Res.string.detail_prefix_app_url, url),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.primary,
+        )
+      }
+
+      Text(
+        text = model.appliedAt(),
+        style = MaterialTheme.typography.bodySmallEmphasized,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+
+      Text(
+        text = stringResource(Res.string.detail_last_updated, model.lastUpdatedDisplay()),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
     }
+  }
 }
 
 @Composable
 internal fun ApplicationEmailsSection(
-    model: JobApplicationDetailUiModel,
-    modifier: Modifier = Modifier,
-): Unit {
-    if (model.emailMessageIds.isEmpty()) return
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.spacing.medium),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+  model: JobApplicationDetailUiModel,
+  modifier: Modifier = Modifier,
+) {
+  if (model.emailMessageIds.isEmpty()) return
+  Column(
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(horizontal = MaterialTheme.spacing.medium),
+    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+  ) {
+    SectionHeader("Related Emails (${model.emailMessageIds.size})")
+    OutlinedCard(
+      shape = MaterialTheme.shapes.medium,
+      modifier = Modifier.fillMaxWidth(),
     ) {
-        SectionHeader("Related Emails (${model.emailMessageIds.size})")
-        OutlinedCard(
-            shape = MaterialTheme.shapes.medium,
+      Column(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(MaterialTheme.spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+      ) {
+        model.emailMessageIds.forEach { emailId ->
+          Row(
             modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(MaterialTheme.spacing.medium),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-            ) {
-                model.emailMessageIds.forEach { emailId ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = "• $emailId",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            text = "Linked",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            Text(
+              text = "• $emailId",
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+              text = "Linked",
+              style = MaterialTheme.typography.labelSmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
         }
+      }
     }
+  }
 }
 
 @Composable
 internal fun ApplicationTimelineSection(
-    model: JobApplicationDetailUiModel,
-    modifier: Modifier = Modifier,
-): Unit {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.none),
-    ) {
-        SectionHeader(stringResource(Res.string.detail_section_timeline))
-        EventsTimeline(events = model.timelineEvents)
-    }
+  model: JobApplicationDetailUiModel,
+  modifier: Modifier = Modifier,
+) {
+  Column(
+    modifier = modifier.fillMaxWidth(),
+    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.none),
+  ) {
+    SectionHeader(stringResource(Res.string.detail_section_timeline))
+    EventsTimeline(events = model.timelineEvents)
+  }
 }
 
 @Composable
 internal fun CompanyProfileSection(
-    company: Company,
-    modifier: Modifier = Modifier,
-): Unit {
-    val logoUrl = company.logoUrl?.takeIf { company.logoShape != LogoShape.RECTANGLE }
-    var isLogoLoaded by remember(logoUrl) { mutableStateOf(false) }
-    var isLogoFailed by remember(logoUrl) { mutableStateOf(logoUrl == null) }
-    val companyInitial = company.name.trim().firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "?"
+  company: Company,
+  modifier: Modifier = Modifier,
+) {
+  val logoUrl = company.logoUrl?.takeIf { company.logoShape != LogoShape.RECTANGLE }
+  var isLogoLoaded by remember(logoUrl) { mutableStateOf(false) }
+  var isLogoFailed by remember(logoUrl) { mutableStateOf(logoUrl == null) }
+  val companyInitial = company.name.trim().firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString()
+    ?: "?"
 
-    OutlinedCard(
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.spacing.medium),
+  OutlinedCard(
+    shape = MaterialTheme.shapes.medium,
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(horizontal = MaterialTheme.spacing.medium),
+  ) {
+    Column(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(MaterialTheme.spacing.medium),
+      verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(MaterialTheme.spacing.medium),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+      ) {
+        Box(
+          modifier = Modifier
+            .size(MaterialTheme.iconSizes.extraLarge)
+            .background(
+              color = if (isLogoLoaded) {
+                MaterialTheme.colorScheme.surfaceContainerHighest
+              } else {
+                MaterialTheme.colorScheme.primaryContainer
+              },
+              shape = MaterialTheme.shapes.small,
+            ),
+          contentAlignment = Alignment.Center,
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(MaterialTheme.iconSizes.extraLarge)
-                        .background(
-                            color = if (isLogoLoaded) {
-                                MaterialTheme.colorScheme.surfaceContainerHighest
-                            } else {
-                                MaterialTheme.colorScheme.primaryContainer
-                            },
-                            shape = MaterialTheme.shapes.small,
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (!isLogoLoaded) {
-                        Text(
-                            text = companyInitial,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
-                    }
-                    if (logoUrl != null && !isLogoFailed) {
-                        AsyncImage(
-                            model = logoUrl,
-                            contentDescription = stringResource(Res.string.detail_company_logo_cd, company.name),
-                            modifier = Modifier
-                                .size(MaterialTheme.iconSizes.extraLarge)
-                                .clip(MaterialTheme.shapes.small)
-                                .alpha(if (isLogoLoaded) 1f else 0f),
-                            contentScale = ContentScale.Fit,
-                            onState = { state ->
-                                when (state) {
-                                    is AsyncImagePainter.State.Success -> {
-                                        isLogoLoaded = true
-                                    }
-                                    is AsyncImagePainter.State.Error -> {
-                                        isLogoLoaded = false
-                                        isLogoFailed = true
-                                    }
-                                    is AsyncImagePainter.State.Loading,
-                                    is AsyncImagePainter.State.Empty,
-                                    -> {
-                                        isLogoLoaded = false
-                                    }
-                                }
-                            },
-                        )
-                    }
+          if (!isLogoLoaded) {
+            Text(
+              text = companyInitial,
+              style = MaterialTheme.typography.titleMedium,
+              color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+          }
+          if (logoUrl != null && !isLogoFailed) {
+            AsyncImage(
+              model = logoUrl,
+              contentDescription = stringResource(Res.string.detail_company_logo_cd, company.name),
+              modifier = Modifier
+                .size(MaterialTheme.iconSizes.extraLarge)
+                .clip(MaterialTheme.shapes.small)
+                .alpha(if (isLogoLoaded) 1f else 0f),
+              contentScale = ContentScale.Fit,
+              onState = { state ->
+                when (state) {
+                  is AsyncImagePainter.State.Success -> {
+                    isLogoLoaded = true
+                  }
+
+                  is AsyncImagePainter.State.Error -> {
+                    isLogoLoaded = false
+                    isLogoFailed = true
+                  }
+
+                  is AsyncImagePainter.State.Loading,
+                  is AsyncImagePainter.State.Empty,
+                    -> {
+                    isLogoLoaded = false
+                  }
                 }
-                Text(
-                    text = stringResource(Res.string.detail_company_profile_title, company.name),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-            company.website?.let { website ->
-                Text(
-                    text = stringResource(Res.string.detail_company_website, website),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-            company.industry?.let { industry ->
-                Text(
-                    text = stringResource(Res.string.detail_company_industry, industry),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-            if (company.aliases.isNotEmpty()) {
-                Text(
-                    text = stringResource(Res.string.detail_company_aliases, company.aliases.joinToString(", ")),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+              },
+            )
+          }
         }
+        Text(
+          text = stringResource(Res.string.detail_company_profile_title, company.name),
+          style = MaterialTheme.typography.titleMedium,
+          color = MaterialTheme.colorScheme.primary,
+        )
+      }
+      company.website?.let { website ->
+        Text(
+          text = stringResource(Res.string.detail_company_website, website),
+          style = MaterialTheme.typography.bodyMedium,
+        )
+      }
+      company.industry?.let { industry ->
+        Text(
+          text = stringResource(Res.string.detail_company_industry, industry),
+          style = MaterialTheme.typography.bodyMedium,
+        )
+      }
+      if (company.aliases.isNotEmpty()) {
+        Text(
+          text = stringResource(Res.string.detail_company_aliases, company.aliases.joinToString(", ")),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      }
     }
+  }
 }
 
 @Composable
 internal fun SectionHeader(
-    title: String,
-    modifier: Modifier = Modifier,
-): Unit {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = MaterialTheme.spacing.medium,
-                vertical = MaterialTheme.spacing.small,
-            ),
-        color = MaterialTheme.colorScheme.primary,
-    )
+  title: String,
+  modifier: Modifier = Modifier,
+) {
+  Text(
+    text = title,
+    style = MaterialTheme.typography.titleMedium,
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(
+        horizontal = MaterialTheme.spacing.medium,
+        vertical = MaterialTheme.spacing.small,
+      ),
+    color = MaterialTheme.colorScheme.primary,
+  )
 }

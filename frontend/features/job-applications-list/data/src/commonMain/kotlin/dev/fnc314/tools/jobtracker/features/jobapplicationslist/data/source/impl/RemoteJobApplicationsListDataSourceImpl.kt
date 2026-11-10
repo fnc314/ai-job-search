@@ -28,6 +28,7 @@ internal class RemoteJobApplicationsListDataSourceImpl(
     val timeline = parseTimeline(record.fields["timeline"] as? Map<*, *>)
     val createdAt = resolveCreatedAt(record)
     val updatedAt = resolveUpdatedAt(record, timeline, createdAt)
+    val appliedAt = record.getInstant("date")
 
     return Factory.createJobApplication(
       id = record.id,
@@ -44,6 +45,7 @@ internal class RemoteJobApplicationsListDataSourceImpl(
       notesRendered = record.getString("notesRendered"),
       createdAt = createdAt,
       updatedAt = updatedAt,
+      appliedAt = appliedAt,
     )
   }
 
