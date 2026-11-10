@@ -39,4 +39,16 @@ message JobApplication {
   string jobApplicationUrl = 21;
   string uuid = 22;
   repeated string emailMessageIds = 23;
+  SubmissionConfirmation submissionConfirmation = 24;
+}
+
+// SubmissionConfirmation — Single source of truth for when an application was officially submitted
+message SubmissionConfirmation {
+  bool isConfirmed = 1;
+  google.protobuf.Timestamp submittedAt = 2;
+  google.protobuf.Timestamp confirmedAt = 3;
+  string confirmationEmailMessageId = 4;
+  string sourceSubject = 5;
+  SubmissionConfidence confidence = 6;
+  string notes = 7;
 }

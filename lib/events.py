@@ -15,10 +15,13 @@ Two rules live here and nowhere else:
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 from typing import Iterable
 
 import client
 import contract
+
+GENESIS_PREV_HASH = "0000000000000000000000000000000000000000000000000000000000000000"
 
 # Event types that imply a funnel status. An event carries statusFrom/statusTo
 # only when it actually moved the funnel; a follow-up does not.
@@ -49,6 +52,7 @@ EVENT_IMPLIED_STATUS = {
 # Event types that must never silently move the funnel: they describe activity
 # inside the current status, or describe the record itself.
 NON_STATUS_EVENTS = {
+    "ACKNOWLEDGE",
     "event:acknowledged",
     "event:interview-completed",
     "event:assessment",
@@ -64,6 +68,73 @@ NON_STATUS_EVENTS = {
 
 class EventError(ValueError):
     """An event cannot be recorded as requested."""
+
+
+def computeEventHash(
+    sequenceNumber: int,
+    prevEventHash: str,
+    eventId: str,
+    applicationId: str,
+    eventType: str,
+    timestampIso: str,
+    statusTo: str | None,
+    actor: str,
+) -> str:
+    """Computes SHA-256 hash chaining this event to its predecessor."""
+    payload = f"{sequenceNumber}|{prevEventHash}|{eventId}|{applicationId}|{eventType}|{timestampIso}|{statusTo or ''}|{actor}"
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def chainEvents(events: Iterable[dict], applicationId: str) -> list[dict]:
+    """Takes events, sorts them chronologically, and assigns sequential hash links."""
+    ordered = chronologically(events)
+    expected_prev = GENESIS_PREV_HASH
+    chained: list[dict] = []
+    for idx, ev in enumerate(ordered, start=1):
+        ev_copy = dict(ev)
+        ev_copy["sequenceNumber"] = idx
+        ev_copy["prevEventHash"] = expected_prev
+        ts_iso = ev_copy.get("ts") or ev_copy.get("date") or ""
+        ev_copy["eventHash"] = computeEventHash(
+            sequenceNumber=idx,
+            prevEventHash=expected_prev,
+            eventId=ev_copy.get("eventId", ""),
+            applicationId=applicationId,
+            eventType=ev_copy.get("type", ""),
+            timestampIso=ts_iso,
+            statusTo=ev_copy.get("statusTo"),
+            actor=ev_copy.get("actor", "USER"),
+        )
+        expected_prev = ev_copy["eventHash"]
+        chained.append(ev_copy)
+    return chained
+
+
+def verifyEventChain(events: list[dict], applicationId: str) -> bool:
+    """Verifies that an event list forms an unbroken cryptographic hash chain."""
+    if not events:
+        return True
+    expected_prev = GENESIS_PREV_HASH
+    for idx, ev in enumerate(events, start=1):
+        if ev.get("sequenceNumber") != idx:
+            return False
+        if ev.get("prevEventHash") != expected_prev:
+            return False
+        ts_iso = ev.get("ts") or ev.get("date") or ""
+        computed = computeEventHash(
+            sequenceNumber=idx,
+            prevEventHash=expected_prev,
+            eventId=ev.get("eventId", ""),
+            applicationId=applicationId,
+            eventType=ev.get("type", ""),
+            timestampIso=ts_iso,
+            statusTo=ev.get("statusTo"),
+            actor=ev.get("actor", "USER"),
+        )
+        if ev.get("eventHash") != computed:
+            return False
+        expected_prev = computed
+    return True
 
 
 def impliedStatus(eventType: str) -> str | None:
@@ -117,6 +188,9 @@ def buildEvent(
     statusTo: str | None = None,
     emailMessageId: str | None = None,
     metadata: dict | None = None,
+    sequenceNumber: int | None = None,
+    prevEventHash: str | None = None,
+    eventHash: str | None = None,
 ) -> dict:
     """Construct and validate one event document.
 
@@ -174,11 +248,40 @@ def buildEvent(
         "emailMessageId": emailMessageId or None,
         "metadata": metadata or {},
     }
+    if sequenceNumber is not None:
+        event["sequenceNumber"] = sequenceNumber
+    if prevEventHash is not None:
+        event["prevEventHash"] = prevEventHash
+    if eventHash is not None:
+        event["eventHash"] = eventHash
+
     return contract.validate("event", event)
 
 
 def appendEvent(db, applicationId: str, event: dict) -> dict:
-    """Write one validated event. Callers must have passed the write gate."""
+    """Write one validated event. Callers must have passed the write gate.
+    
+    If sequenceNumber or eventHash is missing, automatically computes next hash chain link.
+    """
+    if "sequenceNumber" not in event or "eventHash" not in event:
+        existing = readEvents(db, applicationId)
+        ordered = chronologically(existing)
+        seq = len(ordered) + 1
+        prev_hash = ordered[-1].get("eventHash", GENESIS_PREV_HASH) if ordered else GENESIS_PREV_HASH
+        event["sequenceNumber"] = seq
+        event["prevEventHash"] = prev_hash
+        ts_iso = event.get("ts") or event.get("date") or ""
+        event["eventHash"] = computeEventHash(
+            sequenceNumber=seq,
+            prevEventHash=prev_hash,
+            eventId=event.get("eventId", ""),
+            applicationId=applicationId,
+            eventType=event.get("type", ""),
+            timestampIso=ts_iso,
+            statusTo=event.get("statusTo"),
+            actor=event.get("actor", "USER"),
+        )
+
     validated = contract.validate("event", event)
     reference = (
         db.collection(client.APPLICATIONS)
@@ -191,23 +294,26 @@ def appendEvent(db, applicationId: str, event: dict) -> dict:
 
 
 def readEvents(db, applicationId: str) -> list[dict]:
-    """Events in chronological order. UUIDv7 IDs make a single order_by enough."""
+    """Events in chronological order."""
     collection = (
         db.collection(client.APPLICATIONS)
         .document(applicationId)
         .collection(client.EVENTS)
     )
-    return [contract.fromFirestore(doc.to_dict()) for doc in collection.stream()]
+    raw_events = [contract.fromFirestore(doc.to_dict()) for doc in collection.stream()]
+    return chronologically(raw_events)
 
 
 def chronologically(events: Iterable[dict]) -> list[dict]:
-    """Sort by the date each event describes, then by UUIDv7 as a stable tiebreak."""
+    """Sort by sequenceNumber if available, else date, then by UUIDv7 as a stable tiebreak."""
 
     def key(event):
+        seq = event.get("sequenceNumber")
         date = event.get("date") or ""
-        # A bare date sorts before any timestamp on the same day, which is what
-        # we want: the day's first recorded fact comes first.
-        return (date, event.get("eventId") or "")
+        # If sequenceNumber is set, it is the primary chronological sequence
+        if seq is not None:
+            return (0, seq, date, event.get("eventId") or "")
+        return (1, 0, date, event.get("eventId") or "")
 
     return sorted(events, key=key)
 

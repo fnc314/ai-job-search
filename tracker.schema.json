@@ -3,7 +3,7 @@
   "$id": "https://github.com/fnc314/ai-job-search/tracker.schema.json",
   "title": "Job Search Tracker",
   "description": "Single contract for every document in the tracker store. Validates the JSON boundary (what scripts/tracker.py reads and writes); Firestore Timestamps are produced from these ISO strings on write. The enum registry lives ONLY in $defs so it cannot drift from the fields it constrains.",
-  "schemaVersion": 9,
+  "schemaVersion": 10,
   "x-supersedes": "job_search_tracker.schema.json v1 (CSV row contract)",
   "x-revision-log": [
     {
@@ -33,6 +33,10 @@
     {
       "version": 9,
       "note": "Added company logo metadata fields (logoUrl, logoFormat, logoWidth, logoHeight, logoShape, logoFetchedAt) with typed enums for format and shape (SQUARE, RECTANGLE)."
+    },
+    {
+      "version": 10,
+      "note": "Single-source-of-truth official submission (submittedAt, submissionConfirmedAt, submissionConfirmation) and cryptographic event hash chaining (sequenceNumber, prevEventHash, eventHash)."
     }
   ],
   "x-naming": {
@@ -612,6 +616,26 @@
               "type": "null"
             }
           ]
+        },
+        "submittedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "submissionConfirmedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -769,7 +793,28 @@
         },
         "schemaVersion": {
           "type": "integer",
-          "const": 9
+          "minimum": 9,
+          "maximum": 10
+        },
+        "submittedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "submissionConfirmation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/submissionConfirmation"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -838,6 +883,19 @@
         "metadata": {
           "type": "object",
           "additionalProperties": true
+        },
+        "sequenceNumber": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "prevEventHash": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "eventHash": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },
@@ -1227,23 +1285,61 @@
               "type": "object",
               "additionalProperties": false,
               "properties": {
-                "draft": { "type": "integer", "minimum": 0 },
-                "submitted": { "type": "integer", "minimum": 0 },
-                "interviewing": { "type": "integer", "minimum": 0 },
-                "offer": { "type": "integer", "minimum": 0 },
-                "rejected": { "type": "integer", "minimum": 0 },
-                "total": { "type": "integer", "minimum": 0 }
+                "draft": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "submitted": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "interviewing": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "offer": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "rejected": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "total": {
+                  "type": "integer",
+                  "minimum": 0
+                }
               }
             },
             "percentages": {
               "type": "object",
               "additionalProperties": false,
               "properties": {
-                "draft": { "type": "number", "minimum": 0, "maximum": 1 },
-                "submitted": { "type": "number", "minimum": 0, "maximum": 1 },
-                "interviewing": { "type": "number", "minimum": 0, "maximum": 1 },
-                "offer": { "type": "number", "minimum": 0, "maximum": 1 },
-                "rejected": { "type": "number", "minimum": 0, "maximum": 1 }
+                "draft": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "submitted": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "interviewing": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "offer": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "rejected": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
               }
             },
             "averageFitScore": {
@@ -1253,10 +1349,18 @@
               "type": "object",
               "additionalProperties": false,
               "properties": {
-                "min": { "type": "number" },
-                "max": { "type": "number" },
-                "currency": { "type": "string" },
-                "display": { "type": "string" }
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "display": {
+                  "type": "string"
+                }
               }
             },
             "primaryChannel": {
@@ -1264,7 +1368,9 @@
             },
             "locations": {
               "type": "array",
-              "items": { "type": "string" }
+              "items": {
+                "type": "string"
+              }
             },
             "lastCalculatedAt": {
               "$ref": "#/$defs/isoDateTime"
@@ -1447,6 +1553,60 @@
         "HYBRID",
         "REMOTE"
       ]
+    },
+    "submissionConfidenceValue": {
+      "type": "string",
+      "enum": [
+        "CONFIRMED_SCRAPED",
+        "CONFIRMED_HISTORICAL",
+        "UNCONFIRMED_USER_MARKED",
+        "RECRUITER_LED"
+      ]
+    },
+    "submissionConfirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "isConfirmed",
+        "confidence"
+      ],
+      "properties": {
+        "isConfirmed": {
+          "type": "boolean"
+        },
+        "submittedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confirmedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confirmationEmailMessageId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "sourceSubject": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "confidence": {
+          "$ref": "#/$defs/submissionConfidenceValue"
+        },
+        "notes": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
     }
   },
   "enums": {

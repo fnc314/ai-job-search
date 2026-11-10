@@ -224,6 +224,10 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
   }
 
   private fun resolveAppliedAt(record: RemoteRecord): Instant {
+    val submittedAt = record.getInstant("submittedAt")
+    if (submittedAt != Instant.DISTANT_PAST) {
+      return submittedAt
+    }
     return when (val rawData = record.getInstant("date")) {
       Instant.DISTANT_PAST -> Instant.DISTANT_FUTURE
       else -> rawData

@@ -308,3 +308,15 @@ enum ScrapedPostingStatus {
   SCRAPED_POSTING_STATUS_REJECTED = 3;
   SCRAPED_POSTING_STATUS_APPLIED = 4;
 }
+
+// ============================================================================
+// SubmissionConfidence
+// Confidence level and verification source of an official submission
+// ============================================================================
+enum SubmissionConfidence {
+  SUBMISSION_CONFIDENCE_UNSPECIFIED = 0;
+  CONFIRMED_SCRAPED = 1;
+  CONFIRMED_HISTORICAL = 2;
+  UNCONFIRMED_USER_MARKED = 3;
+  RECRUITER_LED = 4;
+}

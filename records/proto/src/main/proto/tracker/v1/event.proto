@@ -23,4 +23,7 @@ message TrackerEvent {
   Confidence confidence = 10;
   google.protobuf.Timestamp createdAt = 11;
   google.protobuf.Struct metadata = 12;
+  int64 sequenceNumber = 13;
+  string prevEventHash = 14;
+  string eventHash = 15;
 }

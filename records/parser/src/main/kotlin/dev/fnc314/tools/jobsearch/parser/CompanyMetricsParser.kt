@@ -13,7 +13,7 @@ public object CompanyMetricsParser {
     /**
      * Parses a raw map (from Firestore or JSON) into a strongly-typed [CompanyMetrics] proto message.
      */
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "LongMethod", "CyclomaticComplexMethod")
     public fun fromMap(map: Map<String, Any?>): CompanyMetrics {
         val builder = CompanyMetrics.newBuilder()
 

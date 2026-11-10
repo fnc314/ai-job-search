@@ -168,3 +168,13 @@ public val Tag.wireKey: String
         Tag.TAG_UNSPECIFIED, Tag.UNRECOGNIZED -> ""
         else -> name
     }
+
+/**
+ * Canonical Firestore wire key for [dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfidence] proto enum entries.
+ */
+public val dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfidence.wireKey: String
+    get() = when (this) {
+        dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfidence.SUBMISSION_CONFIDENCE_UNSPECIFIED,
+        dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfidence.UNRECOGNIZED -> ""
+        else -> name
+    }

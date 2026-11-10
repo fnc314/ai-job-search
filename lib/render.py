@@ -21,6 +21,9 @@ COUNTER_RULES = {
     "event:interview-scheduled": "interviews",
     "event:onsite": "interviews",
     "event:rejection": "rejections",
+    "SCHEDULE_INTERVIEW": "interviews",
+    "VISIT_ONSITE": "interviews",
+    "REJECT": "rejections",
 }
 
 NOTE_SEPARATOR = " · "
@@ -81,7 +84,7 @@ def counters(events: list[dict]) -> dict:
 
 
 def timeline(events: list[dict], today: dt.date | None = None) -> dict:
-    """First/last activity and days since, computed from event dates."""
+    """First/last activity, submittedAt, submissionConfirmedAt, and days since."""
     moments = [parseDate(event.get("date")) for event in events]
     moments = [moment for moment in moments if moment is not None]
     if not moments:
@@ -90,15 +93,39 @@ def timeline(events: list[dict], today: dt.date | None = None) -> dict:
             "lastActivityAt": None,
             "daysSinceActivity": None,
             "nextFollowUpAt": None,
+            "submittedAt": None,
+            "submissionConfirmedAt": None,
         }
     first = min(moments)
     last = max(moments)
     reference = today or dt.date.today()
+
+    submitted_at = None
+    submission_confirmed_at = None
+
+    # Derive submittedAt from earliest APPLY / event:applied event
+    apply_events = [ev for ev in events if ev.get("type") in ("APPLY", "event:applied")]
+    if apply_events:
+        apply_dates = [parseDate(ev.get("date")) for ev in apply_events]
+        valid_apply_dates = [d for d in apply_dates if d is not None]
+        if valid_apply_dates:
+            submitted_at = min(valid_apply_dates).isoformat()
+
+    # Derive submissionConfirmedAt from earliest ACKNOWLEDGE / event:acknowledged event
+    ack_events = [ev for ev in events if ev.get("type") in ("ACKNOWLEDGE", "event:acknowledged")]
+    if ack_events:
+        ack_dates = [parseDate(ev.get("date")) for ev in ack_events]
+        valid_ack_dates = [d for d in ack_dates if d is not None]
+        if valid_ack_dates:
+            submission_confirmed_at = min(valid_ack_dates).isoformat()
+
     return {
         "firstActivityAt": first.isoformat(),
         "lastActivityAt": last.isoformat(),
         "daysSinceActivity": max(0, (reference - last.date()).days),
         "nextFollowUpAt": None,
+        "submittedAt": submitted_at,
+        "submissionConfirmedAt": submission_confirmed_at,
     }
 
 
@@ -109,11 +136,51 @@ def project(application: dict, events: list[dict]) -> dict:
     on the funnel position: if someone appends `event:rejection`, the derived
     `status`/`isOpen` must follow, or the record lies.
     """
+    tl = timeline(events)
     projected = {
         "notesRendered": renderNotes(events),
         "counters": counters(events),
-        "timeline": timeline(events),
+        "timeline": tl,
     }
+
+    # Extract email message IDs
+    email_ids = list(application.get("emailMessageIds") or [])
+    for ev in events:
+        mid = ev.get("emailMessageId")
+        if mid and mid not in email_ids:
+            email_ids.append(mid)
+    if email_ids:
+        projected["emailMessageIds"] = sorted(set(email_ids))
+
+    # Reconcile submissionConfirmation
+    existing_conf = application.get("submissionConfirmation") or {}
+    ack_events = [ev for ev in events if ev.get("type") in ("ACKNOWLEDGE", "event:acknowledged")]
+    apply_events = [ev for ev in events if ev.get("type") in ("APPLY", "event:applied")]
+
+    # If already set on application (e.g. via backfill or recruiter led), preserve unless ack added
+    if ack_events:
+        earliest_ack = min(ack_events, key=lambda ev: ev.get("date") or "")
+        projected["submissionConfirmation"] = {
+            "isConfirmed": True,
+            "confidence": "CONFIRMED_SCRAPED",
+            "confirmedAt": tl["submissionConfirmedAt"] or earliest_ack.get("date"),
+            "emailMessageId": earliest_ack.get("emailMessageId") or existing_conf.get("emailMessageId"),
+            "source": earliest_ack.get("actor", "USER"),
+            "details": earliest_ack.get("note") or "Employer confirmation email scraped and matched",
+        }
+    elif existing_conf.get("isConfirmed"):
+        projected["submissionConfirmation"] = existing_conf
+    elif apply_events:
+        earliest_apply = min(apply_events, key=lambda ev: ev.get("date") or "")
+        projected["submissionConfirmation"] = {
+            "isConfirmed": False,
+            "confidence": "UNCONFIRMED_USER_MARKED",
+            "confirmedAt": None,
+            "emailMessageId": None,
+            "source": earliest_apply.get("actor", "USER"),
+            "details": "User marked application as submitted without employer acknowledgment email",
+        }
+
     implied = eventsModule.latestStatus(events)
     current = application.get("status")
     if implied and current != implied:
