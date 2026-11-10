@@ -15,6 +15,7 @@ import com.github.ajalt.mordant.table.table
 import com.github.ajalt.mordant.terminal.Terminal
 import com.github.ajalt.mordant.widgets.Panel
 import com.google.cloud.firestore.Firestore
+import com.google.cloud.firestore.SetOptions
 import com.google.firebase.FirebaseApp
 import com.google.firebase.cloud.FirestoreClient
 import dev.fnc314.tools.jobtracker.core.data.platform.RemotePlatform
@@ -71,9 +72,366 @@ public data class ProposalRecord(
     val unmatched: List<Map<String, Any?>> = emptyList()
 )
 
+public data class EmailRecord(
+    val id: String,
+    val from: String,
+    val subject: String,
+    val snippet: String,
+    val receivedAt: String,
+    val status: String,
+    val applicationId: String?,
+    val companyId: String?
+)
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Roadmap Data Models
+// Email Rectification Interactive TUI
 // ─────────────────────────────────────────────────────────────────────────────
+
+public object EmailsApp {
+    private val t: Terminal = Terminal()
+    private val scanner = Scanner(System.`in`)
+    private val repoRoot: File by lazy {
+        var cur: File? = File(".").canonicalFile
+        while (cur != null) {
+            if (File(cur, "mise.toml").exists() || File(cur, "settings.gradle.kts").exists()) {
+                return@lazy cur
+            }
+            cur = cur.parentFile
+        }
+        File(".").canonicalFile
+    }
+
+    private fun loadEmails(includeNoise: Boolean = false): List<EmailRecord> {
+        val firestore = TerminalApp.firestoreInstance
+        if (firestore == null) {
+            // Fallback to inbox file
+            val candidates = listOf(
+                File(repoRoot, "generated/gmail-inbox.json"),
+                File("generated/gmail-inbox.json"),
+                File("../generated/gmail-inbox.json")
+            )
+            val inboxFile = candidates.firstOrNull { it.exists() } ?: return emptyList()
+            val parsed = Json { ignoreUnknownKeys = true }.parseToJsonElement(inboxFile.readText()).jsonObject
+            val arr = parsed["messages"]?.jsonArray ?: return emptyList()
+            return arr.map {
+                val obj = it.jsonObject
+                EmailRecord(
+                    id = obj["messageId"]?.jsonPrimitive?.content ?: "",
+                    from = obj["sender"]?.jsonPrimitive?.content ?: "",
+                    subject = obj["subject"]?.jsonPrimitive?.content ?: "",
+                    snippet = obj["snippet"]?.jsonPrimitive?.content ?: "",
+                    receivedAt = obj["receivedAt"]?.jsonPrimitive?.content ?: "",
+                    status = "UNCLASSIFIED",
+                    applicationId = null,
+                    companyId = null
+                )
+            }
+        }
+
+        val snap = firestore.collection("emails").get().get()
+        return snap.documents.mapNotNull { doc ->
+            val data = doc.data
+            val status = (data["status"] as? String) ?: "UNCLASSIFIED"
+            if (!includeNoise && status == "NOISE") return@mapNotNull null
+            EmailRecord(
+                id = doc.id,
+                from = (data["from"] as? String) ?: "",
+                subject = (data["subject"] as? String) ?: "",
+                snippet = (data["snippet"] as? String) ?: "",
+                receivedAt = (data["receivedAt"] as? String) ?: "",
+                status = status,
+                applicationId = data["applicationId"] as? String,
+                companyId = data["companyId"] as? String
+            )
+        }
+    }
+
+    public fun run() {
+        var includeNoise = false
+        var filterQuery: String? = null
+        var statusFilter: String? = null
+        var unlinkedOnly = false
+
+        while (true) {
+            val allEmails = loadEmails(includeNoise = true)
+            val filtered = allEmails.filter { email ->
+                if (!includeNoise && email.status == "NOISE") return@filter false
+                if (unlinkedOnly && !email.applicationId.isNullOrBlank()) return@filter false
+                if (statusFilter != null && !email.status.equals(statusFilter, ignoreCase = true)) return@filter false
+                if (filterQuery != null) {
+                    val q = filterQuery.lowercase()
+                    val matches = email.id.lowercase().contains(q) ||
+                        email.from.lowercase().contains(q) ||
+                        email.subject.lowercase().contains(q) ||
+                        email.snippet.lowercase().contains(q) ||
+                        (email.applicationId?.lowercase()?.contains(q) == true)
+                    if (!matches) return@filter false
+                }
+                true
+            }
+
+            renderHeader(filtered.size, allEmails.size, includeNoise, unlinkedOnly, statusFilter, filterQuery)
+            renderEmailTable(filtered)
+
+            t.println()
+            t.print(brightBlue("emails [/ <query>, s <status>, u:unlinked, n:noise, r <id>:rectify, q:quit] > "))
+            if (!scanner.hasNextLine()) break
+            val line = scanner.nextLine().trim()
+            if (line.isEmpty()) continue
+
+            val parts = line.split("\\s+".toRegex())
+            when (parts[0].lowercase()) {
+                "q", "quit", "exit" -> break
+                "n", "noise" -> includeNoise = !includeNoise
+                "u", "unlinked" -> unlinkedOnly = !unlinkedOnly
+                "/", "f", "search" -> filterQuery = if (parts.size > 1) parts.drop(1).joinToString(" ") else null
+                "s", "status" -> statusFilter = if (parts.size > 1) parts[1].uppercase() else null
+                "all", "reset" -> {
+                    includeNoise = false
+                    unlinkedOnly = false
+                    filterQuery = null
+                    statusFilter = null
+                }
+                "r", "rectify", "i", "inspect" -> {
+                    if (parts.size > 1) {
+                        val emailId = parts[1]
+                        val email = allEmails.firstOrNull { it.id.equals(emailId, ignoreCase = true) }
+                        if (email != null) {
+                            handleRectification(email)
+                        } else {
+                            t.println(red("Email message ID '$emailId' not found."))
+                        }
+                    } else {
+                        t.println(yellow("Usage: r <messageId>"))
+                    }
+                }
+                "h", "help" -> {
+                    t.println("""
+                        Commands:
+                          / <query>     - Search sender, subject, snippet, or app ID
+                          s <status>    - Filter by status (e.g. s interview_confirmation, s offer, s noise)
+                          u, unlinked   - Toggle unlinked emails only
+                          n, noise      - Toggle showing noise emails
+                          r <id>        - Inspect & rectify email attribution/status
+                          all, reset    - Clear active filters
+                          q, quit       - Exit emails view
+                    """.trimIndent())
+                }
+                else -> t.println(red("Unknown command: '${parts[0]}'. Type 'h' for help."))
+            }
+        }
+    }
+
+    private fun renderHeader(
+        shown: Int,
+        total: Int,
+        includeNoise: Boolean,
+        unlinkedOnly: Boolean,
+        statusFilter: String?,
+        filterQuery: String?
+    ) {
+        t.println()
+        val badges = mutableListOf<String>()
+        if (unlinkedOnly) badges.add(yellow("[UNLINKED ONLY]"))
+        if (includeNoise) badges.add(magenta("[NOISE INCLUDED]"))
+        if (statusFilter != null) badges.add(cyan("[STATUS: $statusFilter]"))
+        if (filterQuery != null) badges.add(green("[QUERY: '$filterQuery']"))
+
+        t.println(t.render(
+            Panel(
+                content = bold(brightBlue("AI Job Search Tracker — Email Evidence & Rectification")) + "\n" +
+                    dim("Classify evidence, assign applications, filter noise • ") +
+                    white("$shown shown") + dim(" of ") + bold("$total total") +
+                    if (badges.isNotEmpty()) " " + badges.joinToString(" ") else "",
+                title = cyan("★ Email Evidence ★")
+            )
+        ))
+    }
+
+    private fun renderEmailTable(emails: List<EmailRecord>) {
+        if (emails.isEmpty()) {
+            t.println(gray("No emails match current filter."))
+            return
+        }
+
+        val tbl = table {
+            header {
+                row(cyan("Message ID"), cyan("Date"), cyan("Status"), cyan("From"), cyan("Subject"), cyan("Linked App"))
+            }
+            body {
+                emails.take(25).forEach { e ->
+                    val statusColor = when (e.status) {
+                        "OFFER" -> green
+                        "INTERVIEW_REQUEST", "INTERVIEW_CONFIRMATION" -> brightBlue
+                        "ASSESSMENT" -> magenta
+                        "ACKNOWLEDGEMENT" -> cyan
+                        "REJECTION" -> red
+                        "NOISE" -> gray
+                        else -> yellow
+                    }
+                    val appDisplay = e.applicationId?.let { bold(cyan(it.take(28))) } ?: dim("unlinked")
+                    val dateFormatted = e.receivedAt.take(10)
+                    row(
+                        dim(e.id.take(12)),
+                        dateFormatted,
+                        statusColor(e.status.take(18)),
+                        e.from.take(22),
+                        e.subject.take(34),
+                        appDisplay
+                    )
+                }
+            }
+        }
+        t.println(t.render(tbl))
+        if (emails.size > 25) {
+            t.println(dim("... and ${emails.size - 25} more (use / <query> or s <status> to narrow)"))
+        }
+    }
+
+    private fun handleRectification(email: EmailRecord) {
+        t.println()
+        t.println(cyan("─── EMAIL INSPECTION: ${email.id} ───"))
+        t.println("${bold("From:")} ${email.from}")
+        t.println("${bold("Date:")} ${email.receivedAt}")
+        t.println("${bold("Subject:")} ${bold(email.subject)}")
+        t.println("${bold("Status:")} ${cyan(email.status)}")
+        t.println("${bold("Linked Application:")} ${email.applicationId ?: dim("unlinked")}")
+        t.println("${bold("Snippet:")}\n${dim(email.snippet.take(400))}")
+        t.println()
+
+        t.println("""
+            Rectification Options:
+              [1] Reassign to Application
+              [2] Change Status (Acknowledgement, Interview, Assessment, Offer, Rejection, Correspondence)
+              [3] Mark as NOISE (unlinks from application)
+              [4] Unlink from Application (keep status)
+              [b] Cancel / Back
+        """.trimIndent())
+        t.print(brightBlue("select option [1-4, b] > "))
+        if (!scanner.hasNextLine()) return
+        val opt = scanner.nextLine().trim()
+
+        when (opt) {
+            "1" -> {
+                t.print(brightBlue("Enter target applicationId (e.g. pnc-principal-android) > "))
+                if (!scanner.hasNextLine()) return
+                val targetApp = scanner.nextLine().trim()
+                if (targetApp.isNotBlank()) {
+                    executeRectify(email.id, targetApp, email.status, isNoise = false)
+                }
+            }
+            "2" -> {
+                t.println("""
+                    Statuses:
+                      [1] ACKNOWLEDGEMENT
+                      [2] INTERVIEW_REQUEST
+                      [3] INTERVIEW_CONFIRMATION
+                      [4] ASSESSMENT
+                      [5] OFFER
+                      [6] REJECTION
+                      [7] CORRESPONDENCE
+                      [8] UNCLASSIFIED
+                """.trimIndent())
+                t.print(brightBlue("select status [1-8] > "))
+                if (!scanner.hasNextLine()) return
+                val sChoice = scanner.nextLine().trim()
+                val newStatus = when (sChoice) {
+                    "1" -> "ACKNOWLEDGEMENT"
+                    "2" -> "INTERVIEW_REQUEST"
+                    "3" -> "INTERVIEW_CONFIRMATION"
+                    "4" -> "ASSESSMENT"
+                    "5" -> "OFFER"
+                    "6" -> "REJECTION"
+                    "7" -> "CORRESPONDENCE"
+                    else -> "UNCLASSIFIED"
+                }
+                executeRectify(email.id, email.applicationId, newStatus, isNoise = false)
+            }
+            "3" -> {
+                executeRectify(email.id, null, "NOISE", isNoise = true)
+            }
+            "4" -> {
+                executeRectify(email.id, null, email.status, isNoise = false)
+            }
+            else -> t.println("Cancelled.")
+        }
+    }
+
+    private fun executeRectify(messageId: String, targetAppId: String?, status: String, isNoise: Boolean) {
+        val firestore = TerminalApp.firestoreInstance
+        if (firestore == null) {
+            t.println(red("Cannot write rectification in offline/cache mode."))
+            return
+        }
+
+        t.println(dim("Applying transactional rectification..."))
+        try {
+            val emailRef = firestore.collection("emails").document(messageId)
+            val emailSnap = emailRef.get().get()
+            val previousAppId = if (emailSnap.exists()) emailSnap.getString("applicationId") else null
+
+            var resolvedCompanyId: String? = null
+            if (!targetAppId.isNullOrBlank()) {
+                val appDoc = firestore.collection("applications").document(targetAppId).get().get()
+                if (!appDoc.exists()) {
+                    t.println(red("Target application '$targetAppId' does not exist in Firestore."))
+                    return
+                }
+                resolvedCompanyId = appDoc.getString("companyId")
+            }
+
+            firestore.runTransaction { tx ->
+                // Remove from previous application if needed
+                if (!previousAppId.isNullOrBlank() && previousAppId != targetAppId) {
+                    val prevRef = firestore.collection("applications").document(previousAppId)
+                    val prevSnap = tx.get(prevRef).get()
+                    if (prevSnap.exists()) {
+                        val ids = ((prevSnap.get("emailMessageIds") as? List<*>) ?: emptyList<Any>())
+                            .map { it.toString() }
+                            .filter { it != messageId }
+                        tx.update(prevRef, mapOf(
+                            "emailMessageIds" to ids,
+                            "updatedAt" to com.google.cloud.Timestamp.now()
+                        ))
+                    }
+                }
+
+                // Add to target application if needed
+                if (!targetAppId.isNullOrBlank() && targetAppId != previousAppId) {
+                    val targetRef = firestore.collection("applications").document(targetAppId)
+                    val targetSnap = tx.get(targetRef).get()
+                    if (targetSnap.exists()) {
+                        val ids = ((targetSnap.get("emailMessageIds") as? List<*>) ?: emptyList<Any>())
+                            .map { it.toString() }
+                            .toMutableSet()
+                        ids.add(messageId)
+                        tx.update(targetRef, mapOf(
+                            "emailMessageIds" to ids.toList(),
+                            "updatedAt" to com.google.cloud.Timestamp.now()
+                        ))
+                    }
+                }
+
+                // Update email document
+                val updates = mutableMapOf<String, Any?>(
+                    "id" to messageId,
+                    "status" to status,
+                    "applicationId" to targetAppId,
+                    "companyId" to resolvedCompanyId,
+                    "rectifiedAt" to java.time.Instant.now().toString(),
+                    "updatedAt" to java.time.Instant.now().toString()
+                )
+                tx.set(emailRef, updates, SetOptions.merge())
+                null
+            }.get()
+
+            t.println(green("✓ Rectified $messageId: status=$status, app=${targetAppId ?: "none"}"))
+        } catch (e: Exception) {
+            t.println(red("Error applying rectification: ${e.message}"))
+        }
+    }
+}
+
 
 public data class RoadmapItem(
     val id: String,
@@ -980,6 +1338,8 @@ public object TerminalApp {
         }
     }
 
+    public val firestoreInstance: Firestore? get() = firestore
+
     private fun findRepoRoot(): File {
         var cur: File? = File(".").canonicalFile
         while (cur != null) {
@@ -1015,6 +1375,12 @@ public object TerminalApp {
         if (argsList.contains("--proposals") || argsList.firstOrNull() == "proposals") {
             val autoYes = argsList.contains("-y") || argsList.contains("--yes")
             runProposalsMode(autoYes = autoYes)
+            return
+        }
+
+        // 3. Check for emails review/rectification mode
+        if (argsList.contains("--emails") || argsList.firstOrNull() == "emails") {
+            EmailsApp.run()
             return
         }
 
@@ -1714,6 +2080,7 @@ public object TerminalApp {
         val interviewCount = docs.count { it.status.uppercase() == "INTERVIEW" }
         val offerCount = docs.count { it.status.uppercase() == "OFFER" }
         val leadCount = docs.count { it.status.uppercase() == "LEAD" }
+        val pendingProposals = try { loadPendingProposals().size } catch (_: Exception) { 0 }
 
         t.println(
             white("Filter: ") + (if (openOnly) green("OPEN ONLY") else cyan("ALL")) +
@@ -1721,7 +2088,9 @@ public object TerminalApp {
                 white(" | Open: ") + green(openCount.toString()) +
                 white(" | Interviews: ") + yellow(interviewCount.toString()) +
                 white(" | Offers: ") + bold(green(offerCount.toString())) +
-                white(" | Leads: ") + magenta(leadCount.toString())
+                white(" | Leads: ") + magenta(leadCount.toString()) +
+                white(" | Pending Proposals: ") +
+                (if (pendingProposals > 0) yellow(bold(pendingProposals.toString())) else dim("0"))
         )
         t.println()
 
@@ -1914,7 +2283,7 @@ public object TerminalApp {
         val scanner = Scanner(System.`in`)
         while (true) {
             t.println()
-            t.print(brightBlue("tracker [o:open, l:leads, s <status>, / <query>, i <id>, b <id>, r <id>, q:quit] > "))
+            t.print(brightBlue("tracker [o:open, l:leads, s <status>, / <query>, i <id>, b <id>, r <id>, p:proposals, q:quit] > "))
             if (!scanner.hasNextLine()) break
             val line = scanner.nextLine().trim()
             if (line.isEmpty()) continue
@@ -1976,6 +2345,14 @@ public object TerminalApp {
                         t.println(yellow("Usage: r <applicationId>"))
                     }
                 }
+                "e", "emails" -> {
+                    EmailsApp.run()
+                    listApplications(openOnly, filterQuery, statusFilter, tagFilter, limit, sortCol)
+                }
+                "p", "proposals" -> {
+                    TerminalApp.runProposalsMode()
+                    listApplications(openOnly, filterQuery, statusFilter, tagFilter, limit, sortCol)
+                }
                 "h", "help" -> {
                     t.println(
                         """
@@ -1989,6 +2366,7 @@ public object TerminalApp {
                           i <id>              - Deep inspection: details, related emails, and timeline
                           b <id>              - Open Job or Portal URL in default browser
                           r <id>              - Queue fit recalculation to .recalc_queue
+                          p, proposals        - Review staged inbox proposals (approve/reject)
                           q, quit             - Exit tracker
                         """.trimIndent()
                     )

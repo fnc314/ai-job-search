@@ -24,7 +24,10 @@ import java.io.FileInputStream
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Locale
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -937,6 +940,240 @@ public object BackendService {
             "applicationId" to applicationId,
             "dryRun" to dryRun,
             "updates" to updates
+        )
+    }
+
+    /**
+     * Reassigns an email to an application or updates its evidentiary classification status.
+     *
+     * Ensures transactional consistency by removing the message ID from the former application's
+     * emailMessageIds list and adding it to the new application's emailMessageIds list.
+     */
+    public fun rectifyEmail(
+        messageId: String,
+        targetApplicationId: String?,
+        status: String,
+        isNoise: Boolean = false,
+        dryRun: Boolean = false,
+    ): Map<String, Any?> {
+        val db = firestore
+        val emailRef = db.collection("emails").document(messageId)
+        val emailSnap = emailRef.get().get()
+
+        val normalizedStatus = if (isNoise) "NOISE" else status.trim().uppercase()
+        val effectiveAppId = if (normalizedStatus == "NOISE") null else targetApplicationId?.trim()?.takeIf { it.isNotBlank() }
+
+        val previousAppId = if (emailSnap.exists()) emailSnap.getString("applicationId") else null
+
+        var resolvedCompanyId: String? = null
+        if (!effectiveAppId.isNullOrBlank()) {
+            val appDoc = db.collection("applications").document(effectiveAppId).get().get()
+            if (!appDoc.exists()) {
+                throw IllegalArgumentException("Target application $effectiveAppId not found.")
+            }
+            resolvedCompanyId = appDoc.getString("companyId")
+        }
+
+        val updates = mutableMapOf<String, Any?>(
+            "id" to messageId,
+            "status" to normalizedStatus,
+            "applicationId" to effectiveAppId,
+            "companyId" to resolvedCompanyId,
+            "rectifiedAt" to Instant.now().toString(),
+            "updatedAt" to Instant.now().toString(),
+        )
+
+        if (!dryRun) {
+            db.runTransaction { tx ->
+                // 1. Remove from previous application if changed
+                if (!previousAppId.isNullOrBlank() && previousAppId != effectiveAppId) {
+                    val prevRef = db.collection("applications").document(previousAppId)
+                    val prevSnap = tx.get(prevRef).get()
+                    if (prevSnap.exists()) {
+                        val existingIds = ((prevSnap.get("emailMessageIds") as? List<*>) ?: emptyList<Any>())
+                            .map { it.toString() }
+                            .filter { it != messageId }
+                        tx.update(prevRef, mapOf(
+                            "emailMessageIds" to existingIds,
+                            "updatedAt" to Timestamp.now()
+                        ))
+                    }
+                }
+
+                // 2. Add to target application if non-null and not already present
+                if (!effectiveAppId.isNullOrBlank() && effectiveAppId != previousAppId) {
+                    val targetRef = db.collection("applications").document(effectiveAppId)
+                    val targetSnap = tx.get(targetRef).get()
+                    if (targetSnap.exists()) {
+                        val existingIds = ((targetSnap.get("emailMessageIds") as? List<*>) ?: emptyList<Any>())
+                            .map { it.toString() }
+                            .toMutableSet()
+                        existingIds.add(messageId)
+                        tx.update(targetRef, mapOf(
+                            "emailMessageIds" to existingIds.toList(),
+                            "updatedAt" to Timestamp.now()
+                        ))
+                    }
+                }
+
+                // 3. Update the email document
+                tx.set(emailRef, updates, SetOptions.merge())
+                null
+            }.get()
+        }
+
+        return mapOf(
+            "status" to "SUCCESS",
+            "messageId" to messageId,
+            "applicationId" to effectiveAppId,
+            "previousApplicationId" to previousAppId,
+            "emailStatus" to normalizedStatus,
+            "companyId" to resolvedCompanyId,
+            "dryRun" to dryRun
+        )
+    }
+
+    /**
+     * Ingests and correlates raw messages from generated/gmail-inbox.json into the top-level emails collection.
+     */
+    public fun backfillEmails(
+        inboxFile: File? = null,
+        dryRun: Boolean = false,
+    ): Map<String, Any> {
+        val candidates = listOfNotNull(
+            inboxFile,
+            File("generated/gmail-inbox.json"),
+            File("../generated/gmail-inbox.json"),
+            File("../../generated/gmail-inbox.json")
+        )
+        val file = candidates.firstOrNull { it.exists() } ?: File("generated/gmail-inbox.json")
+        if (!file.exists()) {
+            return mapOf(
+                "status" to "ERROR",
+                "message" to "Inbox file not found at ${file.path}",
+                "processed" to 0
+            )
+        }
+
+        val db = firestore
+        val content = file.readText()
+        val parsed = kotlinx.serialization.json.Json.parseToJsonElement(content).jsonObject
+        val messages = parsed["messages"]?.jsonArray ?: kotlinx.serialization.json.JsonArray(emptyList())
+
+        // Build application messageId index and company name index
+        val appsSnap = db.collection("applications").get().get()
+        val messageToApp = mutableMapOf<String, Pair<String, String?>>() // messageId -> (appId, companyId)
+        val companyToApp = mutableMapOf<String, Pair<String, String?>>() // normalized company -> (appId, companyId)
+
+        for (doc in appsSnap.documents) {
+            val appId = doc.id
+            val companyId = doc.getString("companyId")
+            val companyName = doc.getString("company")?.trim() ?: ""
+            if (companyName.isNotBlank()) {
+                companyToApp[companyName.lowercase()] = appId to companyId
+            }
+            val ids = ((doc.get("emailMessageIds") as? List<*>) ?: emptyList<Any>()).map { it.toString() }
+            for (id in ids) {
+                messageToApp[id] = appId to companyId
+            }
+
+            // Check events subcollection for emailMessageId
+            val eventsSnap = doc.reference.collection("events").get().get()
+            for (ev in eventsSnap.documents) {
+                val evEmailId = ev.getString("emailMessageId")
+                if (!evEmailId.isNullOrBlank()) {
+                    messageToApp[evEmailId] = appId to companyId
+                }
+            }
+        }
+
+        var created = 0
+        var updated = 0
+        var noiseCount = 0
+
+        val noiseKeywords = listOf(
+            "receipt", "payment", "order", "invoice", "statement", "deposit",
+            "security alert", "sign-in", "free cloud", "cookie", "talent scout digest",
+            "digest", "newsletter"
+        )
+
+        val batch = db.batch()
+        var batchSize = 0
+
+        for (msgElem in messages) {
+            val msg = msgElem.jsonObject
+            val messageId = msg["messageId"]?.jsonPrimitive?.contentOrNull?.trim() ?: continue
+            if (messageId.isEmpty()) continue
+
+            val subject = msg["subject"]?.jsonPrimitive?.contentOrNull ?: ""
+            val sender = msg["sender"]?.jsonPrimitive?.contentOrNull ?: ""
+            val snippet = msg["snippet"]?.jsonPrimitive?.contentOrNull ?: ""
+            val receivedAt = msg["receivedAt"]?.jsonPrimitive?.contentOrNull
+
+            val combinedLower = "$subject $sender $snippet".lowercase()
+
+            // Correlate with application
+            val appCorrelation = messageToApp[messageId]
+            var matchedAppId: String? = appCorrelation?.first
+            var matchedCompanyId: String? = appCorrelation?.second
+
+            // Check noise
+            val isNoise = noiseKeywords.any { combinedLower.contains(it) }
+
+            val initialStatus = when {
+                isNoise -> {
+                    noiseCount++
+                    "NOISE"
+                }
+                combinedLower.contains("interview") || combinedLower.contains("phone screen") -> {
+                    if (combinedLower.contains("confirmed") || combinedLower.contains("calendar")) {
+                        "INTERVIEW_CONFIRMATION"
+                    } else {
+                        "INTERVIEW_REQUEST"
+                    }
+                }
+                combinedLower.contains("offer") -> "OFFER"
+                combinedLower.contains("regret") || combinedLower.contains("not moving forward") || combinedLower.contains("unfortunately") -> "REJECTION"
+                combinedLower.contains("received your application") || combinedLower.contains("thank you for applying") -> "ACKNOWLEDGEMENT"
+                combinedLower.contains("assessment") || combinedLower.contains("coding challenge") -> "ASSESSMENT"
+                matchedAppId != null -> "CORRESPONDENCE"
+                else -> "UNCLASSIFIED"
+            }
+
+            val docRef = db.collection("emails").document(messageId)
+            val docData = mutableMapOf<String, Any?>(
+                "id" to messageId,
+                "from" to sender,
+                "subject" to subject,
+                "snippet" to snippet,
+                "receivedAt" to receivedAt,
+                "status" to initialStatus,
+                "applicationId" to (if (initialStatus == "NOISE") null else matchedAppId),
+                "companyId" to (if (initialStatus == "NOISE") null else matchedCompanyId),
+                "updatedAt" to Instant.now().toString(),
+            )
+
+            if (!dryRun) {
+                batch.set(docRef, docData, SetOptions.merge())
+                batchSize++
+                if (batchSize >= 450) {
+                    batch.commit().get()
+                    batchSize = 0
+                }
+            }
+            created++
+        }
+
+        if (!dryRun && batchSize > 0) {
+            batch.commit().get()
+        }
+
+        return mapOf(
+            "status" to "SUCCESS",
+            "processed" to messages.size,
+            "createdOrUpdated" to created,
+            "noise" to noiseCount,
+            "dryRun" to dryRun
         )
     }
 }

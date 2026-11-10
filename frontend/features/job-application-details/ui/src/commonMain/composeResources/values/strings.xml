@@ -80,4 +80,15 @@
   <string name="detail_last_updated">Last updated %1$s</string>
   <string name="data_missing">DATA MISSING</string>
   <string name="parsing_error">PARSING ERROR</string>
+
+  <string name="email_evidence_title">Email Evidence (%1$d)</string>
+  <string name="email_status_unclassified">Unclassified</string>
+  <string name="email_status_acknowledgement">Acknowledgement</string>
+  <string name="email_status_interview_request">Interview Request</string>
+  <string name="email_status_interview_confirmation">Interview Confirmed</string>
+  <string name="email_status_assessment">Assessment</string>
+  <string name="email_status_offer">Offer</string>
+  <string name="email_status_rejection">Rejection</string>
+  <string name="email_status_correspondence">Correspondence</string>
+  <string name="email_status_noise">Noise</string>
 </resources>

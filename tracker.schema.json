@@ -65,7 +65,8 @@
       "sync-requests": "deferred collection requests (local Cloud Tasks substitute)",
       "companies": "normalized employer records",
       "contacts": "recruiters and hiring contacts",
-      "meta": "singleton documents: schema, sync state"
+      "meta": "singleton documents: schema, sync state",
+      "emails": "ingested and evidence emails supporting automated decisions"
     },
     "subcollections": {
       "applications/events": "append-only status and activity history",
@@ -1607,6 +1608,100 @@
           "$ref": "#/$defs/nullableString"
         }
       }
+    },
+    "emailStatusValue": {
+      "type": "string",
+      "enum": [
+        "UNCLASSIFIED",
+        "ACKNOWLEDGEMENT",
+        "INTERVIEW_REQUEST",
+        "INTERVIEW_CONFIRMATION",
+        "ASSESSMENT",
+        "OFFER",
+        "REJECTION",
+        "CORRESPONDENCE",
+        "NOISE"
+      ]
+    },
+    "email": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "from",
+        "subject",
+        "snippet",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "from": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "subject": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "snippet": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "receivedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/emailStatusValue"
+        },
+        "applicationId": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/documentId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "companyId": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/documentId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rectifiedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/$defs/isoTimestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/isoTimestamp"
+        }
+      }
     }
   },
   "enums": {
@@ -1657,6 +1752,17 @@
     },
     "roleLocation": {
       "$ref": "#/$defs/roleLocationValue"
-    }
+    },
+    "emailStatus": [
+      "UNCLASSIFIED",
+      "ACKNOWLEDGEMENT",
+      "INTERVIEW_REQUEST",
+      "INTERVIEW_CONFIRMATION",
+      "ASSESSMENT",
+      "OFFER",
+      "REJECTION",
+      "CORRESPONDENCE",
+      "NOISE"
+    ]
   }
 }

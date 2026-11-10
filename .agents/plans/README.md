@@ -24,8 +24,12 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`164050_email_evidence_taxonomy_and_tui_rectification.md`](./2026-11-10/164050_email_evidence_taxonomy_and_tui_rectification.md) | Completed | RM-006: Top-level emails collection, EmailStatus taxonomy, backend backfill & rectification service, TUI rectification mode, and in-context GUI email evidence display |
 | [`163500_rm-006-email-top-level-collection-assessment.md`](./2026-11-10/163500_rm-006-email-top-level-collection-assessment.md) | Completed | Assessment that top-level `emails` collection IS warranted for RM-006 (unlike RM-004 events) — cross-app queries needed, greenfield design, deduplication benefit |
 | [`162700_firestore_events_migration_investigation.md`](./2026-11-10/162700_firestore_events_migration_investigation.md) | Completed | Investigation of migrating events to top-level collection: no-op recommendation — all queries are per-application, no cross-app queries exist (RM-004) |
+| [`165146_public_linkedin_company_enrichment_plan.md`](./2026-11-10/165146_public_linkedin_company_enrichment_plan.md) | Proposed | Public LinkedIn guest API scraping fallback & company enrichment backfill for 94 Firestore companies |
+| [`164749_heuristic_company_enrichment_backfill.md`](./2026-11-10/164749_heuristic_company_enrichment_backfill.md) | Superseded | Option 2 implementation plan; superseded by 165146_public_linkedin_company_enrichment_plan.md |
+| [`164458_rm005_company_enrichment_backfill_execution.md`](./2026-11-10/164458_rm005_company_enrichment_backfill_execution.md) | Proposed | Execution plan for RM-005 company enrichment backfill across 94 existing Firestore company records |
 | [`160845_pure-kotlin-migration-url-cleaning-plan.md`](./2026-11-10/160845_pure-kotlin-migration-url-cleaning-plan.md) | Completed | Pure Kotlin migration of URL sanitization & tracking parameter cleaning (scripts/urls.py to records/parser UrlSanitizer.kt, RM-001 & RM-003) |
 | [`160200_retroactive-company-enrichment.md`](./2026-11-10/160200_retroactive-company-enrichment.md) | Completed | Retroactive batch enrichment of existing Firestore company records (sector, linkedinUrl), mise task, frontend display, and sector→industry mapping fix |
 | [`154500_pure_kotlin_migration_render_py.md`](./2026-11-10/154500_pure_kotlin_migration_render_py.md) | Completed | Pure Kotlin migration of event projection & history rendering (scripts/render.py & scripts/events.py to records/parser) |

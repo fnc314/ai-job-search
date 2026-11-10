@@ -49,7 +49,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-003   | Backend Functionality Abstraction      | Expose deterministic tasks as services | HIGH       | HIGH     | 70 d   | IN_PROGRESS |
 | RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | DONE   |
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
-| RM-006   | Add Email Top-Level Destination for in-app analysis | Add Add Email Top-Level to address MEDIUM concern | MEDIUM | MEDIUM | 0 d | OPEN |
+| RM-006   | Add Email Top-Level Destination for in-app analysis | Add Email evidence & rectification | MEDIUM      | MEDIUM   | 0 d    | DONE        |
 
 ---
 
@@ -302,25 +302,28 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 ### [RM-006] Add Email Top-Level Destination for in-app analysis
 
-**Short Desc:** Add Add Email Top-Level to address MEDIUM concern
+**Short Desc:** Add Email evidence & rectification
 **Criticality:** MEDIUM
 **Priority:** MEDIUM
-**Complexity:** 0 — Unknown
-**Status:** OPEN
-**Completion %:** 0
+**Complexity:** 3 — Moderate
+**Status:** DONE
+**Completion %:** 100
 **Creation Date:** 2026-11-10
-**Objective:** Introduce a new UI experience in the `frontend/apps/core` KMC flows.  This will contain a pseudo-inbox for a user's emails and pull back *only* the emails used to determine the current state of affairs.  Data pulled from email platforms should be "from" "subject" "body" "labels" (if applicable), "date received" and this will be tied to existing companies and job applications.  The intent is to surface the evidence used behind automated decisions to records.
+**Objective:** Surface the evidence used behind automated decisions to records. Introduce a top-level `emails` collection in Firestore, a backend backfill & rectification service, an interactive TUI rectification mode, and in-context email evidence viewing on application detail records.
 
 **Dependencies:** None
 
 **Linked Plans:**
 
-- None
+- `.agents/plans/2026-11-10/164050_email_evidence_taxonomy_and_tui_rectification.md`
+- `.agents/plans/2026-11-10/163500_rm-006-email-top-level-collection-assessment.md`
 
 **Changelog:**
 
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-10 | Completed         | Backfilled 200 emails to Firestore, implemented backend rectification endpoints, TUI rectification mode, and GUI in-context evidence display |
+| 2026-11-10 | Status update     | Started implementation per approved plan 164050 |
 | 2026-11-10 | Item created      | Initial entry                        |
 
 ## Frozen Items

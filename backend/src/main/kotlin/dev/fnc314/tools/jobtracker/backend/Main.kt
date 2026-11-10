@@ -49,6 +49,20 @@ public fun main(args: Array<String>) {
         return
     }
 
+    if (args.contains("--emails-backfill")) {
+        val dryRun = args.contains("--dry-run")
+        println("Executing emails backfill locally (dryRun: $dryRun)...")
+        try {
+            val result = BackendService.backfillEmails(dryRun = dryRun)
+            println("Emails backfill complete: $result")
+        } catch (e: Exception) {
+            System.err.println("Error during emails backfill: ${e.message}")
+            e.printStackTrace()
+            exitProcess(1)
+        }
+        return
+    }
+
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
     embeddedServer(Netty, port = port) {
         routing {
@@ -289,6 +303,69 @@ public fun main(args: Array<String>) {
                     val processed = BackendService.processDueSyncs()
                     call.respondText(
                         """{"status":"SUCCESS","processed":$processed}""",
+                        io.ktor.http.ContentType.Application.Json
+                    )
+                } catch (e: Exception) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"${e.message}"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                    )
+                }
+            }
+            post("/emails/tasks/backfill") {
+                try {
+                    val dryRun = call.request.queryParameters["dryRun"]?.toBoolean() ?: false
+                    val res = BackendService.backfillEmails(dryRun = dryRun)
+                    call.respondText(
+                        Json.encodeToString(JsonObject(res.mapValues {
+                            when (val v = it.value) {
+                                is Number -> kotlinx.serialization.json.JsonPrimitive(v)
+                                is Boolean -> kotlinx.serialization.json.JsonPrimitive(v)
+                                else -> kotlinx.serialization.json.JsonPrimitive(v.toString())
+                            }
+                        })),
+                        io.ktor.http.ContentType.Application.Json
+                    )
+                } catch (e: Exception) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"${e.message}"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                    )
+                }
+            }
+            post("/emails/rectify") {
+                try {
+                    val body = call.receiveText()
+                    val payload = Json.parseToJsonElement(body).jsonObject
+                    val messageId = payload["messageId"]?.jsonPrimitive?.contentOrNull
+                        ?: return@post call.respondText(
+                            """{"status":"ERROR","message":"messageId is required"}""",
+                            io.ktor.http.ContentType.Application.Json,
+                            status = io.ktor.http.HttpStatusCode.BadRequest
+                        )
+                    val targetAppId = payload["applicationId"]?.jsonPrimitive?.contentOrNull
+                    val status = payload["status"]?.jsonPrimitive?.contentOrNull ?: "UNCLASSIFIED"
+                    val isNoise = payload["isNoise"]?.jsonPrimitive?.booleanOrNull ?: false
+                    val dryRun = call.request.queryParameters["dryRun"]?.toBoolean() ?: false
+
+                    val res = BackendService.rectifyEmail(
+                        messageId = messageId,
+                        targetApplicationId = targetAppId,
+                        status = status,
+                        isNoise = isNoise,
+                        dryRun = dryRun
+                    )
+                    call.respondText(
+                        Json.encodeToString(JsonObject(res.mapValues {
+                            when (val v = it.value) {
+                                null -> kotlinx.serialization.json.JsonNull
+                                is Number -> kotlinx.serialization.json.JsonPrimitive(v)
+                                is Boolean -> kotlinx.serialization.json.JsonPrimitive(v)
+                                else -> kotlinx.serialization.json.JsonPrimitive(v.toString())
+                            }
+                        })),
                         io.ktor.http.ContentType.Application.Json
                     )
                 } catch (e: Exception) {

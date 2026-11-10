@@ -25,7 +25,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -81,6 +83,7 @@ import fnc314jobsearchtracker.features_job_application_details_ui.generated.reso
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_prefix_job_url
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_prefix_location
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_section_artifacts
+import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.email_evidence_title
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_section_notes
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_section_timeline
 import org.jetbrains.compose.resources.stringResource
@@ -527,7 +530,7 @@ internal fun ApplicationEmailsSection(
       .padding(horizontal = MaterialTheme.spacing.medium),
     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
   ) {
-    SectionHeader("Related Emails (${model.emailMessageIds.size})")
+    SectionHeader(stringResource(Res.string.email_evidence_title, model.emailMessageIds.size))
     OutlinedCard(
       shape = MaterialTheme.shapes.medium,
       modifier = Modifier.fillMaxWidth(),
@@ -549,11 +552,17 @@ internal fun ApplicationEmailsSection(
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.primary,
             )
-            Text(
-              text = "Linked",
-              style = MaterialTheme.typography.labelSmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Surface(
+              shape = MaterialTheme.shapes.extraSmall,
+              color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ) {
+              Text(
+                text = "EVIDENCE",
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+              )
+            }
           }
         }
       }
