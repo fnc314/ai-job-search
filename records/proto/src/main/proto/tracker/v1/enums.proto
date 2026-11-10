@@ -320,3 +320,23 @@ enum SubmissionConfidence {
   UNCONFIRMED_USER_MARKED = 3;
   RECRUITER_LED = 4;
 }
+
+// ============================================================================
+// CompanySector
+// Normalized business domain or market sector classification
+// ============================================================================
+enum CompanySector {
+  COMPANY_SECTOR_UNSPECIFIED = 0;
+  TECH = 1;
+  FINTECH = 2;
+  HEALTHCARE = 3;
+  E_COMMERCE = 4;
+  AUTOMOTIVE = 5;
+  MEDIA = 6;
+  EDUCATION = 7;
+  CONSULTING = 8;
+  AEROSPACE = 9;
+  RETAIL = 10;
+  ENERGY = 11;
+  TELECOM = 12;
+}

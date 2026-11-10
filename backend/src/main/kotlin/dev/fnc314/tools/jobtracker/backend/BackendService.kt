@@ -9,10 +9,12 @@ import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
 import dev.fnc314.tools.jobsearch.parser.ApplicationTimelineProjector
 import dev.fnc314.tools.jobsearch.parser.CompanyMetricsParser
+import dev.fnc314.tools.jobsearch.parser.CompanySectorNormalizer
 import dev.fnc314.tools.jobsearch.parser.EventChainBuilder
 import dev.fnc314.tools.jobsearch.parser.EventChainVerifier
 import dev.fnc314.tools.jobsearch.tracker.v1.ApplicationChannel
 import dev.fnc314.tools.jobsearch.tracker.v1.CompanyMetrics
+import dev.fnc314.tools.jobsearch.tracker.v1.CompanySector
 import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
 import dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfirmation
 import dev.fnc314.tools.jobsearch.tracker.v1.Timeline
@@ -648,23 +650,14 @@ public object BackendService {
         for (doc in snapshot.documents) {
             val data = doc.data ?: continue
             val companyId = doc.id
-            val hasSector = !(data["sector"] as? String).isNullOrBlank()
+            val sectorVal = data["sector"] as? String
+            val expectedSector = CompanySectorNormalizer.normalize(companyId = companyId).name
             val hasLinkedinUrl = !(data["linkedinUrl"] as? String).isNullOrBlank()
 
-            // Skip if both fields are already populated
-            if (hasSector && hasLinkedinUrl) {
+            // Skip if expected sector and linkedinUrl are already populated
+            if (sectorVal == expectedSector && hasLinkedinUrl) {
                 skipped++
                 continue
-            }
-
-            // Skip if enriched within the last 24 hours
-            val lastEnrichedAt = data["lastEnrichedAt"] as? Timestamp
-            if (lastEnrichedAt != null) {
-                val elapsed = ChronoUnit.HOURS.between(lastEnrichedAt.toDate().toInstant(), Instant.now())
-                if (elapsed < 24) {
-                    skipped++
-                    continue
-                }
             }
 
             // Try to enrich via Hunter.io logo API (returns industry data)
@@ -680,11 +673,19 @@ public object BackendService {
                 val hunterIndustry = hunterResult["industry"] as? String
                 val hunterLinkedinUrl = hunterResult["linkedin_url"] as? String
 
+                // Resolve sector and linkedinUrl using CompanySectorNormalizer fallback
+                val resolvedSector = CompanySectorNormalizer.normalize(
+                    companyId = companyId,
+                    industryOrSector = hunterIndustry,
+                    companyName = companyName
+                ).name
+                val resolvedLinkedinUrl = hunterLinkedinUrl ?: CompanySectorNormalizer.resolveLinkedinUrl(companyId)
+
                 val enrichResult = enrichCompany(
                     companyId = companyId,
                     companyName = companyName,
-                    linkedinUrl = hunterLinkedinUrl,
-                    industry = hunterIndustry,
+                    linkedinUrl = resolvedLinkedinUrl,
+                    industry = hunterIndustry ?: resolvedSector,
                     logoUrl = hunterResult["logo_url"] as? String
                 )
 
@@ -838,15 +839,15 @@ public object BackendService {
         }
 
         // Sector / Industry enrichment
-        if (industry != null && (existingData["sector"] as? String).isNullOrBlank()) {
-            val normalizedSector = when {
-                industry.contains("finance", ignoreCase = true) || industry.contains("bank", ignoreCase = true) -> "FinTech"
-                industry.contains("software", ignoreCase = true) || industry.contains("tech", ignoreCase = true) -> "Technology"
-                industry.contains("health", ignoreCase = true) || industry.contains("medical", ignoreCase = true) -> "Healthcare"
-                else -> industry
-            }
+        val normalizedSector = CompanySectorNormalizer.normalize(
+            companyId = companyId,
+            industryOrSector = industry,
+            companyName = companyName
+        ).name
+        if (existingData["sector"] != normalizedSector) {
             updates["sector"] = normalizedSector
-
+        }
+        if (industry != null) {
             val existingMeta = (existingData["metadata"] as? Map<*, *>)?.toMutableMap() ?: mutableMapOf<Any?, Any?>()
             existingMeta["linkedinIndustry"] = industry
             updates["metadata"] = existingMeta
