@@ -1,4 +1,9 @@
-"""URL sanitation utility: strip tracking and telemetry query parameters."""
+"""DEPRECATED: As part of RM-001/RM-003, URL sanitization has moved to pure Kotlin
+records/parser (UrlSanitizer.kt & JPypeBridge.cleanUrl).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+URL sanitation utility: strip tracking and telemetry query parameters.
+"""
 
 from __future__ import annotations
 

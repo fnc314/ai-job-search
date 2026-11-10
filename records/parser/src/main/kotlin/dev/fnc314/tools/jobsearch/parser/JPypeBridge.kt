@@ -143,4 +143,16 @@ public object TrackerParser {
     public fun getLegacyKeys(): List<String> {
         return LegacyRowProjector.LEGACY_KEYS
     }
+
+    /**
+     * Strips known tracking and telemetry query parameters from a URL.
+     *
+     * @param rawUrl The raw URL string.
+     * @return Sanitized URL string, or null if input was null.
+     * @see UrlSanitizer.cleanUrl
+     */
+    @JvmStatic
+    public fun cleanUrl(rawUrl: String?): String? {
+        return UrlSanitizer.cleanUrl(rawUrl)
+    }
 }

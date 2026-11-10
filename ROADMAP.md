@@ -48,6 +48,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-003   | Backend Functionality Abstraction      | Expose deterministic tasks as services | HIGH       | HIGH     | 70 d   | IN_PROGRESS |
 | RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | OPEN   |
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
+| RM-006 | Add Email Top-Level Destination for in-app analysis | Add Add Email Top-Level to address MEDIUM concern | MEDIUM | MEDIUM | 0 d | OPEN |
 
 ---
 
@@ -58,7 +59,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Priority:** MEDIUM
 **Complexity:** 5 — Critical
 **Status:** IN_PROGRESS
-**Completion %:** 35
+**Completion %:** 40
 **Creation Date:** 2026-09-01
 **Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/terminal`).
 
@@ -92,6 +93,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Changelog:**
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-10 | Progress update   | Migrated clean_url and URL query sanitization to pure Kotlin (records/parser UrlSanitizer.kt & JPypeBridge.cleanUrl), marked scripts/urls.py deprecated |
 | 2026-11-10 | Progress update   | Migrated renderNotes and event projection logic to pure Kotlin (records/parser), marked render.py deprecated |
 | 2026-11-10 | Progress update   | Implemented pure Kotlin EventChainBuilder and ApplicationTimelineProjector in records/parser |
 | 2026-11-10 | Item created      | Renamed from TODO-001 to RM-001      |

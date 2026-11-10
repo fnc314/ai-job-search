@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`160845_pure-kotlin-migration-url-cleaning-plan.md`](./2026-11-10/160845_pure-kotlin-migration-url-cleaning-plan.md) | Completed | Pure Kotlin migration of URL sanitization & tracking parameter cleaning (scripts/urls.py to records/parser UrlSanitizer.kt, RM-001 & RM-003) |
 | [`160200_retroactive-company-enrichment.md`](./2026-11-10/160200_retroactive-company-enrichment.md) | Completed | Retroactive batch enrichment of existing Firestore company records (sector, linkedinUrl), mise task, frontend display, and sector→industry mapping fix |
 | [`154500_pure_kotlin_migration_render_py.md`](./2026-11-10/154500_pure_kotlin_migration_render_py.md) | Completed | Pure Kotlin migration of event projection & history rendering (scripts/render.py & scripts/events.py to records/parser) |
 | [`152500_linkedin_company_enrichment_plan.md`](./2026-11-10/152500_linkedin_company_enrichment_plan.md) | Completed | Enrich companies collection with LinkedIn industry tags and logo metadata during scrape (RM-005) |
