@@ -2,6 +2,7 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui
 
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
+import kotlin.time.Instant
 
 /**
  * User interactions and events emitted from the Job Application Detail UI screen.
@@ -40,10 +41,12 @@ public sealed interface JobApplicationDetailUiIntent {
      *
      * @property type Categorical event kind [TrackerEventType].
      * @property notes Contextual notes or recruiter feedback.
+     * @property scheduledAt Optional structured date-time for scheduled activities (e.g. interviews, on-sites).
      */
     public data class RecordEvent(
         public val type: TrackerEventType,
         public val notes: String = "",
+        public val scheduledAt: Instant? = null,
     ) : JobApplicationDetailUiIntent
 
     /**

@@ -19,6 +19,7 @@ import kotlin.time.Instant
  * @property derivedFrom Derivation source [DerivedFrom] indicating how this event was captured.
  * @property confidence Machine extraction confidence rating [Confidence].
  * @property createdAt Timestamp when this event occurred.
+ * @property scheduledAt Optional structured date-time for scheduled activities (e.g. interviews, on-sites).
  * @see TrackerEventType
  * @see TrackerStatus
  * @see EventActor
@@ -35,4 +36,5 @@ public data class TrackerEvent(
     public val derivedFrom: DerivedFrom,
     public val confidence: Confidence,
     public val createdAt: Instant = Instant.DISTANT_PAST,
+    public val scheduledAt: Instant? = null,
 )

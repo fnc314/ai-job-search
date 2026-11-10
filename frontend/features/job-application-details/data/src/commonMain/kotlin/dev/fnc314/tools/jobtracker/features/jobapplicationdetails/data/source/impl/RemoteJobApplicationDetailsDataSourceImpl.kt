@@ -3,11 +3,15 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source.i
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.ApplicationChannel
 import dev.fnc314.tools.jobtracker.core.data.model.Company
+import dev.fnc314.tools.jobtracker.core.data.model.Confidence
+import dev.fnc314.tools.jobtracker.core.data.model.DerivedFrom
+import dev.fnc314.tools.jobtracker.core.data.model.EventActor
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.LogoFormat
 import dev.fnc314.tools.jobtracker.core.data.model.LogoShape
 import dev.fnc314.tools.jobtracker.core.data.model.Timeline
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.core.data.source.MapRemoteRecord
 import dev.fnc314.tools.jobtracker.core.data.source.RemoteDataSource
@@ -35,6 +39,12 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
   override suspend fun getCompanies(): List<Company> = withContext(Dispatchers.Default) {
     remoteDataSource.getCollection("companies").map(::mapRecordToCompany)
   }
+
+  override suspend fun getEvents(applicationId: String): List<TrackerEvent> =
+    withContext(Dispatchers.Default) {
+      val collectionPath = "applications/$applicationId/events"
+      remoteDataSource.getCollection(collectionPath).map(::mapRecordToTrackerEvent)
+    }
 
   override suspend fun updateStatus(
     id: String,
@@ -75,9 +85,10 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     event.statusTo?.let { fields["statusTo"] = it.toFirestore() }
     event.note?.let { fields["note"] = it }
     event.emailMessageId?.let { fields["emailMessageId"] = it }
+    event.scheduledAt?.let { fields["scheduledAt"] = it.toString() }
 
     remoteDataSource.setDocument(
-      collectionPath = "events",
+      collectionPath = "applications/${event.applicationId}/events",
       documentId = event.id,
       record = MapRemoteRecord(id = event.id, fields = fields),
     )
@@ -244,4 +255,29 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
 
   private fun RemoteRecord.nonBlankString(key: String): String? =
     getString(key)?.takeIf { it.isNotBlank() }
+
+  private fun mapRecordToTrackerEvent(record: RemoteRecord): TrackerEvent {
+    val createdAtRaw = record.fields["createdAt"]
+    val createdAt = InstantParser.parse(createdAtRaw)
+    val scheduledAtRaw = record.fields["scheduledAt"]
+    val scheduledAt = if (scheduledAtRaw != null) {
+      InstantParser.parse(scheduledAtRaw).takeIf { it != Instant.DISTANT_PAST }
+    } else {
+      null
+    }
+    return Factory.createTrackerEvent(
+      id = record.id,
+      applicationId = record.getString("applicationId") ?: "",
+      type = TrackerEventType.fromFirestore(record.getString("type")),
+      statusFrom = record.getString("statusFrom")?.let { TrackerStatus.fromFirestore(it) },
+      statusTo = record.getString("statusTo")?.let { TrackerStatus.fromFirestore(it) },
+      note = record.getString("note"),
+      emailMessageId = record.getString("emailMessageId"),
+      actor = EventActor.fromFirestore(record.getString("actor")),
+      derivedFrom = DerivedFrom.fromFirestore(record.getString("derivedFrom")),
+      confidence = Confidence.fromFirestore(record.getString("confidence")),
+      createdAt = createdAt,
+      scheduledAt = scheduledAt,
+    )
+  }
 }

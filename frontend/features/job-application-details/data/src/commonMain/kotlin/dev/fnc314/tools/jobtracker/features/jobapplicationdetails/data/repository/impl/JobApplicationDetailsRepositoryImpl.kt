@@ -35,6 +35,10 @@ internal class JobApplicationDetailsRepositoryImpl(
         return remote
     }
 
+    override suspend fun getEvents(applicationId: String): List<TrackerEvent> {
+        return runCatching { remoteDataSource.getEvents(applicationId) }.getOrDefault(emptyList())
+    }
+
     override suspend fun updateStatus(
         id: String,
         status: TrackerStatus,

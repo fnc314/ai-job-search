@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.widgets.formatRelativeInstant
+import kotlin.time.Instant
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
@@ -152,6 +153,16 @@ internal fun EventsTimeline(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
+                        }
+
+                        event.scheduledAt?.let { scheduledAt ->
+                            if (scheduledAt != Instant.DISTANT_PAST) {
+                                Text(
+                                    text = "Scheduled: $scheduledAt",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.secondary,
+                                )
+                            }
                         }
 
                         if (event.statusFrom != null || event.statusTo != null) {

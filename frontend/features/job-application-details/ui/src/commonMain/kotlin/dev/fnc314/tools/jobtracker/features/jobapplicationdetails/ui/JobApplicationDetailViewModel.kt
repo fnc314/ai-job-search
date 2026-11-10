@@ -13,12 +13,14 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.GetArtifactSignedUrlUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.GetEventsUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.LoadCompaniesUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.LoadJobApplicationUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.RecordEventUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.UpdateApplicationStatusUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.UpdateFitScoreUseCase
 import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +35,7 @@ import kotlinx.coroutines.launch
  *
  * @param loadApplicationUseCase Use case fetching a specific application record.
  * @param loadCompaniesUseCase Use case loading company metadata and aliases.
+ * @param getEventsUseCase Use case loading audit events from the application subcollection.
  * @param updateStatusUseCase Use case mutating the application lifecycle status.
  * @param recordEventUseCase Use case appending a new timeline event.
  * @param updateFitScoreUseCase Use case adjusting the candidate fit score and confidence.
@@ -41,6 +44,7 @@ import kotlinx.coroutines.launch
 public class JobApplicationDetailViewModel(
     private val loadApplicationUseCase: LoadJobApplicationUseCase,
     private val loadCompaniesUseCase: LoadCompaniesUseCase,
+    private val getEventsUseCase: GetEventsUseCase,
     private val updateStatusUseCase: UpdateApplicationStatusUseCase,
     private val recordEventUseCase: RecordEventUseCase,
     private val updateFitScoreUseCase: UpdateFitScoreUseCase,
@@ -70,7 +74,7 @@ public class JobApplicationDetailViewModel(
             is JobApplicationDetailUiIntent.Load -> handleLoad(intent.id)
             is JobApplicationDetailUiIntent.UpdateStatus -> handleUpdateStatus(intent.newStatus, intent.date, intent.note)
             is JobApplicationDetailUiIntent.UpdateFitScore -> handleUpdateFitScore(intent.newScore)
-            is JobApplicationDetailUiIntent.RecordEvent -> handleRecordEvent(intent.type, intent.notes)
+            is JobApplicationDetailUiIntent.RecordEvent -> handleRecordEvent(intent.type, intent.notes, intent.scheduledAt)
             is JobApplicationDetailUiIntent.OpenArtifact -> handleOpenArtifact(intent.artifactId)
             is JobApplicationDetailUiIntent.ClickBack -> handleClickBack()
         }
@@ -87,9 +91,10 @@ public class JobApplicationDetailViewModel(
                 }
                 val companies = loadCompaniesUseCase(LoadCompaniesUseCase.Params(forceRefresh = false))
                 val company = companies.find { it.name.equals(app.company, ignoreCase = true) }
+                val events = getEventsUseCase(GetEventsUseCase.Params(applicationId = app.id))
                 currentApplication = app
                 currentCompany = company
-                currentEvents = emptyList()
+                currentEvents = events
                 currentArtifacts = emptyList()
 
                 val model = createJobApplicationDetailUiModel(
@@ -175,7 +180,7 @@ public class JobApplicationDetailViewModel(
         }
     }
 
-    private fun handleRecordEvent(type: TrackerEventType, notes: String): Unit {
+    private fun handleRecordEvent(type: TrackerEventType, notes: String, scheduledAt: Instant?): Unit {
         val app = currentApplication ?: return
         val currentContent = _uiState.value as? JobApplicationDetailUiState.Content ?: return
         _uiState.value = currentContent.copy(isUpdating = true)
@@ -191,6 +196,7 @@ public class JobApplicationDetailViewModel(
             derivedFrom = DerivedFrom.MANUAL,
             confidence = Confidence.HIGH,
             createdAt = Clock.System.now(),
+            scheduledAt = scheduledAt,
         )
         viewModelScope.launch {
             try {

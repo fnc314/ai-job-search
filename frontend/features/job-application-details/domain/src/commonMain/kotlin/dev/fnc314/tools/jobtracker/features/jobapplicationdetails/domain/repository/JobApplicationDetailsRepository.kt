@@ -26,6 +26,14 @@ public interface JobApplicationDetailsRepository {
     public suspend fun getCompanies(): List<Company>
 
     /**
+     * Retrieves all audit events for a specific application from its timeline subcollection.
+     *
+     * @param applicationId The target application identifier.
+     * @return List of [TrackerEvent] records ordered chronologically.
+     */
+    public suspend fun getEvents(applicationId: String): List<TrackerEvent>
+
+    /**
      * Mutates the lifecycle status of an application, appending an audit event and updating timestamps.
      *
      * @param id The target application identifier.

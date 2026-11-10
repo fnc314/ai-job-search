@@ -160,13 +160,17 @@ internal fun UpdateStatusDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RecordEventDialog(
-    onConfirm: (TrackerEventType, String?) -> Unit,
+    onConfirm: (TrackerEventType, String?, Instant?) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ): Unit {
     var selectedType by remember { mutableStateOf(TrackerEventType.APPLY) }
     var note by remember { mutableStateOf("") }
+    var scheduledDateTime by remember { mutableStateOf("") }
     val selectEventCd: String = stringResource(Res.string.dialog_event_type_cd)
+
+    val showScheduledAt = selectedType == TrackerEventType.SCHEDULE_INTERVIEW ||
+        selectedType == TrackerEventType.VISIT_ONSITE
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -218,13 +222,29 @@ internal fun RecordEventDialog(
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text(stringResource(Res.string.dialog_event_note_placeholder)) },
                 )
+
+                // Scheduled date-time field (only for interview/onsite events)
+                if (showScheduledAt) {
+                    OutlinedTextField(
+                        value = scheduledDateTime,
+                        onValueChange = { scheduledDateTime = it },
+                        label = { Text("Scheduled Date & Time") },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("e.g. 2026-11-15T14:00:00Z") },
+                    )
+                }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
                     val noteValue = note.ifBlank { null }
-                    onConfirm(selectedType, noteValue)
+                    val scheduledAtValue = if (showScheduledAt && scheduledDateTime.isNotBlank()) {
+                        runCatching { Instant.parse(scheduledDateTime) }.getOrNull()
+                    } else {
+                        null
+                    }
+                    onConfirm(selectedType, noteValue, scheduledAtValue)
                 },
             ) {
                 Text(stringResource(Res.string.dialog_action_record))

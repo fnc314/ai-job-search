@@ -42,8 +42,6 @@ import kotlin.time.Instant
  * @property fitScoreDisplayText Formatted fit rating text.
  * @property fitGaps Identified alignment gaps.
  * @property tags Categorization tags.
- * @property notesList Structured list of strategy notes.
- * @property notesRendered Rendered markdown text.
  * @property jobUrl Live posting URL.
  * @property jobApplicationUrl Direct candidate portal link.
  * @property createdAt Record creation timestamp, or [Instant.DISTANT_PAST] when unknown.
@@ -69,8 +67,6 @@ public data class JobApplicationDetailUiModel(
   public val fitScoreDisplayText: String,
   public val fitGaps: ImmutableList<String>,
   public val tags: ImmutableList<String>,
-  public val notesList: ImmutableList<String>,
-  public val notesRendered: String?,
   public val jobUrl: String?,
   public val jobApplicationUrl: String?,
   public val createdAt: Instant = Instant.DISTANT_PAST,
@@ -121,8 +117,6 @@ internal fun createJobApplicationDetailUiModel(
     fitGaps = app.fitEvaluation?.gaps?.toImmutableList()
       ?: persistentListOf(),
     tags = app.tags,
-    notesList = parseNotesList(app.notesRendered),
-    notesRendered = app.notesRendered,
     jobUrl = app.jobUrl,
     jobApplicationUrl = app.jobApplicationUrl,
     createdAt = app.createdAt,
@@ -196,10 +190,3 @@ private fun formatCompensation(comp: Compensation?): String? {
   }
 }
 
-private fun parseNotesList(notes: String?): ImmutableList<String> {
-  if (notes.isNullOrBlank()) return persistentListOf()
-  return notes.lineSequence()
-    .map { it.trim() }
-    .filter { it.isNotEmpty() }
-    .toImmutableList()
-}

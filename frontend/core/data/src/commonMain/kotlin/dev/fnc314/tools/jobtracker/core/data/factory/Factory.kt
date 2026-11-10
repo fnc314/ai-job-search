@@ -146,6 +146,7 @@ public object Factory {
      * @param derivedFrom Source derivation mechanism [DerivedFrom]. Defaults to [DerivedFrom.MANUAL].
      * @param confidence Extraction confidence [Confidence]. Defaults to [Confidence.HIGH].
      * @param createdAt Creation timestamp. Defaults to [Clock.System.now].
+     * @param scheduledAt Optional structured date-time for scheduled activities (e.g. interviews, on-sites).
      * @return A constructed [TrackerEvent] instance.
      */
     public fun createTrackerEvent(
@@ -160,6 +161,7 @@ public object Factory {
         derivedFrom: DerivedFrom = DerivedFrom.MANUAL,
         confidence: Confidence = Confidence.HIGH,
         createdAt: Instant = Clock.System.now(),
+        scheduledAt: Instant? = null,
     ): TrackerEvent = TrackerEvent(
         id = id,
         applicationId = applicationId,
@@ -172,6 +174,7 @@ public object Factory {
         derivedFrom = derivedFrom,
         confidence = confidence,
         createdAt = createdAt,
+        scheduledAt = scheduledAt,
     )
 
     /**

@@ -84,7 +84,6 @@ import fnc314jobsearchtracker.features_job_application_details_ui.generated.reso
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_prefix_location
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_section_artifacts
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.email_evidence_title
-import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_section_notes
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_section_timeline
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -183,8 +182,8 @@ private fun JobApplicationDetailContent(
 
   if (showEventDialog) {
     RecordEventDialog(
-      onConfirm = { type, note ->
-        onIntent(JobApplicationDetailUiIntent.RecordEvent(type = type, notes = note.orEmpty()))
+      onConfirm = { type, note, scheduledAt ->
+        onIntent(JobApplicationDetailUiIntent.RecordEvent(type = type, notes = note.orEmpty(), scheduledAt = scheduledAt))
         showEventDialog = false
       },
       onDismiss = { showEventDialog = false },
@@ -237,19 +236,6 @@ private fun JobApplicationDetailContent(
               )
               model.company?.let { CompanyProfileSection(company = it) }
               ApplicationEmailsSection(model = model)
-              model.notesRendered?.let { notes ->
-                SectionHeader(stringResource(Res.string.detail_section_notes))
-                OutlinedCard(
-                  modifier = Modifier.fillMaxWidth(),
-                  shape = MaterialTheme.shapes.medium,
-                ) {
-                  Text(
-                    text = notes,
-                    modifier = Modifier.padding(MaterialTheme.spacing.medium),
-                    style = MaterialTheme.typography.bodyMedium,
-                  )
-                }
-              }
             }
 
             Column(
@@ -295,22 +281,6 @@ private fun JobApplicationDetailContent(
             )
 
             ApplicationTimelineSection(model = model)
-
-            model.notesRendered?.let { notes ->
-              SectionHeader(stringResource(Res.string.detail_section_notes))
-              OutlinedCard(
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(horizontal = MaterialTheme.spacing.medium),
-                shape = MaterialTheme.shapes.medium,
-              ) {
-                Text(
-                  text = notes,
-                  modifier = Modifier.padding(MaterialTheme.spacing.medium),
-                  style = MaterialTheme.typography.bodyMedium,
-                )
-              }
-            }
           }
         }
       }

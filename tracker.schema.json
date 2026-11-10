@@ -881,6 +881,17 @@
         "confidence": {
           "$ref": "#/$defs/confidenceValue"
         },
+        "scheduledAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional structured date-time for scheduled activities such as interviews or on-site visits."
+        },
         "metadata": {
           "type": "object",
           "additionalProperties": true

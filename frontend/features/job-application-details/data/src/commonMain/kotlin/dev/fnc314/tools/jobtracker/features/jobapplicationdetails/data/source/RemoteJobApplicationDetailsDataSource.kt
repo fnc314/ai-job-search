@@ -8,6 +8,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 internal interface RemoteJobApplicationDetailsDataSource {
     suspend fun getJobApplication(id: String): JobApplication?
     suspend fun getCompanies(): List<Company>
+    suspend fun getEvents(applicationId: String): List<TrackerEvent>
     suspend fun updateStatus(id: String, status: TrackerStatus, date: String?, note: String?): JobApplication
     suspend fun recordEvent(event: TrackerEvent): String
     suspend fun updateFitScore(id: String, score: Int): JobApplication
