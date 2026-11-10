@@ -83,10 +83,12 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 **Linked Plans:**
 - `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
+- `.agents/plans/2026-11-08/180500_python-to-mise-tasks-migration-plan.md`
 
 **Changelog:**
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-10 | Progress update   | Implemented pure Kotlin EventChainBuilder and ApplicationTimelineProjector in records/parser |
 | 2026-11-10 | Item created      | Renamed from TODO-001 to RM-001      |
 
 ---
@@ -121,7 +123,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - Example: `/scrape`, `/apply`, `/outcome` command sequence should be encapsulated as a single portable unit
 
 **Linked Plans:**
-- None
+- `.agents/plans/2026-11-09/182733_consolidate-agent-directories.md`
 
 **Changelog:**
 | Date       | Change            | Details                              |
@@ -161,19 +163,12 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 **Linked Plans:**
 - `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
+- `.agents/plans/2026-11-09/125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md`
 
 **Changelog:**
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-10 | Status update     | Implemented event chaining, projections, and backend service append |
-| 2026-11-10 | Item created      | Renamed from TODO-003 to RM-003      |
-
-**Linked Plans:**
-- `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
-
-**Changelog:**
-| Date       | Change            | Details                              |
-|------------|-------------------|--------------------------------------|
 | 2026-11-10 | Item created      | Renamed from TODO-003 to RM-003      |
 
 ---
@@ -254,11 +249,6 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 |------------|-------------------|--------------------------------------|
 | 2026-11-10 | Completed         | Enriched company metadata during /scrape and implemented backend enrichment service |
 | 2026-11-10 | Status update     | Started implementation per approved plan 152500 |
-| 2026-11-10 | Item created      | Renamed from TODO-005 to RM-005      |
-
-**Changelog:**
-| Date       | Change            | Details                              |
-|------------|-------------------|--------------------------------------|
 | 2026-11-10 | Item created      | Renamed from TODO-005 to RM-005      |
 
 ---
