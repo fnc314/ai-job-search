@@ -473,6 +473,25 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
     # Write events on existing applications
     for applicationId, event in prepared:
         reference = db.collection(client.APPLICATIONS).document(applicationId)
+        # Compute cryptographically secured hash chain link if missing
+        if "sequenceNumber" not in event or "eventHash" not in event:
+            ordered = eventsModule.chronologically(storedEvents[applicationId])
+            seq = len(ordered) + 1
+            prev_hash = ordered[-1].get("eventHash", eventsModule.GENESIS_PREV_HASH) if ordered else eventsModule.GENESIS_PREV_HASH
+            event["sequenceNumber"] = seq
+            event["prevEventHash"] = prev_hash
+            ts_iso = event.get("ts") or event.get("date") or ""
+            event["eventHash"] = eventsModule.computeEventHash(
+                sequenceNumber=seq,
+                prevEventHash=prev_hash,
+                eventId=event.get("eventId", ""),
+                applicationId=applicationId,
+                eventType=event.get("type", ""),
+                timestampIso=ts_iso,
+                statusTo=event.get("statusTo"),
+                actor=event.get("actor", "USER"),
+            )
+        contract.validate("event", event)
         storedEvents[applicationId].append(event)
         projected = render.project(applications[applicationId], storedEvents[applicationId])
         projected["updatedAt"] = nowIso()

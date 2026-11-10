@@ -3,6 +3,7 @@ package dev.fnc314.tools.jobtracker.backend
 import io.ktor.server.application.call
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.request.receiveText
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -11,6 +12,12 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.longOrNull
 import kotlin.system.exitProcess
 
 public fun main(args: Array<String>) {
@@ -37,6 +44,48 @@ public fun main(args: Array<String>) {
                     """{"status":"UP","service":"jobtracker-backend","port":$port}""",
                     io.ktor.http.ContentType.Application.Json
                 )
+            }
+            post("/applications/{id}/events") {
+                val applicationId = call.parameters["id"]
+                if (applicationId.isNullOrBlank()) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"Missing applicationId parameter"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.BadRequest
+                    )
+                    return@post
+                }
+
+                try {
+                    val bodyText = call.receiveText()
+                    val jsonElement = Json.parseToJsonElement(bodyText).jsonObject
+                    val idempotencyKey = call.request.headers["Idempotency-Key"]
+                        ?: jsonElement["idempotencyKey"]?.jsonPrimitive?.contentOrNull
+
+                    val payload = mutableMapOf<String, Any?>()
+                    jsonElement.forEach { (k, v) ->
+                        payload[k] = v.jsonPrimitive.contentOrNull
+                    }
+
+                    val result = BackendService.appendEventTransactional(
+                        applicationId = applicationId,
+                        eventPayload = payload,
+                        idempotencyKey = idempotencyKey
+                    )
+
+                    val responseJson = Json.encodeToString(JsonObject(result.mapValues { (_, v) -> JsonPrimitive(v?.toString() ?: "") }))
+                    call.respondText(
+                        responseJson,
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.OK
+                    )
+                } catch (e: Exception) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                    )
+                }
             }
             post("/tasks/sweep") {
                 try {

@@ -7,9 +7,18 @@ import com.google.cloud.firestore.SetOptions
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
+import dev.fnc314.tools.jobsearch.parser.ApplicationTimelineProjector
 import dev.fnc314.tools.jobsearch.parser.CompanyMetricsParser
+import dev.fnc314.tools.jobsearch.parser.EventChainBuilder
+import dev.fnc314.tools.jobsearch.parser.EventChainVerifier
 import dev.fnc314.tools.jobsearch.tracker.v1.ApplicationChannel
 import dev.fnc314.tools.jobsearch.tracker.v1.CompanyMetrics
+import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
+import dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfirmation
+import dev.fnc314.tools.jobsearch.tracker.v1.Timeline
+import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
+import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
+import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import java.io.File
 import java.io.FileInputStream
 import java.time.Instant
@@ -62,6 +71,245 @@ public object BackendService {
         } catch (e: Exception) {
             println("Warning: Firebase initialization in BackendService: ${e.message}")
         }
+    }
+
+    public fun appendEventTransactional(
+        applicationId: String,
+        eventPayload: Map<String, Any?>,
+        idempotencyKey: String? = null,
+    ): Map<String, Any?> {
+        val db = firestore
+        val appRef = db.collection("applications").document(applicationId)
+        val eventsColl = appRef.collection("events")
+
+        val targetEventId = (idempotencyKey?.takeIf { it.isNotBlank() }
+            ?: eventPayload["eventId"] as? String
+            ?: java.util.UUID.randomUUID().toString())
+
+        val incomingMessageId = eventPayload["emailMessageId"] as? String
+
+        return db.runTransaction<Map<String, Any?>> { transaction ->
+            val appSnap = transaction.get(appRef).get()
+            if (!appSnap.exists()) {
+                throw IllegalArgumentException("Application not found: $applicationId")
+            }
+
+            // Check if this event already exists by eventId
+            val existingEventSnap = transaction.get(eventsColl.document(targetEventId)).get()
+            if (existingEventSnap.exists()) {
+                val data = existingEventSnap.data ?: emptyMap<String, Any?>()
+                return@runTransaction mapOf(
+                    "status" to "DUPLICATE",
+                    "event" to data,
+                    "applicationId" to applicationId,
+                    "eventId" to targetEventId
+                )
+            }
+
+            // Read all existing events for hash chaining and projection
+            val allEventsQuery = eventsColl.get().get()
+            val existingEvents = mutableListOf<TrackerEvent>()
+
+            for (doc in allEventsQuery.documents) {
+                val data = doc.data
+                // Check idempotency by emailMessageId
+                if (!incomingMessageId.isNullOrBlank() && data["emailMessageId"] == incomingMessageId) {
+                    return@runTransaction mapOf(
+                        "status" to "DUPLICATE",
+                        "event" to data,
+                        "applicationId" to applicationId,
+                        "eventId" to doc.id
+                    )
+                }
+
+                val protoEv = mapToTrackerEvent(doc.id, data)
+                existingEvents.add(protoEv)
+            }
+
+            // Build new Proto Event from eventPayload
+            val newProtoBuilder = TrackerEvent.newBuilder()
+                .setId(targetEventId)
+                .setApplicationId(applicationId)
+
+            val eventTypeStr = (eventPayload["type"] as? String)?.uppercase() ?: "ADD_NOTE"
+            try {
+                newProtoBuilder.setType(TrackerEventType.valueOf(eventTypeStr))
+            } catch (e: Exception) {
+                newProtoBuilder.setType(TrackerEventType.ADD_NOTE)
+            }
+
+            val actorStr = (eventPayload["actor"] as? String)?.uppercase() ?: "ACTOR_USER"
+            try {
+                newProtoBuilder.setActor(EventActor.valueOf(actorStr))
+            } catch (e: Exception) {
+                newProtoBuilder.setActor(EventActor.ACTOR_USER)
+            }
+
+            (eventPayload["statusTo"] as? String)?.let { sTo ->
+                try {
+                    newProtoBuilder.setStatusTo(TrackerStatus.valueOf(sTo.uppercase()))
+                } catch (ignored: Exception) {}
+            }
+
+            (eventPayload["statusFrom"] as? String)?.let { sFrom ->
+                try {
+                    newProtoBuilder.setStatusFrom(TrackerStatus.valueOf(sFrom.uppercase()))
+                } catch (ignored: Exception) {}
+            }
+
+            (eventPayload["note"] as? String)?.let { newProtoBuilder.setNote(it) }
+            incomingMessageId?.let { newProtoBuilder.setEmailMessageId(it) }
+
+            val tsIso = (eventPayload["ts"] as? String)
+                ?: (eventPayload["date"] as? String)
+                ?: Instant.now().toString()
+
+            val instant = try {
+                Instant.parse(tsIso)
+            } catch (e: Exception) {
+                Instant.now()
+            }
+
+            newProtoBuilder.setCreatedAt(
+                com.google.protobuf.Timestamp.newBuilder()
+                    .setSeconds(instant.epochSecond)
+                    .setNanos(instant.nano)
+                    .build()
+            )
+
+            // Compute next cryptographic link
+            val chained = EventChainBuilder.computeNextLink(
+                existingEvents = existingEvents,
+                newEvent = newProtoBuilder.build(),
+                applicationId = applicationId
+            )
+
+            // Prepare event doc map
+            val eventDoc = mutableMapOf<String, Any?>(
+                "eventId" to chained.id,
+                "type" to chained.type.name,
+                "actor" to chained.actor.name,
+                "ts" to tsIso,
+                "date" to tsIso.substringBefore("T"),
+                "sequenceNumber" to chained.sequenceNumber,
+                "prevEventHash" to chained.prevEventHash,
+                "eventHash" to chained.eventHash
+            )
+            if (chained.statusTo != TrackerStatus.TRACKER_STATUS_UNSPECIFIED) {
+                eventDoc["statusTo"] = chained.statusTo.name
+            }
+            if (chained.statusFrom != TrackerStatus.TRACKER_STATUS_UNSPECIFIED) {
+                eventDoc["statusFrom"] = chained.statusFrom.name
+            }
+            if (chained.note.isNotBlank()) {
+                eventDoc["note"] = chained.note
+            }
+            if (chained.emailMessageId.isNotBlank()) {
+                eventDoc["emailMessageId"] = chained.emailMessageId
+            }
+
+            transaction.set(eventsColl.document(chained.id), eventDoc)
+
+            // Re-project timeline and counters
+            val updatedEvents = existingEvents + chained
+            val timeline = ApplicationTimelineProjector.projectTimeline(updatedEvents)
+            val submissionConfirmation = ApplicationTimelineProjector.projectSubmissionConfirmation(
+                null,
+                updatedEvents
+            )
+            val counters = ApplicationTimelineProjector.projectCounters(updatedEvents)
+
+            // Update parent application
+            val parentUpdate = mutableMapOf<String, Any?>(
+                "updatedAt" to Timestamp.now(),
+                "timeline" to mapOf(
+                    "submittedAt" to if (timeline.hasSubmittedAt() && timeline.submittedAt.seconds > 0)
+                        Instant.ofEpochSecond(timeline.submittedAt.seconds).toString() else null,
+                    "submissionConfirmedAt" to if (timeline.hasSubmissionConfirmedAt() && timeline.submissionConfirmedAt.seconds > 0)
+                        Instant.ofEpochSecond(timeline.submissionConfirmedAt.seconds).toString() else null,
+                    "firstActivityAt" to if (timeline.hasFirstActivityAt() && timeline.firstActivityAt.seconds > 0)
+                        Instant.ofEpochSecond(timeline.firstActivityAt.seconds).toString() else null,
+                    "lastActivityAt" to if (timeline.hasLastActivityAt() && timeline.lastActivityAt.seconds > 0)
+                        Instant.ofEpochSecond(timeline.lastActivityAt.seconds).toString() else null,
+                    "daysSinceActivity" to timeline.daysSinceActivity
+                ),
+                "submissionConfirmation" to mapOf(
+                    "isConfirmed" to submissionConfirmation.isConfirmed,
+                    "confidence" to submissionConfirmation.confidence.name,
+                    "submittedAt" to if (submissionConfirmation.hasSubmittedAt() && submissionConfirmation.submittedAt.seconds > 0)
+                        Instant.ofEpochSecond(submissionConfirmation.submittedAt.seconds).toString() else null,
+                    "confirmedAt" to if (submissionConfirmation.hasConfirmedAt() && submissionConfirmation.confirmedAt.seconds > 0)
+                        Instant.ofEpochSecond(submissionConfirmation.confirmedAt.seconds).toString() else null,
+                    "confirmationEmailMessageId" to submissionConfirmation.confirmationEmailMessageId.takeIf { it.isNotBlank() },
+                    "sourceSubject" to submissionConfirmation.sourceSubject.takeIf { it.isNotBlank() },
+                    "notes" to submissionConfirmation.notes.takeIf { it.isNotBlank() }
+                ),
+                "counters" to counters
+            )
+
+            if (chained.statusTo != TrackerStatus.TRACKER_STATUS_UNSPECIFIED) {
+                parentUpdate["status"] = chained.statusTo.name
+            }
+
+            transaction.set(appRef, parentUpdate, SetOptions.merge())
+
+            mapOf(
+                "status" to "SUCCESS",
+                "applicationId" to applicationId,
+                "eventId" to chained.id,
+                "sequenceNumber" to chained.sequenceNumber,
+                "eventHash" to chained.eventHash,
+                "prevEventHash" to chained.prevEventHash,
+                "event" to eventDoc
+            )
+        }.get()
+    }
+
+    private fun mapToTrackerEvent(id: String, data: Map<String, Any?>): TrackerEvent {
+        val builder = TrackerEvent.newBuilder().setId(id)
+        val typeStr = (data["type"] as? String)?.uppercase() ?: "ADD_NOTE"
+        try {
+            builder.setType(TrackerEventType.valueOf(typeStr))
+        } catch (e: Exception) {
+            builder.setType(TrackerEventType.ADD_NOTE)
+        }
+
+        val actorStr = (data["actor"] as? String)?.uppercase() ?: "ACTOR_USER"
+        try {
+            builder.setActor(EventActor.valueOf(actorStr))
+        } catch (e: Exception) {
+            builder.setActor(EventActor.ACTOR_USER)
+        }
+
+        (data["statusTo"] as? String)?.let { sTo ->
+            try {
+                builder.setStatusTo(TrackerStatus.valueOf(sTo.uppercase()))
+            } catch (ignored: Exception) {}
+        }
+        (data["statusFrom"] as? String)?.let { sFrom ->
+            try {
+                builder.setStatusFrom(TrackerStatus.valueOf(sFrom.uppercase()))
+            } catch (ignored: Exception) {}
+        }
+        (data["note"] as? String)?.let { builder.setNote(it) }
+        (data["emailMessageId"] as? String)?.let { builder.setEmailMessageId(it) }
+        (data["sequenceNumber"] as? Number)?.let { builder.setSequenceNumber(it.toLong()) }
+        (data["prevEventHash"] as? String)?.let { builder.setPrevEventHash(it) }
+        (data["eventHash"] as? String)?.let { builder.setEventHash(it) }
+
+        val ts = (data["ts"] as? String) ?: (data["date"] as? String)
+        if (!ts.isNullOrBlank()) {
+            try {
+                val inst = Instant.parse(ts)
+                builder.setCreatedAt(
+                    com.google.protobuf.Timestamp.newBuilder()
+                        .setSeconds(inst.epochSecond)
+                        .setNanos(inst.nano)
+                        .build()
+                )
+            } catch (e: Exception) {}
+        }
+        return builder.build()
     }
 
     public fun expireStaleProposals(expirationDays: Long = 14): Int {

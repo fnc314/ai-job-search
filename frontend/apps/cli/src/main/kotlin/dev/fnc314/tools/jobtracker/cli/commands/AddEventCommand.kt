@@ -7,8 +7,14 @@ import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
-import com.google.cloud.firestore.FieldValue
+import dev.fnc314.tools.jobsearch.parser.ApplicationTimelineProjector
+import dev.fnc314.tools.jobsearch.parser.EventChainBuilder
+import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
+import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
+import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
+import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import java.time.Instant
 
 public class AddEventCommand : CliktCommand(name = "event") {
     private val applicationId: String by argument("id", help = "Application slug ID")
@@ -29,13 +35,69 @@ public class AddEventCommand : CliktCommand(name = "event") {
             return
         }
 
-        val now = Timestamp.now()
-        val eventDoc = docRef.collection("events").document()
-        val eventData = mutableMapOf<String, Any>(
-            "eventId" to eventDoc.id,
-            "ts" to now,
-            "eventType" to eventType,
-            "actor" to "USER"
+        val eventsColl = docRef.collection("events")
+        val allEventsDocs = eventsColl.get().get().documents
+        val existingEvents = mutableListOf<TrackerEvent>()
+
+        for (d in allEventsDocs) {
+            val data = d.data
+            val b = TrackerEvent.newBuilder().setId(d.id)
+            val typeStr = (data["type"] as? String) ?: (data["eventType"] as? String) ?: "ADD_NOTE"
+            try {
+                b.setType(TrackerEventType.valueOf(typeStr.uppercase()))
+            } catch (e: Exception) {
+                b.setType(TrackerEventType.ADD_NOTE)
+            }
+            val actorStr = (data["actor"] as? String) ?: "ACTOR_USER"
+            try {
+                b.setActor(EventActor.valueOf(actorStr.uppercase()))
+            } catch (e: Exception) {
+                b.setActor(EventActor.ACTOR_USER)
+            }
+            (data["sequenceNumber"] as? Number)?.let { b.setSequenceNumber(it.toLong()) }
+            (data["eventHash"] as? String)?.let { b.setEventHash(it) }
+            (data["prevEventHash"] as? String)?.let { b.setPrevEventHash(it) }
+            val tsStr = (data["ts"] as? String) ?: (data["date"] as? String)
+            if (!tsStr.isNullOrBlank()) {
+                try {
+                    val inst = Instant.parse(tsStr)
+                    b.setCreatedAt(com.google.protobuf.Timestamp.newBuilder().setSeconds(inst.epochSecond).setNanos(inst.nano).build())
+                } catch (ignored: Exception) {}
+            }
+            existingEvents.add(b.build())
+        }
+
+        val targetEventId = java.util.UUID.randomUUID().toString()
+        val nowInstant = Instant.now()
+        val incomingBuilder = TrackerEvent.newBuilder()
+            .setId(targetEventId)
+            .setApplicationId(applicationId)
+            .setActor(EventActor.ACTOR_USER)
+            .setCreatedAt(com.google.protobuf.Timestamp.newBuilder().setSeconds(nowInstant.epochSecond).setNanos(nowInstant.nano).build())
+
+        try {
+            incomingBuilder.setType(TrackerEventType.valueOf(eventType.uppercase()))
+        } catch (e: Exception) {
+            incomingBuilder.setType(TrackerEventType.ADD_NOTE)
+        }
+        note?.let { incomingBuilder.setNote(it) }
+        emailMessageId?.let { incomingBuilder.setEmailMessageId(it) }
+
+        val chained = EventChainBuilder.computeNextLink(
+            existingEvents = existingEvents,
+            newEvent = incomingBuilder.build(),
+            applicationId = applicationId
+        )
+
+        val eventData = mutableMapOf<String, Any?>(
+            "eventId" to chained.id,
+            "ts" to nowInstant.toString(),
+            "date" to nowInstant.toString().substringBefore("T"),
+            "type" to chained.type.name,
+            "actor" to chained.actor.name,
+            "sequenceNumber" to chained.sequenceNumber,
+            "prevEventHash" to chained.prevEventHash,
+            "eventHash" to chained.eventHash
         )
         if (note != null) {
             eventData["note"] = note!!
@@ -44,20 +106,42 @@ public class AddEventCommand : CliktCommand(name = "event") {
             eventData["emailMessageId"] = emailMessageId!!
         }
 
-        eventDoc.set(eventData).get()
+        eventsColl.document(chained.id).set(eventData).get()
 
-        // If emailMessageId is provided, also associate to parent doc atomically
-        if (emailMessageId != null) {
-            docRef.update(
-                mapOf(
-                    "emailMessageIds" to FieldValue.arrayUnion(emailMessageId),
-                    "updatedAt" to now
-                )
-            ).get()
-        } else {
-            docRef.update("updatedAt", now).get()
-        }
+        // Reproject parent timeline and counters
+        val updatedEvents = existingEvents + chained
+        val timeline = ApplicationTimelineProjector.projectTimeline(updatedEvents)
+        val confirmation = ApplicationTimelineProjector.projectSubmissionConfirmation(null, updatedEvents)
+        val counters = ApplicationTimelineProjector.projectCounters(updatedEvents)
 
-        t.println(green("✓ Successfully appended event $eventType to $applicationId${if (emailMessageId != null) " (linked email: $emailMessageId)" else ""}"))
+        val parentUpdate = mutableMapOf<String, Any?>(
+            "updatedAt" to Timestamp.now(),
+            "timeline" to mapOf(
+                "submittedAt" to if (timeline.hasSubmittedAt() && timeline.submittedAt.seconds > 0)
+                    Instant.ofEpochSecond(timeline.submittedAt.seconds).toString() else null,
+                "submissionConfirmedAt" to if (timeline.hasSubmissionConfirmedAt() && timeline.submissionConfirmedAt.seconds > 0)
+                    Instant.ofEpochSecond(timeline.submissionConfirmedAt.seconds).toString() else null,
+                "firstActivityAt" to if (timeline.hasFirstActivityAt() && timeline.firstActivityAt.seconds > 0)
+                    Instant.ofEpochSecond(timeline.firstActivityAt.seconds).toString() else null,
+                "lastActivityAt" to if (timeline.hasLastActivityAt() && timeline.lastActivityAt.seconds > 0)
+                    Instant.ofEpochSecond(timeline.lastActivityAt.seconds).toString() else null,
+                "daysSinceActivity" to timeline.daysSinceActivity
+            ),
+            "submissionConfirmation" to mapOf(
+                "isConfirmed" to confirmation.isConfirmed,
+                "confidence" to confirmation.confidence.name,
+                "submittedAt" to if (confirmation.hasSubmittedAt() && confirmation.submittedAt.seconds > 0)
+                    Instant.ofEpochSecond(confirmation.submittedAt.seconds).toString() else null,
+                "confirmedAt" to if (confirmation.hasConfirmedAt() && confirmation.confirmedAt.seconds > 0)
+                    Instant.ofEpochSecond(confirmation.confirmedAt.seconds).toString() else null,
+                "confirmationEmailMessageId" to confirmation.confirmationEmailMessageId.takeIf { it.isNotBlank() },
+                "sourceSubject" to confirmation.sourceSubject.takeIf { it.isNotBlank() }
+            ),
+            "counters" to counters
+        )
+
+        docRef.set(parentUpdate, com.google.cloud.firestore.SetOptions.merge()).get()
+
+        t.println(green("✓ Successfully appended cryptographic event ${chained.type.name} (#${chained.sequenceNumber}) to $applicationId${if (emailMessageId != null) " (linked email: $emailMessageId)" else ""}"))
     }
 }

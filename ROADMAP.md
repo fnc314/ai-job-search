@@ -43,9 +43,9 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 | ID       | Title                                  | Short Desc                          | Criticality | Priority | Age    | Status |
 |----------|----------------------------------------|-------------------------------------|-------------|----------|--------|--------|
-| RM-001   | Kotlin-Only Migration                  | Migrate all Python scripts to Kotlin | PIVOTAL    | MEDIUM   | 70 d   | OPEN   |
+| RM-001   | Kotlin-Only Migration                  | Migrate all Python scripts to Kotlin | PIVOTAL    | MEDIUM   | 70 d   | IN_PROGRESS |
 | RM-002   | AI-Portable Pluginization              | Make agent contributions portable   | LOW         | LOW      | 70 d   | OPEN   |
-| RM-003   | Backend Functionality Abstraction      | Expose deterministic tasks as services | HIGH       | HIGH     | 70 d   | OPEN   |
+| RM-003   | Backend Functionality Abstraction      | Expose deterministic tasks as services | HIGH       | HIGH     | 70 d   | IN_PROGRESS |
 | RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | OPEN   |
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | OPEN   |
 
@@ -57,8 +57,8 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Criticality:** PIVOTAL
 **Priority:** MEDIUM
 **Complexity:** 5 — Critical
-**Status:** OPEN
-**Completion %:** 0
+**Status:** IN_PROGRESS
+**Completion %:** 25
 **Creation Date:** 2026-09-01
 **Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/terminal`).
 
@@ -136,8 +136,8 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Criticality:** HIGH
 **Priority:** HIGH
 **Complexity:** 3 — Moderate
-**Status:** OPEN
-**Completion %:** 0
+**Status:** IN_PROGRESS
+**Completion %:** 60
 **Creation Date:** 2026-09-01
 **Objective:** Migrate existing deterministic Python functionalities and expose them to both `backend/` and `frontend/apps` projects. This sets the high-level requirement for any backend functionality created — deterministic tasks that don't require AI oversight should be offloaded to regular computation environments or automated processes.
 
@@ -158,6 +158,15 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - Cryptographic event chain alignment (`scripts/events.py`) is an example of deterministic logic
 - This encapsulates a high-level requirement for any "backend" functionality going forward
 - The `backend/` directory already exists as a small Kotlin service
+
+**Linked Plans:**
+- `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
+
+**Changelog:**
+| Date       | Change            | Details                              |
+|------------|-------------------|--------------------------------------|
+| 2026-11-10 | Status update     | Implemented event chaining, projections, and backend service append |
+| 2026-11-10 | Item created      | Renamed from TODO-003 to RM-003      |
 
 **Linked Plans:**
 - `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
