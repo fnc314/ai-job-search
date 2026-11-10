@@ -2,6 +2,7 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.reposito
 
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source.LocalJobApplicationDetailsDataSource
@@ -62,5 +63,15 @@ internal class JobApplicationDetailsRepositoryImpl(
 
     override suspend fun getArtifactSignedUrl(path: String): String {
         return networkDataSource.getArtifactSignedUrl(path)
+    }
+
+    override suspend fun getArtifacts(applicationId: String): List<TrackerArtifact> {
+        val cached = runCatching { localDataSource.getArtifacts(applicationId) }.getOrNull()
+        if (cached != null) return cached
+        val remote = runCatching { remoteDataSource.getArtifacts(applicationId) }.getOrDefault(emptyList())
+        if (remote.isNotEmpty()) {
+            runCatching { localDataSource.saveArtifacts(applicationId, remote) }
+        }
+        return remote
     }
 }

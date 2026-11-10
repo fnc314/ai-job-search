@@ -37,6 +37,8 @@ class DetailsUseCasesTest {
         override suspend fun getJobApplication(id: String): JobApplication? = null
         override suspend fun getCompanies(): List<Company> = emptyList()
         override suspend fun getArtifactSignedUrl(path: String): String = "https://example.com/$path"
+        override suspend fun getArtifacts(applicationId: String): List<dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact> = emptyList()
+        override suspend fun getEvents(applicationId: String): List<TrackerEvent> = emptyList()
 
         override suspend fun updateStatus(
             id: String,

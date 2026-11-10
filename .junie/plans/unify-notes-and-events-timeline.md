@@ -183,6 +183,6 @@ Validate that the Events Timeline displays real events loaded from Firestore and
 ## 5. Bookkeeping
 - [x] Plan persisted at `.agents/plans/2026-11-10/173600_unify_notes_and_events_timeline.md`
 - [x] Registry `.agents/plans/README.md` row added / status synchronized
-- [ ] Craft a single commit of all changed files
-- [ ] Stage changed files and craft a commit message based on the name of this file
-- [ ] Push `git push origin main`
+- [x] Craft a single commit of all changed files
+- [x] Stage changed files and craft a commit message based on the name of this file
+- [x] Push `git push origin main`

@@ -18,4 +18,8 @@
   <string name="settings_kmp_inspector_toggle_label">KMP Inspector</string>
   <string name="settings_kmp_inspector_toggle_enabled">KMP Inspector is enabled</string>
   <string name="settings_kmp_inspector_toggle_disabled">KMP Inspector is disabled</string>
+  <string name="settings_in_app_text_viewer_label">In-App Document Viewer</string>
+  <string name="settings_in_app_text_viewer_subtitle">Open Markdown (.md) and text (.txt) files inside the app instead of launching external applications</string>
+  <string name="settings_in_app_text_viewer_enabled">In-app viewer is enabled</string>
+  <string name="settings_in_app_text_viewer_disabled">In-app viewer is disabled (uses external apps)</string>
 </resources>

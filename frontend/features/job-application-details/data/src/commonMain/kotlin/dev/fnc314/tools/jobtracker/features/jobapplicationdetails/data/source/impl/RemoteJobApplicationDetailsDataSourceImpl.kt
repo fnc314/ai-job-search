@@ -10,6 +10,9 @@ import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.LogoFormat
 import dev.fnc314.tools.jobtracker.core.data.model.LogoShape
 import dev.fnc314.tools.jobtracker.core.data.model.Timeline
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifactKind
+import dev.fnc314.tools.jobtracker.core.data.model.ArtifactStorage
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
@@ -44,6 +47,12 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     withContext(Dispatchers.Default) {
       val collectionPath = "applications/$applicationId/events"
       remoteDataSource.getCollection(collectionPath).map(::mapRecordToTrackerEvent)
+    }
+
+  override suspend fun getArtifacts(applicationId: String): List<TrackerArtifact> =
+    withContext(Dispatchers.Default) {
+      val collectionPath = "applications/$applicationId/artifacts"
+      remoteDataSource.getCollection(collectionPath).map { mapRecordToTrackerArtifact(it, applicationId) }
     }
 
   override suspend fun updateStatus(
@@ -278,6 +287,38 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
       confidence = Confidence.fromFirestore(record.getString("confidence")),
       createdAt = createdAt,
       scheduledAt = scheduledAt,
+    )
+  }
+
+  private fun mapRecordToTrackerArtifact(record: RemoteRecord, fallbackApplicationId: String): TrackerArtifact {
+    val storageMap = record.fields["storage"] as? Map<*, *>
+    val storage = if (storageMap != null) {
+      val bucket = storageMap["bucket"] as? String ?: ""
+      val path = storageMap["path"] as? String ?: ""
+      if (bucket.isNotBlank() && path.isNotBlank()) {
+        ArtifactStorage(bucket = bucket, path = path)
+      } else {
+        null
+      }
+    } else {
+      null
+    }
+
+    val createdAtRaw = record.fields["createdAt"] ?: record.fields["created_at"]
+    val createdAt = InstantParser.parse(createdAtRaw).takeIf { it != Instant.DISTANT_PAST }
+
+    return Factory.createTrackerArtifact(
+      id = record.getString("artifactId") ?: record.id,
+      applicationId = record.getString("applicationId") ?: fallbackApplicationId,
+      kind = TrackerArtifactKind.fromFirestore(record.getString("kind")),
+      filename = record.getString("filename") ?: record.id,
+      contentType = record.getString("contentType"),
+      size = record.getLong("size"),
+      sha256 = record.getString("sha256"),
+      storage = storage,
+      localPath = record.getString("localPath") ?: record.getString("driveUrl"),
+      externalUrl = record.getString("externalUrl"),
+      createdAt = createdAt,
     )
   }
 }

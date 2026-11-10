@@ -2,6 +2,7 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.reposi
 
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 
@@ -68,4 +69,12 @@ public interface JobApplicationDetailsRepository {
      * @return A signed HTTPS URL for direct artifact viewing.
      */
     public suspend fun getArtifactSignedUrl(path: String): String
+
+    /**
+     * Retrieves all attached artifacts for the specified job application.
+     *
+     * @param applicationId Unique application identifier or slug.
+     * @return List of [TrackerArtifact] records associated with this opportunity.
+     */
+    public suspend fun getArtifacts(applicationId: String): List<TrackerArtifact>
 }

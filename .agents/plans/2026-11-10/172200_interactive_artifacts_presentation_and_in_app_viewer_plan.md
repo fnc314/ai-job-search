@@ -1,6 +1,6 @@
 # Architecture & Implementation Plan: Interactive Artifact Presentation in KMC `frontend/apps`
 
-**Status:** Proposed  
+**Status:** Done  
 **Date:** 2026-11-10  
 **Target:** `frontend/features/job-application-details`, `frontend/core/data`, `frontend/features/settings`, `frontend/apps/`, Firestore `applications/{id}/artifacts`  
 **Depends On:** [`.agents/plans/2026-11-10/173600_unify_notes_and_events_timeline.md`](./173600_unify_notes_and_events_timeline.md) (predrafted from `.junie/plans/unify-notes-and-events-timeline.md`)  

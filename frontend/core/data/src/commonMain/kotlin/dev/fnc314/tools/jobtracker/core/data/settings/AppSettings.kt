@@ -28,7 +28,8 @@ public enum class UiMode {
  * @property uiMode Selected theme appearance mode [UiMode]. Defaults to [UiMode.SYSTEM].
  * @property dynamicColor Whether to enable Android 12+ wallpaper dynamic color extraction.
  * @property seedColorHex Canonical theme seed color hexadecimal string (default: `"#2F5597"`).
- * @property renderMarkdownInternally Whether to render Markdown notes inline inside the UI.
+ * @property enableInAppTextViewer Whether to render Markdown and text notes inline inside the UI on mobile.
+ * @property renderMarkdownInternally Backwards-compatible alias for [enableInAppTextViewer].
  * @see UiMode
  */
 @Serializable
@@ -41,6 +42,7 @@ public data class AppSettings(
     public val uiMode: UiMode = UiMode.SYSTEM,
     public val dynamicColor: Boolean = false,
     public val seedColorHex: String = "#2F5597",
+    public val enableInAppTextViewer: Boolean = false,
     public val renderMarkdownInternally: Boolean = false,
     public val enableKmpInspector: Boolean = false,
 ) {

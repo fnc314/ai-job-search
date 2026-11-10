@@ -42,6 +42,10 @@ import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.designsystem.toHexString
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.Res
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_in_app_text_viewer_disabled
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_in_app_text_viewer_enabled
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_in_app_text_viewer_label
+import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_in_app_text_viewer_subtitle
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_kmp_inspector_toggle_label
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_kmp_inspector_toggle_enabled
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_kmp_inspector_toggle_disabled
@@ -314,6 +318,56 @@ internal fun SettingsContent(
                 )
               }
 
+            }
+          }
+
+          // Section: In-App Document Viewer (Mobile only)
+          if (model.showInAppTextViewerSetting) {
+            OutlinedCard(
+              shape = MaterialTheme.shapes.medium,
+              modifier = Modifier.fillMaxWidth()
+            ) {
+              Column(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(MaterialTheme.spacing.medium),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+              ) {
+                Text(
+                  text = stringResource(Res.string.settings_in_app_text_viewer_label),
+                  style = MaterialTheme.typography.titleMedium,
+                  color = MaterialTheme.colorScheme.primary,
+                )
+                Text(
+                  text = stringResource(Res.string.settings_in_app_text_viewer_subtitle),
+                  style = MaterialTheme.typography.bodySmall,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Row(
+                  modifier = Modifier
+                    .fillMaxWidth(),
+                  horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                  verticalAlignment = Alignment.CenterVertically,
+                ) {
+                  Checkbox(
+                    modifier = Modifier
+                      .fillMaxWidth(0.25F),
+                    checked = model.inAppTextViewerEnabled,
+                    onCheckedChange = { isChecked: Boolean ->
+                      onIntent(SettingsUiIntent.ToggleInAppTextViewer(enabled = isChecked))
+                    }
+                  )
+                  Text(
+                    text = if (model.inAppTextViewerEnabled) {
+                      stringResource(Res.string.settings_in_app_text_viewer_enabled)
+                    } else {
+                      stringResource(Res.string.settings_in_app_text_viewer_disabled)
+                    },
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.fillMaxWidth(0.75F)
+                  )
+                }
+              }
             }
           }
         }

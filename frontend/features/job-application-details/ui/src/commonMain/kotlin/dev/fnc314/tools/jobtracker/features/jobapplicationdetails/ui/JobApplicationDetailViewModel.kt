@@ -14,6 +14,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.GetArtifactSignedUrlUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.GetEventsUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.LoadArtifactsUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.LoadCompaniesUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.LoadJobApplicationUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.RecordEventUseCase
@@ -40,6 +41,7 @@ import kotlinx.coroutines.launch
  * @param recordEventUseCase Use case appending a new timeline event.
  * @param updateFitScoreUseCase Use case adjusting the candidate fit score and confidence.
  * @param getSignedUrlUseCase Use case resolving download URLs for stored artifacts.
+ * @param loadArtifactsUseCase Use case fetching artifacts associated with the application.
  */
 public class JobApplicationDetailViewModel(
     private val loadApplicationUseCase: LoadJobApplicationUseCase,
@@ -49,6 +51,7 @@ public class JobApplicationDetailViewModel(
     private val recordEventUseCase: RecordEventUseCase,
     private val updateFitScoreUseCase: UpdateFitScoreUseCase,
     private val getSignedUrlUseCase: GetArtifactSignedUrlUseCase,
+    private val loadArtifactsUseCase: LoadArtifactsUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<JobApplicationDetailUiState>(JobApplicationDetailUiState.Loading)
@@ -92,10 +95,11 @@ public class JobApplicationDetailViewModel(
                 val companies = loadCompaniesUseCase(LoadCompaniesUseCase.Params(forceRefresh = false))
                 val company = companies.find { it.name.equals(app.company, ignoreCase = true) }
                 val events = getEventsUseCase(GetEventsUseCase.Params(applicationId = app.id))
+                val artifacts = loadArtifactsUseCase(LoadArtifactsUseCase.Params(applicationId = app.id))
                 currentApplication = app
                 currentCompany = company
                 currentEvents = events
-                currentArtifacts = emptyList()
+                currentArtifacts = artifacts
 
                 val model = createJobApplicationDetailUiModel(
                     app = app,

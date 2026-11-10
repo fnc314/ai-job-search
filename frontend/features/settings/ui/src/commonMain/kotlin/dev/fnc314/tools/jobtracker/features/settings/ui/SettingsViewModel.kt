@@ -53,6 +53,7 @@ public class SettingsViewModel(
           isSystemDark = settings.uiMode == UiMode.DARK,
           randomSeedSuggestions = seedSuggestions,
           kmpInspectorEnabled = settings.enableKmpInspector,
+          inAppTextViewerEnabled = settings.renderMarkdownInternally,
         ),
       )
     }
@@ -72,6 +73,7 @@ public class SettingsViewModel(
       is SettingsUiIntent.ChangeUiMode -> handleChangeUiMode(intent.uiMode)
       is SettingsUiIntent.ChangeSeedColor -> handleChangeSeedColor(intent.hex)
       is SettingsUiIntent.ToggleKmpInspector -> handleKmpInspectorToggle(intent.enabled)
+      is SettingsUiIntent.ToggleInAppTextViewer -> handleInAppTextViewerToggle(intent.enabled)
       SettingsUiIntent.ClickSignOut -> handleSignOut()
       SettingsUiIntent.ClickBack -> handleClickBack()
     }
@@ -80,6 +82,14 @@ public class SettingsViewModel(
   private fun handleKmpInspectorToggle(enabled: Boolean) {
     val currentSettings: AppSettings = observeSettingsUseCase().value
     updateSettingsUseCase(currentSettings.copy(enableKmpInspector = enabled))
+  }
+
+  private fun handleInAppTextViewerToggle(enabled: Boolean) {
+    val currentSettings: AppSettings = observeSettingsUseCase().value
+    updateSettingsUseCase(currentSettings.copy(
+      enableInAppTextViewer = enabled,
+      renderMarkdownInternally = enabled,
+    ))
   }
 
   private fun handleChangeUiMode(uiMode: UiMode): Unit {

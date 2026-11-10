@@ -3,9 +3,12 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui
 import dev.fnc314.tools.jobtracker.core.data.model.ApplicationChannel
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.GetArtifactSignedUrlUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.GetEventsUseCase
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.LoadArtifactsUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.LoadCompaniesUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.LoadJobApplicationUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.RecordEventUseCase
@@ -112,6 +115,16 @@ internal class JobApplicationDetailViewModelTest {
         }
     }
 
+    private class FakeGetEventsUseCase : GetEventsUseCase {
+        override suspend fun invoke(params: GetEventsUseCase.Params): List<dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent> = emptyList()
+    }
+
+    private class FakeLoadArtifactsUseCase(
+        var artifacts: List<TrackerArtifact> = emptyList(),
+    ) : LoadArtifactsUseCase {
+        override suspend fun invoke(params: LoadArtifactsUseCase.Params): List<TrackerArtifact> = artifacts
+    }
+
     private class FakeGetArtifactSignedUrlUseCase : GetArtifactSignedUrlUseCase {
         override suspend fun invoke(params: GetArtifactSignedUrlUseCase.Params): String {
             return "https://signed.url/${params.path}"
@@ -120,6 +133,8 @@ internal class JobApplicationDetailViewModelTest {
 
     private lateinit var loadAppUseCase: FakeLoadJobApplicationUseCase
     private lateinit var loadCompaniesUseCase: FakeLoadCompaniesUseCase
+    private lateinit var getEventsUseCase: FakeGetEventsUseCase
+    private lateinit var loadArtifactsUseCase: FakeLoadArtifactsUseCase
     private lateinit var updateStatusUseCase: FakeUpdateApplicationStatusUseCase
     private lateinit var recordEventUseCase: FakeRecordEventUseCase
     private lateinit var updateFitScoreUseCase: FakeUpdateFitScoreUseCase
@@ -131,6 +146,8 @@ internal class JobApplicationDetailViewModelTest {
         Dispatchers.setMain(testDispatcher)
         loadAppUseCase = FakeLoadJobApplicationUseCase(application = sampleApplication)
         loadCompaniesUseCase = FakeLoadCompaniesUseCase(companies = listOf(sampleCompany))
+        getEventsUseCase = FakeGetEventsUseCase()
+        loadArtifactsUseCase = FakeLoadArtifactsUseCase()
         updateStatusUseCase = FakeUpdateApplicationStatusUseCase(
             updatedApplication = sampleApplication.copy(status = TrackerStatus.INTERVIEW)
         )
@@ -143,10 +160,12 @@ internal class JobApplicationDetailViewModelTest {
         viewModel = JobApplicationDetailViewModel(
             loadApplicationUseCase = loadAppUseCase,
             loadCompaniesUseCase = loadCompaniesUseCase,
+            getEventsUseCase = getEventsUseCase,
             updateStatusUseCase = updateStatusUseCase,
             recordEventUseCase = recordEventUseCase,
             updateFitScoreUseCase = updateFitScoreUseCase,
             getSignedUrlUseCase = getSignedUrlUseCase,
+            loadArtifactsUseCase = loadArtifactsUseCase,
         )
     }
 

@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
@@ -317,6 +321,25 @@ internal fun MarkdownPreviewDialog(
     artifact: TrackerArtifact,
     onDismiss: () -> Unit,
 ): Unit {
+    var content by remember { mutableStateOf<String?>(null) }
+    var loadError by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(artifact) {
+        val localPath = artifact.localPath
+        if (localPath != null) {
+            content = withContext(Dispatchers.Default) {
+                try {
+                    java.io.File(localPath).readText()
+                } catch (e: Exception) {
+                    loadError = "Could not read file: ${e.message}"
+                    null
+                }
+            }
+        } else {
+            loadError = "No local path available for this artifact"
+        }
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -363,11 +386,31 @@ internal fun MarkdownPreviewDialog(
                     tonalElevation = MaterialTheme.componentSizes.hairline,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(
-                        text = "# ${artifact.filename}\n\nDocument rendered internally according to App Preferences.\n\nType: ${artifact.kind}\nStored: ${artifact.storage ?: artifact.localPath ?: "Remote"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(MaterialTheme.spacing.subMedium),
-                    )
+                    when {
+                        content != null -> {
+                            Text(
+                                text = content!!,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(MaterialTheme.spacing.subMedium),
+                            )
+                        }
+                        loadError != null -> {
+                            Text(
+                                text = loadError!!,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(MaterialTheme.spacing.subMedium),
+                            )
+                        }
+                        else -> {
+                            Text(
+                                text = "Loading...",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(MaterialTheme.spacing.subMedium),
+                            )
+                        }
+                    }
                 }
             }
         },

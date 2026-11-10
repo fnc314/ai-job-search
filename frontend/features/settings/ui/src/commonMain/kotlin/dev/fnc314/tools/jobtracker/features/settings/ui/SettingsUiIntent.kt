@@ -1,6 +1,7 @@
 package dev.fnc314.tools.jobtracker.features.settings.ui
 
 import androidx.compose.runtime.Immutable
+import dev.fnc314.tools.jobtracker.core.data.platform.PlatformCapabilities
 import dev.fnc314.tools.jobtracker.core.data.settings.UiMode
 
 /**
@@ -20,6 +21,9 @@ public sealed interface SettingsUiIntent {
     public data object ClickBack : SettingsUiIntent
 
   public data class ToggleKmpInspector(public val enabled: Boolean) : SettingsUiIntent
+
+    /** Toggles the in-app Markdown/text viewer (mobile only). */
+    public data class ToggleInAppTextViewer(public val enabled: Boolean) : SettingsUiIntent
 }
 
 /**
@@ -37,4 +41,6 @@ public data class SettingsUiModel(
     public val isSystemDark: Boolean,
     public val randomSeedSuggestions: List<String>,
     public val kmpInspectorEnabled: Boolean,
+    public val showInAppTextViewerSetting: Boolean = PlatformCapabilities.supportsInAppTextViewerToggle,
+    public val inAppTextViewerEnabled: Boolean = false,
 )
