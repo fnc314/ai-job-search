@@ -1,6 +1,6 @@
 # Migration Plan: Consolidate Agent Directories
 
-**Status:** Draft / Proposed  
+**Status:** Completed  
 **Date:** 2026-11-09  
 **Target:** repository-wide (agent dot-directories, `.agents/` canonical structure)  
 **Session:** session-261109-181449-c6ql  

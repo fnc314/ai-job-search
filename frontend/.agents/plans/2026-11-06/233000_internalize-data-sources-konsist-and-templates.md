@@ -1,6 +1,6 @@
 # Implementation Plan: Internalize Feature Data Sources & Enforce via Konsist
 
-**Status:** Draft / Proposed  
+**Status:** Completed  
 **Date:** 2026-11-06  
 **Target:** `ui/kmp`  
 

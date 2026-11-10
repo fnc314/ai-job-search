@@ -1,6 +1,6 @@
 # Implementation Plan: Align Declared Versions into Kebab-Casing Format
 
-**Status:** Draft  
+**Status:** Superseded  
 **Date:** 2026-11-09  
 **Target:** `gradle/libs.versions.toml` & version catalog consumers  
 **Evaluates:** Systematic kebab-case normalization for all catalog `[versions]` keys, `version.ref` synchronization, `CatalogTypes` key updates, and Kotlin build script type-safe accessor alignment  

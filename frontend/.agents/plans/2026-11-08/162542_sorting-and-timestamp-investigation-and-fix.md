@@ -1,6 +1,6 @@
 # Implementation Plan: Sorting Mechanism, Timestamp Formatting, and UI Role/Company Swap
 
-**Status:** Draft / Proposed
+**Status:** Completed  
 **Date:** 2026-11-08
 **Target:** `ui/kmp` (`features/job-applications-list`, `core/data`)
 

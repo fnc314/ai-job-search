@@ -1,6 +1,6 @@
 # Implementation Plan: Add Coil Version Catalog Entries for CMP-Compatible Images
 
-**Status:** Draft / Proposed
+**Status:** Completed  
 **Date:** 2026-11-08
 **Target:** `ui/kmp` (`gradle/libs.versions.toml`)
 

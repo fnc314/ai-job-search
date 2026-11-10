@@ -1,6 +1,6 @@
 # Implementation Plan: Refactor Settings Feature and Add Firebase Remote Config
 
-**Status:** Draft / Proposed  
+**Status:** Completed  
 **Date:** 2026-11-06  
 **Target:** `ui/kmp`  
 

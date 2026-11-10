@@ -1,5 +1,10 @@
 # AI Job Search: Architecture & Plan 
 
+**Status:** Canonical  
+**Target:** repository-wide  
+
+---
+
 ## Overview
 This repository uses a **Universal AI Agent Architecture** (sometimes referred to as the career-ops style). It is designed to ensure that your automated job search workflows work perfectly and identically across any AI framework (OpenCode, Claude Code, Antigravity, Codex, Gemini, etc.) with absolutely **zero logic drift**.
 

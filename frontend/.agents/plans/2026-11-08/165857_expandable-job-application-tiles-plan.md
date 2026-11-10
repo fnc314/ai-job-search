@@ -1,6 +1,6 @@
 # Implementation Plan: Expandable Job Application Tiles on Compact Widths & Adaptive Wider Layouts
 
-**Status:** Draft / Proposed
+**Status:** Completed  
 **Date:** 2026-11-08
 **Target:** `ui/kmp` (`features/job-applications-list/ui`)
 

@@ -1,6 +1,6 @@
 # Architecture Plan: Unified RemoteDataSource and Feature-specific Firebase Generics
 
-**Status:** Draft / Proposed  
+**Status:** Completed  
 **Date:** 2026-11-06  
 **Target:** `ui/kmp`  
 

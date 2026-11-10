@@ -1,6 +1,6 @@
 # Implementation Plan: Seamless KMP Inspector Integration (Debug vs Release)
 
-**Status:** Draft / Proposed  
+**Status:** Completed  
 **Date:** 2026-11-06  
 **Target:** `ui/kmp`  
 
