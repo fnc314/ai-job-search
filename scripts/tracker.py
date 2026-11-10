@@ -305,15 +305,19 @@ def commandList(args) -> int:
 
 
 def _launch_tui(args) -> int:
-    """Launch the TUI, passing filter flags as environment variables."""
+    """Launch the TUI, passing filter flags as CLI arguments and environment variables."""
     import subprocess
 
     repo_root = pathlib.Path(__file__).resolve().parent.parent
-    tui_script = repo_root / "ui" / "terminal" / "tracker_tui.py"
+    tui_bin = repo_root / "frontend" / "apps" / "terminal" / "build" / "install" / "apps-terminal" / "bin" / "apps-terminal"
 
-    if not tui_script.exists():
-        warn(f"TUI script not found: {tui_script}")
-        return EXIT_ERROR
+    if not tui_bin.exists():
+        gradlew = repo_root / "gradlew"
+        if gradlew.exists():
+            subprocess.run([str(gradlew), ":frontend:apps-terminal:installDist"], check=True)
+        else:
+            warn(f"TUI binary not found: {tui_bin}")
+            return EXIT_ERROR
 
     # Pass filters to the TUI via environment variables
     env = os.environ.copy()
@@ -326,14 +330,22 @@ def _launch_tui(args) -> int:
     if args.limit:
         env["TRACKER_FILTER_LIMIT"] = str(args.limit)
 
-    # Use the same Python interpreter that is running tracker.py
-    python = sys.executable
-    sys.stdout.write(f"Launching TUI...\n")
+    cmd = [str(tui_bin)]
+    if args.open:
+        cmd.append("--open")
+    if args.status:
+        cmd.extend(["--status", args.status])
+    if args.tag:
+        cmd.extend(["--tag", args.tag])
+    if args.limit:
+        cmd.extend(["--limit", str(args.limit)])
+
+    sys.stdout.write("Launching TUI...\n")
     sys.stdout.flush()
     try:
-        return subprocess.call([python, str(tui_script)], env=env)
+        return subprocess.call(cmd, env=env)
     except FileNotFoundError:
-        warn(f"Python interpreter not found: {python}")
+        warn(f"TUI binary not found: {tui_bin}")
         return EXIT_ERROR
 
 
@@ -2476,20 +2488,33 @@ def _interactive_proposal_approve(db, note: str | None = None) -> int:
     if not sys.stdin.isatty():
         raise contract.ContractError("interactive mode requires a terminal.")
 
-    tui_path = client.REPO_ROOT / "ui" / "terminal" / "tracker_tui.py"
-    cmd = [sys.executable, str(tui_path), "--proposals"]
+    tui_bin = client.REPO_ROOT / "frontend" / "apps" / "terminal" / "build" / "install" / "apps-terminal" / "bin" / "apps-terminal"
+    if not tui_bin.exists():
+        gradlew = client.REPO_ROOT / "gradlew"
+        if gradlew.exists():
+            subprocess.run([str(gradlew), ":frontend:apps-terminal:installDist"], check=True)
+        else:
+            raise contract.ContractError(f"terminal TUI binary not found: {tui_bin}")
 
-    proc = subprocess.run(cmd, capture_output=True, text=True, env=os.environ.copy())
+    cmd = [str(tui_bin), "--proposals"]
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, text=True, env=os.environ.copy())
 
     # Parse the summary JSON the TUI emits on stdout
     if proc.returncode == 0:
-        try:
-            summary = json.loads(proc.stdout.strip())
-            emit(summary)
-        except (json.JSONDecodeError, ValueError):
-            emit({"ok": True, "summary": "proposals review complete"})
+        summary = None
+        for line in reversed([line.strip() for line in (proc.stdout or "").splitlines() if line.strip()]):
+            try:
+                parsed = json.loads(line)
+                if isinstance(parsed, dict) and "ok" in parsed:
+                    summary = parsed
+                    break
+            except (json.JSONDecodeError, ValueError):
+                continue
+        if summary is None:
+            summary = {"ok": True, "remaining_pending": 0, "summary": "proposals review complete"}
+        emit(summary)
     else:
-        err = proc.stderr.strip()
+        err = proc.stderr.strip() if proc.stderr else ""
         if err:
             sys.stderr.write(err + "\n")
         raise contract.ContractError(f"proposals TUI failed with exit code {proc.returncode}")

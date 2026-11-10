@@ -184,10 +184,6 @@ else:
     reports_dir = REPO_ROOT / 'reports'
     reports_dir.mkdir(parents=True, exist_ok=True)
     output_paths.append(str(reports_dir / 'application-dashboard.html'))
-    
-    ui_web_dir = REPO_ROOT / 'ui' / 'web'
-    if ui_web_dir.exists():
-        output_paths.append(str(ui_web_dir / 'application-dashboard.html'))
 
 for out_path in output_paths:
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
