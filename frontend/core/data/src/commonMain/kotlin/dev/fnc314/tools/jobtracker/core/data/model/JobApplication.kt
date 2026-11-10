@@ -35,7 +35,8 @@ import kotlin.time.Instant
  * @property createdAt Timestamp when the record was initially created.
  * @property updatedAt Timestamp when the record was last modified.
  * @property jobApplicationUrl Direct link to the submitted application or candidate portal dashboard.
- * @property appliedAt Timestamp when the application was marked as submitted
+ * @property submittedAt Timestamp when the application was marked as submitted.
+ * @property submissionConfirmedAt Timestamp when the application submission was confirmed by external source.
  * @see TrackerStatus
  * @see ApplicationChannel
  * @see TrackerFit
@@ -70,7 +71,8 @@ public data class JobApplication(
     public val updatedAt: Instant = Instant.DISTANT_PAST,
     public val jobApplicationUrl: String?,
     public val emailMessageIds: ImmutableList<String> = persistentListOf(),
-    public val appliedAt: Instant? = null,
+    public val submittedAt: Instant? = null,
+    public val submissionConfirmedAt: Instant? = null,
 ) {
     /**
      * Resolves the primary fit score (0..100) by prioritizing [fitRating] over [fitEvaluation.score].
