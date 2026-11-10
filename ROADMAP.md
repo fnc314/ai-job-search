@@ -84,6 +84,9 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Linked Plans:**
 - `.agents/plans/2026-11-10/154500_pure_kotlin_migration_render_py.md`
 - `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
+- `.agents/plans/2026-11-08/171648_hunter-logo-integration.md`
+- `.agents/plans/2026-11-08/214000_fix-email-collect-contract-error.md`
+- `.agents/plans/2026-11-08/215200_fix-event-type-and-email-pipeline-docs.md`
 - `.agents/plans/2026-11-08/180500_python-to-mise-tasks-migration-plan.md`
 
 **Changelog:**
@@ -125,6 +128,10 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - Example: `/scrape`, `/apply`, `/outcome` command sequence should be encapsulated as a single portable unit
 
 **Linked Plans:**
+- `.agents/plans/2026-11-05/173850_plan-relocation-and-index-alignment.md`
+- `.agents/plans/2026-11-05/164709_plan-files-consolidation-and-gitignore-alignment.md`
+- `.agents/plans/2026-11-05/183738_plan-frontmatter-standardization-and-templating.md`
+- `.agents/plans/2026-11-05/181232_mark-detekt-and-konsist-plan-completed.md`
 - `.agents/plans/2026-11-09/182733_consolidate-agent-directories.md`
 
 **Changelog:**
@@ -164,7 +171,9 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - The `backend/` directory already exists as a small Kotlin service
 
 **Linked Plans:**
+- `.agents/plans/2026-11-10/160200_retroactive-company-enrichment.md`
 - `.agents/plans/2026-11-10/154500_pure_kotlin_migration_render_py.md`
+- `.agents/plans/2026-11-09/164500_post_monorepo_quality_gates_and_cloud_run_deployment_plan.md`
 - `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
 - `.agents/plans/2026-11-09/125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md`
 
@@ -246,11 +255,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - Keep volume low per LinkedIn ToS
 
 **Linked Plans:**
+- `.agents/plans/2026-11-10/160200_retroactive-company-enrichment.md`
 - `.agents/plans/2026-11-10/152500_linkedin_company_enrichment_plan.md`
+- `.agents/plans/2026-11-08/171648_hunter-logo-integration.md`
 
 **Changelog:**
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-10 | Progress update   | Retroactive batch enrichment of existing company records, frontend LinkedIn URL display, and sector to industry mapping fix |
 | 2026-11-10 | Completed         | Enriched company metadata during /scrape and implemented backend enrichment service |
 | 2026-11-10 | Status update     | Started implementation per approved plan 152500 |
 | 2026-11-10 | Item created      | Renamed from TODO-005 to RM-005      |
