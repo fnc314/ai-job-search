@@ -39,10 +39,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.LogoShape
@@ -57,6 +55,7 @@ import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.navigation.BackHandler
 import dev.fnc314.tools.jobtracker.core.widgets.ErrorBannerWidget
 import dev.fnc314.tools.jobtracker.core.widgets.FitBadge
+import dev.fnc314.tools.jobtracker.core.widgets.JobApplicationTrackerImage
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import dev.fnc314.tools.jobtracker.core.widgets.StatusBadge
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.component.ArtifactsList
@@ -612,14 +611,13 @@ internal fun CompanyProfileSection(
             )
           }
           if (logoUrl != null && !isLogoFailed) {
-            AsyncImage(
+            JobApplicationTrackerImage(
               model = logoUrl,
               contentDescription = stringResource(Res.string.detail_company_logo_cd, company.name),
               modifier = Modifier
                 .size(MaterialTheme.iconSizes.extraLarge)
                 .clip(MaterialTheme.shapes.small)
                 .alpha(if (isLogoLoaded) 1f else 0f),
-              contentScale = ContentScale.Fit,
               onState = { state ->
                 when (state) {
                   is AsyncImagePainter.State.Success -> {

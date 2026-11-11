@@ -19,12 +19,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 
@@ -116,14 +114,13 @@ public fun CompanyLogoImage(
             )
         }
         if (effectiveUrl != null && !isLogoRejected) {
-            AsyncImage(
+            JobApplicationTrackerImage(
                 model = effectiveUrl,
                 contentDescription = "$companyName logo",
                 modifier = Modifier
                     .size(size)
                     .clip(shape)
                     .alpha(if (isValidLogoLoaded) VISIBLE_ALPHA else HIDDEN_ALPHA),
-                contentScale = ContentScale.Fit,
                 onState = { state ->
                     when (state) {
                         is AsyncImagePainter.State.Success -> {

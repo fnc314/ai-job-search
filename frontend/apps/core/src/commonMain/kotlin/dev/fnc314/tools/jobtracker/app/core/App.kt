@@ -26,6 +26,7 @@ import dev.fnc314.tools.jobtracker.core.designsystem.JobTrackerTheme
 import dev.fnc314.tools.jobtracker.core.designsystem.ProvideWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.core.designsystem.toColorOrNull
+import dev.fnc314.tools.jobtracker.core.widgets.ProvideImageLoader
 import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import dev.fnc314.tools.jobtracker.core.navigation.Navigator
 import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
@@ -125,7 +126,8 @@ public fun App() {
       darkTheme = isDark,
       seedColor = seedColor,
     ) {
-      ProvideWindowSizeClass {
+      ProvideImageLoader {
+        ProvideWindowSizeClass {
         val appContent: @Composable () -> Unit = {
           Surface(
             modifier = Modifier.fillMaxSize(),
@@ -207,6 +209,7 @@ public fun App() {
           setInspectorEnabled(settings.enableKmpInspector)
         }
         KmpInspector(enabled = settings.enableKmpInspector, content = appContent)
+        }
       }
     }
   }

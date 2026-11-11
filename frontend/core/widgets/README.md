@@ -4,14 +4,15 @@
 > **Quick Facts for AI Agents & Developers**
 > - **Subproject**: `:frontend:core-widgets`
 > - **Package Root**: `dev.fnc314.tools.jobtracker.core.widgets`
-> - **Primary Contributions**: Universal shared Compose components (`StatusBadge`, `FitBadge`, `NotesWidget`, `TooltipIconButton`), re-exports `core:design-system`
-> - **Architectural Invariant**: Acts as the single shared UI entry point for feature modules; re-exports `projects.coreDesignSystem` via `api(...)`.
+> - **Primary Contributions**: Universal shared Compose components (`StatusBadge`, `FitBadge`, `NotesWidget`, `TooltipIconButton`), Coil image loading subsystem (`JobApplicationTrackerImage`, `ProvideImageLoader`), re-exports `core:design-system`
+> - **Architectural Invariant**: Acts as the single shared UI entry point for feature modules; re-exports `projects.coreDesignSystem` via `api(...)`. All image loading flows through `JobApplicationTrackerImage`.
+> - **DI Module**: `coreWidgetsModule` registers `ImageLoadEventListener` for Coil observability.
 > - **Key Build/Verification Command**: `./gradlew :frontend:core-widgets:compileCommonMainKotlinMetadata`
 
 ---
 
 ## 1. Module Overview
-`:frontend:core-widgets` houses reusable, theme-aware Compose presentation components that are shared across multiple feature modules. It serves as the universal shared UI layer, eliminating duplicate widget implementations and standardizing micro-interactions, badge styling, and accessibility across all screens.
+`:frontend:core-widgets` houses reusable, theme-aware Compose presentation components that are shared across multiple feature modules. It serves as the universal shared UI layer, eliminating duplicate widget implementations and standardizing micro-interactions, badge styling, and accessibility across all screens. It also owns the Coil image loading subsystem, providing a centralized `ImageLoader` configuration with observability hooks and a single wrapper composable (`JobApplicationTrackerImage`) for all image loading.
 
 ---
 
@@ -28,11 +29,16 @@ This module is the primary UI foundation consumed by all feature screens:
 ```
 core/widgets/src/
 ├── commonMain/kotlin/dev/fnc314/tools/jobtracker/core/widgets/
-│   ├── StatusBadge.kt          # Visual tonal pill displaying application funnel status
-│   ├── FitBadge.kt             # Color-tiered fit rating pill (green / amber / neutral)
-│   ├── NotesWidget.kt          # Expandable / scrollable multi-note inspector
-│   └── TooltipIconButton.kt    # Accessible icon button with desktop hover & mobile tooltip
-└── androidMain/kotlin/         # Android core KTX extensions
+│   ├── StatusBadge.kt                  # Visual tonal pill displaying application funnel status
+│   ├── FitBadge.kt                     # Color-tiered fit rating pill (green / amber / neutral)
+│   ├── NotesWidget.kt                  # Expandable / scrollable multi-note inspector
+│   ├── TooltipIconButton.kt            # Accessible icon button with desktop hover & mobile tooltip
+│   ├── CompanyLogoImage.kt             # Company logo with monogram fallback
+│   ├── JobApplicationTrackerImage.kt   # Centralized image loading wrapper (Coil)
+│   ├── CoilImageLoaderProvider.kt      # App-level Coil singleton configurator
+│   └── di/
+│       └── CoreWidgetsModule.kt        # Koin DI module: ImageLoadEventListener + Coil config
+└── androidMain/kotlin/                 # Android core KTX extensions
 ```
 
 ---
@@ -51,6 +57,12 @@ core/widgets/src/
   - Renders an interactive, reorderable, multi-note editor inside an elevated surface with semantic content descriptions. Accepts and emits stable `ImmutableList<String>` to prevent unnecessary Compose recomposition churn.
 - `TooltipIconButton(tooltip: String, icon: ImageVector, onClick: () -> Unit, modifier: Modifier, enabled: Boolean)`:
   - Cross-platform tooltip button wrapping M3 `TooltipBox` and `IconButton`.
+- `JobApplicationTrackerImage(model: Any?, contentDescription: String?, modifier: Modifier, contentScale: ContentScale, onState: (AsyncImagePainter.State) -> Unit)`:
+  - Single public image loading composable. Delegates to Coil's `AsyncImage` using the application-configured `ImageLoader` from `ProvideImageLoader`. All image loading in the app should flow through this component.
+- `ProvideImageLoader(content: @Composable () -> Unit)`:
+  - App-level wrapper that configures Coil's singleton `ImageLoader` with `DebugLogger`, Ktor3 network fetcher, and observability hooks. Wrap app content with this inside `JobTrackerTheme`.
+- `ImageLoadEventListener` interface + `DefaultImageLoadEventListener`:
+  - Framework-agnostic observability interface for image load lifecycle events (start, success, error, cancel). Registered as a Koin singleton via `coreWidgetsModule`. Composed from 4 `fun interface` callbacks: `OnImageLoadStart`, `OnImageLoadSuccess`, `OnImageLoadError`, `OnImageLoadCancel`.
 
 ---
 
@@ -76,7 +88,9 @@ core/widgets/src/
 - `local.android.kmp.library`: AGP Multiplatform Library setup.
 - `local.compose`: Compose compiler plugin.
 - `local.dependencies.compose`: Compose UI, Material 3, and Foundation libraries.
+- `local.dependencies.di`: Koin dependency injection.
 
 ### Key Dependencies
 - `api(projects.coreDesignSystem)`: Exports tokens, themes, and responsive classes to feature consumers.
 - `api(projects.coreData)`: Exports domain entities (`TrackerStatus`, etc.) needed by widgets.
+- `implementation(libs.bundles.coil)`: Coil 3 image loading (coil-compose, coil-core, coil-network-ktor3).
