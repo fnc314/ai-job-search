@@ -134,7 +134,7 @@ internal fun deriveTimelineEvents(
   app: JobApplication,
   events: List<TrackerEvent>,
 ): ImmutableList<TrackerEvent> {
-  if (events.isNotEmpty()) return events.toImmutableList()
+  if (events.isNotEmpty()) return events.sortedByDescending { it.createdAt }.toImmutableList()
   return buildList {
     if (app.createdAt != Instant.DISTANT_PAST) {
       add(
