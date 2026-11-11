@@ -112,10 +112,12 @@ public fun SettingsScreen(
         is SettingsUiState.Loading -> {
             LoadingWidget(modifier = modifier)
         }
+
         is SettingsUiState.NavigateBack,
         is SettingsUiState.NavigateToSignIn -> {
             Box(modifier = modifier.fillMaxSize())
         }
+
         is SettingsUiState.Content -> {
             SettingsContent(
                 model = uiState.model,
@@ -128,9 +130,9 @@ public fun SettingsScreen(
 
 @Composable
 internal fun SettingsContent(
-  model: SettingsUiModel,
-  onIntent: (SettingsUiIntent) -> Unit,
-  modifier: Modifier = Modifier,
+    model: SettingsUiModel,
+    onIntent: (SettingsUiIntent) -> Unit,
+    modifier: Modifier = Modifier,
 ): Unit {
     val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
 
@@ -193,7 +195,7 @@ internal fun SettingsContent(
                         )
                     }
 
-                  Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
 
                     Text(
                         text = stringResource(Res.string.settings_label_accent_seed),
@@ -238,8 +240,11 @@ internal fun SettingsContent(
                     OutlinedTextField(
                         value = model.seedColorHex,
                         onValueChange = { newHex: String ->
-                            keyboardController?.hide()
-                            onIntent(SettingsUiIntent.ChangeSeedColor(hex = newHex))
+                            val sanitized = newHex.trim().replace("#", "")
+                            if (sanitized.length == 6 && sanitized.matches(Regex("[0-9a-fA-F]{6}"))) {
+                                onIntent(SettingsUiIntent.ChangeSeedColor(hex = sanitized))
+                                keyboardController?.hide()
+                            }
                         },
                         label = { Text(stringResource(Res.string.settings_label_custom_seed_hex)) },
                         modifier = Modifier
@@ -278,98 +283,98 @@ internal fun SettingsContent(
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall))
 
-          OutlinedCard(
-            shape = MaterialTheme.shapes.medium,
-            modifier = Modifier.fillMaxWidth()
-          ) {
-            Column(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(MaterialTheme.spacing.medium),
-              verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
-            ) {
-              Text(
-                text = stringResource(Res.string.settings_kmp_inspector_toggle_label),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-              )
-              Row(
-                modifier = Modifier
-                  .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                verticalAlignment = Alignment.CenterVertically,
-              ) {
-                Checkbox(
-                  modifier = Modifier
-                    .fillMaxWidth(0.25F),
-                  checked = model.kmpInspectorEnabled,
-                  onCheckedChange = { isChecked: Boolean ->
-                    onIntent(SettingsUiIntent.ToggleKmpInspector(enabled = isChecked))
-                  }
-                )
-                Text(
-                  text = if (model.kmpInspectorEnabled) {
-                    stringResource(Res.string.settings_kmp_inspector_toggle_enabled)
-                  } else {
-                    stringResource(Res.string.settings_kmp_inspector_toggle_disabled)
-                  },
-                  style = MaterialTheme.typography.labelLarge,
-                  modifier = Modifier.fillMaxWidth(0.75F)
-                )
-              }
-
-            }
-          }
-
-          // Section: In-App Document Viewer (Mobile only)
-          if (model.showInAppTextViewerSetting) {
             OutlinedCard(
-              shape = MaterialTheme.shapes.medium,
-              modifier = Modifier.fillMaxWidth()
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.fillMaxWidth()
             ) {
-              Column(
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(MaterialTheme.spacing.medium),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
-              ) {
-                Text(
-                  text = stringResource(Res.string.settings_in_app_text_viewer_label),
-                  style = MaterialTheme.typography.titleMedium,
-                  color = MaterialTheme.colorScheme.primary,
-                )
-                Text(
-                  text = stringResource(Res.string.settings_in_app_text_viewer_subtitle),
-                  style = MaterialTheme.typography.bodySmall,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Row(
-                  modifier = Modifier
-                    .fillMaxWidth(),
-                  horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-                  verticalAlignment = Alignment.CenterVertically,
-                ) {
-                  Checkbox(
+                Column(
                     modifier = Modifier
-                      .fillMaxWidth(0.25F),
-                    checked = model.inAppTextViewerEnabled,
-                    onCheckedChange = { isChecked: Boolean ->
-                      onIntent(SettingsUiIntent.ToggleInAppTextViewer(enabled = isChecked))
+                        .fillMaxWidth()
+                        .padding(MaterialTheme.spacing.medium),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.settings_kmp_inspector_toggle_label),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            modifier = Modifier
+                                .fillMaxWidth(0.25F),
+                            checked = model.kmpInspectorEnabled,
+                            onCheckedChange = { isChecked: Boolean ->
+                                onIntent(SettingsUiIntent.ToggleKmpInspector(enabled = isChecked))
+                            }
+                        )
+                        Text(
+                            text = if (model.kmpInspectorEnabled) {
+                                stringResource(Res.string.settings_kmp_inspector_toggle_enabled)
+                            } else {
+                                stringResource(Res.string.settings_kmp_inspector_toggle_disabled)
+                            },
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.fillMaxWidth(0.75F)
+                        )
                     }
-                  )
-                  Text(
-                    text = if (model.inAppTextViewerEnabled) {
-                      stringResource(Res.string.settings_in_app_text_viewer_enabled)
-                    } else {
-                      stringResource(Res.string.settings_in_app_text_viewer_disabled)
-                    },
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.fillMaxWidth(0.75F)
-                  )
+
                 }
-              }
             }
-          }
+
+            // Section: In-App Document Viewer (Mobile only)
+            if (model.showInAppTextViewerSetting) {
+                OutlinedCard(
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(MaterialTheme.spacing.medium),
+                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.settings_in_app_text_viewer_label),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(
+                            text = stringResource(Res.string.settings_in_app_text_viewer_subtitle),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.25F),
+                                checked = model.inAppTextViewerEnabled,
+                                onCheckedChange = { isChecked: Boolean ->
+                                    onIntent(SettingsUiIntent.ToggleInAppTextViewer(enabled = isChecked))
+                                }
+                            )
+                            Text(
+                                text = if (model.inAppTextViewerEnabled) {
+                                    stringResource(Res.string.settings_in_app_text_viewer_enabled)
+                                } else {
+                                    stringResource(Res.string.settings_in_app_text_viewer_disabled)
+                                },
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.fillMaxWidth(0.75F)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
