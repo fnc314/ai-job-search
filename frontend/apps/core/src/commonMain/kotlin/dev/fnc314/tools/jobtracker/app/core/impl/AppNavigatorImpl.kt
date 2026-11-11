@@ -3,7 +3,7 @@ package dev.fnc314.tools.jobtracker.app.core.impl
 import dev.fnc314.tools.jobtracker.core.navigation.AppNavigator
 import dev.fnc314.tools.jobtracker.core.navigation.ApplicationId
 import dev.fnc314.tools.jobtracker.core.navigation.CompanyId
-import dev.fnc314.tools.jobtracker.core.navigation.NavKey
+import dev.fnc314.tools.jobtracker.core.navigation.JobApplicationsTrackerNavKey
 import dev.fnc314.tools.jobtracker.core.navigation.Navigator
 import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestinationEnum
 import dev.fnc314.tools.jobtracker.features.companydetails.ui.JobApplicationCompanyDetailsRoute
@@ -18,11 +18,11 @@ import dev.fnc314.tools.jobtracker.features.signin.ui.SignInRoute
  * Must remain [internal] and reside in the `.impl` package to satisfy Konsist architecture tests.
  *
  * @param navigator Wrapper around the Navigation 3 back stack.
- * @param routeResolver Maps [TopLevelDestinationEnum] to actual [NavKey] instances.
+ * @param routeResolver Maps [TopLevelDestinationEnum] to actual [JobApplicationsTrackerNavKey] instances.
  */
 internal class AppNavigatorImpl(
     private val navigator: Navigator,
-    private val routeResolver: (TopLevelDestinationEnum) -> NavKey,
+    private val routeResolver: (TopLevelDestinationEnum) -> JobApplicationsTrackerNavKey,
 ) : AppNavigator {
     override fun navigateToApplicationDetails(applicationId: ApplicationId) {
         navigator.navigate(JobApplicationDetailRoute(applicationId.value))
@@ -41,7 +41,7 @@ internal class AppNavigatorImpl(
         navigator.navigate(JobApplicationSettingsRoute)
     }
 
-    override fun navigate(key: NavKey) {
+    override fun navigate(key: JobApplicationsTrackerNavKey) {
         navigator.navigate(key)
     }
 

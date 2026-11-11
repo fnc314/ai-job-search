@@ -1,21 +1,20 @@
 package dev.fnc314.tools.jobtracker.features.signin.ui.di
 
-import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
 import dev.fnc314.tools.jobtracker.features.signin.data.di.signInDataModule
 import dev.fnc314.tools.jobtracker.features.signin.domain.di.signInDomainModule
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInEntryRegistry
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInViewModel
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import org.koin.dsl.single
 
 /**
  * Koin module declaring UI layer dependencies for the sign-in feature.
  */
 public val signInUiModule: Module = module {
     viewModelOf(::SignInViewModel)
-    single<FeatureEntryRegistry> { SignInEntryRegistry() }
+    singleOf(::SignInEntryRegistry)
 }
 
 /**

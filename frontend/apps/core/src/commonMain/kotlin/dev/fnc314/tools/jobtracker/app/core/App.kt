@@ -29,19 +29,29 @@ import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.core.designsystem.toColorOrNull
 import dev.fnc314.tools.jobtracker.core.widgets.ProvideImageLoader
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
-import dev.fnc314.tools.jobtracker.core.navigation.NavKey
+import dev.fnc314.tools.jobtracker.core.navigation.LocalAppNavigator
+import dev.fnc314.tools.jobtracker.core.navigation.JobApplicationsTrackerNavKey
 import dev.fnc314.tools.jobtracker.core.navigation.Navigator
+import dev.fnc314.tools.jobtracker.core.navigation.ProvideAppNavigator
 import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestinationEnum
+import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddJobApplicationEntryRegistry
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddApplicationRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddLeadRoute
+import dev.fnc314.tools.jobtracker.features.companieslist.ui.CompaniesEntryRegistry
 import dev.fnc314.tools.jobtracker.features.companieslist.ui.JobApplicationCompaniesRoute
+import dev.fnc314.tools.jobtracker.features.companydetails.ui.CompanyDetailsEntryRegistry
 import dev.fnc314.tools.jobtracker.features.companydetails.ui.JobApplicationCompanyDetailsRoute
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.JobApplicationDetailRoute
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.JobApplicationDetailsEntryRegistry
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationListRoute
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationsEntryRegistry
 import dev.fnc314.tools.jobtracker.features.settings.ui.JobApplicationSettingsRoute
+import dev.fnc314.tools.jobtracker.features.settings.ui.SettingsEntryRegistry
 import dev.fnc314.tools.jobtracker.features.signin.data.repository.AuthRepository
+import dev.fnc314.tools.jobtracker.features.signin.ui.SignInEntryRegistry
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInRoute
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.JobApplicationEditsRoute
+import dev.fnc314.tools.jobtracker.features.trackeredits.ui.TrackerEditsEntryRegistry
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
@@ -102,12 +112,12 @@ public fun App() {
     val authState by authRepository.authState.collectAsState()
     val isAuthenticated = authState is AuthState.Authenticated
 
-    val initialRoute: NavKey = if (isAuthenticated) JobApplicationListRoute else SignInRoute
+    val initialRoute: JobApplicationsTrackerNavKey = if (isAuthenticated) JobApplicationListRoute else SignInRoute
     val backStack = rememberNavBackStack(navigationSavedStateConfig, initialRoute)
     val navigator = remember(backStack) { Navigator(backStack) }
 
-    // Route resolver maps TopLevelDestinationEnum to actual NavKey instances
-    val routeResolver: (TopLevelDestinationEnum) -> NavKey = { dest ->
+    // Route resolver maps TopLevelDestinationEnum to actual JobApplicationsTrackerNavKey instances
+    val routeResolver: (TopLevelDestinationEnum) -> JobApplicationsTrackerNavKey = { dest ->
       when (dest) {
         TopLevelDestinationEnum.Applications -> JobApplicationListRoute
         TopLevelDestinationEnum.Companies -> JobApplicationCompaniesRoute
@@ -121,8 +131,17 @@ public fun App() {
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Collect all feature entry registries from Koin
-    val entryRegistries = koinInject<List<FeatureEntryRegistry>>()
+    // Collect all feature entry registries from Koin by concrete type
+    val entryRegistries = listOf<FeatureEntryRegistry>(
+      koinInject<SignInEntryRegistry>(),
+      koinInject<JobApplicationsEntryRegistry>(),
+      koinInject<JobApplicationDetailsEntryRegistry>(),
+      koinInject<CompaniesEntryRegistry>(),
+      koinInject<CompanyDetailsEntryRegistry>(),
+      koinInject<SettingsEntryRegistry>(),
+      koinInject<AddJobApplicationEntryRegistry>(),
+      koinInject<TrackerEditsEntryRegistry>(),
+    )
 
     // React to authentication changes
     LaunchedEffect(isAuthenticated) {

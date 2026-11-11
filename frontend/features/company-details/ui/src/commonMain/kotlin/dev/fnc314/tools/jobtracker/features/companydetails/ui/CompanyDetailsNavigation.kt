@@ -2,11 +2,11 @@ package dev.fnc314.tools.jobtracker.features.companydetails.ui
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey as PlatformNavKey
-import dev.fnc314.tools.jobtracker.app.core.LocalAppNavigator
+import dev.fnc314.tools.jobtracker.core.navigation.LocalAppNavigator
 import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
 import dev.fnc314.tools.jobtracker.core.navigation.ApplicationId
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
-import dev.fnc314.tools.jobtracker.core.navigation.NavKey
+import dev.fnc314.tools.jobtracker.core.navigation.JobApplicationsTrackerNavKey
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_title
 import kotlinx.serialization.Serializable
@@ -21,12 +21,12 @@ import org.jetbrains.compose.resources.StringResource
 @Serializable
 public data class JobApplicationCompanyDetailsRoute(
     public val companyId: String,
-) : NavKey {
+) : JobApplicationsTrackerNavKey {
     @Transient
     override val titleRes: StringResource = Res.string.company_details_title
 }
 
-internal class CompanyDetailsEntryRegistry : FeatureEntryRegistry {
+public class CompanyDetailsEntryRegistry : FeatureEntryRegistry {
     override fun register(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationCompanyDetailsRoute> { key ->
             val navigator = LocalAppNavigator.current

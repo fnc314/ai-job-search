@@ -37,9 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import dev.fnc314.tools.jobtracker.app.core.LocalAppNavigator
+import dev.fnc314.tools.jobtracker.core.navigation.LocalAppNavigator
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
-import dev.fnc314.tools.jobtracker.core.navigation.NavKey
+import dev.fnc314.tools.jobtracker.core.navigation.JobApplicationsTrackerNavKey
 import dev.fnc314.tools.jobtracker.core.navigation.Navigator
 import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestinationEnum
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddApplicationRoute
@@ -67,7 +67,7 @@ import org.jetbrains.compose.resources.stringResource
  */
 private data class TopLevelDestinationInfo(
     val enumValue: TopLevelDestinationEnum,
-    val route: NavKey,
+    val route: JobApplicationsTrackerNavKey,
     val labelRes: StringResource,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
@@ -77,7 +77,7 @@ private data class TopLevelDestinationInfo(
 /**
  * Resolves the current [TopLevelDestinationEnum] from the active destination on the back stack.
  */
-private fun resolveTopLevelDestination(currentDestination: NavKey?): TopLevelDestinationEnum? =
+private fun resolveTopLevelDestination(currentDestination: JobApplicationsTrackerNavKey?): TopLevelDestinationEnum? =
     when {
         currentDestination == JobApplicationListRoute -> TopLevelDestinationEnum.Applications
         currentDestination == JobApplicationCompaniesRoute -> TopLevelDestinationEnum.Companies
@@ -89,7 +89,7 @@ private fun resolveTopLevelDestination(currentDestination: NavKey?): TopLevelDes
 /**
  * Returns true if the destination is a top-level bottom-nav target.
  */
-private fun isTopLevelDestination(key: NavKey?): Boolean =
+private fun isTopLevelDestination(key: JobApplicationsTrackerNavKey?): Boolean =
     key == JobApplicationListRoute ||
         key == JobApplicationCompaniesRoute ||
         key == JobApplicationEditsRoute
@@ -117,12 +117,12 @@ public fun AppScaffold(
   val isCompact = windowSizeClass.isCompact
   val appNavigator = LocalAppNavigator.current
 
-  val currentDestination = navigator.backStack.lastOrNull()
+  val currentDestination: JobApplicationsTrackerNavKey? = navigator.backStack.lastOrNull() as? JobApplicationsTrackerNavKey
   val currentTopLevel = resolveTopLevelDestination(currentDestination)
   val showNav = isAuthenticated && isTopLevelDestination(currentDestination)
   val canNavigateBack = navigator.backStack.size > 1 && !isTopLevelDestination(currentDestination)
 
-  // Title resolution: use NavKey.titleRes for all routes
+  // Title resolution: use JobApplicationsTrackerNavKey.titleRes for all routes
   val titleText: String = when (currentDestination) {
     is JobApplicationCompanyDetailsRoute -> stringResource(currentDestination.titleRes)
     is JobApplicationDetailRoute -> stringResource(currentDestination.titleRes)

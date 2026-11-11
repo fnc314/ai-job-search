@@ -14,7 +14,7 @@ public class Navigator(
     public val backStack: NavBackStack<PlatformNavKey>,
 ) {
     /** Pushes a new navigation key onto the back stack. */
-    public fun navigate(key: NavKey) {
+    public fun navigate(key: JobApplicationsTrackerNavKey) {
         backStack.add(key)
     }
 
@@ -37,7 +37,7 @@ public class Navigator(
     }
 
     /** Replaces the entire back stack with a new root key. */
-    public fun switchRoot(key: NavKey) {
+    public fun switchRoot(key: JobApplicationsTrackerNavKey) {
         backStack.clear()
         backStack.add(key)
     }

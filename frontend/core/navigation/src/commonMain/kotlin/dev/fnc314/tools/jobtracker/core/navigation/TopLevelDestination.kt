@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.StringResource
 
 public interface TopLevelDestination {
-    public val route: NavKey
+    public val route: JobApplicationsTrackerNavKey
     public val labelRes: StringResource
     public val selectedIcon: ImageVector
     public val unselectedIcon: ImageVector
@@ -12,7 +12,7 @@ public interface TopLevelDestination {
 
     public companion object {
         public fun from(
-            route: NavKey,
+            route: JobApplicationsTrackerNavKey,
             labelRes: StringResource,
             selectedIcon: ImageVector,
             unselectedIcon: ImageVector,
@@ -28,7 +28,7 @@ public interface TopLevelDestination {
 }
 
 private data class TopLevelDestinationImpl(
-    override val route: NavKey,
+    override val route: JobApplicationsTrackerNavKey,
     override val labelRes: StringResource,
     override val selectedIcon: ImageVector,
     override val unselectedIcon: ImageVector,
