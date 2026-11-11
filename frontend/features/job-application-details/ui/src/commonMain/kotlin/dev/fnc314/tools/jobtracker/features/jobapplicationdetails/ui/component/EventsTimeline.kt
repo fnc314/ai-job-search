@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalGridApi::class)
+
 package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.component
 
 import androidx.compose.foundation.background
@@ -6,11 +8,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalGridApi
+import androidx.compose.foundation.layout.Fr
+import androidx.compose.foundation.layout.Grid
+import androidx.compose.foundation.layout.GridTrackSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -87,8 +94,70 @@ internal fun EventsTimeline(
       val isFirst = index == 0
       val isLast = index == events.lastIndex
       val eventCd: String = stringResource(Res.string.timeline_event_cd, event.type.displayName())
+      val gridSizes = object {
+        val columns = object {
+          val graphicNode = GridTrackSize.MinContent
+          val textNode = GridTrackSize.Flex(Fr(1.0F))
+        }
+        val gaps = object {
+          val column = MaterialTheme.spacing.medium
+          val row = MaterialTheme.spacing.none
+        }
+        val rows = object {
+          val all = GridTrackSize.Fixed(MaterialTheme.componentSizes.timelineNodeSize)
+        }
+      }
+      Grid(
+        config = {
+          column(
+            size = gridSizes.columns.graphicNode,
+          )
+          column(
+            size = gridSizes.columns.textNode
+          )
+          gap(
+            column = gridSizes.gaps.column,
+            row = gridSizes.gaps.row
+          )
+          row(
+            size = gridSizes.rows.all
+          )
+          row(
+            size = gridSizes.rows.all
+          )
+          row(
+            size = gridSizes.rows.all
+          )
 
-      Row(
+          area(
+            areaId = "graphic-top",
+            row = 1,
+            rowSpan = 1,
+            column = 1,
+            columnSpan = 1,
+          )
+          area(
+            areaId = "graphic-icon",
+            row = 2,
+            rowSpan = 1,
+            column = 1,
+            columnSpan = 1,
+          )
+          area(
+            areaId = "graphic-bottom",
+            row = 3,
+            rowSpan = 1,
+            column = 1,
+            columnSpan = 1,
+          )
+          area(
+            areaId = "text",
+            row = 1,
+            rowSpan = 3,
+            column = 2,
+            columnSpan = 1,
+          )
+        },
         modifier = Modifier
           .fillMaxWidth()
           .clip(MaterialTheme.shapes.small)
@@ -96,67 +165,68 @@ internal fun EventsTimeline(
           .padding(
             horizontal = MaterialTheme.spacing.medium,
           )
-          .semantics { contentDescription = eventCd },
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-        verticalAlignment = Alignment.CenterVertically,
+          .semantics { contentDescription = eventCd }
       ) {
-        // Graphic Timeline Node
-        Column(
-          horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-          if (!isFirst) {
-            Box(
-              modifier = Modifier
-                .width(MaterialTheme.componentSizes.timelineLineWidth)
-                .height(MaterialTheme.componentSizes.iconButtonSize.div(2))
-                .background(MaterialTheme.colorScheme.outlineVariant),
-              contentAlignment = Alignment.TopCenter,
-            ) {}
-          } else {
-            Spacer(
-              modifier = Modifier.height(MaterialTheme.componentSizes.iconButtonSize.div(2))
-            )
-          }
-          Surface(
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer,
+        if (!isFirst) {
+          Box(
             modifier = Modifier
-              .size(MaterialTheme.componentSizes.timelineNodeSize)
+              .gridItem(areaId = "graphic-top")
+              .fillMaxSize(),
+            contentAlignment = Alignment.TopCenter,
           ) {
-            Box(contentAlignment = Alignment.Center) {
-              Icon(
-                imageVector = event.type.icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(MaterialTheme.iconSizes.medium),
-              )
-            }
-          }
-          if (!isLast) {
             Box(
               modifier = Modifier
                 .width(MaterialTheme.componentSizes.timelineLineWidth)
-                .height(MaterialTheme.componentSizes.iconButtonSize.div(2))
-                .background(MaterialTheme.colorScheme.outlineVariant),
-              contentAlignment = Alignment.BottomCenter,
-            ) {}
-          } else {
-            Spacer(
-              modifier = Modifier.height(MaterialTheme.componentSizes.iconButtonSize.div(2))
+                .height(MaterialTheme.componentSizes.timelineNodeSize)
+                .background(MaterialTheme.colorScheme.outlineVariant)
             )
           }
         }
-
+        Surface(
+          shape = CircleShape,
+          color = MaterialTheme.colorScheme.primaryContainer,
+          modifier = Modifier
+            .gridItem(areaId = "graphic-icon")
+            .size(MaterialTheme.componentSizes.timelineNodeSize)
+        ) {
+          Box(contentAlignment = Alignment.Center) {
+            Icon(
+              imageVector = event.type.icon,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.onPrimaryContainer,
+              modifier = Modifier.size(MaterialTheme.iconSizes.medium),
+            )
+          }
+        }
+        if (!isLast) {
+          Box(
+            modifier = Modifier
+              .gridItem(areaId = "graphic-bottom")
+              .fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter,
+          ) {
+            Box(
+              modifier = Modifier
+                .width(MaterialTheme.componentSizes.timelineLineWidth)
+                .height(MaterialTheme.componentSizes.timelineNodeSize)
+                .background(MaterialTheme.colorScheme.outlineVariant)
+            )
+          }
+        }
         // Event Content Card
         OutlinedCard(
           shape = MaterialTheme.shapes.medium,
-          modifier = Modifier.weight(1f),
+          modifier = Modifier
+            .gridItem(areaId = "text")
+            .fillMaxSize()
+            .padding(vertical = MaterialTheme.spacing.small),
         ) {
           Column(
             modifier = Modifier
-              .fillMaxWidth()
+              .fillMaxSize()
               .padding(MaterialTheme.spacing.small),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.Start,
           ) {
             Text(
               text = event.type.displayName(),
@@ -186,8 +256,10 @@ internal fun EventsTimeline(
             }
 
             if (event.statusFrom != null || event.statusTo != null) {
-              val transitionFrom = event.statusFrom?.displayName() ?: stringResource(Res.string.timeline_transition_start)
-              val transitionTo = event.statusTo?.displayName() ?: stringResource(Res.string.timeline_transition_current)
+              val transitionFrom = event.statusFrom?.displayName()
+                ?: stringResource(Res.string.timeline_transition_start)
+              val transitionTo = event.statusTo?.displayName()
+                ?: stringResource(Res.string.timeline_transition_current)
 
               Text(
                 text = stringResource(
@@ -209,6 +281,60 @@ internal fun EventsTimeline(
           }
         }
       }
+
+//      Row(
+//        modifier = Modifier
+//          .fillMaxWidth()
+//          .clip(MaterialTheme.shapes.small)
+//          .clickable { selectedEvent = event }
+//          .padding(
+//            horizontal = MaterialTheme.spacing.medium,
+//          )
+//          .semantics { contentDescription = eventCd },
+//        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+//        verticalAlignment = Alignment.CenterVertically,
+//      ) {
+//        // Graphic Timeline Node
+//        Column(
+//          horizontalAlignment = Alignment.CenterHorizontally,
+//        ) {
+//          if (!isFirst) {
+//            Box(
+//              modifier = Modifier
+//                .width(MaterialTheme.componentSizes.timelineLineWidth)
+//                .height(MaterialTheme.componentSizes.iconButtonSize.div(2))
+//                .background(MaterialTheme.colorScheme.outlineVariant)
+//                ,
+//              contentAlignment = Alignment.TopCenter,
+//            ) {}
+//          }
+//          Surface(
+//            shape = CircleShape,
+//            color = MaterialTheme.colorScheme.primaryContainer,
+//            modifier = Modifier
+//              .size(MaterialTheme.componentSizes.timelineNodeSize)
+//          ) {
+//            Box(contentAlignment = Alignment.Center) {
+//              Icon(
+//                imageVector = event.type.icon,
+//                contentDescription = null,
+//                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+//                modifier = Modifier.size(MaterialTheme.iconSizes.medium),
+//              )
+//            }
+//          }
+//          if (!isLast) {
+//            Box(
+//              modifier = Modifier
+//                .width(MaterialTheme.componentSizes.timelineLineWidth)
+//                .height(MaterialTheme.componentSizes.iconButtonSize.div(2))
+//                .background(MaterialTheme.colorScheme.outlineVariant)
+//                ,
+//              contentAlignment = Alignment.BottomCenter,
+//            ) {}
+//          }
+//        }
+//      }
     }
   }
 }
