@@ -12,15 +12,16 @@
 
 ## 1. Executive Summary & Goals
 
-Fixed the KMP Inspector integration so that Ktor network traffic is captured and inspectable on all supported platforms (Android, iOS, JVM/Desktop). The inspector is controllable via the existing Settings toggle (`enableKmpInspector`). Room database inspection was deferred because `kmp-inspector-room` depends on Room 2.x (`androidx.room`), while this project uses Room 3 (`androidx.room3`) — the types are incompatible.
+Fixed the KMP Inspector integration so that Ktor network traffic is captured and inspectable on all supported platforms (Android, iOS, JVM/Desktop). The inspector starts disabled and is controllable via the existing Settings toggle (`enableKmpInspector`). Room database inspection was deferred because `kmp-inspector-room` depends on Room 2.x (`androidx.room`), while this project uses Room 3 (`androidx.room3`) — the types are incompatible. Additionally, restructured the navigation UI so Settings is accessible from a gear icon in the top-left of the top app bar, and removed Settings from the navigation rail and bottom navigation bar.
 
 ## 2. Architecture & Design Principles
 
-- **Android**: `KmpInspector.install(this)` in `JobTrackerApplication.onCreate()` draws the floating bubble. The Compose wrapper remains a no-op to avoid double bubbles.
+- **Android**: `KmpInspector.install(this)` in `JobTrackerApplication.onCreate()` draws the floating bubble. The Compose wrapper remains a no-op to avoid double bubbles. `Inspector.enabled = false` is set before `install()` so the inspector starts disabled.
 - **iOS/JVM**: `KmpInspector` composable wraps the actual `com.waqas028.kmpinspector.KmpInspector` library wrapper.
 - **JS/WASM**: No-op — kmp-inspector does not support web targets.
 - **Global switch**: `Inspector.enabled` controls all inspector activity across platforms, set via platform-specific `setInspectorEnabled()` expect/actual.
 - **Room inspector**: Deferred — `kmp-inspector-room` requires Room 2.x; project uses Room 3. Placeholder `attachInspector()` functions are no-ops with comments explaining the limitation.
+- **Settings navigation**: Settings is accessible from a gear icon in the top-left of the top app bar when on a top-level destination. Settings is removed from the navigation rail and bottom navigation bar.
 
 ## 3. Proposed Changes & Implementation Steps
 
@@ -45,6 +46,17 @@ Fixed the KMP Inspector integration so that Ktor network traffic is captured and
 - `compileKotlinWasmJs` — **PASSED** (pre-existing NavDisplay error on web targets, unrelated)
 - `compileDebugKotlin` (apps-android) — **PASSED**
 
+### Step 5: Fix Android Inspector Initial State
+- Set `Inspector.enabled = false` before `KmpInspector.install(this)` in `JobTrackerApplication.onCreate()` so the inspector starts disabled.
+- The inspector only activates when the user toggles `enableKmpInspector` in Settings.
+
+### Step 6: Restructure Settings Navigation
+- Removed `SettingsRoute` from the `topLevelDestinations` list in `AppScaffold.kt`.
+- Updated `isTopLevelDestination` to exclude `isSettingsSelected`.
+- Added a Settings gear icon in the `navigationIcon` area of `CenterAlignedTopAppBar` when on a top-level destination.
+- Removed Settings from the `selected` logic in both `NavigationBar` and `NavigationRail`.
+- Settings is now accessible from the top bar gear icon, not from the navigation rail or bottom bar.
+
 ## 4. Verification Plan & Testing Checklist
 
 - [x] JVM compilation succeeds
@@ -53,6 +65,9 @@ Fixed the KMP Inspector integration so that Ktor network traffic is captured and
 - [x] Settings toggle `enableKmpInspector` controls `Inspector.enabled`
 - [x] `KmpInspector.install(this)` called on Android
 - [x] `KmpInspector` composable wraps content on iOS/JVM
+- [x] Inspector starts disabled on Android (`Inspector.enabled = false` before `install()`)
+- [x] Settings is accessible from the top bar gear icon
+- [x] Settings no longer appears in the navigation rail or bottom bar
 - [x] ROADMAP.md updated (RM-007 → DONE)
 
 ## 5. Bookkeeping

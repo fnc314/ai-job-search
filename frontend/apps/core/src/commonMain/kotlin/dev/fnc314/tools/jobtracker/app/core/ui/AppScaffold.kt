@@ -60,7 +60,6 @@ import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_companies
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_companies_cd
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_edits
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_edits_cd
-import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_settings
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_settings_cd
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -100,7 +99,7 @@ public fun AppScaffold(
   val isAddAppSelected = currentDestination is AddApplicationRoute
   val isAddLeadSelected = currentDestination is AddLeadRoute
 
-  val isTopLevelDestination = isListSelected || isCompaniesSelected || isEditsSelected || isSettingsSelected
+  val isTopLevelDestination = isListSelected || isCompaniesSelected || isEditsSelected
   val showNav = isAuthenticated && isTopLevelDestination
   val canNavigateBack = navigator.backStack.size > 1 && !isTopLevelDestination
 
@@ -139,13 +138,6 @@ public fun AppScaffold(
         unselectedIcon = Icons.Outlined.Edit,
         contentDescriptionRes = Res.string.app_nav_edits_cd,
       ),
-      TopLevelDestination.from(
-        route = SettingsRoute,
-        labelRes = Res.string.app_nav_settings,
-        selectedIcon = Icons.Filled.Settings,
-        unselectedIcon = Icons.Outlined.Settings,
-        contentDescriptionRes = Res.string.app_nav_settings_cd,
-      ),
     )
   }
 
@@ -166,6 +158,13 @@ public fun AppScaffold(
               Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(Res.string.app_action_back),
+              )
+            }
+          } else if (isAuthenticated && isTopLevelDestination) {
+            IconButton(onClick = { navigator.navigate(SettingsRoute) }) {
+              Icon(
+                imageVector = Icons.Filled.Settings,
+                contentDescription = stringResource(Res.string.app_nav_settings_cd),
               )
             }
           }
@@ -203,7 +202,6 @@ public fun AppScaffold(
               is ListRoute -> isListSelected
               is CompaniesListRoute -> isCompaniesSelected
               is EditsRoute -> isEditsSelected
-              is SettingsRoute -> isSettingsSelected
               else -> false
             }
             NavigationBarItem(
@@ -246,7 +244,6 @@ public fun AppScaffold(
               is ListRoute -> isListSelected
               is CompaniesListRoute -> isCompaniesSelected
               is EditsRoute -> isEditsSelected
-              is SettingsRoute -> isSettingsSelected
               else -> false
             }
             NavigationRailItem(

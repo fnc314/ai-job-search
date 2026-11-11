@@ -365,6 +365,29 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 ---
 
+
+---
+
+### [RM-008] Add MaterialKolor Library
+
+**Short Desc:** Add MaterialKolor Library
+**Criticality:** HIGH
+**Priority:** MEDIUM
+**Complexity:** 0 — Unknown
+**Status:** OPEN
+**Completion %:** 0
+**Creation Date:** 2026-11-11
+**Objective:** Integrate this library https://klibs.io/project/jordond/MaterialKolor
+
+**Dependencies:** None
+
+**Linked Plans:**
+- None
+
+**Changelog:**
+| Date       | Change            | Details                              |
+|------------|-------------------|--------------------------------------|
+| 2026-11-11 | Item created      | Initial entry                        |
 ## Frozen Items
 
 Items in this section have been frozen via the nuclear clear roadmap option. They are archived and should not be considered active work items.
