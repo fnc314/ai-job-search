@@ -281,60 +281,6 @@ internal fun EventsTimeline(
           }
         }
       }
-
-//      Row(
-//        modifier = Modifier
-//          .fillMaxWidth()
-//          .clip(MaterialTheme.shapes.small)
-//          .clickable { selectedEvent = event }
-//          .padding(
-//            horizontal = MaterialTheme.spacing.medium,
-//          )
-//          .semantics { contentDescription = eventCd },
-//        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-//        verticalAlignment = Alignment.CenterVertically,
-//      ) {
-//        // Graphic Timeline Node
-//        Column(
-//          horizontalAlignment = Alignment.CenterHorizontally,
-//        ) {
-//          if (!isFirst) {
-//            Box(
-//              modifier = Modifier
-//                .width(MaterialTheme.componentSizes.timelineLineWidth)
-//                .height(MaterialTheme.componentSizes.iconButtonSize.div(2))
-//                .background(MaterialTheme.colorScheme.outlineVariant)
-//                ,
-//              contentAlignment = Alignment.TopCenter,
-//            ) {}
-//          }
-//          Surface(
-//            shape = CircleShape,
-//            color = MaterialTheme.colorScheme.primaryContainer,
-//            modifier = Modifier
-//              .size(MaterialTheme.componentSizes.timelineNodeSize)
-//          ) {
-//            Box(contentAlignment = Alignment.Center) {
-//              Icon(
-//                imageVector = event.type.icon,
-//                contentDescription = null,
-//                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-//                modifier = Modifier.size(MaterialTheme.iconSizes.medium),
-//              )
-//            }
-//          }
-//          if (!isLast) {
-//            Box(
-//              modifier = Modifier
-//                .width(MaterialTheme.componentSizes.timelineLineWidth)
-//                .height(MaterialTheme.componentSizes.iconButtonSize.div(2))
-//                .background(MaterialTheme.colorScheme.outlineVariant)
-//                ,
-//              contentAlignment = Alignment.BottomCenter,
-//            ) {}
-//          }
-//        }
-//      }
     }
   }
 }
