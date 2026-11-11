@@ -203,6 +203,7 @@ public fun App() {
           }
         }
 
+        setInspectorEnabled(settings.enableKmpInspector)
         KmpInspector(enabled = settings.enableKmpInspector, content = appContent)
       }
     }

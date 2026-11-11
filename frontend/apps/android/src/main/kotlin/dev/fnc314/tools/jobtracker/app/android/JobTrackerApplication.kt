@@ -10,6 +10,7 @@ class JobTrackerApplication : Application() {
   override fun onCreate() {
     super.onCreate()
     ApplicationContextHolder.application = this
+    KmpInspector.install(this)
     if (FirebaseApp.getApps(this).isEmpty()) {
       FirebaseApp.initializeApp(this)
     }

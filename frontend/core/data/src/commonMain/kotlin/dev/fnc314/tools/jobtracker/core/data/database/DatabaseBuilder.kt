@@ -13,6 +13,12 @@ import androidx.room3.RoomDatabase
 public expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>?
 
 /**
+ * Attaches the platform-specific database inspector to capture queries.
+ * No-op on platforms where the inspector is not available.
+ */
+public expect fun attachInspector(database: AppDatabase)
+
+/**
  * Safe initializer building and opening the [AppDatabase] instance.
  *
  * Catches initialization errors (such as missing native driver symbols or unsupported web workers)
@@ -22,6 +28,6 @@ public expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>?
  */
 public fun createRoomDatabase(): AppDatabase? {
   return runCatching {
-    getDatabaseBuilder()?.build()
+    getDatabaseBuilder()?.build()?.also { attachInspector(it) }
   }.getOrNull()
 }

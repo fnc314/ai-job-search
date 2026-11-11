@@ -50,7 +50,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-006   | Add Email Top-Level Destination for in-app analysis | Add Email evidence & rectification | MEDIUM      | MEDIUM   | 0 d    | DONE        |
 | RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | DONE   |
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
-| RM-007   | Fix KMP Inspector                      | Fix Room and Ktor integrations       | PIVOTAL    | CRITICAL | 0 d    | OPEN        |
+| RM-007   | Fix KMP Inspector                      | Fix Room and Ktor integrations       | PIVOTAL    | CRITICAL | 0 d    | DONE        |
 
 ---
 

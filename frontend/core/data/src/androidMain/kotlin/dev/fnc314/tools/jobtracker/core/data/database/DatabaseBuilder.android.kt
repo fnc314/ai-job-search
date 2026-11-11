@@ -14,3 +14,7 @@ public actual fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>? {
     name = dbFile.absolutePath,
   )
 }
+
+public actual fun attachInspector(database: AppDatabase) {
+  // No-op: kmp-inspector-room does not support Room 3 (androidx.room3) yet
+}
