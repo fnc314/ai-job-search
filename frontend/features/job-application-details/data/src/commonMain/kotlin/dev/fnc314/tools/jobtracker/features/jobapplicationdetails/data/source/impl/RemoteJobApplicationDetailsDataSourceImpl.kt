@@ -266,7 +266,9 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     getString(key)?.takeIf { it.isNotBlank() }
 
   private fun mapRecordToTrackerEvent(record: RemoteRecord): TrackerEvent {
-    val createdAtRaw = record.fields["createdAt"]
+    // Firestore event documents use "ts" (write timestamp) and "date" (event date),
+    // not "createdAt" — see tracker.schema.json $defs.event properties.
+    val createdAtRaw = record.fields["ts"] ?: record.fields["date"]
     val createdAt = InstantParser.parse(createdAtRaw)
     val scheduledAtRaw = record.fields["scheduledAt"]
     val scheduledAt = if (scheduledAtRaw != null) {
