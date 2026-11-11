@@ -257,7 +257,30 @@ Add DEPRECATED or ARCHIVED docstrings to all remaining Python scripts so their s
 - DEPRECATED (retained as Python): `sheets.py`, `gmail_fetch.py`, `backup_firestore.py`, `restore_firestore.py`, `security_guards.py`, `setup.py`, `lint_skills.py`, `generate_report.py`, `salary_lookup.py`, `convert_salary_excel.py`, `mock_data.py`, `sync_local_artifacts.py`, `check_framework_version.py`, `check_upstream_updates.py`, `scrape.py`, `apply.py` ✓
 - ARCHIVED (one-time ops): `importer.py`, `migrate_gcs.py`, `purge_gcs_legacy.py`, `reconcile_submissions.py`, `_guard.py` ✓
 
-### ✓ Step 6: Phase 6: Mise Task Conversion Assessment
-Assess `.config/mise/tasks/*.py` files for conversion to shell wrappers or Kotlin JAR invocations.
-- Most mise tasks are thin wrappers around Python scripts — will become shell wrappers invoking Kotlin JARs
-- Phase 7 and 8 (final cleanup) remain as future work: removing Python toolchain from mise.toml, deleting deprecated scripts, updating ROADMAP.md
+### ✓ Step 6: Phase 6: Mise Task Conversion (Partial)
+Converted mise tasks with Kotlin CLI equivalents from Python to shell wrappers:
+- `tracker/check.py` → `tracker/check.sh` (invokes Kotlin `tracker check`) ✓
+- `tracker/add.py` → `tracker/add.sh` ✓
+- `tracker/list.py` → `tracker/list.sh` ✓
+- `tracker/get.py` → `tracker/get.sh` ✓
+- `tracker/status.py` → `tracker/status.sh` ✓
+- `tracker/score.py` → `tracker/score.sh` ✓
+- `tracker/event.py` → `tracker/event.sh` ✓
+- `tracker/align.py` → `tracker/align.sh` ✓
+- `tracker/seed.py` → `tracker/seed.sh` ✓
+- `tracker/default.py` → `tracker/default.sh` (alias `tracker`) ✓
+- `search/rank.py` → `search/rank.sh` (alias `rank`) ✓
+
+Remaining Python mise tasks (no Kotlin equivalent yet):
+- `tracker/bulk.py`, `tracker/edit.py`, `tracker/export.py`, `tracker/import.py`, `tracker/labels.py`, `tracker/lead.py`, `tracker/mock-clear.py`, `tracker/proposals.py`, `tracker/sheet.py`, `tracker/sync-due.py`, `tracker/upsert.py`
+- `proposals/*` — proposal management (Python tracker.py subcommand)
+- `email/*` — Composio CLI wrapper
+- `salary/*` — salary lookup utilities
+- `search/scrape.py`, `search/apply.py`, `search/migrate.py` — deferred orchestrators
+- `admin/*` — backup, restore, setup
+- `artifacts/*` — GCS operations
+- `dev/*` — test, guards, verify-pdf, check-upstream
+- `ui/web/*` — report and server
+- `roadmap/status.py` — roadmap status
+
+Phase 7 and 8 (final cleanup) remain: removing Python toolchain from mise.toml, deleting deprecated scripts, updating ROADMAP.md
