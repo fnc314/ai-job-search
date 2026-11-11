@@ -257,7 +257,7 @@ Add DEPRECATED or ARCHIVED docstrings to all remaining Python scripts so their s
 - DEPRECATED (retained as Python): `sheets.py`, `gmail_fetch.py`, `backup_firestore.py`, `restore_firestore.py`, `security_guards.py`, `setup.py`, `lint_skills.py`, `generate_report.py`, `salary_lookup.py`, `convert_salary_excel.py`, `mock_data.py`, `sync_local_artifacts.py`, `check_framework_version.py`, `check_upstream_updates.py`, `scrape.py`, `apply.py` ✓
 - ARCHIVED (one-time ops): `importer.py`, `migrate_gcs.py`, `purge_gcs_legacy.py`, `reconcile_submissions.py`, `_guard.py` ✓
 
-### ✓ Step 6: Phase 6: Mise Task Conversion (Partial)
+### ✓ Step 6: Phase 6: Mise Task Conversion (Partial) - Completed
 Converted mise tasks with Kotlin CLI equivalents from Python to shell wrappers:
 - `tracker/check.py` → `tracker/check.sh` (invokes Kotlin `tracker check`) ✓
 - `tracker/add.py` → `tracker/add.sh` ✓
@@ -283,4 +283,26 @@ Remaining Python mise tasks (no Kotlin equivalent yet):
 - `ui/web/*` — report and server
 - `roadmap/status.py` — roadmap status
 
-Phase 7 and 8 (final cleanup) remain: removing Python toolchain from mise.toml, deleting deprecated scripts, updating ROADMAP.md
+### ✓ Step 7: Phase 7: Mise Task Conversion (Partial)
+Converted 2 Python mise tasks to pure shell wrappers:
+- `dev/test.py` → `dev/test.sh` (runs Gradle tests instead of Python unittests) ✓
+- `ui/web/server.py` → `ui/web/server.sh` (runs Gradle wasm server) ✓
+
+Remaining 36 Python mise tasks must stay as Python — they all delegate to Python scripts without Kotlin equivalents:
+- `tracker/bulk.py`, `edit.py`, `export.py`, `import.py`, `labels.py`, `lead.py`, `mock-clear.py`, `proposals.py`, `sheet.py`, `sync-due.py`, `upsert.py` — delegate to `scripts/tracker.py`
+- `proposals/*` — proposal management via `scripts/tracker.py`
+- `email/*` — Composio CLI wrapper, needs Python for subprocess calls
+- `salary/*` — salary lookup via Python scripts
+- `search/scrape.py`, `apply.py`, `migrate.py` — deferred orchestrators
+- `artifacts/*` — GCS operations via Python scripts
+- `admin/backup.py`, `restore.py`, `setup.py` — delegate to Python scripts
+- `dev/guards.py`, `verify-pdf.py`, `check-upstream.py` — standalone Python scripts
+- `ui/web/report.py` — delegates to `scripts/generate_report.py`
+- `roadmap/status.py` — standalone Python script
+
+### ! Step 8: Phase 8: Final Cleanup (Deferred)
+Cannot complete until all remaining Python scripts have Kotlin equivalents or are archived:
+- **Blocked by**: 36 Python mise tasks still need Python interpreter
+- **Blocked by**: `mise.toml` still needs `python = "3.15.2"` for remaining tasks
+- **Blocked by**: `PYTHONPATH` env var needed for remaining Python scripts
+- **Will do when ready**: Remove Python from `mise.toml`, delete deprecated scripts, update ROADMAP.md RM-001 to DONE
