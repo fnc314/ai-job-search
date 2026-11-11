@@ -1,6 +1,9 @@
 package dev.fnc314.tools.jobtracker.features.signin.ui
 
-import dev.fnc314.tools.jobtracker.core.navigation.FeatureNavigationHook
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey as PlatformNavKey
+import dev.fnc314.tools.jobtracker.app.core.LocalAppNavigator
+import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
 import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_sign_in_ui.generated.resources.sign_in_route_title
@@ -18,16 +21,15 @@ public data object SignInRoute : NavKey {
   override val titleRes: StringResource = Res.string.sign_in_route_title
 }
 
-/**
- * Navigation hook registering the [SignInRoute] entry in the navigation display.
- */
-public val signInNavHook: FeatureNavigationHook =
-  FeatureNavigationHook { scope, _ ->
+internal class SignInEntryRegistry : FeatureEntryRegistry {
+  override fun register(scope: EntryProviderScope<PlatformNavKey>) {
     scope.entry<SignInRoute> {
       val viewModel = koinViewModel<SignInViewModel>()
+      val navigator = LocalAppNavigator.current
       SignInScreen(
         viewModel = viewModel,
-        onSignInSuccess = {},
+        onSignInSuccess = navigator::login,
       )
     }
   }
+}

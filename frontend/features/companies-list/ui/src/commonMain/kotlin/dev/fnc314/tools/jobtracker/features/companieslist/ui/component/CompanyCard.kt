@@ -74,7 +74,7 @@ private val CHEVRON_ICON_SIZE = 28.dp
 @Composable
 public fun CompanyCard(
     model: CompanyCardUiModel,
-    onCompanyClick: (companyId: String, companyName: String, website: String?) -> Unit,
+    onCompanyClick: (companyId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val windowSizeClass = LocalWindowSizeClass.current
@@ -98,7 +98,7 @@ public fun CompanyCard(
 @Composable
 private fun CompactCompanyCard(
     model: CompanyCardUiModel,
-    onCompanyClick: (companyId: String, companyName: String, website: String?) -> Unit,
+    onCompanyClick: (companyId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var isExpanded by remember { mutableStateOf(model.isExpanded) }
@@ -252,7 +252,7 @@ private fun CompactCompanyCard(
                     }
 
                     Button(
-                        onClick = { onCompanyClick(model.id, model.name, model.website) },
+                        onClick = { onCompanyClick(model.id) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.small,
                     ) {
@@ -267,7 +267,7 @@ private fun CompactCompanyCard(
 @Composable
 private fun WideCompanyCard(
     model: CompanyCardUiModel,
-    onCompanyClick: (companyId: String, companyName: String, website: String?) -> Unit,
+    onCompanyClick: (companyId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val contentDesc = stringResource(
@@ -279,7 +279,7 @@ private fun WideCompanyCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onCompanyClick(model.id, model.name, model.website) }
+            .clickable { onCompanyClick(model.id) }
             .semantics { contentDescription = contentDesc },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = MaterialTheme.shapes.medium,

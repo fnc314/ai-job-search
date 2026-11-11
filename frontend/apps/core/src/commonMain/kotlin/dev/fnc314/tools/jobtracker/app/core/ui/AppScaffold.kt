@@ -36,17 +36,20 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import dev.fnc314.tools.jobtracker.app.core.LocalAppNavigator
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
+import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import dev.fnc314.tools.jobtracker.core.navigation.Navigator
-import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestination
-import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddApplicationRoute
-import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadRoute
-import dev.fnc314.tools.jobtracker.features.companieslist.ui.CompaniesListRoute
-import dev.fnc314.tools.jobtracker.features.companydetails.ui.CompanyDetailsRoute
-import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.DetailRoute
-import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.ListRoute
-import dev.fnc314.tools.jobtracker.features.settings.ui.SettingsRoute
-import dev.fnc314.tools.jobtracker.features.trackeredits.ui.EditsRoute
+import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestinationEnum
+import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddApplicationRoute
+import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddLeadRoute
+import dev.fnc314.tools.jobtracker.features.companieslist.ui.JobApplicationCompaniesRoute
+import dev.fnc314.tools.jobtracker.features.companydetails.ui.JobApplicationCompanyDetailsRoute
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.JobApplicationDetailRoute
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationListRoute
+import dev.fnc314.tools.jobtracker.features.settings.ui.JobApplicationSettingsRoute
+import dev.fnc314.tools.jobtracker.features.trackeredits.ui.JobApplicationEditsRoute
 import fnc314jobsearchtracker.apps_core.generated.resources.Res
 import fnc314jobsearchtracker.apps_core.generated.resources.app_action_back
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_applications
@@ -58,6 +61,38 @@ import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_edits_cd
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_settings_cd
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+
+/**
+ * Data class carrying all UI metadata for a top-level destination.
+ */
+private data class TopLevelDestinationInfo(
+    val enumValue: TopLevelDestinationEnum,
+    val route: NavKey,
+    val labelRes: StringResource,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+    val contentDescriptionRes: StringResource,
+)
+
+/**
+ * Resolves the current [TopLevelDestinationEnum] from the active destination on the back stack.
+ */
+private fun resolveTopLevelDestination(currentDestination: NavKey?): TopLevelDestinationEnum? =
+    when {
+        currentDestination == JobApplicationListRoute -> TopLevelDestinationEnum.Applications
+        currentDestination == JobApplicationCompaniesRoute -> TopLevelDestinationEnum.Companies
+        currentDestination == JobApplicationEditsRoute -> TopLevelDestinationEnum.Edits
+        currentDestination == JobApplicationSettingsRoute -> TopLevelDestinationEnum.Settings
+        else -> null
+    }
+
+/**
+ * Returns true if the destination is a top-level bottom-nav target.
+ */
+private fun isTopLevelDestination(key: NavKey?): Boolean =
+    key == JobApplicationListRoute ||
+        key == JobApplicationCompaniesRoute ||
+        key == JobApplicationEditsRoute
 
 /**
  * Responsive application scaffold adapting navigation chrome between mobile (bottom navigation bar)
@@ -80,52 +115,44 @@ public fun AppScaffold(
 ) {
   val windowSizeClass = LocalWindowSizeClass.current
   val isCompact = windowSizeClass.isCompact
+  val appNavigator = LocalAppNavigator.current
 
   val currentDestination = navigator.backStack.lastOrNull()
+  val currentTopLevel = resolveTopLevelDestination(currentDestination)
+  val showNav = isAuthenticated && isTopLevelDestination(currentDestination)
+  val canNavigateBack = navigator.backStack.size > 1 && !isTopLevelDestination(currentDestination)
 
-  val isListSelected = currentDestination is ListRoute
-  val isCompaniesSelected = currentDestination is CompaniesListRoute
-  val isEditsSelected = currentDestination is EditsRoute
-  val isSettingsSelected = currentDestination is SettingsRoute
-  val isDetailSelected = currentDestination is DetailRoute
-  val isCompanyDetailsSelected = currentDestination is CompanyDetailsRoute
-  val isAddAppSelected = currentDestination is AddApplicationRoute
-  val isAddLeadSelected = currentDestination is AddLeadRoute
-
-  val isTopLevelDestination = isListSelected || isCompaniesSelected || isEditsSelected
-  val showNav = isAuthenticated && isTopLevelDestination
-  val canNavigateBack = navigator.backStack.size > 1 && !isTopLevelDestination
-
+  // Title resolution: use NavKey.titleRes for all routes
   val titleText: String = when (currentDestination) {
-    is CompanyDetailsRoute -> currentDestination.companyName.ifBlank { stringResource(currentDestination.titleRes) }
-    is DetailRoute -> currentDestination.roleTitle.ifBlank { stringResource(currentDestination.titleRes) }
-    is ListRoute -> stringResource(ListRoute.titleRes)
-    is CompaniesListRoute -> stringResource(CompaniesListRoute.titleRes)
-    is AddApplicationRoute -> stringResource(AddApplicationRoute.titleRes)
-    is AddLeadRoute -> stringResource(AddLeadRoute.titleRes)
-    is EditsRoute -> stringResource(EditsRoute.titleRes)
-    is SettingsRoute -> stringResource(SettingsRoute.titleRes)
-    else -> stringResource(ListRoute.titleRes)
+    is JobApplicationCompanyDetailsRoute -> stringResource(currentDestination.titleRes)
+    is JobApplicationDetailRoute -> stringResource(currentDestination.titleRes)
+    is JobApplicationAddApplicationRoute -> stringResource(JobApplicationAddApplicationRoute.titleRes)
+    is JobApplicationAddLeadRoute -> stringResource(JobApplicationAddLeadRoute.titleRes)
+    else -> currentDestination?.let { stringResource(it.titleRes) }
+      ?: stringResource(JobApplicationListRoute.titleRes)
   }
 
   val topLevelDestinations = remember {
     listOf(
-      TopLevelDestination.from(
-        route = ListRoute,
+      TopLevelDestinationInfo(
+        enumValue = TopLevelDestinationEnum.Applications,
+        route = JobApplicationListRoute,
         labelRes = Res.string.app_nav_applications,
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home,
         contentDescriptionRes = Res.string.app_nav_applications_cd,
       ),
-      TopLevelDestination.from(
-        route = CompaniesListRoute,
+      TopLevelDestinationInfo(
+        enumValue = TopLevelDestinationEnum.Companies,
+        route = JobApplicationCompaniesRoute,
         labelRes = Res.string.app_nav_companies,
         selectedIcon = Icons.Filled.Business,
         unselectedIcon = Icons.Outlined.Business,
         contentDescriptionRes = Res.string.app_nav_companies_cd,
       ),
-      TopLevelDestination.from(
-        route = EditsRoute,
+      TopLevelDestinationInfo(
+        enumValue = TopLevelDestinationEnum.Edits,
+        route = JobApplicationEditsRoute,
         labelRes = Res.string.app_nav_edits,
         selectedIcon = Icons.Filled.Edit,
         unselectedIcon = Icons.Outlined.Edit,
@@ -147,7 +174,7 @@ public fun AppScaffold(
         },
         navigationIcon = {
           if (canNavigateBack) {
-            IconButton(onClick = { navigator.popBackStack() }) {
+            IconButton(onClick = { appNavigator.popBackStack() }) {
               Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(Res.string.app_action_back),
@@ -156,8 +183,8 @@ public fun AppScaffold(
           }
         },
         actions = {
-          if (isAuthenticated && isTopLevelDestination) {
-            IconButton(onClick = { navigator.navigate(SettingsRoute) }) {
+          if (isAuthenticated && showNav) {
+            IconButton(onClick = { appNavigator.navigateToSettings() }) {
               Icon(
                 imageVector = Icons.Filled.Settings,
                 contentDescription = stringResource(Res.string.app_nav_settings_cd),
@@ -175,21 +202,12 @@ public fun AppScaffold(
       if (isCompact && showNav) {
         NavigationBar {
           topLevelDestinations.forEach { destination ->
-            val selected = when (destination.route) {
-              is ListRoute -> isListSelected
-              is CompaniesListRoute -> isCompaniesSelected
-              is EditsRoute -> isEditsSelected
-              else -> false
-            }
+            val selected = currentTopLevel == destination.enumValue
             NavigationBarItem(
               selected = selected,
               onClick = {
                 if (!selected) {
-                  if (destination.route is ListRoute) {
-                    navigator.popToRoot()
-                  } else {
-                    navigator.navigate(destination.route)
-                  }
+                  appNavigator.navigateTo(destination.enumValue)
                 }
               },
               icon = {
@@ -217,21 +235,12 @@ public fun AppScaffold(
       ) {
         NavigationRail {
           topLevelDestinations.forEach { destination ->
-            val selected = when (destination.route) {
-              is ListRoute -> isListSelected
-              is CompaniesListRoute -> isCompaniesSelected
-              is EditsRoute -> isEditsSelected
-              else -> false
-            }
+            val selected = currentTopLevel == destination.enumValue
             NavigationRailItem(
               selected = selected,
               onClick = {
                 if (!selected) {
-                  if (destination.route is ListRoute) {
-                    navigator.popToRoot()
-                  } else {
-                    navigator.navigate(destination.route)
-                  }
+                  appNavigator.navigateTo(destination.enumValue)
                 }
               },
               icon = {

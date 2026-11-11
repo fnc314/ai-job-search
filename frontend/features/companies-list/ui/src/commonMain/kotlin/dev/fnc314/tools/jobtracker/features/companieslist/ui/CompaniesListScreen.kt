@@ -61,7 +61,7 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Composable
 public fun CompaniesListScreen(
-    onCompanyClick: (companyId: String, companyName: String, website: String?) -> Unit,
+    onCompanyClick: (companyId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CompaniesListViewModel = koinViewModel(),
 ) {
@@ -94,7 +94,7 @@ public fun CompaniesListScreen(
 internal fun CompaniesListContent(
     content: CompaniesListUiState.Content,
     onIntent: (CompaniesListUiIntent) -> Unit,
-    onCompanyClick: (companyId: String, companyName: String, website: String?) -> Unit,
+    onCompanyClick: (companyId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val windowSizeClass = LocalWindowSizeClass.current

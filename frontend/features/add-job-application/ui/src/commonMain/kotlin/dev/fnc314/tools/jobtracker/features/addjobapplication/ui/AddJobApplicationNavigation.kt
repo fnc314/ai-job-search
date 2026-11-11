@@ -1,6 +1,9 @@
 package dev.fnc314.tools.jobtracker.features.addjobapplication.ui
 
-import dev.fnc314.tools.jobtracker.core.navigation.FeatureNavigationHook
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey as PlatformNavKey
+import dev.fnc314.tools.jobtracker.app.core.LocalAppNavigator
+import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
 import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_route_title
@@ -13,7 +16,7 @@ import org.jetbrains.compose.resources.StringResource
  * Navigation destination route for creating a formal job application entry.
  */
 @Serializable
-public data object AddApplicationRoute : NavKey {
+public data object JobApplicationAddApplicationRoute : NavKey {
     @Transient
     override val titleRes: StringResource = Res.string.add_app_route_title
 }
@@ -22,28 +25,23 @@ public data object AddApplicationRoute : NavKey {
  * Navigation destination route for recording an early-stage prospective lead.
  */
 @Serializable
-public data object AddLeadRoute : NavKey {
+public data object JobApplicationAddLeadRoute : NavKey {
     @Transient
     override val titleRes: StringResource = Res.string.add_lead_route_title
 }
 
-/**
- * Creates the [FeatureNavigationHook] for the add application and add lead destinations.
- *
- * @param onNavigateBack Callback invoked when the user exits or finishes the creation flow.
- * @return Configured [FeatureNavigationHook] ready for graph registration.
- */
-public fun addJobApplicationNavHook(
-    onNavigateBack: () -> Unit,
-): FeatureNavigationHook = FeatureNavigationHook { scope, _ ->
-    scope.entry<AddApplicationRoute> {
-        AddJobApplicationScreen(
-            onNavigateBack = onNavigateBack,
-        )
-    }
-    scope.entry<AddLeadRoute> {
-        AddLeadScreen(
-            onNavigateBack = onNavigateBack,
-        )
+internal class AddJobApplicationEntryRegistry : FeatureEntryRegistry {
+    override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+        val navigator = LocalAppNavigator.current
+        scope.entry<JobApplicationAddApplicationRoute> {
+            AddJobApplicationScreen(
+                onNavigateBack = navigator::popBackStack,
+            )
+        }
+        scope.entry<JobApplicationAddLeadRoute> {
+            AddLeadScreen(
+                onNavigateBack = navigator::popBackStack,
+            )
+        }
     }
 }

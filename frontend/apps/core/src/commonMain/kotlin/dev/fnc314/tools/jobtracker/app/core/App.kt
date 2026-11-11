@@ -19,6 +19,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import dev.fnc314.tools.jobtracker.app.core.di.MainApplication
 import dev.fnc314.tools.jobtracker.app.core.di.appModule
+import dev.fnc314.tools.jobtracker.app.core.impl.AppNavigatorImpl
 import dev.fnc314.tools.jobtracker.app.core.ui.AppScaffold
 import dev.fnc314.tools.jobtracker.core.data.model.AuthState
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository
@@ -27,27 +28,20 @@ import dev.fnc314.tools.jobtracker.core.designsystem.ProvideWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.core.designsystem.toColorOrNull
 import dev.fnc314.tools.jobtracker.core.widgets.ProvideImageLoader
+import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
 import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import dev.fnc314.tools.jobtracker.core.navigation.Navigator
-import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
-import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddApplicationRoute
-import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddLeadRoute
-import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.addJobApplicationNavHook
-import dev.fnc314.tools.jobtracker.features.companieslist.ui.CompaniesListRoute
-import dev.fnc314.tools.jobtracker.features.companieslist.ui.companiesListNavHook
-import dev.fnc314.tools.jobtracker.features.companydetails.ui.CompanyDetailsRoute
-import dev.fnc314.tools.jobtracker.features.companydetails.ui.companyDetailsNavHook
-import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.DetailRoute
-import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.jobApplicationDetailsNavHook
-import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.ListRoute
-import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.jobApplicationsListNavHook
-import dev.fnc314.tools.jobtracker.features.settings.ui.SettingsRoute
-import dev.fnc314.tools.jobtracker.features.settings.ui.settingsNavHook
+import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestinationEnum
+import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddApplicationRoute
+import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddLeadRoute
+import dev.fnc314.tools.jobtracker.features.companieslist.ui.JobApplicationCompaniesRoute
+import dev.fnc314.tools.jobtracker.features.companydetails.ui.JobApplicationCompanyDetailsRoute
+import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.JobApplicationDetailRoute
+import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationListRoute
+import dev.fnc314.tools.jobtracker.features.settings.ui.JobApplicationSettingsRoute
 import dev.fnc314.tools.jobtracker.features.signin.data.repository.AuthRepository
 import dev.fnc314.tools.jobtracker.features.signin.ui.SignInRoute
-import dev.fnc314.tools.jobtracker.features.signin.ui.signInNavHook
-import dev.fnc314.tools.jobtracker.features.trackeredits.ui.EditsRoute
-import dev.fnc314.tools.jobtracker.features.trackeredits.ui.trackerEditsNavHook
+import dev.fnc314.tools.jobtracker.features.trackeredits.ui.JobApplicationEditsRoute
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
@@ -59,14 +53,14 @@ private val navigationSavedStateConfig = SavedStateConfiguration {
   serializersModule = SerializersModule {
     polymorphic(androidx.navigation3.runtime.NavKey::class) {
       subclass(SignInRoute::class, SignInRoute.serializer())
-      subclass(ListRoute::class, ListRoute.serializer())
-      subclass(CompaniesListRoute::class, CompaniesListRoute.serializer())
-      subclass(CompanyDetailsRoute::class, CompanyDetailsRoute.serializer())
-      subclass(DetailRoute::class, DetailRoute.serializer())
-      subclass(AddApplicationRoute::class, AddApplicationRoute.serializer())
-      subclass(AddLeadRoute::class, AddLeadRoute.serializer())
-      subclass(SettingsRoute::class, SettingsRoute.serializer())
-      subclass(EditsRoute::class, EditsRoute.serializer())
+      subclass(JobApplicationListRoute::class, JobApplicationListRoute.serializer())
+      subclass(JobApplicationCompaniesRoute::class, JobApplicationCompaniesRoute.serializer())
+      subclass(JobApplicationCompanyDetailsRoute::class, JobApplicationCompanyDetailsRoute.serializer())
+      subclass(JobApplicationDetailRoute::class, JobApplicationDetailRoute.serializer())
+      subclass(JobApplicationAddApplicationRoute::class, JobApplicationAddApplicationRoute.serializer())
+      subclass(JobApplicationAddLeadRoute::class, JobApplicationAddLeadRoute.serializer())
+      subclass(JobApplicationSettingsRoute::class, JobApplicationSettingsRoute.serializer())
+      subclass(JobApplicationEditsRoute::class, JobApplicationEditsRoute.serializer())
     }
   }
 }
@@ -108,17 +102,34 @@ public fun App() {
     val authState by authRepository.authState.collectAsState()
     val isAuthenticated = authState is AuthState.Authenticated
 
-    val initialRoute: NavKey = if (isAuthenticated) ListRoute else SignInRoute
+    val initialRoute: NavKey = if (isAuthenticated) JobApplicationListRoute else SignInRoute
     val backStack = rememberNavBackStack(navigationSavedStateConfig, initialRoute)
     val navigator = remember(backStack) { Navigator(backStack) }
+
+    // Route resolver maps TopLevelDestinationEnum to actual NavKey instances
+    val routeResolver: (TopLevelDestinationEnum) -> NavKey = { dest ->
+      when (dest) {
+        TopLevelDestinationEnum.Applications -> JobApplicationListRoute
+        TopLevelDestinationEnum.Companies -> JobApplicationCompaniesRoute
+        TopLevelDestinationEnum.Edits -> JobApplicationEditsRoute
+        TopLevelDestinationEnum.Settings -> JobApplicationSettingsRoute
+      }
+    }
+    val appNavigator = remember(navigator) {
+      AppNavigatorImpl(navigator, routeResolver)
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Collect all feature entry registries from Koin
+    val entryRegistries = koinInject<List<FeatureEntryRegistry>>()
 
     // React to authentication changes
     LaunchedEffect(isAuthenticated) {
       if (isAuthenticated) {
-        navigator.switchRoot(ListRoute)
+        appNavigator.login()
       } else {
-        navigator.switchRoot(SignInRoute)
+        appNavigator.logout()
       }
     }
 
@@ -128,87 +139,34 @@ public fun App() {
     ) {
       ProvideImageLoader {
         ProvideWindowSizeClass {
-        val appContent: @Composable () -> Unit = {
-          Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
-          ) {
-            AppScaffold(
-              navigator = navigator,
-              isAuthenticated = isAuthenticated,
-              snackbarHostState = snackbarHostState,
-            ) { _ ->
-              NavDisplay(
-                backStack = navigator.backStack,
-                onBack = { navigator.popBackStack() },
-                entryProvider = entryProvider {
-                  signInNavHook(this, navigator)
-
-                  jobApplicationsListNavHook(
-                    onApplicationClick = { id -> navigator.navigate(DetailRoute(id)) },
-                    onAddApplicationClick = { navigator.navigate(AddApplicationRoute) },
-                    onAddLeadClick = { navigator.navigate(AddLeadRoute) },
-                    onEditsClick = { navigator.navigate(EditsRoute) },
-                    onSettingsClick = { navigator.navigate(SettingsRoute) },
-                    settings = settings,
-                    onSettingsChange = { settingsRepository.updateSettings(it) },
-                  )(this, navigator)
-
-                  companiesListNavHook(
-                    onCompanyClick = { id, name, website ->
-                      navigator.navigate(
-                        CompanyDetailsRoute(
-                          companyId = id,
-                          companyName = name,
-                          website = website,
-                        ),
-                      )
-                    },
-                  )(this, navigator)
-
-                  companyDetailsNavHook(
-                    onNavigateBack = { navigator.popBackStack() },
-                    onNavigateToApplication = { id ->
-                      navigator.navigate(DetailRoute(applicationId = id))
-                    },
-                    onOpenUrl = { url -> PlatformFileOpener().openUrl(url) },
-                  )(this, navigator)
-
-                  jobApplicationDetailsNavHook(
-                    settings = settings,
-                    onNavigateBack = { navigator.popBackStack() },
-                  )(this, navigator)
-
-                  addJobApplicationNavHook(
-                    onNavigateBack = { navigator.popBackStack() },
-                  )(this, navigator)
-
-                  trackerEditsNavHook(
-                    onNavigateBack = { navigator.popBackStack() },
-                    onEditClick = { appId -> navigator.navigate(DetailRoute(appId)) },
-                    settings = settings,
-                    onSettingsChange = { settingsRepository.updateSettings(it) },
-                  )(this, navigator)
-
-                  settingsNavHook(
-                    settings = settings,
-                    onSettingsChange = { settingsRepository.updateSettings(it) },
-                    onNavigateBack = { navigator.popBackStack() },
-                    onSignOut = {
-                      navigator.switchRoot(SignInRoute)
-                    },
-                  )(this, navigator)
-                },
+          ProvideAppNavigator(appNavigator) {
+            val appContent: @Composable () -> Unit = {
+              Surface(
                 modifier = Modifier.fillMaxSize(),
-              )
+                color = MaterialTheme.colorScheme.background,
+              ) {
+                AppScaffold(
+                  navigator = navigator,
+                  isAuthenticated = isAuthenticated,
+                  snackbarHostState = snackbarHostState,
+                ) { _ ->
+                  NavDisplay(
+                    backStack = navigator.backStack,
+                    onBack = { appNavigator.popBackStack() },
+                    entryProvider = entryProvider {
+                      entryRegistries.forEach { it.register(this) }
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                  )
+                }
+              }
             }
-          }
-        }
 
-        LaunchedEffect(settings.enableKmpInspector) {
-          setInspectorEnabled(settings.enableKmpInspector)
-        }
-        KmpInspector(enabled = settings.enableKmpInspector, content = appContent)
+            LaunchedEffect(settings.enableKmpInspector) {
+              setInspectorEnabled(settings.enableKmpInspector)
+            }
+            KmpInspector(enabled = settings.enableKmpInspector, content = appContent)
+          }
         }
       }
     }
