@@ -1,0 +1,11 @@
+package dev.fnc314.tools.jobtracker.core.navigation
+
+import androidx.navigation3.runtime.NavKey as AndroidxNavKey
+import org.jetbrains.compose.resources.StringResource
+
+/**
+ * App-wide route contract extending Navigation 3 JobApplicationsTrackerNavKey for destination routes.
+ */
+public interface JobApplicationsTrackerNavKey : AndroidxNavKey {
+    public val titleRes: StringResource
+}

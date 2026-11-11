@@ -5,12 +5,20 @@
   bun = "1.4.4"
   usage = { version = "7.3.0", workflow = "publish-cli.yml" }
   gradle = "9.9.1"
-  java = "27.0.1+1"
+  java = "26.0.2+101"
   node = "26.13.0"
 
 [env]
   WORKSPACE_ROOT = "{{config_root}}"
-  _ = { file = ".env.local", python = { venv = { path = ".venv", create = false } } }
+  _ = {
+    file = ".env.local",
+    python = {
+      venv = {
+        path = ".venv",
+        create = false
+      }
+    }
+  }
   PYTHONPATH = "{{config_root}}/lib:{{config_root}}/scripts:{{config_root}}"
   TRACKER_ALLOW_WRITES = "1"
   TRACKER_SOURCE = "store"
@@ -21,6 +29,3 @@
   ANDROID_USER_HOME = "/Users/fnc314/.android"
   ANDROID_HOME = "/Users/fnc314/.android/sdk"
   JAVA_HOME = "/Users/fnc314/.local/share/mise/installs/java/26.0.2+101/Contents/Home"
-
-[hooks]
-  # cd = "bash scripts/cleanup-tui-logs.sh"
