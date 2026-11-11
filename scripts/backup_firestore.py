@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""
+"""DEPRECATED: Firestore backup — retained as Python, simple utility.
+
 Full offline backup utility for Firestore job-tracker database.
 Dumps all collections and subcollections to a structured JSON file
 with document counts and verification checksums.

@@ -248,5 +248,16 @@ Migrated core domain logic from infrastructure scripts to Kotlin:
 - SKIP `security_guards.py` — shell replacement sufficient
 - SKIP `setup.py` — environment setup, can stay as Python
 - SKIP `generate_report.py` — HTML generation, can stay as Python
-- Archive one-time scripts: `importer.py`, `migrate_gcs.py`, `purge_gcs_legacy.py`
-- Archive `_guard.py` (no longer needed without Python)
+- Archive one-time scripts: `importer.py`, `migrate_gcs.py`, `purge_gcs_legacy.py` ✓
+- Archive `_guard.py` (no longer needed without Python) ✓
+
+### ✓ Step 5: Phase 5: Deprecation Markers for All Python Scripts
+Add DEPRECATED or ARCHIVED docstrings to all remaining Python scripts so their status is clear:
+- DEPRECATED with Kotlin equivalent: `contract.py`, `events.py`, `fit_evaluator.py`, `rank.py`, `proposals.py`, `artifacts.py`, `cache.py`, `alignment.py`, `reader.py`, `tasks.py`, `client.py`, `tracker.py` ✓
+- DEPRECATED (retained as Python): `sheets.py`, `gmail_fetch.py`, `backup_firestore.py`, `restore_firestore.py`, `security_guards.py`, `setup.py`, `lint_skills.py`, `generate_report.py`, `salary_lookup.py`, `convert_salary_excel.py`, `mock_data.py`, `sync_local_artifacts.py`, `check_framework_version.py`, `check_upstream_updates.py`, `scrape.py`, `apply.py` ✓
+- ARCHIVED (one-time ops): `importer.py`, `migrate_gcs.py`, `purge_gcs_legacy.py`, `reconcile_submissions.py`, `_guard.py` ✓
+
+### ✓ Step 6: Phase 6: Mise Task Conversion Assessment
+Assess `.config/mise/tasks/*.py` files for conversion to shell wrappers or Kotlin JAR invocations.
+- Most mise tasks are thin wrappers around Python scripts — will become shell wrappers invoking Kotlin JARs
+- Phase 7 and 8 (final cleanup) remain as future work: removing Python toolchain from mise.toml, deleting deprecated scripts, updating ROADMAP.md

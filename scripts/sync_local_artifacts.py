@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Sync local job-applications files into Firestore artifact subcollections.
+"""DEPRECATED: Local artifacts sync — retained as Python, simple utility.
+
+Sync local job-applications files into Firestore artifact subcollections.
 
 Scans job-applications/ for PDF, MD, and TXT files, matches them to Firestore
 application documents, and writes/updates the applications/{id}/artifacts

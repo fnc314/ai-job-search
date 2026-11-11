@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""scrape.py — Run portal CLI searches and collect job listings.
+"""DEPRECATED: Job portal scraping orchestrator — deferred, spawns external Bun/TypeScript CLIs.
+
+scrape.py — Run portal CLI searches and collect job listings.
 
 Discovers enabled portal skills under .agents/skills/, runs each with the
 configured search queries, deduplicates against seen_jobs.json and the

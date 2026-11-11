@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""
+"""DEPRECATED: Firestore restore — retained as Python, simple utility.
+
 Full offline restore utility for Firestore job-tracker database.
 Restores all collections and subcollections from a backup JSON file,
 reverting database state exactly.

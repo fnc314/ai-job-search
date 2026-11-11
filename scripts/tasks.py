@@ -1,4 +1,7 @@
-"""Deferred collection requests: a local stand-in for Cloud Tasks.
+"""DEPRECATED: As part of RM-001, task enqueueing logic has moved to Kotlin.
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+Deferred collection requests: a local stand-in for Cloud Tasks.
 
 Writes enqueue "collect Gmail in a couple of hours" instead of running a fetch
 inline. The reasons are practical: a rejection confirmation does not arrive in

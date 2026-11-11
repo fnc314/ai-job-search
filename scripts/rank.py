@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""rank.py — Lightweight single-job fit evaluation CLI.
+"""DEPRECATED: As part of RM-001, ranking logic has moved to Kotlin
+records/parser (RankScorer) and frontend/apps/cli (RankCommand).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+rank.py — Lightweight single-job fit evaluation CLI.
 
 Accepts a required URL or JD argument, evaluates fit against the candidate
 profile, and outputs a markdown summary (default) or JSON (--json).

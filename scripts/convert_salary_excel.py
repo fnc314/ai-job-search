@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""
+"""DEPRECATED: Excel to JSON converter — retained as Python, needs Apache POI for Kotlin.
+
 Convert salary data from Excel to JSON format.
 
 This script converts an Excel file containing company salary data

@@ -1,4 +1,8 @@
-"""Artifact metadata and blob storage.
+"""DEPRECATED: As part of RM-001, artifact metadata logic has moved to Kotlin
+records/parser (ArtifactUtils).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+Artifact metadata and blob storage.
 
 Two things live here and nowhere else:
 

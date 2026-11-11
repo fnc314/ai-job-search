@@ -1,4 +1,8 @@
-"""Connection layer for the tracker store.
+"""DEPRECATED: As part of RM-001, Firestore/Storage client initialization has moved to Kotlin
+frontend/core/data (RemoteDataSource, RemotePlatform).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+Connection layer for the tracker store.
 
 Nothing else in the repo instantiates a Firestore or Storage client. Keeping
 that in one module is what makes the "single write path" invariant enforceable:

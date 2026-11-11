@@ -1,4 +1,8 @@
-"""The proposal queue: collector output that a human must approve.
+"""DEPRECATED: As part of RM-001, proposal classification logic has moved to Kotlin
+records/parser (ProposalClassifier).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+The proposal queue: collector output that a human must approve.
 
 The split exists because a cron job has no approver. `collect` may write this
 collection and `meta/sync` and nothing else. Only `approve` reads a proposal and

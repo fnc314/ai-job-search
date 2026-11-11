@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Generate a full, fake tracker snapshot with the shape of a real one.
+"""DEPRECATED: Mock data generation — retained as Python, simple utility.
+
+Generate a full, fake tracker snapshot with the shape of a real one.
 
 The goal is that a fresh setup looks like a long-used tracker: dozens of
 applications across a year, every status and channel represented, salary and

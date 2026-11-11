@@ -1,3 +1,4 @@
+# DEPRECATED: HTML report generator — retained as Python, simple utility.
 import html
 import os
 import sys

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""One-shot migration: upload local artifacts to GCS and backfill Firestore.
+"""ARCHIVED: One-time GCS migration, already completed. No Kotlin migration needed.
+
+One-shot migration: upload local artifacts to GCS and backfill Firestore.
 
 Scans job-applications/ for existing artifact files, uploads them to
 GCS at applications/{company}/{role}/{YYYY-MM-DD}/{filename}, and backfills

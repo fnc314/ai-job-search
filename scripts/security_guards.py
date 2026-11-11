@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Supply-chain guards for the template's riskiest surfaces.
+"""DEPRECATED: Supply chain security — retained as Python, shell replacement sufficient.
+
+Supply-chain guards for the template's riskiest surfaces.
 
 Run from anywhere: python scripts/security_guards.py
 

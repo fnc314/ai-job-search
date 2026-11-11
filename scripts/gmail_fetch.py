@@ -1,4 +1,6 @@
-"""Fetch Gmail into the payload tracker.py collect consumes.
+"""DEPRECATED: Email fetch — Composio CLI subprocess wrapper, no Kotlin migration needed.
+
+Fetch Gmail into the payload tracker.py collect consumes.
 
 This is the deterministic half of /gmail-sync, extracted so a scheduler can
 run it without an agent. It talks to the same Composio Gmail tools the manual

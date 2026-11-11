@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""apply.py — CLI entry point for the apply workflow.
+"""DEPRECATED: Application generation orchestrator — deferred, manages CV + cover letter generation.
+
+apply.py — CLI entry point for the apply workflow.
 
 With a URL/JD argument: checks the tracker for existing records and prints
 guidance to run the /apply Claude command for the full agent-driven workflow.

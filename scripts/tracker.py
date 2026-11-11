@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""The single write path for the job search tracker.
+"""DEPRECATED: As part of RM-001, tracker CLI has moved to Kotlin
+frontend/apps/cli (Main.kt with subcommands).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+The single write path for the job search tracker.
 
 Every mutation of the record goes through this command. TUI, dashboard, reports,
 and the Gmail collector all call into the same modules, so there is exactly one

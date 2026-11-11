@@ -1,4 +1,8 @@
-"""One read interface for the two existing consumers.
+"""DEPRECATED: As part of RM-001, Firestore read operations have moved to Kotlin
+frontend/core/data (RemoteDataSource, FirestoreProvider).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+One read interface for the two existing consumers.
 
 `ui/terminal/tracker_tui.py` and `scripts/generate_report.py` were written against
 CSV rows: a flat dict of strings. They are the only readers that matter, and they

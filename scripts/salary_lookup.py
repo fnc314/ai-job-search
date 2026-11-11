@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""
+"""DEPRECATED: Salary benchmark lookup — retained as Python, simple utility.
+
 Salary Benchmark Lookup Tool
 
 Looks up company salary data from a user-provided dataset.

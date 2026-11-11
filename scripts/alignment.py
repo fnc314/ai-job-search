@@ -1,4 +1,8 @@
-"""Repeatable alignment protocol for job search tracker records.
+"""DEPRECATED: As part of RM-001, alignment logic has moved to Kotlin
+frontend/apps/cli (AlignCommand) which uses records/parser domain logic.
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+Repeatable alignment protocol for job search tracker records.
 
 Aligns entries in Firebase to canonical document IDs, recalculates fit,
 and updates running documentation (including outcome.md and cache).

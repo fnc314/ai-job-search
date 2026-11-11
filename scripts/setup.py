@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Interactive minimum setup for the Firestore-backed job tracker.
+"""DEPRECATED: Environment setup — retained as Python, simple utility.
+
+Interactive minimum setup for the Firestore-backed job tracker.
 
 This script deliberately provisions nothing by itself.  It validates a prepared
 environment, seeds the schema only after confirmation, and can then populate

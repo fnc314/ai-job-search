@@ -1,4 +1,8 @@
-"""Evaluates job application fit against the candidate profile and evaluation framework.
+"""DEPRECATED: As part of RM-001, fit evaluation logic has moved to Kotlin
+records/parser (FitEvaluator).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+Evaluates job application fit against the candidate profile and evaluation framework.
 
 Grounded in:
 - .agents/skills/job-application-assistant/01-candidate-profile.md

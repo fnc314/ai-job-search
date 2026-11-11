@@ -1,4 +1,6 @@
-"""Runtime guard enforcing Mise-only invocation.
+"""ARCHIVED: Mise-only enforcement guard. No longer needed as Python is removed from the project.
+
+Runtime guard enforcing Mise-only invocation.
 
 Any direct execution of Python binaries (python, python3, .venv/bin/python)
 outside of a running Mise task will be halted with exit code 1.

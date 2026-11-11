@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Lint the repo's skill, command, and settings files.
+"""DEPRECATED: Agent skills linter — retained as Python, simple utility.
+
+Lint the repo's skill, command, and settings files.
 
 Run from anywhere: python scripts/lint_skills.py
 

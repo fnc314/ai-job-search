@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Database reconciliation and cryptographic hash-chain backfill.
+"""ARCHIVED: One-time data reconciliation, already completed. No Kotlin migration needed.
+
+Database reconciliation and cryptographic hash-chain backfill.
 
 1. Backfills sequenceNumber, prevEventHash, and eventHash across all historical events in Firestore.
 2. Synchronizes on-disk applications from job-applications/ that were completed but missing from Firestore:

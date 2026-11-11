@@ -1,4 +1,6 @@
-"""One-shot import of the legacy CSV into the tracker contract.
+"""ARCHIVED: One-time CSV import, already completed. No Kotlin migration needed.
+
+One-shot import of the legacy CSV into the tracker contract.
 
 The importer is the only code in the repo that reads the CSV, and only when it is
 pointed at `archive/job_search_tracker.csv` for a re-import or a rollback check

@@ -1,4 +1,8 @@
-"""Local read cache.
+"""DEPRECATED: As part of RM-001, cache logic has moved to Kotlin
+records/parser (CacheUtils).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+Local read cache.
 
 Firestore is authoritative; this file is a convenience for an offline reader
 and for a UI that must render before the network answers. It is regenerated at

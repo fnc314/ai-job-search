@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Purge legacy GCS artifacts and migrate orphans to the canonical path structure.
+"""ARCHIVED: One-time GCS cleanup, already completed. No Kotlin migration needed.
+
+Purge legacy GCS artifacts and migrate orphans to the canonical path structure.
 
 The GCS bucket contains 62 objects using the old flat path format
 `applications/{id}/{kind}/{filename}`. This script handles them in three ways:

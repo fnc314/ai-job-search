@@ -1,4 +1,6 @@
-"""The Google Sheets view.
+"""DEPRECATED: Google Sheets sync — retained as Python, needs separate Kotlin Sheets library.
+
+The Google Sheets view.
 
 The Sheet is a projection, never a source. Every sync replaces all three tabs
 wholesale: a full replace is the only way to guarantee that a deleted or

@@ -1,4 +1,8 @@
-"""Append-only event history.
+"""DEPRECATED: As part of RM-001, event building logic has moved to Kotlin
+records/parser (EventBuilder, EventChainBuilder, EventChainVerifier).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+Append-only event history.
 
 Notes are discouraged because prose is unqueryable and lossy. The replacement is
 one immutable event per thing that happened. Nothing in this module edits or

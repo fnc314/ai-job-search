@@ -1,4 +1,8 @@
-"""The contract: one loader, one validator, one set of derived-field rules.
+"""DEPRECATED: As part of RM-001, contract logic has moved to Kotlin
+records/parser (DocumentIdGenerator, UuidGenerator).
+This module is in Phase 1 of retirement and will be removed in Phase 3.
+
+The contract: one loader, one validator, one set of derived-field rules.
 
 `tracker.schema.json` is the single source of truth for field shapes and enum
 values. This module is the only place that reads it, so an enum can never be

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Check for framework updates in the upstream repository.
+"""DEPRECATED: Upstream update check — retained as Python, simple shell replacement.
+
+Check for framework updates in the upstream repository.
 
 Usage: python scripts/check_upstream_updates.py [--remote <remote-name>] [--branch <branch-name>]
 
