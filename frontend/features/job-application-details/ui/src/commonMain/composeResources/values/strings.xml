@@ -61,6 +61,10 @@
 
   <string name="timeline_empty">No events recorded</string>
   <string name="timeline_event_cd">Event: %1$s</string>
+  <string name="timeline_scheduled">Scheduled %1$s</string>
+  <string name="timeline_transition">Transition: %1$s -> %2$s</string>
+  <string name="timeline_transition_start">Start</string>
+  <string name="timeline_transition_current">Current</string>
 
   <string name="artifacts_empty">No artifacts attached</string>
   <string name="artifacts_source_cloud">Cloud Storage</string>

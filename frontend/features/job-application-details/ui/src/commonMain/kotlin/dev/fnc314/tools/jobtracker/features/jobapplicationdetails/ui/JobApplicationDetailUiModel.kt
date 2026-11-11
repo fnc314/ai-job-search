@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui
 
 import androidx.compose.runtime.Composable
@@ -21,7 +23,18 @@ import fnc314jobsearchtracker.features_job_application_details_ui.generated.reso
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlin.time.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeComponents
+import kotlinx.datetime.format.DateTimeFormat
+import kotlinx.datetime.number
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.stringResource
+import kotlin.time.Clock.System
+import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 /**
@@ -90,7 +103,12 @@ public data class JobApplicationDetailUiModel(
   @Composable
   public fun submittedAt(): String = when (submittedAt) {
     Instant.DISTANT_FUTURE -> stringResource(resource = Res.string.detail_not_applied)
-    else -> stringResource(Res.string.detail_applied_on, "$submittedAt")
+    else -> stringResource(
+      Res.string.detail_applied_on,
+      submittedAt.toLocalDateTime(
+        timeZone = TimeZone.currentSystemDefault()
+      ).date.let { "${it.year}-${it.month.number}-${it.day}" }
+    )
   }
 }
 

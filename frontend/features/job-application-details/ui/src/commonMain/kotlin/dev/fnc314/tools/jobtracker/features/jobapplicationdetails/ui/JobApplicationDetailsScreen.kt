@@ -280,6 +280,7 @@ private fun JobApplicationDetailContent(
 
             SectionHeader(stringResource(Res.string.detail_section_artifacts))
             ArtifactsList(
+              modifier = Modifier.padding(horizontal = MaterialTheme.spacing.medium),
               artifacts = model.artifacts,
               onArtifactClick = { artifact ->
                 onIntent(JobApplicationDetailUiIntent.OpenArtifact(artifact.id))
