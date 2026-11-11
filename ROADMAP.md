@@ -47,9 +47,10 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-001   | Kotlin-Only Migration                  | Migrate all Python scripts to Kotlin | PIVOTAL    | MEDIUM   | 70 d   | IN_PROGRESS |
 | RM-002   | AI-Portable Pluginization              | Make agent contributions portable   | LOW         | LOW      | 70 d   | OPEN   |
 | RM-003   | Backend Functionality Abstraction      | Expose deterministic tasks as services | HIGH       | HIGH     | 70 d   | IN_PROGRESS |
+| RM-006   | Add Email Top-Level Destination for in-app analysis | Add Email evidence & rectification | MEDIUM      | MEDIUM   | 0 d    | DONE        |
 | RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | DONE   |
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
-| RM-006   | Add Email Top-Level Destination for in-app analysis | Add Email evidence & rectification | MEDIUM      | MEDIUM   | 0 d    | DONE        |
+| RM-007   | Fix KMP Inspector                      | Fix Room and Ktor integrations       | PIVOTAL    | CRITICAL | 0 d    | OPEN        |
 
 ---
 
@@ -60,9 +61,9 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Priority:** MEDIUM
 **Complexity:** 5 — Critical
 **Status:** IN_PROGRESS
-**Completion %:** 40
+**Completion %:** 60
 **Creation Date:** 2026-09-01
-**Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/terminal`).
+**Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/cli`).
 
 **Scope:**
 
@@ -73,7 +74,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 **Acceptance Criteria:**
 
-- All Python scripts in `scripts/` have Kotlin equivalents
+- All Python scripts in `scripts/` have Kotlin equivalents or are archived
 - Python dependencies are removed from the project
 - `mise` tasks invoke Kotlin JARs instead of Python scripts
 - Existing functionality is preserved — no behavioral regression
@@ -84,10 +85,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - Migration should be incremental, not a one-time pass
 - Python is deprecated; new functionality is Kotlin-only
 - Target Kotlin Multiplatform architecture with Compose for UI layers
-- The `records/` module already contains Kotlin parser/proto code that can serve as a reference
+- The `records/parser/` module contains pure Kotlin domain logic; `frontend/apps/cli/` contains Clikt-based CLI commands
+- Complex orchestrators (`scrape.py`, `apply.py`) and external tool wrappers (`gmail_fetch.py`) are skipped — no meaningful Kotlin equivalent
+- One-time scripts (`importer.py`, `migrate_gcs.py`, `purge_gcs_legacy.py`, `reconcile_submissions.py`) are archived
+- Phase 8 (final cleanup) is blocked on remaining Python scripts without Kotlin equivalents
 
 **Linked Plans:**
 
+- `.agents/plans/2026-11-10/192641_rm-001-python-to-kotlin-migration-plan.md` (canonical, supersedes all)
 - `.agents/plans/2026-11-10/154500_pure_kotlin_migration_render_py.md`
 - `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
 - `.agents/plans/2026-11-08/171648_hunter-logo-integration.md`
@@ -99,6 +104,13 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-10 | Progress update   | Created 10 Kotlin modules (DocumentIdGenerator, UuidGenerator, EventBuilder, FitEvaluator, RankScorer, ProposalClassifier, ArtifactUtils, CacheUtils, ContractError, EventError) with 117 tests in records/parser |
+| 2026-11-10 | Progress update   | Added RankCommand.kt CLI command and registered in Main.kt |
+| 2026-11-10 | Progress update   | Converted 13 Python mise tasks to shell wrappers (tracker/check, add, list, get, status, score, event, align, seed, default, search/rank, dev/test, ui/web/server) |
+| 2026-11-10 | Progress update   | Added DEPRECATED/ARCHIVED markers to all 34 remaining Python scripts |
+| 2026-11-10 | Progress update   | Scrubbed Python script references from AI-significant .md files (README, SKILL.md, SETUP.md, docs/), redirecting to mise tasks |
+| 2026-11-10 | Progress update   | Updated README.md diagrams to reflect Kotlin-first architecture |
+| 2026-11-10 | Progress update   | Aligned migration plan with TEMPLATE.md, created canonical plan at .agents/plans/2026-11-10/ |
 | 2026-11-10 | Progress update   | Migrated clean_url and URL query sanitization to pure Kotlin (records/parser UrlSanitizer.kt & JPypeBridge.cleanUrl), marked scripts/urls.py deprecated |
 | 2026-11-10 | Progress update   | Migrated renderNotes and event projection logic to pure Kotlin (records/parser), marked render.py deprecated |
 | 2026-11-10 | Progress update   | Implemented pure Kotlin EventChainBuilder and ApplicationTimelineProjector in records/parser |
@@ -298,8 +310,6 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 ---
 
----
-
 ### [RM-006] Add Email Top-Level Destination for in-app analysis
 
 **Short Desc:** Add Email evidence & rectification
@@ -349,6 +359,9 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-10 | Item created      | Initial entry                        |
+
+---
+
 ## Frozen Items
 
 Items in this section have been frozen via the nuclear clear roadmap option. They are archived and should not be considered active work items.
