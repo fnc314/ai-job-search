@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mikepenz.markdown.m3.Markdown
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
@@ -429,10 +430,11 @@ internal fun MarkdownPreviewDialog(
                 ) {
                     when {
                         content != null -> {
-                            Text(
-                                text = content!!,
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(MaterialTheme.spacing.subMedium),
+                            Markdown(
+                                content = content!!,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(MaterialTheme.spacing.subMedium),
                             )
                         }
                         loadError != null -> {

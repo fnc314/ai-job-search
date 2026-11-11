@@ -1,6 +1,6 @@
 # Implementation Plan: Markdown Rendering in Artifacts Preview
 
-**Status:** Draft / Proposed  
+**Status:** Completed
 **Date:** 2026-11-10  
 **Target:** `frontend`  
 **Harness:** Junie  
@@ -8,6 +8,10 @@
 **Depends On:** [`.agents/plans/2026-11-10/172200_interactive_artifacts_presentation_and_in_app_viewer_plan.md`](./172200_interactive_artifacts_presentation_and_in_app_viewer_plan.md) (artifact content fetching and inline content storage)  
 **Defects Fixed:**
 - `MarkdownPreviewDialog` fetches and displays artifact content correctly, but renders it as raw plain text instead of formatted markdown. Headers, bold, lists, code blocks, and links appear as literal markdown syntax characters.
+
+**Implementation Notes:**
+- Used `Markdown(content = ...)` directly rather than `rememberMarkdownState` — the M3 module provides a `Markdown` composable with a `content` parameter that handles parsing internally.
+- Only `multiplatform-markdown-renderer-m3` (0.46.0) was needed as a dependency; the core library was not required.
 
 ---
 

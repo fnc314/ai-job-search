@@ -53,6 +53,7 @@
   android-gradle-plugin = "8.5.1"
   clikt = "5.0.3"
   mordant = "3.0.2"
+  markdown-renderer = "0.46.0"
 
 [libraries]
   coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
@@ -128,6 +129,7 @@
   protobuf-bom = { module = "com.google.protobuf:protobuf-bom", version.ref = "protobuf" }
   clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
   mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
+  markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown-renderer" }
   kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
   compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-multiplatform" }
   dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
