@@ -1,10 +1,11 @@
 package dev.fnc314.tools.jobtracker.core.designsystem
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
+import com.materialkolor.material3.DynamicMaterialExpressiveTheme
 
 /**
  * Root theme composable for the Job Tracker application.
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.Color
  * @param spacing Grid spacing token set. Defaults to [Spacing].
  * @param content The composable UI tree to render inside the theme.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 public fun JobTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -25,12 +27,6 @@ public fun JobTrackerTheme(
     spacing: Spacing = Spacing(),
     content: @Composable () -> Unit,
 ): Unit {
-    val colorScheme = if (darkTheme) {
-        buildDarkColorScheme(seedColor)
-    } else {
-        buildLightColorScheme(seedColor)
-    }
-
     SetupSystemBars(darkTheme = darkTheme)
 
     CompositionLocalProvider(
@@ -38,8 +34,9 @@ public fun JobTrackerTheme(
         LocalIconSizes provides IconSizes(),
         LocalComponentSizes provides ComponentSizes(),
     ) {
-        MaterialExpressiveTheme(
-            colorScheme = colorScheme,
+        DynamicMaterialExpressiveTheme(
+            seedColor = seedColor,
+            isDark = darkTheme,
             typography = JobTrackerTypography,
             shapes = JobTrackerShapes,
             content = content,

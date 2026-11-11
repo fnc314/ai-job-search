@@ -9,6 +9,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(libs.bundles.compose.ui)
+            api(libs.materialKolor.material3)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)

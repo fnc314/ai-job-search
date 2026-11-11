@@ -53,6 +53,7 @@
   android-gradle-plugin = "8.5.1"
   clikt = "5.0.3"
   mordant = "3.0.2"
+  materialKolor = "6.0.0"
 
 [libraries]
   android-gradle-plugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "agp" }
@@ -81,6 +82,7 @@
   compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-multiplatform" }
   compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "compose-material-icons" }
   compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
+  materialKolor-material3 = { module = "com.materialkolor:material-kolor-material3", version.ref = "materialKolor" }
   compose-rules-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "compose-rules" }
   compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
   compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-multiplatform" }
