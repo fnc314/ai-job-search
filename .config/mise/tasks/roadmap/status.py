@@ -116,6 +116,16 @@ def main():
         """Format a date string or return '-' if missing."""
         return value if value else "-"
 
+    def calc_age(creation):
+        """Calculate age in days from creation date."""
+        if creation:
+            try:
+                created = datetime.strptime(creation, "%Y-%m-%d").date()
+                return f"{(today - created).days}d"
+            except ValueError:
+                pass
+        return "?"
+
     def format_item_row(item, is_completed=False):
         item_id = item.get("id", "?")
         title = item.get("title", "?")
@@ -125,9 +135,10 @@ def main():
         crit = item.get("criticality", "?")
         status = item.get("status", "?")
         completion = item.get("completion_percent", "0")
+        age = calc_age(item.get("creation_date", ""))
         created = format_date(item.get("creation_date", ""))
         completed = format_date(item.get("completed_date", "")) if is_completed else "-"
-        row = f"  {item_id:<8s}  {title:<28s}  {crit:<8s}  {status:<12s}  {completion:>3s}%  {created:>10s}  {completed:>10s}"
+        row = f"  {item_id:<8s}  {title:<28s}  {crit:<8s}  {status:<12s}  {completion:>3s}%  {age:<5s}  {created:>10s}  {completed:>10s}"
         if is_completed:
             # Apply strike-through and dim to the entire row
             row = DIM + STRIKE + row + RESET
@@ -136,16 +147,16 @@ def main():
     # Item list with headers
     if items:
         print("  Active Items:")
-        print("  " + "-" * 96)
+        print("  " + "-" * 104)
         # Column headers
-        print(f"  {'ID':<8s}  {'Title':<28s}  {'Crit':<8s}  {'Status':<12s}  {'Done':>4s}  {'Created':>10s}  {'Completed':>10s}")
-        print("  " + "-" * 96)
+        print(f"  {'ID':<8s}  {'Title':<28s}  {'Crit':<8s}  {'Status':<12s}  {'Done':>4s}  {'Age':<5s}  {'Created':>10s}  {'Completed':>10s}")
+        print("  " + "-" * 104)
         for item in active_items:
             print(format_item_row(item, is_completed=False))
         if completed_items:
             print()
             print("  Completed:")
-            print("  " + "-" * 96)
+            print("  " + "-" * 104)
             for item in completed_items:
                 print(format_item_row(item, is_completed=True))
         print()
