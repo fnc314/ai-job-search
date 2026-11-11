@@ -19,7 +19,7 @@ changes the approved scope (see `.agents/plans/2026-10-31/021052_tracker-migrati
 > `job_search_tracker.csv` is a frozen snapshot of the pre-migration record: it is read as
 > a fallback, never written.
 
-**Phase 5 has landed (2026-10-31).** Every writer now goes through `scripts/tracker.py`:
+**Phase 5 has landed (2026-10-31).** Every writer now goes through `mise run tracker`:
 `/apply` records fit changes with `score`, `/outcome` records status and activity as events,
 `/gmail-sync` writes events instead of CSV cells, `/rank`, `/interview`, `/notion-sync`,
 `/upskill`, `/html-report`, and `/scrape` read the store, the TUI's recalc key queues a
@@ -35,13 +35,13 @@ Concretely, from now on:
 
 | you want to… | do this | NOT this |
 |---|---|---|
-| Add an application | `tracker.py add --json …`, or let `/outcome` do it | editing `job_search_tracker.csv` |
-| Record a status change | `tracker.py status <id> <status>`, or `/outcome` | editing the CSV's `status` cell |
-| Record a fit change | `tracker.py score <id> --fit N`, or the TUI's `r` request | editing the CSV's `fit_rating` cell |
-| Record an activity (follow-up, acknowledgement) | `tracker.py event <id> --type …` | appending prose to a notes column |
-| Inspect the record | `tracker.py list` / `get` / `export` | parsing the CSV |
+| Add an application | `mise run tracker add --json …`, or let `/outcome` do it | editing `job_search_tracker.csv` |
+| Record a status change | `mise run tracker status <id> <status>`, or `/outcome` | editing the CSV's `status` cell |
+| Record a fit change | `mise run tracker score <id> --fit N`, or the TUI's `r` request | editing the CSV's `fit_rating` cell |
+| Record an activity (follow-up, acknowledgement) | `mise run tracker event <id> --type …` | appending prose to a notes column |
+| Inspect the record | `mise run tracker list` / `get` / `export` | parsing the CSV |
 
-`tracker.py` commands that **write** (`add`, `upsert`, `status`, `score`, `event`,
+`mise run tracker` commands that **write** (`add`, `upsert`, `status`, `score`, `event`,
 `artifact`, `bulk`, `import`, proposal `approve`) refuse to run unless
 `TRACKER_ALLOW_WRITES=1` is set. The gate is now a guard against accidental mutation, not a
 migration switch: writes are opt-in so a stray agent run cannot rewrite history.
@@ -49,14 +49,14 @@ Read-only commands (`check`, `list`, `get`, `export`, `sheet --local-only`) alwa
 `--dry-run` resolves and validates the full document without writing, even when the gate is
 off.
 
-The gate is enforced in one function (`scripts/client.py: assertWritesAllowed`) and covered
+The gate is enforced in one function (`scripts/client.py: assertWritesAllowed`, being migrated to Kotlin) and covered
 by tests, so it cannot be bypassed by a subcommand that forgets to check.
 
 ### Fresh setup and mock records
 
-`scripts/setup.py --check` is the read-only readiness check — it does not require
+`mise run setup --check` is the read-only readiness check — it does not require
 `TRACKER_ALLOW_WRITES=1`. Running setup without `--check` asks before seeding the schema
-and again before injecting mock data. The mock path uses `tracker.py import --csv … --mock`
+and again before injecting mock data. The mock path uses `mise run tracker import --csv … --mock`
 to skip the historical 84-row profile reconciliation, so any number of mock rows imports
 cleanly. The collector then stages a mock Gmail proposal. This path never invokes Composio:
 the fixture is simply `generated/mock/gmail-inbox.json`, containing only the fields a
@@ -64,7 +64,7 @@ fetched inbox reader provides.
 
 Every injected company begins `Mock `, IDs begin `mock-`, and inbox message IDs begin
 `mock`. This is the cleanup namespace. Preview cleanup with
-`tracker.py mock-clear`; perform it with `tracker.py mock-clear --apply` (and
+`mise run tracker mock-clear`; perform it with `mise run tracker mock-clear --apply` (and
 `TRACKER_ALLOW_WRITES=1`). Cleanup removes only that namespace and its events, artifacts,
 proposals in any state that reference **only** mock applications (mixed proposals are left
 alone), and processed message IDs.
@@ -75,14 +75,14 @@ Treat it as a bug, not a workflow. The import can absorb it — it is idempotent
 `event:imported` — but it only picks up **new** rows:
 
 ```bash
-TRACKER_ALLOW_WRITES=1 .venv/bin/python scripts/tracker.py import --csv job_search_tracker.csv
+TRACKER_ALLOW_WRITES=1 mise run tracker import --csv job_search_tracker.csv
 ```
 
 A **changed** cell on an already-imported row (a corrected status, an edited note) is **not**
 picked up, because the document is skipped. Corrections belong in the event log
-(`tracker.py status --correction` / `event`), which appends instead of rewriting history.
+(`mise run tracker status --correction` / `event`), which appends instead of rewriting history.
 
-**The readers guard against a stale store for you.** `scripts/reader.py` compares the CSV's
+**The readers guard against a stale store for you.** The read layer (Kotlin equivalent of `scripts/reader.py`) compares the CSV's
 IDs with the store's on every load, and when the CSV holds a row the store does not, it
 serves the CSV and labels itself `csv (store behind)` instead of hiding the new application.
 That fallback is now only reachable if a writer is reintroduced. Force a source with
@@ -210,7 +210,7 @@ Verified against the live store after the real import, not just the dry run:
 (`3367ce42…f6ab`, 26,837 bytes) — byte-identical, including CRLF endings and row order.
 
 The reviewed report lives at **`docs/import-reconciliation.md`**; regenerate it with
-`tracker.py import --csv job_search_tracker.csv --dry-run --report docs/import-reconciliation.md`.
+`mise run tracker import --csv job_search_tracker.csv --dry-run --report docs/import-reconciliation.md`.
 
 ## 5. Rollback
 
@@ -218,7 +218,7 @@ Any phase, at any time:
 
 ```bash
 # Regenerate the exact CSV shape from Firestore
-.venv/bin/python scripts/tracker.py export --csv -o /tmp/restored.csv
+mise run tracker export --csv -o /tmp/restored.csv
 
 # Compare against the live file
 diff <(sort job_search_tracker.csv) <(sort /tmp/restored.csv)
@@ -234,7 +234,7 @@ Phase 10 it lives at `archive/job_search_tracker.csv` as the historical record; 
 reads it as a source any more.
 
 If Firestore has to be abandoned (wrong region, wrong project), the sequence is: export to
-CSV (`tracker.py export --csv`), delete the project, recreate, re-import. This stays cheap
+CSV (`mise run tracker export --csv`), delete the project, recreate, re-import. This stays cheap
 because the export path is generated from the store, not rescued from the archive copy.
 
 ## 6. Phase-by-phase update instructions
@@ -243,19 +243,19 @@ What changes for you and for agents at each step.
 
 | phase | what you should do | what agents should do |
 |---|---|---|
-| **0–1** *(done)* | nothing changes; keep using `/apply`, `/outcome`, `/gmail-sync` | keep writing the CSV; `tracker.py check` and `import --dry-run` only |
-| **2** — CLI exists *(done)* | still nothing; writes are gated | use `tracker.py` for **reads** (`list`, `get`, `export`) to sanity-check the store; `add/upsert/status/event/artifact --dry-run` are safe because they cannot write |
+| **0–1** *(done)* | nothing changes; keep using `/apply`, `/outcome`, `/gmail-sync` | keep writing the CSV; `mise run tracker check` and `import --dry-run` only |
+| **2** — CLI exists *(done)* | still nothing; writes are gated | use `mise run tracker` for **reads** (`list`, `get`, `export`) to sanity-check the store; `add/upsert/status/event/artifact --dry-run` are safe because they cannot write |
 | **2b** — import/export/views *(done)* | review the reconciliation report at `docs/import-reconciliation.md` | `import --dry-run` writes that report; `export --csv` is verified byte-identical to the live file in the emulator; `sheet --local-only` previews the view |
 | **3** — import *(done)* | treat Firestore as a **snapshot taken 2026-10-31**, not a live mirror; keep writing the CSV | import verified: 84 applications, 84 `event:imported`, 89 artifacts (40 `localPath`, 45 `driveUrl`, 4 `externalUrl`); re-run skips all 84; `export --csv` byte-identical |
 | **4** — readers ported *(done)* | the TUI header and the dashboard header now show their source (`store (live)`, `cache (…old)`, or `csv (pre-migration)`); set `TRACKER_SOURCE=csv` to force the old behaviour | both consumers read through `scripts/reader.py`; a read failure degrades to cache, then CSV, and the badge says which |
-| **5** — writers ported *(done)* | everything writes through `tracker.py`; the CSV is a read-only fallback | `/apply` → `score`; `/outcome` → `status`/`event`; `/gmail-sync` → events; TUI `r` → structured recalc request; `bulk_add_tracker.py` and `update_state.py` deleted |
-| **env** *(done)* | secrets are now in `.env.local`; `TRACKER_ALLOW_WRITES=1` is set there, so `tracker.py` writes work from a shell in this repo | never put a secret in `mise.toml`; copy `.env.example` for a new machine. The key once committed to `mise.toml` was revoked and replaced, and history was rewritten so it appears in no commit |
+| **5** — writers ported *(done)* | everything writes through `mise run tracker`; the CSV is a read-only fallback | `/apply` → `score`; `/outcome` → `status`/`event`; `/gmail-sync` → events; TUI `r` → structured recalc request; `bulk_add_tracker.py` and `update_state.py` deleted |
+| **env** *(done)* | secrets are now in `.env.local`; `TRACKER_ALLOW_WRITES=1` is set there, so `mise run tracker` writes work from a shell in this repo | never put a secret in `mise.toml`; copy `.env.example` for a new machine. The key once committed to `mise.toml` was revoked and replaced, and history was rewritten so it appears in no commit |
 | **6** — collector split *(done)* | `/gmail-sync` fetches into a payload and stages a proposal; review the queue at your convenience | `collect` stages proposals only; `proposals approve` emits events; `sync-due` is the cron entrypoint; `--label` validates against the last-seen inventory |
-| **7** — Sheets *(done)* | the Sheet is regenerated, never edited | `tracker.py sheet --sync` replaces all three tabs wholesale; never hand-edit the Sheet — fix the record and re-sync |
-| **8** — artifacts *(done)* | nothing to do; local files stay where they are and the Drive sync stays manual | `tracker.py backfill` added hashes and `storage` to 61 artifacts; `.gdoc` stubs and `externalUrl` records have no blob by design; new files upload through `artifact --path …` |
-| **9a** — automation *(done)* | a `launchd` agent runs `tracker.py sync-due` every 15 min; a write queues one deferred run | do not enqueue duplicate sync requests; `sync-due` is a no-op until `generated/gmail-inbox.json` exists |
+| **7** — Sheets *(done)* | the Sheet is regenerated, never edited | `mise run tracker sheet --sync` replaces all three tabs wholesale; never hand-edit the Sheet — fix the record and re-sync |
+| **8** — artifacts *(done)* | nothing to do; local files stay where they are and the Drive sync stays manual | `mise run tracker backfill` added hashes and `storage` to 61 artifacts; `.gdoc` stubs and `externalUrl` records have no blob by design; new files upload through `artifact --path …` |
+| **9a** — automation *(done)* | a `launchd` agent runs `mise run tracker sync-due` every 15 min; a write queues one deferred run | do not enqueue duplicate sync requests; `sync-due` is a no-op until `generated/gmail-inbox.json` exists |
 | **10** — cutover *(done)* | the CSV is gone from the working tree; `archive/README.md` explains what the frozen files are | instructions live once in `.agents/` (plus `.claude/commands/`); agent directories hold one pointer file each; CI guards `archive/*.csv` |
-| **9b** — scheduled fetch *(done)* | Gmail is read every 12 hours without you: a `launchd` agent fetches, stages a proposal, and runs due syncs | review `tracker.py proposals list` when convenient; the job never approves anything. It pages 50 messages at a time and treats "examined" as "processed", so an unremarkable mailbox stays quiet |
+| **9b** — scheduled fetch *(done)* | Email is read every 12 hours without you: a `launchd` agent fetches, stages a proposal, and runs due syncs | review `mise run tracker proposals list` when convenient; the job never approves anything. It pages 50 messages at a time and treats "examined" as "processed", so an unremarkable mailbox stays quiet |
 
 ### The one irreversible moment
 
@@ -290,6 +290,6 @@ recorded here, with its effect on the import.
 ### If you find a v3 record
 
 There should be none. If one appears (for example from a stale local script), do not edit
-it in place: `tracker.py check` reports the store's `schemaVersion` from `meta/schema`, and
+it in place: `mise run tracker check` reports the store's `schemaVersion` from `meta/schema`, and
 anything whose `schemaVersion` does not match the contract is a defect to be re-created
 through the CLI, not patched by hand.

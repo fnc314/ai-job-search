@@ -81,27 +81,24 @@ ai-job-search/
 ├── templates/                         # Master Application Templates
 │   ├── cv/main_example.tex            # Master LaTeX CV (Inconsolata headings, Sans-serif body)
 │   └── cover-letters/                 # Custom LaTeX cover letter class (cover.cls) & fonts
-├── scripts/                           # Underlying Python implementation tools
-│   ├── tracker.py                     # Central system-of-record CLI for Firestore mutations
-│   ├── reader.py                      # Multi-source read projection for UIs (live store / cache / csv)
-│   ├── generate_report.py             # Generates standalone SVG/HTML application dashboard
-│   ├── salary_lookup.py               # Salary benchmark querying tool
-│   ├── gmail_fetch.py                 # Gmail collector via Composio CLI
-│   └── specs/                         # CLI argument specifications in Usage KDL format
+├── frontend/                          # Kotlin Multiplatform Suite — PRIMARY implementation
+│   ├── apps/cli/                      # Kotlin CLI commands (Clikt-based, primary tracker interface)
+│   ├── apps/                          # Platform targets: android, desktop, web (Wasm/JS), ios
+│   ├── core/                          # core-design-system (Material 3), core-widgets, core-data, core-network
+│   └── features/                      # Modular features (sign-in, job-applications-list, etc.)
+├── backend/                           # Ktor HTTP service (Firestore endpoints, email reconciliation)
+├── records/                           # Kotlin domain logic — PRIMARY implementation
+│   ├── proto/                         # tracker/v1/application.proto definitions
+│   └── parser/                        # Kotlin domain logic (EventChainBuilder, FitEvaluator, RankScorer, etc.)
+├── .config/mise/tasks/                # Mise task definitions (shell wrappers invoking Kotlin JARs)
+├── scripts/                           # Python scripts (being migrated to Kotlin via RM-001; invoke via `mise`)
 ├── ui/                                # Multi-Interface Application Tracking Suite
 │   ├── terminal/                      # Interactive Terminal UI (TUI)
-│   │   ├── tracker_tui.py             # Keyboard-driven curses application tracker
+│   │   ├── tracker_tui.py             # Keyboard-driven curses tracker — use `mise run tui`
 │   │   └── tui_config.json            # Layout and theme configurations
-│   ├── web/                           # Standalone Web Dashboard
-│   │   ├── application-dashboard.html # Interactive HTML/SVG pipeline report
-│   │   └── application-dashboard-server.py # Lightweight localhost preview server
-├── frontend/                          # Native Kotlin Multiplatform Suite (Android, Desktop, Web, iOS)
-│   ├── apps/                          # Platform targets: android, desktop, web (Wasm/JS), ios
-│   ├── core/                          # core-design-system (Material 3), core-widgets, core-data, core-network, core-navigation
-│   └── features/                      # Modular features (sign-in, job-applications-list, etc.)
-├── records/                           # Protobuf contracts and parser bridge
-│   ├── proto/                         # tracker/v1/application.proto definitions
-│   └── parser/                        # Java/Kotlin data bridge
+│   └── web/                           # Standalone Web Dashboard
+│       ├── application-dashboard.html # Interactive HTML/SVG pipeline report
+│       └── application-dashboard-server.py # Dashboard server — use `mise run dashboard`
 ├── documents/                         # Candidate career materials (CVs, LinkedIn exports, diplomas)
 ├── job-applications/                  # Generated per-job application archives (LaTeX + compiled PDFs)
 ├── tracker.schema.json                # Single typed contract for all Firestore records (Schema v7)
@@ -149,19 +146,30 @@ The workspace provides multiple specialized interfaces to interact with the data
             │                                    │                                    │
             ▼                                    ▼                                    ▼
 ┌───────────────────────┐            ┌───────────────────────┐            ┌───────────────────────┐
-│     mise / CLI        │            │   Terminal UI (TUI)   │            │ Kotlin Multiplatform  │
+│   Kotlin CLI (Clikt)  │            │   Terminal UI (TUI)   │            │ Kotlin Multiplatform  │
 │  `mise run tracker`   │            │    `mise run tui`     │            │ `mise run frontend:*` │
-│ Scripts, automation,  │            │ Keyboard-driven       │            │ Android, Desktop JVM, │
-│ bulk edits, auditing  │            │ real-time curses view │            │ Web Wasm/JS, and iOS  │
+│ Kotlin CLI (Clikt),   │            │ Keyboard-driven       │            │ Android, Desktop JVM, │
+│ automation, auditing  │            │ real-time curses view │            │ Web Wasm/JS, and iOS  │
 └───────────────────────┘            └───────────────────────┘            └───────────────────────┘
             │                                    │                                    │
             ▼                                    ▼                                    ▼
 ┌───────────────────────┐            ┌───────────────────────┐            ┌───────────────────────┐
 │     Web Dashboard     │            │   Google Sheet Sync   │            │   Notion Live View    │
-│  `mise run dashboard` │            │ `tracker sheet --sync`│            │     `/notion-sync`    │
-│ Local SVG/HTML report │            │ Regenerated sheet     │            │ Mobile-friendly live  │
-│ served on :8000       │            │ mirror view           │            │ dashboard view        │
+│  `mise run dashboard` │            │ `mise run tracker     │            │     `/notion-sync`    │
+│ Local SVG/HTML report │            │  sheet --sync`        │            │ Mobile-friendly live  │
+│ served on :8000       │            │ Regenerated sheet     │            │ dashboard view        │
 └───────────────────────┘            └───────────────────────┘            └───────────────────────┘
+┌───────────────────────┐
+│  Ktor HTTP Service    │
+│  `backend/` module    │
+│ REST endpoints for    │
+│ email fetch, Sheets   │
+│ sync, artifact mgmt   │
+└───────────────────────┘
+
+Note: The Kotlin CLI (`frontend/apps/cli/`) and domain logic (`records/parser/`) are the
+primary implementation. Python scripts in `scripts/` are being migrated via RM-001 and
+remain available during transition.
 ```
 
 1. **The CLI (`mise run tracker <command>`)**:
@@ -175,7 +183,7 @@ The workspace provides multiple specialized interfaces to interact with the data
 2. **Interactive Terminal UI (`mise run tui`)**:
    Fast, keyboard-driven curses tracker. Supports sorting, interactive filtering, viewing notes history, and jumping to local CV/cover letter PDFs.
 3. **Web Dashboard Server (`mise run dashboard`)**:
-   Lightweight Python server serving [`ui/web/application-dashboard.html`](ui/web/application-dashboard.html) at `http://127.0.0.1:8000` with interactive pipeline metrics, sector distributions, and status charts.
+   Lightweight server serving [`ui/web/application-dashboard.html`](ui/web/application-dashboard.html) at `http://127.0.0.1:8000` with interactive pipeline metrics, sector distributions, and status charts.
 4. **Native Multiplatform Apps (`frontend`)**:
    Native applications built with Compose Multiplatform:
    - **Desktop (JVM):** Full native desktop experience (`mise run frontend:desktop:run`).
@@ -230,7 +238,7 @@ Task execution across the entire repository is standardized using [`mise`](https
 
 1. **AI CLI**: OpenCode, Claude Code, Gemini CLI, Antigravity, or Codex.
 2. **Task Runner**: [mise](https://mise.jdx.dev/) (`curl https://mise.run | sh` or `brew install mise`).
-3. **Runtimes**: Python 3.10+, [Bun](https://bun.sh) (for portal search CLIs), JDK 17+ (for KMP and Protobuf builds).
+3. **Runtimes**: Python 3.10+ (required for remaining scripts during RM-001 migration; Kotlin CLI is the primary interface), [Bun](https://bun.sh) (for portal search CLIs), JDK 17+ (for KMP and Protobuf builds).
 4. **LaTeX Distribution**: MacTeX, TeX Live, or MiKTeX with `lualatex` (for CV) and `xelatex` (for cover letter).
 5. **Optional ATS Tooling**: `pdftotext` from `poppler` (`brew install poppler` on macOS).
 

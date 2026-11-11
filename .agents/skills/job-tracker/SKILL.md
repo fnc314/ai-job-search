@@ -20,7 +20,7 @@ the contract in `tracker.schema.json`.
 1. **Firestore is the record.** `job_search_tracker.csv` is a frozen pre-migration
    snapshot in `archive/`. Never read it as the source and never write it.
 2. **Every write goes through `mise run tracker` or `mise run align`.** No hand-edited documents,
-   no direct Firestore writes from a workflow, no raw Python script executions, no CSV cells. Writes are opt-in:
+   no direct Firestore writes from a workflow, no direct script executions, no CSV cells. Writes are opt-in:
    the CLI refuses unless `TRACKER_ALLOW_WRITES=1`.
 3. **History is append-only.** A status change is a new event. A correction is
    `event:status-corrected`, not an edit. Derived fields (`isOpen`, counters,
@@ -102,7 +102,7 @@ Inspect with `launchctl print gui/$(id -u)/<label>` and
 
 All commands are defined as modular, executable files in `.config/mise/tasks/`:
 
-1. **Add new subcommands or tasks** by creating a new `.py` file in `.config/mise/tasks/<subsystem>/<name>.py`.
+1. **Add new subcommands or tasks** by creating a new `.sh` file (shell wrapper invoking Kotlin JAR) or `.kt` file (Kotlin CLI command in `frontend/apps/cli/commands/`).
 2. **Add metadata and CLI specs** using `#MISE description="..."` and `#USAGE flag ...` or `#USAGE arg ...` comment headers directly in the file.
 3. **Regenerate docs & completions** via `mise run docs:tasks` and `mise run completions:generate`.
 
@@ -114,4 +114,4 @@ All commands are defined as modular, executable files in `.config/mise/tasks/`:
 - If the Sheet matters, regenerate it; do not describe it as current otherwise.
 - Never commit personal data (`documents/`, `generated/`, `.env.local`).
 - If you added a new CLI subcommand, verify `mise tracker <subcommand> --help`
-  works and that `scripts/specs/tracker.usage.kdl` includes it.
+  works. (The `scripts/specs/tracker.usage.kdl` file is being deprecated as CLI commands move to Kotlin.)

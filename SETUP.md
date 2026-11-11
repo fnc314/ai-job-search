@@ -42,7 +42,7 @@ You'll need an Anthropic API key or a Claude Pro/Team subscription. See the [Cla
 
 ### Python
 
-The tracker store (`scripts/tracker.py`) runs the only copy of your application record, so the interpreter is pinned: this repo targets **Python 3.15.2**, declared in `mise.toml` and `.github/workflows/ci.yml`. Install it with [mise](https://mise.jdx.dev/):
+The tracker CLI (`mise run tracker`) runs the only copy of your application record. The Kotlin implementation is primary; Python 3.15.2 is still needed for some auxiliary scripts during RM-001 migration. Install it with [mise](https://mise.jdx.dev/):
 
 ```bash
 curl https://mise.run | sh
@@ -397,7 +397,7 @@ These commands apply to the stock templates (moderncv CV, `cover.cls` cover lett
 
 ## 8. Application Tracking & Dashboards
 
-Applications live in **Firestore**, not in a CSV. Every write goes through `scripts/tracker.py`; the Google Sheet and the dashboards are generated views. See `.agents/skills/job-tracker/SKILL.md` for the invariants.
+Applications live in **Firestore**, not in a CSV. Every write goes through `mise run tracker`; the Google Sheet and the dashboards are generated views. See `.agents/skills/job-tracker/SKILL.md` for the invariants.
 
 ### Initialize the store
 
@@ -490,7 +490,7 @@ Upstream keeps improving the methodology files your fork has personalized, so pl
 3. **Merge normally.** `git merge upstream/master` (or `git pull`) three-way-merges upstream's edits around your personalization; because methodology edits rarely touch the lines `/setup` filled in, most updates land cleanly. A conflict in a personalized file is a *feature*, not a failure — it means upstream changed methodology in a section you customized, and the version marker plus its changelog commit tell you why. Resolve by keeping your data and adopting the methodology change around it.
 
 ### Tracker writes are refused
-`scripts/tracker.py` exits with a write-gate error unless `TRACKER_ALLOW_WRITES=1` is in the environment. `.env.local` supplies it; check that you are running from the repo root (where `mise.toml` applies) or export it for the command.
+`mise run tracker` exits with a write-gate error unless `TRACKER_ALLOW_WRITES=1` is in the environment. `.env.local` supplies it; check that you are running from the repo root (where `mise.toml` applies) or export it for the command.
 
 ### Firestore permission denied / "Could not automatically determine credentials"
 The service-account key is missing or unreadable. Confirm `TRACKER_SA_KEY` points at an existing file (default `~/.config/job-tracker/sa.json`, mode `600`) and that the service account has `roles/datastore.user` on the project and `roles/storage.objectAdmin` on the artifact bucket.
@@ -499,7 +499,7 @@ The service-account key is missing or unreadable. Confirm `TRACKER_SA_KEY` point
 The Firestore emulator needs Java 11+. Check `java -version`; on macOS `brew install openjdk` and follow the `brew` caveats to put it on `PATH`.
 
 ### `The tool response payload is too large` during Gmail sync
-Composio caps a single Gmail response at roughly 50 full messages. `scripts/gmail_fetch.py` pages in batches of 50 for this reason; if you call `GMAIL_FETCH_EMAILS` yourself, keep `max_results` at 50 or use `page_token`.
+Composio caps a single Gmail response at roughly 50 full messages. `mise run email:read-inbox` pages in batches of 50 for this reason; if you call `GMAIL_FETCH_EMAILS` yourself, keep `max_results` at 50 or use `page_token`.
 
 ### `launchd` job exits non-zero or finds no `composio`
 Agents start with a minimal `PATH` and do not read your shell profile. `scripts/gmail-fetch.sh` adds `~/.local/bin` and common Homebrew paths and locates `composio` explicitly; if the CLI lives elsewhere, set `COMPOSIO_BIN` in the plist's `EnvironmentVariables`. Inspect `launchctl print gui/$(id -u)/<label>` and the log in `~/Library/Logs/`.

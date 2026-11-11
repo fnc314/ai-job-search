@@ -2,7 +2,7 @@
 # `gmail-read-inbox`
 - **Version:** 1.0.0
 
-Fetch Gmail into the payload tracker.py collect consumes.
+Fetch email into the payload consumed by `mise run email:collect`.
 
 
 - **Usage:** `gmail-read-inbox [FLAGS]`
