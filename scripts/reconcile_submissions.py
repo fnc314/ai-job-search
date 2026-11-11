@@ -291,9 +291,9 @@ def reconcile(dry_run: bool = False):
                     "isConfirmed": True,
                     "confidence": "RECRUITER_LED",
                     "confirmedAt": "2026-11-04T03:31:47+00:00",
-                    "emailMessageId": "1a1a49df3ce93612",
-                    "source": "daniel.poland@capitalone.com",
-                    "details": "Recruiter-led candidate interaction and portal submission",
+                    "confirmationEmailMessageId": "1a1a49df3ce93612",
+                    "sourceSubject": "daniel.poland@capitalone.com",
+                    "notes": "Recruiter-led candidate interaction and portal submission",
                 }
                 proj["timeline"]["submittedAt"] = "2026-11-04T03:31:47+00:00"
                 proj["timeline"]["submissionConfirmedAt"] = "2026-11-04T03:31:47+00:00"

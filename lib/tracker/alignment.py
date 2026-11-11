@@ -312,7 +312,7 @@ def align_application(
         if old_fit is None or (old_fit != new_fit and (updated_doc or needs_id_update)):
             doc["fitRating"] = new_fit
             fit_event = eventsModule.buildEvent(
-                "event:fit-recalculated",
+                "RECALCULATE_FIT",
                 date=eventsModule.nowIso()[:10],
                 note=f"Recalculated fit: {eval_result['recommendation']}",
                 actor="actor:user",

@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`190100_markdown_rendering_in_artifacts_preview.md`](./2026-11-10/190100_markdown_rendering_in_artifacts_preview.md) | Draft / Proposed | Replace plain text display in MarkdownPreviewDialog with proper markdown rendering using `mikepenz/multiplatform-markdown-renderer` (M3) |
 | [`173600_unify_notes_and_events_timeline.md`](./2026-11-10/173600_unify_notes_and_events_timeline.md) | Completed | Single source of truth for application activity, elimination of duplicate NOTES section, subcollection event querying, and interview scheduling (`scheduledAt`) |
 | [`172200_interactive_artifacts_presentation_and_in_app_viewer_plan.md`](./2026-11-10/172200_interactive_artifacts_presentation_and_in_app_viewer_plan.md) | Completed | Interactive Artifact Presentation in KMC frontend/apps: query Firestore artifacts, launch dedicated apps (PDF, URL, external), in-app text/markdown viewer setting & preview modal, local artifact sync, **PlatformFileReader** for local-only artifacts |
 | [`164050_email_evidence_taxonomy_and_tui_rectification.md`](./2026-11-10/164050_email_evidence_taxonomy_and_tui_rectification.md) | Completed | RM-006: Top-level emails collection, EmailStatus taxonomy, backend backfill & rectification service, TUI rectification mode, and in-context GUI email evidence display |

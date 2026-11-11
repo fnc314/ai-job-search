@@ -49,6 +49,17 @@ EVENT_IMPLIED_STATUS = {
 # Event types that must never silently move the funnel: they describe activity
 # inside the current status, or describe the record itself.
 NON_STATUS_EVENTS = {
+    "ACKNOWLEDGE",
+    "COMPLETE_INTERVIEW",
+    "ASSESS",
+    "SEND_FOLLOW_UP",
+    "TAILOR_DOCUMENT",
+    "RECALCULATE_FIT",
+    "ADD_ARTIFACT",
+    "ADD_NOTE",
+    "IMPORT",
+    "CORRECT_STATUS",
+    # Legacy aliases
     "event:acknowledged",
     "event:interview-completed",
     "event:assessment",
@@ -58,7 +69,6 @@ NON_STATUS_EVENTS = {
     "event:artifact-added",
     "event:note-added",
     "event:imported",
-    "CORRECT_STATUS",
 }
 
 

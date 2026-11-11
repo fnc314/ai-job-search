@@ -168,9 +168,9 @@ def project(application: dict, events: list[dict]) -> dict:
             "isConfirmed": True,
             "confidence": "CONFIRMED_SCRAPED",
             "confirmedAt": tl["submissionConfirmedAt"] or earliest_ack.get("date"),
-            "emailMessageId": earliest_ack.get("emailMessageId") or existing_conf.get("emailMessageId"),
-            "source": earliest_ack.get("actor", "USER"),
-            "details": earliest_ack.get("note") or "Employer confirmation email scraped and matched",
+            "confirmationEmailMessageId": earliest_ack.get("emailMessageId") or existing_conf.get("confirmationEmailMessageId"),
+            "sourceSubject": earliest_ack.get("actor", "USER"),
+            "notes": earliest_ack.get("note") or "Employer confirmation email scraped and matched",
         }
     elif existing_conf.get("isConfirmed"):
         projected["submissionConfirmation"] = existing_conf
@@ -180,9 +180,9 @@ def project(application: dict, events: list[dict]) -> dict:
             "isConfirmed": False,
             "confidence": "UNCONFIRMED_USER_MARKED",
             "confirmedAt": None,
-            "emailMessageId": None,
-            "source": earliest_apply.get("actor", "USER"),
-            "details": "User marked application as submitted without employer acknowledgment email",
+            "confirmationEmailMessageId": None,
+            "sourceSubject": earliest_apply.get("actor", "USER"),
+            "notes": "User marked application as submitted without employer acknowledgment email",
         }
 
     implied = eventsModule.latestStatus(events)

@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
   alias(libs.plugins.kotlinJvm)
+  alias(libs.plugins.kotlinSerialization)
   alias(libs.plugins.dokka)
 }
 
@@ -20,6 +21,7 @@ kotlin {
 dependencies {
   implementation(projects.recordsProto)
   implementation(libs.protobuf.kotlin)
+  implementation(libs.kotlinx.serialization.json)
 
   testImplementation(kotlin("test"))
   testImplementation(libs.konsist)

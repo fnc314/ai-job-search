@@ -10,6 +10,7 @@ import dev.fnc314.tools.jobtracker.cli.commands.BackfillParentCommand
 import dev.fnc314.tools.jobtracker.cli.commands.CheckCommand
 import dev.fnc314.tools.jobtracker.cli.commands.GetApplicationCommand
 import dev.fnc314.tools.jobtracker.cli.commands.ListApplicationsCommand
+import dev.fnc314.tools.jobtracker.cli.commands.RankCommand
 import dev.fnc314.tools.jobtracker.cli.commands.SeedCommand
 import dev.fnc314.tools.jobtracker.cli.commands.UpdateScoreCommand
 import dev.fnc314.tools.jobtracker.cli.commands.UpdateStatusCommand
@@ -30,6 +31,7 @@ public class TrackerCommand : CliktCommand(name = "tracker") {
             AddEventCommand(),
             BackfillParentCommand(),
             AlignCommand(),
+            RankCommand(),
             SeedCommand(),
         )
     }

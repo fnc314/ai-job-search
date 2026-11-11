@@ -62,6 +62,7 @@ internal fun ArtifactsList(
     modifier: Modifier = Modifier,
     settings: AppSettings = AppSettings(),
     fileOpener: PlatformFileOpener = remember { PlatformFileOpener() },
+    fetchContent: suspend (String) -> String? = { null },
 ): Unit {
     var previewMarkdownArtifact by remember { mutableStateOf<TrackerArtifact?>(null) }
 
@@ -69,6 +70,7 @@ internal fun ArtifactsList(
         MarkdownPreviewDialog(
             artifact = previewMarkdownArtifact!!,
             onDismiss = { previewMarkdownArtifact = null },
+            fetchContent = fetchContent,
         )
     }
 

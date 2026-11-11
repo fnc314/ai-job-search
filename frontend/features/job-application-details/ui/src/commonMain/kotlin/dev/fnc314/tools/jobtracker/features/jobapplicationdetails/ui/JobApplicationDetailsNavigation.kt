@@ -1,6 +1,7 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui
 
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
+import dev.fnc314.tools.jobtracker.core.data.source.NetworkDataSource
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureNavigationHook
 import dev.fnc314.tools.jobtracker.core.navigation.NavKey
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.Res
@@ -8,6 +9,7 @@ import fnc314jobsearchtracker.features_job_application_details_ui.generated.reso
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
+import org.koin.compose.koinInject
 
 /**
  * Navigation destination route for viewing detailed information about a specific job application.
