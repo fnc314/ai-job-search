@@ -203,7 +203,9 @@ public fun App() {
           }
         }
 
-        setInspectorEnabled(settings.enableKmpInspector)
+        LaunchedEffect(settings.enableKmpInspector) {
+          setInspectorEnabled(settings.enableKmpInspector)
+        }
         KmpInspector(enabled = settings.enableKmpInspector, content = appContent)
       }
     }

@@ -14,8 +14,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Business
 import androidx.compose.material.icons.outlined.Edit
@@ -38,7 +36,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.navigation.Navigator
 import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestination
@@ -52,8 +49,6 @@ import dev.fnc314.tools.jobtracker.features.settings.ui.SettingsRoute
 import dev.fnc314.tools.jobtracker.features.trackeredits.ui.EditsRoute
 import fnc314jobsearchtracker.apps_core.generated.resources.Res
 import fnc314jobsearchtracker.apps_core.generated.resources.app_action_back
-import fnc314jobsearchtracker.apps_core.generated.resources.app_action_globe
-import fnc314jobsearchtracker.apps_core.generated.resources.app_action_refresh
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_applications
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_applications_cd
 import fnc314jobsearchtracker.apps_core.generated.resources.app_nav_companies
@@ -72,7 +67,6 @@ import org.jetbrains.compose.resources.stringResource
  * @param isAuthenticated Whether a valid authenticated user session is active.
  * @param snackbarHostState State manager for displaying transient snackbar alerts.
  * @param modifier Composable layout modifier.
- * @param onRefreshClick Callback triggered when the refresh top bar action is pressed.
  * @param content Slot rendering screen content with appropriate scaffold padding.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,7 +76,6 @@ public fun AppScaffold(
   isAuthenticated: Boolean,
   snackbarHostState: SnackbarHostState,
   modifier: Modifier = Modifier,
-  onRefreshClick: () -> Unit = {},
   content: @Composable (PaddingValues) -> Unit,
 ) {
   val windowSizeClass = LocalWindowSizeClass.current
@@ -160,30 +153,14 @@ public fun AppScaffold(
                 contentDescription = stringResource(Res.string.app_action_back),
               )
             }
-          } else if (isAuthenticated && isTopLevelDestination) {
+          }
+        },
+        actions = {
+          if (isAuthenticated && isTopLevelDestination) {
             IconButton(onClick = { navigator.navigate(SettingsRoute) }) {
               Icon(
                 imageVector = Icons.Filled.Settings,
                 contentDescription = stringResource(Res.string.app_nav_settings_cd),
-              )
-            }
-          }
-        },
-        actions = {
-          val destinationWebsite = (currentDestination as? CompanyDetailsRoute)?.website
-          if (!destinationWebsite.isNullOrBlank()) {
-            IconButton(onClick = { PlatformFileOpener().openUrl(destinationWebsite) }) {
-              Icon(
-                imageVector = Icons.Filled.Public,
-                contentDescription = stringResource(Res.string.app_action_globe),
-              )
-            }
-          }
-          if (isAuthenticated) {
-            IconButton(onClick = onRefreshClick) {
-              Icon(
-                imageVector = Icons.Filled.Refresh,
-                contentDescription = stringResource(Res.string.app_action_refresh),
               )
             }
           }
