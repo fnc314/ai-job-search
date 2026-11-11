@@ -103,15 +103,22 @@ def main():
             print(f"  Reason:            {reason}")
     print()
 
-    # Item list
+    # Item list with headers
     if items:
         print("  Active Items:")
-        print("  " + "-" * 56)
+        print("  " + "-" * 76)
+        # Column headers
+        print(f"  {'ID':<8s}  {'Title':<28s}  {'Crit':<8s}  {'Status':<12s}  {'Done':>4s}  {'Age':<5s}")
+        print("  " + "-" * 76)
         for item in items:
             item_id = item.get("id", "?")
-            title = item.get("title", "?")[:30]
+            title = item.get("title", "?")
+            # Truncate title if too long
+            if len(title) > 28:
+                title = title[:25] + "..."
             crit = item.get("criticality", "?")
             status = item.get("status", "?")
+            completion = item.get("completion_percent", "0")
             age = "?"
             creation = item.get("creation_date", "")
             if creation:
@@ -120,7 +127,7 @@ def main():
                     age = f"{(today - created).days}d"
                 except ValueError:
                     pass
-            print(f"    {item_id}  {title:30s}  {crit:8s}  {status:10s}  {age}")
+            print(f"  {item_id:<8s}  {title:<28s}  {crit:<8s}  {status:<12s}  {completion:>3s}%  {age:<5s}")
         print()
 
     print("=" * 60)
