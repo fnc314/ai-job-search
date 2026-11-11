@@ -234,6 +234,7 @@ public object Factory {
      * @param sha256 Content hash.
      * @param storage Cloud Storage bucket coordinates [ArtifactStorage].
      * @param localPath Local filesystem path.
+     * @param content Inline text content for small text-based artifacts.
      * @param externalUrl Remote access URL.
      * @param createdAt Creation timestamp. Defaults to [Clock.System.now].
      * @return A constructed [TrackerArtifact] instance.
@@ -248,6 +249,7 @@ public object Factory {
         sha256: String? = null,
         storage: ArtifactStorage? = null,
         localPath: String? = null,
+        content: String? = null,
         externalUrl: String? = null,
         createdAt: Instant? = Clock.System.now(),
     ): TrackerArtifact = TrackerArtifact(
@@ -260,6 +262,7 @@ public object Factory {
         sha256 = sha256,
         storage = storage,
         localPath = localPath,
+        content = content,
         externalUrl = externalUrl,
         createdAt = createdAt,
     )

@@ -317,6 +317,7 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
       sha256 = record.getString("sha256"),
       storage = storage,
       localPath = record.getString("localPath") ?: record.getString("driveUrl"),
+      content = record.getString("content"),
       externalUrl = record.getString("externalUrl"),
       createdAt = createdAt,
     )

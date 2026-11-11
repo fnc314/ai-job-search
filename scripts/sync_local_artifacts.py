@@ -6,7 +6,7 @@ application documents, and writes/updates the applications/{id}/artifacts
 subcollection with proper metadata (sha256, size, contentType, kind).
 
 Usage:
-    mise run tracker:artifacts:sync [--dry-run] [--company <company>]
+    mise run artifacts:sync [--dry-run] [--company <company>]
 
 Environment:
     TRACKER_ALLOW_WRITES=1  Required for live writes (otherwise dry-run only).
@@ -16,10 +16,10 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
 import mimetypes
 import os
 import sys
+import uuid
 from pathlib import Path
 
 # ── Repo root resolution ────────────────────────────────────────────────
@@ -31,21 +31,16 @@ def find_repo_root() -> Path:
     return root
 
 
-# ── Firestore client (lazy) ─────────────────────────────────────────────
+# ── Firestore client (uses shared client.py) ────────────────────────────
 
 def get_firestore():
-    """Return a Firestore client, importing firebase-admin only when needed."""
-    import firebase_admin
-    from firebase_admin import credentials, firestore
-
-    if not firebase_admin._apps:
-        cred_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-        if cred_path:
-            cred = credentials.Certificate(cred_path)
-        else:
-            cred = credentials.ApplicationDefault()
-        firebase_admin.initialize_app(cred)
-    return firestore.client()
+    """Return a Firestore client using the shared client module."""
+    # Add scripts dir to path so we can import client
+    scripts_dir = Path(__file__).resolve().parent
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+    from client import getDb
+    return getDb()
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────
@@ -77,6 +72,23 @@ def classify_kind(filename: str) -> str:
 def content_type(path: Path) -> str:
     guess, _ = mimetypes.guess_type(str(path))
     return guess or "application/octet-stream"
+
+
+# Maximum size for inline content storage (100 KB)
+INLINE_CONTENT_MAX_SIZE = 100 * 1024
+
+
+def read_inline_content(file_path: Path, content_type: str) -> str | None:
+    """Read file content for inline storage if it's a small text file."""
+    if not content_type.startswith("text/"):
+        return None
+    try:
+        size = file_path.stat().st_size
+        if size > INLINE_CONTENT_MAX_SIZE:
+            return None
+        return file_path.read_text(encoding="utf-8")
+    except Exception:
+        return None
 
 
 def slugify(text: str) -> str:
@@ -137,6 +149,16 @@ def get_existing_artifacts(db, app_id: str) -> dict[str, dict]:
     return artifacts
 
 
+def find_existing_artifact_doc_id(db, app_id: str, filename: str) -> str | None:
+    """Find the document ID of an existing artifact by filename."""
+    collection = db.collection(f"applications/{app_id}/artifacts")
+    for doc in collection.stream():
+        doc_data = doc.to_dict()
+        if doc_data and doc_data.get("filename") == filename:
+            return doc.id
+    return None
+
+
 def sync_file(
     file_path: Path,
     app_id: str,
@@ -152,6 +174,7 @@ def sync_file(
     sha = file_sha256(file_path)
     ct = content_type(file_path)
     kind = classify_kind(filename)
+    inline_content = read_inline_content(file_path, ct)
 
     existing_artifact = existing.get(filename)
     changed = False
@@ -162,7 +185,8 @@ def sync_file(
         if (existing_artifact.get("sha256") != sha or
             existing_artifact.get("size") != file_size or
             existing_artifact.get("localPath") != rel_path or
-            existing_artifact.get("kind") != kind):
+            existing_artifact.get("kind") != kind or
+            existing_artifact.get("content") != inline_content):
             changed = True
             reason = "updated"
     else:
@@ -173,14 +197,15 @@ def sync_file(
         return {"status": "unchanged", "file": str(file_path)}
 
     artifact_doc = {
-        "artifactId": existing_artifact.get("artifactId"),
+        "artifactId": existing_artifact.get("artifactId") if existing_artifact else None,
         "kind": kind,
         "filename": filename,
         "contentType": ct,
         "size": file_size,
         "sha256": sha,
         "localPath": rel_path,
-        "createdAt": existing_artifact.get("createdAt"),
+        "content": inline_content,
+        "createdAt": existing_artifact.get("createdAt") if existing_artifact else None,
     }
 
     if dry_run:
@@ -195,24 +220,16 @@ def sync_file(
 
     # Write to Firestore
     collection = db.collection(f"applications/{app_id}/artifacts")
-    if existing_artifact.get("artifactId"):
+    if existing_artifact and existing_artifact.get("artifactId"):
         # Update existing document
-        doc_id = None
-        for doc in collection.stream():
-            doc_data = doc.to_dict()
-            if doc_data and doc_data.get("filename") == filename:
-                doc_id = doc.id
-                break
+        doc_id = find_existing_artifact_doc_id(db, app_id, filename)
         if doc_id:
             collection.document(doc_id).set(artifact_doc, merge=True)
         else:
-            # Generate new ID
-            import uuid
             new_id = str(uuid.uuid4())
             artifact_doc["artifactId"] = new_id
             collection.document(new_id).set(artifact_doc)
     else:
-        import uuid
         new_id = str(uuid.uuid4())
         artifact_doc["artifactId"] = new_id
         collection.document(new_id).set(artifact_doc)

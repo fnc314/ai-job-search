@@ -330,9 +330,16 @@ internal fun MarkdownPreviewDialog(
         val storage = artifact.storage
         val externalUrl = artifact.externalUrl
         val localPath = artifact.localPath
+        val inlineContent = artifact.content
         var fetched = false
 
-        // Try 1: Fetch from external URL (signed URL or public link)
+        // Try 1: Use inline content stored in Firestore (best for mobile)
+        if (!fetched && inlineContent != null) {
+            content = inlineContent
+            fetched = true
+        }
+
+        // Try 2: Fetch from external URL (signed URL or public link)
         if (!fetched && externalUrl != null) {
             val urlContent = fetchContent(externalUrl)
             if (urlContent != null) {
@@ -341,7 +348,7 @@ internal fun MarkdownPreviewDialog(
             }
         }
 
-        // Try 2: Fall back to GCS storage URL
+        // Try 3: Fall back to GCS storage URL
         if (!fetched && storage != null) {
             val gcsUrl = "https://storage.googleapis.com/${storage.bucket}/${storage.path}"
             val gcsContent = fetchContent(gcsUrl)
@@ -351,7 +358,7 @@ internal fun MarkdownPreviewDialog(
             }
         }
 
-        // Try 3: Read from local filesystem
+        // Try 4: Read from local filesystem (desktop/JVM only)
         if (!fetched && localPath != null) {
             val localContent = PlatformFileReader.readText(localPath)
             if (localContent != null) {

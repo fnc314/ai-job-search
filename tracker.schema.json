@@ -975,6 +975,13 @@
           ],
           "description": "Repo-relative path, kept so the TUI can open the local file directly."
         },
+        "content": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Inline text content for small text-based artifacts (Markdown, plain text). Populated during sync for artifacts under the size threshold so mobile apps can preview without cloud storage or local file access."
+        },
         "externalUrl": {
           "$ref": "#/$defs/nullableString"
         },

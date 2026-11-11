@@ -14,6 +14,7 @@ import kotlin.time.Instant
  * @property sha256 Cryptographic SHA-256 checksum for content integrity verification.
  * @property storage Cloud Storage reference [ArtifactStorage] specifying the bucket and object key.
  * @property localPath Local filesystem path if cached or generated locally.
+ * @property content Inline text content for small text-based artifacts (Markdown, plain text).
  * @property externalUrl Public or signed URL for remote artifact access.
  * @property createdAt Timestamp when the artifact was compiled or staged.
  * @see TrackerArtifactKind
@@ -29,6 +30,7 @@ public data class TrackerArtifact(
     public val sha256: String?,
     public val storage: ArtifactStorage?,
     public val localPath: String?,
+    public val content: String?,
     public val externalUrl: String?,
     public val createdAt: Instant?,
 )

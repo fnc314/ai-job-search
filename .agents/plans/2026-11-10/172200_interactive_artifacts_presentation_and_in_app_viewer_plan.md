@@ -8,6 +8,7 @@
 **Schema Authority:** `tracker.schema.json` v10 (`$defs/artifact`)  
 **Defects Fixed:**
 - `MarkdownPreviewDialog` ignored `localPath` and only tried cloud storage URLs, showing "No cloud storage URL available" for local-only artifacts. Added `PlatformFileReader` expect/actual class and fallback logic to read local files when cloud storage is unavailable.
+- `PlatformFileReader` on Android could not resolve repo-relative `localPath` because the project root doesn't exist on the device. Added `content` field to the artifact schema and model for inline text storage. Sync script now reads and stores content for text-based artifacts (<100KB) directly in Firestore. `MarkdownPreviewDialog` uses inline content as the first fallback, making text artifacts accessible on all platforms without local file access.
 
 ---
 
