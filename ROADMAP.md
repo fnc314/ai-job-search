@@ -225,6 +225,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Status:** DONE
 **Completion %:** 100
 **Creation Date:** 2026-10-06
+**Completed Date:** 2026-11-10
 **Objective:** Investigate migrating `events` to a top-level collection aligned with `applications` and evaluate the value, query impact, and metrics implications. A no-op outcome is acceptable if the investigation shows no benefit.
 
 **Scope:**
@@ -270,6 +271,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Status:** DONE
 **Completion %:** 100
 **Creation Date:** 2026-10-06
+**Completed Date:** 2026-11-10
 **Objective:** Integrate LinkedIn to enrich the `companies` collection with `industry` tags and `logo` metadata during `/scrape` for roles that are surfaced to `/apply`.
 
 **Scope:**
@@ -319,6 +321,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Status:** DONE
 **Completion %:** 100
 **Creation Date:** 2026-11-10
+**Completed Date:** 2026-11-10
 **Objective:** Surface the evidence used behind automated decisions to records. Introduce a top-level `emails` collection in Firestore, a backend backfill & rectification service, an interactive TUI rectification mode, and in-context email evidence viewing on application detail records.
 
 **Dependencies:** None
