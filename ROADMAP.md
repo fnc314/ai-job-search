@@ -326,6 +326,29 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | 2026-11-10 | Status update     | Started implementation per approved plan 164050 |
 | 2026-11-10 | Item created      | Initial entry                        |
 
+
+---
+
+### [RM-007] Fix KMP Inspector
+
+**Short Desc:** Fix KMP Inspector to address Room and Ktor integrations on all platforms
+**Criticality:** PIVOTAL
+**Priority:** CRITICAL
+**Complexity:** 0 — Unknown
+**Status:** OPEN
+**Completion %:** 0
+**Creation Date:** 2026-11-10
+**Objective:** Fix the integration of KMP Inspector so Room and Ktor traffic is captured on all (supported) platforms
+
+**Dependencies:** None
+
+**Linked Plans:**
+- None
+
+**Changelog:**
+| Date       | Change            | Details                              |
+|------------|-------------------|--------------------------------------|
+| 2026-11-10 | Item created      | Initial entry                        |
 ## Frozen Items
 
 Items in this section have been frozen via the nuclear clear roadmap option. They are archived and should not be considered active work items.
