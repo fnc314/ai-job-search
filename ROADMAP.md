@@ -62,7 +62,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Complexity:** 5 — Critical
 **Status:** IN_PROGRESS
 **Completion %:** 60
-**Creation Date:** 2026-09-01
+**Creation Date:** 2026-11-10
 **Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/cli`).
 
 **Scope:**
@@ -126,7 +126,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Complexity:** 4 — Complex
 **Status:** OPEN
 **Completion %:** 0
-**Creation Date:** 2026-09-01
+**Creation Date:** 2026-11-10
 **Objective:** Enforce `.agents/*` as the canonical and EXCLUSIVE home for all AI contributions from this repository. Encapsulate key operations (tool calls, database knowledge, workflows) into consumable, self-contained plugins for maximum AI-agent portability.
 
 **Scope:**
@@ -174,7 +174,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Complexity:** 3 — Moderate
 **Status:** IN_PROGRESS
 **Completion %:** 75
-**Creation Date:** 2026-09-01
+**Creation Date:** 2026-11-10
 **Objective:** Migrate existing deterministic Python functionalities and expose them to both `backend/` and `frontend/apps` projects. This sets the high-level requirement for any backend functionality created — deterministic tasks that don't require AI oversight should be offloaded to regular computation environments or automated processes.
 
 **Scope:**
@@ -224,7 +224,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Complexity:** 2 — Simple
 **Status:** DONE
 **Completion %:** 100
-**Creation Date:** 2026-10-06
+**Creation Date:** 2026-11-10
 **Completed Date:** 2026-11-10
 **Objective:** Investigate migrating `events` to a top-level collection aligned with `applications` and evaluate the value, query impact, and metrics implications. A no-op outcome is acceptable if the investigation shows no benefit.
 
@@ -270,7 +270,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Complexity:** 1 — Trivial
 **Status:** DONE
 **Completion %:** 100
-**Creation Date:** 2026-10-06
+**Creation Date:** 2026-11-10
 **Completed Date:** 2026-11-10
 **Objective:** Integrate LinkedIn to enrich the `companies` collection with `industry` tags and `logo` metadata during `/scrape` for roles that are surfaced to `/apply`.
 
