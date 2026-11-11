@@ -1,56 +1,57 @@
 [versions]
   agp = "9.5.1"
   android-compile-sdk = "37"
-  android-gradle-plugin = "8.5.1"
   android-min-sdk = "24"
   android-target-sdk = "37"
   androidx-activity = "1.13.0"
   androidx-appcompat = "1.8.0"
   androidx-core = "1.19.1"
-  androidx-credentials = "1.6.0"
   androidx-espresso = "3.7.0"
   androidx-lifecycle = "2.11.0"
-  androidx-room3 = "3.0.3"
-  androidx-sqlite = "2.7.1"
   androidx-test-ext = "1.3.0"
   androidx-test-runner = "1.7.0"
-  clikt = "5.0.3"
-  coil = "3.6.3"
-  compose-constraint-layout = "1.1.2"
-  compose-material-icons = "1.7.3"
-  compose-multiplatform = "1.12.2"
-  compose-rules = "0.6.8"
-  desugar = "2.1.5"
-  detekt = "1.23.8"
-  dokka = "2.3.0"
-  firebase-admin = "9.5.0"
-  firebase-auth = "25.0.0"
-  firebase-bom = "35.1.0"
-  firebase-firestore = "27.1.0"
+  androidx-credentials = "1.6.0"
+  androidx-room3 = "3.0.3"
+  androidx-sqlite = "2.7.1"
   google-id = "1.2.1"
-  google-play-services = "4.5.0"
-  java-toolchain = "17"
+  compose-multiplatform = "1.12.2"
+  compose-material-icons = "1.7.3"
+  compose-constraint-layout = "1.1.2"
+  firebase-bom = "35.1.0"
+  firebase-auth = "25.0.0"
+  firebase-firestore = "27.1.0"
+  firebase-admin = "9.5.0"
   junit = "4.13.2"
-  jvm = "17"
-  kmp-inspector = "1.0.2"
   koin = "4.2.2"
   koin-compiler = "1.2.3"
-  konsist = "0.18.1"
   kotlin = "2.4.21"
   kotlin-wrappers = "2026.11.0"
   kotlinx-collections-immutable = "0.5.2"
   kotlinx-coroutines = "1.11.0"
   kotlinx-datetime = "0.8.0"
   kotlinx-serialization = "1.12.0"
-  ksp = "2.3.13"
   ktor = "3.6.1"
   material3 = "1.12.0-alpha03"
-  materialKolor = "6.0.0"
   mockk = "1.14.12"
-  mordant = "3.0.2"
   navigation-compose = "2.10.0"
   navigation3 = "1.2.1"
+  jvm = "17"
+  java-toolchain = "17"
+  google-play-services = "4.5.0"
   node = "26.13.0"
+  ksp = "2.3.13"
+  dokka = "2.3.0"
+  android-gradle-plugin = "8.5.1"
+  clikt = "5.0.3"
+  coil = "3.6.3"
+  compose-rules = "0.6.8"
+  desugar = "2.1.5"
+  detekt = "1.23.8"
+  kmp-inspector = "1.0.2"
+  konsist = "0.18.1"
+  markdown-renderer = "0.46.0"
+  materialKolor = "6.0.0"
+  mordant = "3.0.2"
   protobuf = "4.28.2"
   protobuf-gradle-plugin = "0.9.4"
   records = "1.0.0"
@@ -81,6 +82,7 @@
   compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
   compose-gradle-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-multiplatform" }
   compose-material-icons-core = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "compose-material-icons" }
+  compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "compose-material-icons" }
   compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
   compose-rules-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "compose-rules" }
   compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
@@ -129,6 +131,7 @@
   ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
   ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
   ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+  markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown-renderer" }
   materialKolor-material3 = { module = "com.materialkolor:material-kolor-material3", version.ref = "materialKolor" }
   mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
   mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
@@ -151,6 +154,7 @@
     "compose-components-resources",
     "compose-uiToolingPreview",
     "compose-material-icons-core",
+    "compose-material-icons-extended",
     "kotlinx-collections-immutable",
   ]
   compose-tooling = [
