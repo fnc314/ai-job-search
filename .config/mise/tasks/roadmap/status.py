@@ -103,6 +103,38 @@ def main():
             print(f"  Reason:            {reason}")
     print()
 
+    # ANSI codes for dimming and strike-through
+    DIM = "\033[2m"
+    STRIKE = "\033[9m"
+    RESET = "\033[0m"
+
+    # Split items into active (non-DONE) and completed (DONE), preserving sort order
+    active_items = [item for item in items if item.get("status", "").upper() != "DONE"]
+    completed_items = [item for item in items if item.get("status", "").upper() == "DONE"]
+
+    def format_item_row(item, is_completed=False):
+        item_id = item.get("id", "?")
+        title = item.get("title", "?")
+        # Truncate title if too long
+        if len(title) > 28:
+            title = title[:25] + "..."
+        crit = item.get("criticality", "?")
+        status = item.get("status", "?")
+        completion = item.get("completion_percent", "0")
+        age = "?"
+        creation = item.get("creation_date", "")
+        if creation:
+            try:
+                created = datetime.strptime(creation, "%Y-%m-%d").date()
+                age = f"{(today - created).days}d"
+            except ValueError:
+                pass
+        row = f"  {item_id:<8s}  {title:<28s}  {crit:<8s}  {status:<12s}  {completion:>3s}%  {age:<5s}"
+        if is_completed:
+            # Apply strike-through and dim to the entire row
+            row = DIM + STRIKE + row + RESET
+        return row
+
     # Item list with headers
     if items:
         print("  Active Items:")
@@ -110,24 +142,14 @@ def main():
         # Column headers
         print(f"  {'ID':<8s}  {'Title':<28s}  {'Crit':<8s}  {'Status':<12s}  {'Done':>4s}  {'Age':<5s}")
         print("  " + "-" * 76)
-        for item in items:
-            item_id = item.get("id", "?")
-            title = item.get("title", "?")
-            # Truncate title if too long
-            if len(title) > 28:
-                title = title[:25] + "..."
-            crit = item.get("criticality", "?")
-            status = item.get("status", "?")
-            completion = item.get("completion_percent", "0")
-            age = "?"
-            creation = item.get("creation_date", "")
-            if creation:
-                try:
-                    created = datetime.strptime(creation, "%Y-%m-%d").date()
-                    age = f"{(today - created).days}d"
-                except ValueError:
-                    pass
-            print(f"  {item_id:<8s}  {title:<28s}  {crit:<8s}  {status:<12s}  {completion:>3s}%  {age:<5s}")
+        for item in active_items:
+            print(format_item_row(item, is_completed=False))
+        if completed_items:
+            print()
+            print("  Completed:")
+            print("  " + "-" * 76)
+            for item in completed_items:
+                print(format_item_row(item, is_completed=True))
         print()
 
     print("=" * 60)
