@@ -287,6 +287,6 @@ Update the three ASCII diagrams in README.md to reflect the Kotlin-first archite
 ## 5. Bookkeeping
 - [x] Plan persisted at `.agents/plans/2026-11-10/192641_rm-001-python-to-kotlin-migration-plan.md`
 - [x] Registry `README.md` row added / status synchronized
-- [ ] Craft a single commit of all changed files
-- [ ] Stage changed files and craft a commit message based on the name of this file
-- [ ] Push `git push origin main`
+- [x] Craft a single commit of all changed files (`8f0f56fc`)
+- [x] Stage changed files and craft a commit message based on the name of this file
+- [x] Push `git push origin main`
