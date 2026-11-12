@@ -18,6 +18,7 @@ kotlin {
             implementation(projects.coreWidgets)
             implementation(libs.bundles.androidx.lifecycle.compose)
             implementation(libs.bundles.coil)
+            implementation(libs.compose.icons.font.awesome.brands)
             implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {

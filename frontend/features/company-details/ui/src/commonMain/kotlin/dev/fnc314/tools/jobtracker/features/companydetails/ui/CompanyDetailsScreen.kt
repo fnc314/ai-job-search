@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Public
+import com.composables.icons.fontawesome.FontAwesome
+import com.composables.icons.fontawesome.brands.Linkedin
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -244,7 +246,7 @@ private fun CompanyOverviewCard(
                                     Res.string.company_details_open_linkedin_tooltip,
                                     details.companyName,
                                 ),
-                                icon = Icons.Default.Public,
+                                icon = FontAwesome.Brands.Linkedin,
                                 onClick = { onOpenUrl(details.linkedinUrl) },
                             )
                         }

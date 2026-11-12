@@ -55,6 +55,7 @@
   protobuf = "4.28.2"
   protobuf-gradle-plugin = "0.9.4"
   records = "1.0.0"
+  compose-icons = "2.2.1"
 
 [libraries]
   android-gradle-plugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "agp" }
@@ -144,6 +145,7 @@
   records-parser = { group = "dev.fnc314.tools.jobsearch.records", name = "records-parser", version.ref = "records" }
   records-proto = { group = "dev.fnc314.tools.jobsearch.records", name = "records-proto", version.ref = "records" }
   wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
+  compose-icons-font-awesome-brands = { module = "com.composables:icons-font-awesome-brands-cmp", version.ref = "compose-icons" }
 
 [bundles]
   compose-ui = [
