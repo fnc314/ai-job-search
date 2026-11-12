@@ -1,31 +1,23 @@
 [tools]
-  # Pinned to match .github/workflows/ci.yml. The tracker scripts own the only
-  # copy of the application record, so the interpreter is not allowed to drift.
-  python = "3.15.2"
-  bun = "1.4.4"
-  usage = { version = "7.3.0", workflow = "publish-cli.yml" }
-  gradle = "9.9.1"
-  java = "26.0.2+101"
-  node = "26.13.0"
+# Pinned to match .github/workflows/ci.yml. The tracker scripts own the only
+# copy of the application record, so the interpreter is not allowed to drift.
+python = "3.15.2"
+bun = "1.4.4"
+usage = { version = "7.3.0", workflow = "publish-cli.yml" }
+gradle = "9.9.1"
+java = "26.0.2+101"
+node = "26.13.1"
 
 [env]
-  WORKSPACE_ROOT = "{{config_root}}"
-  _ = {
-    file = ".env.local",
-    python = {
-      venv = {
-        path = ".venv",
-        create = false
-      }
-    }
-  }
-  PYTHONPATH = "{{config_root}}/lib:{{config_root}}/scripts:{{config_root}}"
-  TRACKER_ALLOW_WRITES = "1"
-  TRACKER_SOURCE = "store"
-  MISE_TASK = "1"
-  # TUI log cleanup settings (used by the `cd` hook)
-  TUI_LOG_RETENTION_DAYS = "7"                                                          # Days to keep TUI log directories (0 = always clean)
-  TUI_LOG_COOLDOWN_HOURS = "24"                                                         # Hours between cleanup prompts
-  ANDROID_USER_HOME = "/Users/fnc314/.android"
-  ANDROID_HOME = "/Users/fnc314/.android/sdk"
-  JAVA_HOME = "/Users/fnc314/.local/share/mise/installs/java/26.0.2+101/Contents/Home"
+WORKSPACE_ROOT = "{{config_root}}"
+_ = { file = ".env.local", python = { venv = { path = ".venv", create = false } } }
+PYTHONPATH = "{{config_root}}/lib:{{config_root}}/scripts:{{config_root}}"
+TRACKER_ALLOW_WRITES = "1"
+TRACKER_SOURCE = "store"
+MISE_TASK = "1"
+# TUI log cleanup settings (used by the `cd` hook)
+TUI_LOG_RETENTION_DAYS = "7"                                                          # Days to keep TUI log directories (0 = always clean)
+TUI_LOG_COOLDOWN_HOURS = "24"                                                         # Hours between cleanup prompts
+ANDROID_USER_HOME = "/Users/fnc314/.android"
+ANDROID_HOME = "/Users/fnc314/.android/sdk"
+JAVA_HOME = "/Users/fnc314/.local/share/mise/installs/java/26.0.2+101/Contents/Home"
