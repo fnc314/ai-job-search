@@ -260,7 +260,7 @@ internal class JobApplicationDetailViewModelTest {
 
         viewModel.onIntent(
             JobApplicationDetailUiIntent.RecordEvent(
-                type = TrackerEventType.RECRUITER_SCREEN,
+                type = TrackerEventType.RECRUITER_SCREEN_EVENT,
                 notes = "Screen went very well",
             )
         )

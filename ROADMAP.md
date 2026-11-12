@@ -51,6 +51,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | DONE   |
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
 | RM-007   | Fix KMP Inspector                      | Fix Room and Ktor integrations       | PIVOTAL    | CRITICAL | 0 d    | DONE        |
+| RM-009   | Unify Top-Level Card Component         | Unify Card skeletal approach         | HIGH       | MEDIUM   | 0 d    | OPEN        |
 
 ---
 
@@ -389,6 +390,53 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-11 | Completed         | Integrated MaterialKolor 6.0.0, replaced manual color derivation with DynamicMaterialExpressiveTheme, removed buildLightColorScheme and buildDarkColorScheme |
+| 2026-11-11 | Item created      | Initial entry                        |
+
+---
+
+### [RM-009] Unify Top-Level Card Component
+
+**Short Desc:** Unify Card skeletal approach
+**Criticality:** PIVOTAL
+**Priority:** CRITICAL
+**Complexity:** Moderate
+**Status:** OPEN
+**Completion %:** 0
+**Creation Date:** 2026-11-11
+**Objective:** Unify the base skeletal approach to the recycled `Card` treatment found in no less than 2 instances.
+
+## Instances
+- [`JobApplicationCard`](frontend/core/widgets/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/core/widgets/JobApplicationCard.kt)
+- [`CompanyCard`](frontend/features/companies-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/companieslist/ui/component/CompanyCard.kt)
+- ...
+
+## Objective
+1. Unify the responsive treatment to these "Top-Level" `Card`s
+2. Settle on a single `Grid` based layout, defining regions exposed to the caller as a variety of `@Composable` inputs
+	1. Annotate `@file:OptIn(ExperimentalGridApi::class)` instead of by function
+3. Expose the existing expand-collapse container treatment and act as a general navigation target when no content is hidden
+4. Equal treatment to action buttons displayed on the `Card`
+5. Elevation and surface color treatment variations
+
+### Side Quests
+1. Unify the presentation of a `CompanyLogo` size-wise and across all use-sites
+	1. Background of logo should be transparent when loaded and cropped/scaled to predefined sizes
+	2. Placeholder/Loading should be dynamic and/or indicative of loading (shimmer state or progress indicator)
+	3. Error states notify with a red banner across the top indicating the HTTP Code
+		1. Detailed logging handled by `Coil` setup
+2. Track instances that there are two instances of 1 company (Meta, Ford Motor Company, etc) in `companies` collection and
+	1. Trace the issue of the duplication (down to the data layer if necessary)
+	2. Outline a fix and migration to rectify the issue
+	3. Change architecture documentation to avoid the same fate in the future
+
+**Dependencies:** None
+
+**Linked Plans:**
+- None
+
+**Changelog:**
+| Date       | Change            | Details                              |
+|------------|-------------------|--------------------------------------|
 | 2026-11-11 | Item created      | Initial entry                        |
 ## Frozen Items
 

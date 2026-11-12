@@ -61,7 +61,7 @@ enum TrackerEventType {
   // event:acknowledged
   ACKNOWLEDGE = 2;
   // event:recruiter-screen
-  RECRUITER_SCREEN = 3;
+  RECRUITER_SCREEN_EVENT = 3;
   // event:interview-scheduled
   SCHEDULE_INTERVIEW = 4;
   // event:interview-completed
@@ -71,7 +71,7 @@ enum TrackerEventType {
   // event:onsite
   VISIT_ONSITE = 7;
   // event:offer
-  OFFER = 8;
+  OFFER_EVENT = 8;
   // event:offer-accepted
   ACCEPT_OFFER = 9;
   // event:offer-declined

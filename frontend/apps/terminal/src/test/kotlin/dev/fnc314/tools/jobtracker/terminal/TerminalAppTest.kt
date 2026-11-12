@@ -1,5 +1,8 @@
 package dev.fnc314.tools.jobtracker.terminal
 
+import dev.fnc314.tools.jobtracker.terminal.tracker.ApplicationRecord
+import dev.fnc314.tools.jobtracker.terminal.tracker.ProposalRecord
+import dev.fnc314.tools.jobtracker.terminal.tracker.TerminalApp
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive

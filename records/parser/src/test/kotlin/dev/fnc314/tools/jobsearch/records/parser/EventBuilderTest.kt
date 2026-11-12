@@ -26,10 +26,10 @@ class EventBuilderTest {
     @Test
     fun testImpliedStatusMapsStatusChangingEvents() {
         assertEquals(TrackerStatus.SUBMITTED, EventBuilder.impliedStatus(TrackerEventType.APPLY))
-        assertEquals(TrackerStatus.RECRUITER_SCREENED, EventBuilder.impliedStatus(TrackerEventType.RECRUITER_SCREEN))
+        assertEquals(TrackerStatus.RECRUITER_SCREENED, EventBuilder.impliedStatus(TrackerEventType.RECRUITER_SCREEN_EVENT))
         assertEquals(TrackerStatus.INTERVIEWING, EventBuilder.impliedStatus(TrackerEventType.SCHEDULE_INTERVIEW))
         assertEquals(TrackerStatus.INTERVIEWING, EventBuilder.impliedStatus(TrackerEventType.VISIT_ONSITE))
-        assertEquals(TrackerStatus.OFFER, EventBuilder.impliedStatus(TrackerEventType.OFFER))
+        assertEquals(TrackerStatus.OFFER, EventBuilder.impliedStatus(TrackerEventType.OFFER_EVENT))
         assertEquals(TrackerStatus.HIRED, EventBuilder.impliedStatus(TrackerEventType.ACCEPT_OFFER))
         assertEquals(TrackerStatus.OFFER_DECLINED, EventBuilder.impliedStatus(TrackerEventType.DECLINE_OFFER))
         assertEquals(TrackerStatus.REJECTED, EventBuilder.impliedStatus(TrackerEventType.REJECT))
@@ -75,7 +75,7 @@ class EventBuilderTest {
 
         val ev3 = TrackerEvent.newBuilder()
             .setId("ev-003")
-            .setType(TrackerEventType.RECRUITER_SCREEN)
+            .setType(TrackerEventType.RECRUITER_SCREEN_EVENT)
             .setStatusTo(TrackerStatus.RECRUITER_SCREENED)
             .setCreatedAt(Timestamp.newBuilder().setSeconds(3000).build())
             .build()
@@ -211,7 +211,7 @@ class EventBuilderTest {
     @Test
     fun testBuildEventWithCustomValues() {
         val event = EventBuilder.buildEvent(
-            eventType = TrackerEventType.RECRUITER_SCREEN,
+            eventType = TrackerEventType.RECRUITER_SCREEN_EVENT,
             actor = EventActor.ACTOR_EMAIL_SYNC,
             derivedFrom = DerivedFrom.DERIVED_EMAIL,
             confidence = Confidence.MEDIUM_CONFIDENCE,
@@ -220,7 +220,7 @@ class EventBuilderTest {
             emailMessageId = "<msg-123@example.com>",
         )
 
-        assertEquals(TrackerEventType.RECRUITER_SCREEN, event.type)
+        assertEquals(TrackerEventType.RECRUITER_SCREEN_EVENT, event.type)
         assertEquals(TrackerStatus.RECRUITER_SCREENED, event.statusTo)
         assertEquals(TrackerStatus.SUBMITTED, event.statusFrom)
         assertEquals(EventActor.ACTOR_EMAIL_SYNC, event.actor)

@@ -1,0 +1,53 @@
+#compdef _roadmap_edit
+
+# Zsh completion for `mise roadmap:edit` — completes subcommands (i/e) and RM-XXX IDs
+
+_roadmap_edit() {
+    local -a subcommands
+    subcommands=(
+        'i:inspect an item (opens detail view)' \
+        'e:edit an item (opens detail view)'
+    )
+
+    # Parse ROADMAP.md for RM-XXX IDs (skip Frozen section)
+    local -a roadmap_ids
+    local roadmap_file="${HOME}/Work/Search/waleedtarbosh-ai-job-search/ROADMAP.md"
+    if [[ -f "$roadmap_file" ]]; then
+        # Try to find ROADMAP.md relative to the current directory first
+        local cwd="$PWD"
+        while [[ "$cwd" != "/" ]]; do
+            if [[ -f "$cwd/ROADMAP.md" ]]; then
+                roadmap_file="$cwd/ROADMAP.md"
+                break
+            fi
+            cwd="$(dirname "$cwd")"
+        done
+
+        # Extract RM-XXX IDs from the file, stopping at ## Frozen Items
+        roadmap_ids=("${(@f)$(grep -oE 'RM-[0-9]{3}' "$roadmap_file" 2>/dev/null | sort -u)}")
+    fi
+
+    local -a arguments
+    arguments=(
+        "(*|i|e) -> subcommand"
+        (*) -> id
+    )
+
+    local line
+    zle -M -I && line="${LINEBUFFER%%$'\t'*}"
+    local -a words=("${(z)line}")
+    local current_arg="${words[-1]}"
+
+    case "${words[1]}" in
+        subcommand)
+            # Complete subcommand (i or e)
+            _describe 'subcommand' subcommands
+            ;;
+        *)
+            # Complete RM-XXX ID
+            if (( ${#roadmap_ids} > 0 )); then
+                _describe 'roadmap item' roadmap_ids
+            fi
+            ;;
+    esac
+}

@@ -27,7 +27,7 @@ public object ApplicationTimelineProjector {
     private val INTERVIEW_EVENT_TYPES: Set<TrackerEventType> = setOf(
         TrackerEventType.SCHEDULE_INTERVIEW,
         TrackerEventType.VISIT_ONSITE,
-        TrackerEventType.RECRUITER_SCREEN,
+        TrackerEventType.RECRUITER_SCREEN_EVENT,
     )
 
     private val REJECTION_EVENT_TYPES: Set<TrackerEventType> = setOf(

@@ -35,10 +35,10 @@ public object JobApplicationEventBuilder {
      */
     private val eventImpliedStatus: Map<TrackerEventType, TrackerStatus> = mapOf(
         TrackerEventType.APPLY to TrackerStatus.SUBMITTED,
-        TrackerEventType.RECRUITER_SCREEN to TrackerStatus.RECRUITER_SCREENED,
+        TrackerEventType.RECRUITER_SCREEN_EVENT to TrackerStatus.RECRUITER_SCREENED,
         TrackerEventType.SCHEDULE_INTERVIEW to TrackerStatus.INTERVIEWING,
         TrackerEventType.VISIT_ONSITE to TrackerStatus.INTERVIEWING,
-        TrackerEventType.OFFER to TrackerStatus.OFFER,
+        TrackerEventType.OFFER_EVENT to TrackerStatus.OFFER,
         TrackerEventType.ACCEPT_OFFER to TrackerStatus.HIRED,
         TrackerEventType.DECLINE_OFFER to TrackerStatus.OFFER_DECLINED,
         TrackerEventType.REJECT to TrackerStatus.REJECTED,

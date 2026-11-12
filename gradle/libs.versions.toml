@@ -136,6 +136,7 @@
   materialKolor-material3 = { module = "com.materialkolor:material-kolor-material3", version.ref = "materialKolor" }
   mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
   mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
+  mordant-jna = { module = "com.github.ajalt.mordant:mordant-jvm-jna", version.ref = "mordant" }
   navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
   navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
   navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }

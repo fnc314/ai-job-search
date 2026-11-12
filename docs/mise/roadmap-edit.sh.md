@@ -1,5 +1,12 @@
 ## `roadmap:edit`
 
-- **Usage:** `roadmap:edit`
+Open the interactive roadmap manager (Kotlin TUI). Use ↑/↓ to navigate, Enter to inspect.
 
-Open the interactive roadmap manager (Kotlin TUI)
+
+- **Usage:** `roadmap:edit [subcommand] [item-id]`
+
+### Arguments
+- **`[subcommand]`** — i or e to jump to a specific item
+
+  **Choices:** `i`, `e`
+- **`[item-id]`** — Roadmap item ID (e.g., RM-001)
