@@ -144,20 +144,41 @@ def update_running_documentation(
 
     notes_lines = []
     for ev in all_events:
-        ev_type = ev.get("type", "")
+        ev_type = ev.get("type", "").lower()
         ev_date = str(ev.get("date") or "")[:10]
         ev_note = ev.get("note") or ""
-        if "recruiter-screen" in ev_type:
+        if "recruiter-screen" in ev_type or "recruiter_screen" in ev_type:
             recruiter_screen_done = True
             recruiter_screen_info = f"Date: {ev_date}" + (f" - {ev_note}" if ev_note else "")
-        elif "interview" in ev_type or "technical-screen" in ev_type:
+        elif "interview" in ev_type or "technical-screen" in ev_type or "technical_screen" in ev_type or "onsite" in ev_type:
             tech_screen_done = True
-            tech_screen_info = f"Date: {ev_date}" + (f" - {ev_note}" if ev_note else "")
+            ev_round = ev.get("interviewRound") or ev.get("interview_round")
+            if ev_round:
+                c_rnd = ev_round.get("currentRound") or ev_round.get("current_round") or 1
+                t_rnd = ev_round.get("totalRounds") or ev_round.get("total_rounds")
+                r_type = ev_round.get("type") or ""
+                rnd_badge = f"Round {c_rnd}" + (f"/{t_rnd}" if t_rnd else "")
+                if r_type:
+                    rnd_badge += f" ({r_type.replace('_', ' ').title()})"
+                tech_screen_info = f"{rnd_badge} (Date: {ev_date})" + (f" - {ev_note}" if ev_note else "")
+            else:
+                tech_screen_info = f"Date: {ev_date}" + (f" - {ev_note}" if ev_note else "")
         elif "offer" in ev_type:
             offer_done = True
 
         if ev_note:
             notes_lines.append(f"- {ev_date}: {ev_note}")
+
+    curr_round = application.get("currentInterviewRound") or application.get("current_interview_round")
+    if curr_round and "Round" not in tech_screen_info:
+        c_rnd = curr_round.get("currentRound") or curr_round.get("current_round") or 1
+        t_rnd = curr_round.get("totalRounds") or curr_round.get("total_rounds")
+        r_type = curr_round.get("type") or ""
+        rnd_badge = f"Round {c_rnd}" + (f"/{t_rnd}" if t_rnd else "")
+        if r_type:
+            rnd_badge += f" ({r_type.replace('_', ' ').title()})"
+        tech_screen_done = True
+        tech_screen_info = (tech_screen_info + " - " if tech_screen_info else "") + rnd_badge
 
     if not notes_lines and application.get("notesRendered"):
         for line in str(application["notesRendered"]).split("\n"):

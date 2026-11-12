@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package tracker.v1;
+
+import "google/protobuf/timestamp.proto";
+import "tracker/v1/enums.proto";
+
+option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_multiple_files = true;
+
+// ============================================================================
+// InterviewRound
+// Flexible progress record tracking dynamic interview loops
+// ============================================================================
+message InterviewRound {
+  int32 current_round = 1;                           // 1-based index (e.g. 2)
+  int32 total_rounds = 2;                            // Total planned rounds (e.g. 4), 0 if unknown
+  InterviewType type = 3;                            // Format classification
+  string title = 4;                                  // Descriptive title
+  google.protobuf.Timestamp interview_timestamp = 5; // Date/time when the interview occurs
+  google.protobuf.Timestamp scheduled_at = 6;        // When this slot was confirmed/booked
+  google.protobuf.Timestamp completed_at = 7;        // When the interview concluded
+  string notes = 8;                                  // Debrief / performance notes
+}

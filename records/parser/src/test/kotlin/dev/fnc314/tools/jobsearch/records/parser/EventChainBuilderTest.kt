@@ -26,7 +26,7 @@ class EventChainBuilderTest {
             .setApplicationId("app-123")
             .setType(TrackerEventType.APPLY)
             .setActor(EventActor.ACTOR_USER)
-            .setStatusTo(TrackerStatus.APPLIED)
+            .setStatusTo(TrackerStatus.SUBMITTED)
             .setCreatedAt(Timestamp.newBuilder().setSeconds(1762776000).build())
             .build()
 
@@ -43,7 +43,7 @@ class EventChainBuilderTest {
             .setId("ev-001")
             .setType(TrackerEventType.APPLY)
             .setActor(EventActor.ACTOR_USER)
-            .setStatusTo(TrackerStatus.APPLIED)
+            .setStatusTo(TrackerStatus.SUBMITTED)
             .setCreatedAt(Timestamp.newBuilder().setSeconds(1762776000).build())
             .build()
 
@@ -73,7 +73,7 @@ class EventChainBuilderTest {
             .setId("ev-001")
             .setType(TrackerEventType.APPLY)
             .setActor(EventActor.ACTOR_USER)
-            .setStatusTo(TrackerStatus.APPLIED)
+            .setStatusTo(TrackerStatus.SUBMITTED)
             .setCreatedAt(Timestamp.newBuilder().setSeconds(1762776000).build())
             .build()
 

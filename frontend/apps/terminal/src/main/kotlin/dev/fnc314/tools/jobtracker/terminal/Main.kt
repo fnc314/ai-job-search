@@ -19,6 +19,7 @@ import com.google.cloud.firestore.SetOptions
 import com.google.firebase.FirebaseApp
 import com.google.firebase.cloud.FirestoreClient
 import dev.fnc314.tools.jobtracker.core.data.platform.RemotePlatform
+import dev.fnc314.tools.jobsearch.parser.InterviewProgress
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -50,7 +51,8 @@ public data class ApplicationRecord(
     val emailMessageIds: List<String>,
     val tags: List<String>,
     val date: String,
-    val rawData: Map<String, Any?> = emptyMap()
+    val rawData: Map<String, Any?> = emptyMap(),
+    val interviewProgress: InterviewProgress? = null
 )
 
 public data class TimelineEventRecord(
@@ -1485,6 +1487,10 @@ public object TerminalApp {
 
                     val emailList = (data["emailMessageIds"] as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
                     val tagList = (data["tags"] as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
+                    val roundData = (data["currentInterviewRound"] as? Map<*, *>)
+                        ?: (data["current_interview_round"] as? Map<*, *>)
+                    @Suppress("UNCHECKED_CAST")
+                    val progress = InterviewProgress.fromMap(roundData as? Map<String, Any?>)
 
                     ApplicationRecord(
                         id = doc.id,
@@ -1501,7 +1507,8 @@ public object TerminalApp {
                         emailMessageIds = emailList,
                         tags = tagList,
                         date = data["date"]?.toString() ?: data["createdAt"]?.toString() ?: "",
-                        rawData = data
+                        rawData = data,
+                        interviewProgress = progress
                     )
                 }
             } catch (e: Exception) {
@@ -1549,6 +1556,10 @@ public object TerminalApp {
                 ).joinToString(", ").ifEmpty { "-" }
 
                 val emailList = obj["emailMessageIds"]?.jsonArray?.mapNotNull { it.jsonPrimitive.content } ?: emptyList()
+                val roundObj = (obj["currentInterviewRound"] as? JsonObject)
+                    ?: (obj["current_interview_round"] as? JsonObject)
+                val roundMap = roundObj?.let { jsonObjectToMap(it) }
+                val progress = InterviewProgress.fromMap(roundMap)
 
                 ApplicationRecord(
                     id = id,
@@ -1564,7 +1575,8 @@ public object TerminalApp {
                     uuid = obj["uuid"]?.jsonPrimitive?.content ?: obj["uuidv7"]?.jsonPrimitive?.content ?: "-",
                     emailMessageIds = emailList,
                     tags = tagList,
-                    date = obj["date"]?.jsonPrimitive?.content ?: obj["createdAt"]?.jsonPrimitive?.content ?: ""
+                    date = obj["date"]?.jsonPrimitive?.content ?: obj["createdAt"]?.jsonPrimitive?.content ?: "",
+                    interviewProgress = progress
                 )
             }
         } catch (e: Exception) {
@@ -1610,6 +1622,25 @@ public object TerminalApp {
             }.sortedBy { it.ts }
         } catch (e: Exception) {
             emptyList()
+        }
+    }
+
+    private fun jsonArrayToMapList(arr: JsonArray?): List<Map<String, Any?>> {
+        if (arr == null) return emptyList()
+        return arr.mapNotNull { el -> (el as? JsonObject)?.let { jsonObjectToMap(it) } }
+    }
+
+    private fun jsonObjectToMap(obj: JsonObject): Map<String, Any?> = obj.mapValues { (_, v) ->
+        when (v) {
+            is JsonPrimitive -> v.booleanOrNull ?: v.intOrNull ?: v.longOrNull ?: v.content
+            is JsonObject -> jsonObjectToMap(v)
+            is JsonArray -> v.map { el ->
+                when (el) {
+                    is JsonPrimitive -> el.booleanOrNull ?: el.intOrNull ?: el.content
+                    is JsonObject -> jsonObjectToMap(el)
+                    else -> el.toString()
+                }
+            }
         }
     }
 
@@ -1662,7 +1693,9 @@ public object TerminalApp {
                                 createdAt = obj["createdAt"]?.jsonPrimitive?.content ?: "",
                                 state = obj["state"]?.jsonPrimitive?.content ?: "PENDING",
                                 changesCount = changesList.size,
-                                unmatchedCount = unmatchedList.size
+                                unmatchedCount = unmatchedList.size,
+                                changes = jsonArrayToMapList(changesList),
+                                unmatched = jsonArrayToMapList(unmatchedList)
                             )
                         }
                     }
@@ -1679,14 +1712,18 @@ public object TerminalApp {
             val pendingArray = rootObj["pendingProposals"]?.jsonArray ?: return emptyList()
             pendingArray.map { el ->
                 val obj = el.jsonObject
-                val changesCount = obj["changes"]?.jsonPrimitive?.intOrNull ?: (obj["changes"] as? JsonArray)?.size ?: 0
-                val unmatchedCount = obj["unmatched"]?.jsonPrimitive?.intOrNull ?: (obj["unmatched"] as? JsonArray)?.size ?: 0
+                val changesArray = obj["changes"] as? JsonArray
+                val unmatchedArray = obj["unmatched"] as? JsonArray
+                val changesCount = obj["changes"]?.jsonPrimitive?.intOrNull ?: changesArray?.size ?: 0
+                val unmatchedCount = obj["unmatched"]?.jsonPrimitive?.intOrNull ?: unmatchedArray?.size ?: 0
                 ProposalRecord(
                     proposalId = obj["proposalId"]?.jsonPrimitive?.content ?: "",
                     createdAt = obj["createdAt"]?.jsonPrimitive?.content ?: "",
                     state = "PENDING",
                     changesCount = changesCount,
-                    unmatchedCount = unmatchedCount
+                    unmatchedCount = unmatchedCount,
+                    changes = jsonArrayToMapList(changesArray),
+                    unmatched = jsonArrayToMapList(unmatchedArray)
                 )
             }.sortedByDescending { it.createdAt }
         } catch (e: Exception) {
@@ -1799,7 +1836,7 @@ public object TerminalApp {
 
                 "i", "inspect" -> {
                     if (parts.size > 1) {
-                        inspectProposal(parts[1])
+                        inspectProposal(parts[1], proposals)
                     } else {
                         System.err.println(yellow("Usage: i <id-prefix> to inspect details"))
                     }
@@ -1913,7 +1950,39 @@ public object TerminalApp {
         println("""{"ok": true, "remaining_pending": $remaining, "summary": "proposals review complete"}""")
     }
 
-    private fun inspectProposal(proposalIdPrefix: String) {
+    private fun inspectProposal(proposalIdPrefix: String, inMemoryProposals: List<ProposalRecord> = emptyList()) {
+        val target = inMemoryProposals.find { it.proposalId.startsWith(proposalIdPrefix) }
+        if (target != null && (target.changes.isNotEmpty() || target.unmatched.isNotEmpty())) {
+            renderProposalDetails(target)
+            return
+        }
+
+        // Try direct Firestore lookup if online
+        if (!isOffline && firestore != null) {
+            try {
+                val doc = firestore!!.collection("pending-proposals").document(proposalIdPrefix).get().get()
+                if (doc.exists()) {
+                    val data = doc.data ?: emptyMap()
+                    val changes = (data["changes"] as? List<*>)?.filterIsInstance<Map<String, Any?>>() ?: emptyList()
+                    val unmatched = (data["unmatched"] as? List<*>)?.filterIsInstance<Map<String, Any?>>() ?: emptyList()
+                    val prop = ProposalRecord(
+                        proposalId = data["proposalId"]?.toString() ?: doc.id,
+                        createdAt = data["createdAt"]?.toString() ?: "-",
+                        state = data["state"]?.toString() ?: "PENDING",
+                        changesCount = changes.size,
+                        unmatchedCount = unmatched.size,
+                        changes = changes,
+                        unmatched = unmatched
+                    )
+                    renderProposalDetails(prop)
+                    return
+                }
+            } catch (e: Exception) {
+                // Fallback below
+            }
+        }
+
+        // Fallback: subprocess tracker.py proposals show
         val trackerScript = File(repoRoot, "scripts/tracker.py")
         if (!trackerScript.exists()) {
             System.err.println(red("tracker.py not found at ${trackerScript.absolutePath}"))
@@ -1931,60 +2000,117 @@ public object TerminalApp {
                 if (prop != null) {
                     val pid = prop["proposalId"]?.jsonPrimitive?.content ?: proposalIdPrefix
                     val created = prop["createdAt"]?.jsonPrimitive?.content ?: "-"
-                    val trigger = prop["trigger"]?.jsonPrimitive?.content ?: "-"
                     val changes = prop["changes"]?.jsonArray ?: JsonArray(emptyList())
                     val unmatched = prop["unmatched"]?.jsonArray ?: JsonArray(emptyList())
 
-                    val content = buildString {
-                        appendLine("Proposal ID:  ${bold(pid)}")
-                        appendLine("Created At:   $created")
-                        appendLine("Trigger:      $trigger")
-                        appendLine("Changes:      ${changes.size}")
-                        appendLine("Unmatched:    ${unmatched.size}")
-                        if (changes.isNotEmpty()) {
-                            appendLine()
-                            appendLine(bold("=== Proposed State Changes (${changes.size}) ==="))
-                            changes.forEachIndexed { idx, chEl ->
-                                val ch = chEl.jsonObject
-                                val appTarget = ch["applicationId"]?.jsonPrimitive?.content ?: "-"
-                                val stFrom = cleanStatus(ch["statusFrom"]?.jsonPrimitive?.content ?: "")
-                                val stTo = cleanStatus(ch["statusTo"]?.jsonPrimitive?.content ?: "")
-                                val conf = ch["confidence"]?.jsonPrimitive?.content ?: "medium"
-                                val srcEmail = ch["sourceEmail"]?.jsonObject
-                                val subj = srcEmail?.get("subject")?.jsonPrimitive?.content ?: "(no subject)"
-                                val trans = if (stFrom.isNotBlank()) "$stFrom → $stTo" else "→ $stTo"
-                                appendLine("  ${idx + 1}. [$appTarget] $trans (Confidence: $conf)")
-                                appendLine("     Email: $subj")
-                            }
-                        }
-                        if (unmatched.isNotEmpty()) {
-                            appendLine()
-                            appendLine(bold("=== Unmatched Emails (${unmatched.size}) ==="))
-                            unmatched.take(10).forEachIndexed { idx, uEl ->
-                                val u = uEl.jsonObject
-                                val subj = u["subject"]?.jsonPrimitive?.content ?: "(no subject)"
-                                val reason = u["reason"]?.jsonPrimitive?.content ?: "-"
-                                appendLine("  ${idx + 1}. $subj")
-                                appendLine("     Reason: $reason")
-                            }
-                            if (unmatched.size > 10) {
-                                appendLine("  ... and ${unmatched.size - 10} more unmatched items.")
-                            }
-                        }
-                    }
-
-                    System.err.println(t.render(
-                        Panel(
-                            content = content,
-                            title = cyan("Proposal Details: $pid")
-                        )
-                    ))
+                    val propRecord = ProposalRecord(
+                        proposalId = pid,
+                        createdAt = created,
+                        state = prop["state"]?.jsonPrimitive?.content ?: "PENDING",
+                        changesCount = changes.size,
+                        unmatchedCount = unmatched.size,
+                        changes = jsonArrayToMapList(changes),
+                        unmatched = jsonArrayToMapList(unmatched)
+                    )
+                    renderProposalDetails(propRecord)
                     return
                 }
             }
+            System.err.println(red("Proposal '$proposalIdPrefix' not found."))
         } catch (e: Exception) {
             System.err.println(red("Failed to inspect proposal: ${e.message}"))
         }
+    }
+
+    private fun renderProposalDetails(prop: ProposalRecord) {
+        val pid = prop.proposalId
+        val created = prop.createdAt.ifBlank { "-" }
+        val changes = prop.changes
+        val unmatched = prop.unmatched
+
+        val headerInfo = buildString {
+            appendLine("Proposal ID:  ${bold(pid)}")
+            appendLine("Created At:   $created")
+            appendLine("State:        ${prop.state}")
+            appendLine("Changes:      ${changes.size}")
+            appendLine("Unmatched:    ${unmatched.size}")
+        }
+
+        val renderedChanges = if (changes.isNotEmpty()) {
+            table {
+                header {
+                    row(cyan("#"), cyan("Application ID"), cyan("Status Transition"), cyan("Confidence"), cyan("Email Subject"))
+                }
+                body {
+                    changes.forEachIndexed { idx, ch ->
+                        val appTarget = (ch["applicationId"] as? String)?.takeIf { it.isNotBlank() }
+                            ?: (ch["leadCompany"] as? String)?.let { "lead: $it" }
+                            ?: "-"
+                        val stFrom = cleanStatus((ch["statusFrom"] as? String) ?: "")
+                        val stTo = cleanStatus((ch["statusTo"] as? String) ?: "")
+                        val trans = when {
+                            stFrom.isNotBlank() && stTo.isNotBlank() -> "$stFrom → $stTo"
+                            stTo.isNotBlank() -> "→ $stTo"
+                            else -> ch["eventType"]?.toString() ?: "-"
+                        }
+                        val conf = (ch["confidence"] as? String) ?: "medium"
+                        val confColor = when (conf.uppercase()) {
+                            "HIGH", "HIGH_CONFIDENCE" -> green
+                            "MEDIUM", "MEDIUM_CONFIDENCE" -> yellow
+                            else -> gray
+                        }
+                        val srcEmail = ch["sourceEmail"] as? Map<*, *>
+                        val subj = (srcEmail?.get("subject") as? String) ?: "(no subject)"
+                        row(
+                            (idx + 1).toString(),
+                            appTarget,
+                            trans,
+                            confColor(conf.removeSuffix("_CONFIDENCE").lowercase()),
+                            subj
+                        )
+                    }
+                }
+            }
+        } else null
+
+        val renderedUnmatched = if (unmatched.isNotEmpty()) {
+            table {
+                header {
+                    row(yellow("#"), yellow("Subject"), yellow("Reason"))
+                }
+                body {
+                    unmatched.take(15).forEachIndexed { idx, u ->
+                        val subj = (u["subject"] as? String) ?: "(no subject)"
+                        val reason = (u["reason"] as? String) ?: "-"
+                        row((idx + 1).toString(), subj, reason)
+                    }
+                }
+            }
+        } else null
+
+        val panelContent = buildString {
+            append(headerInfo)
+            if (renderedChanges != null) {
+                appendLine()
+                appendLine(bold(cyan("=== Proposed State Changes (${changes.size}) ===")))
+                appendLine(t.render(renderedChanges))
+            }
+            if (renderedUnmatched != null) {
+                appendLine()
+                appendLine(bold(yellow("=== Unmatched Emails (${unmatched.size}) ===")))
+                appendLine(t.render(renderedUnmatched))
+                if (unmatched.size > 15) {
+                    appendLine(dim("... and ${unmatched.size - 15} more unmatched emails"))
+                }
+            }
+        }
+
+        System.err.println(t.render(
+            Panel(
+                content = panelContent.trimEnd(),
+                title = cyan("Proposal Details: $pid")
+            )
+        ))
     }
 
     private fun runProposalAction(action: String, proposalId: String, note: String? = null): Pair<Boolean, String> {
@@ -2105,14 +2231,21 @@ public object TerminalApp {
             }
             body {
                 docs.forEach { doc ->
-                    val statusFormatted = when (doc.status.uppercase()) {
-                        "APPLIED" -> green(doc.status)
-                        "INTERVIEW" -> yellow(doc.status)
-                        "OFFER", "HIRED" -> bold(green(doc.status))
-                        "REJECTED" -> red(doc.status)
-                        "WITHDRAWN" -> dim(doc.status)
-                        "LEAD" -> magenta(doc.status)
-                        else -> doc.status
+                    val baseStatus = doc.status.uppercase()
+                    val displayStatus = if ((baseStatus == "INTERVIEW" || baseStatus == "INTERVIEWING") && doc.interviewProgress != null) {
+                        "INTERVIEWING (${doc.interviewProgress.roundBadge()})"
+                    } else {
+                        doc.status
+                    }
+                    val statusFormatted = when (baseStatus) {
+                        "APPLIED", "SUBMITTED" -> green(displayStatus)
+                        "INTERVIEW", "INTERVIEWING" -> yellow(displayStatus)
+                        "RECRUITER_SCREENED" -> cyan(displayStatus)
+                        "OFFER", "HIRED" -> bold(green(displayStatus))
+                        "REJECTED" -> red(displayStatus)
+                        "WITHDRAWN", "APPLICATION_WITHDRAWN", "NO_RESPONSE" -> dim(displayStatus)
+                        "LEAD", "DRAFTING", "DRAFTED" -> magenta(displayStatus)
+                        else -> displayStatus
                     }
 
                     val syncCue = if (doc.emailMessageIds.isNotEmpty()) {
@@ -2145,6 +2278,9 @@ public object TerminalApp {
             appendLine("Company:       ${bold(app.company)}")
             appendLine("Role:          ${bold(app.role)}")
             appendLine("Status:        ${app.status}")
+            if ((app.status.uppercase() == "INTERVIEW" || app.status.uppercase() == "INTERVIEWING") && app.interviewProgress != null) {
+                appendLine("Interview:     ${bold(yellow(app.interviewProgress.formattedSummary()))}")
+            }
             appendLine("Channel:       ${app.channel}")
             appendLine("Location:      ${app.location}")
             appendLine("Fit Rating:    ${app.fitRating}")

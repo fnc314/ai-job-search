@@ -4,6 +4,7 @@ import com.google.protobuf.Timestamp
 import dev.fnc314.tools.jobsearch.tracker.v1.Confidence
 import dev.fnc314.tools.jobsearch.tracker.v1.DerivedFrom
 import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
+import dev.fnc314.tools.jobsearch.tracker.v1.InterviewRound
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
@@ -21,15 +22,10 @@ public class EventError(message: String) : IllegalArgumentException(message)
  * Pure domain logic for constructing and validating [TrackerEvent] instances.
  *
  * Mirrors the Python `events.py` module: event building with actor/derivedFrom/confidence
- * normalization, implied status derivation, latest status calculation, and date parsing.
- *
- * Two rules live here:
- *   1. An event is built and validated as a whole, so a caller cannot write a
- *      half-formed history entry.
- *   2. Provenance is mandatory. Migrated or inferred history says so, via
- *      `derivedFrom` and `confidence`, and never presents as recorded fact.
+ * normalization, implied status derivation, latest status calculation, date parsing,
+ * and flexible interview round progress recording.
  */
-public object EventBuilder {
+public object JobApplicationEventBuilder {
 
     // === Implied Status Map ===
 
@@ -38,11 +34,11 @@ public object EventBuilder {
      * An event carries statusTo only when it actually moves the funnel.
      */
     private val eventImpliedStatus: Map<TrackerEventType, TrackerStatus> = mapOf(
-        TrackerEventType.APPLY to TrackerStatus.APPLIED,
-        TrackerEventType.RECRUITER_SCREEN to TrackerStatus.INTERVIEW,
-        TrackerEventType.SCHEDULE_INTERVIEW to TrackerStatus.INTERVIEW,
-        TrackerEventType.VISIT_ONSITE to TrackerStatus.INTERVIEW,
-        TrackerEventType.OFFER to TrackerStatus.OFFER_EXPECTED,
+        TrackerEventType.APPLY to TrackerStatus.SUBMITTED,
+        TrackerEventType.RECRUITER_SCREEN to TrackerStatus.RECRUITER_SCREENED,
+        TrackerEventType.SCHEDULE_INTERVIEW to TrackerStatus.INTERVIEWING,
+        TrackerEventType.VISIT_ONSITE to TrackerStatus.INTERVIEWING,
+        TrackerEventType.OFFER to TrackerStatus.OFFER,
         TrackerEventType.ACCEPT_OFFER to TrackerStatus.HIRED,
         TrackerEventType.DECLINE_OFFER to TrackerStatus.OFFER_DECLINED,
         TrackerEventType.REJECT to TrackerStatus.REJECTED,
@@ -59,7 +55,7 @@ public object EventBuilder {
 
     /**
      * Returns the canonical event type for entering a given status.
-     * DRAFTING has no inbound event type, so returns CORRECT_STATUS.
+     * DRAFTED has no inbound event type, so returns CORRECT_STATUS.
      */
     public fun statusEventType(status: TrackerStatus): TrackerEventType {
         for ((eventType, implied) in eventImpliedStatus) {
@@ -226,6 +222,7 @@ public object EventBuilder {
      * @param statusFrom Optional prior status; callers should pass known prior state.
      * @param statusTo Optional target status; defaults to implied status.
      * @param emailMessageId Optional email message ID reference.
+     * @param interviewRound Optional structured interview round progress.
      * @return A fully constructed [TrackerEvent] with UUIDv7 ID and timestamp.
      */
     public fun buildEvent(
@@ -238,6 +235,7 @@ public object EventBuilder {
         statusFrom: TrackerStatus? = null,
         statusTo: TrackerStatus? = null,
         emailMessageId: String? = null,
+        interviewRound: InterviewRound? = null,
     ): TrackerEvent {
         val resolvedDate = normalizeDate(date)
         val resolvedStatusTo = statusTo ?: impliedStatus(eventType) ?: TrackerStatus.TRACKER_STATUS_UNSPECIFIED
@@ -260,7 +258,15 @@ public object EventBuilder {
         if (!emailMessageId.isNullOrBlank()) {
             builder.setEmailMessageId(emailMessageId)
         }
+        if (interviewRound != null) {
+            builder.setInterviewRound(interviewRound)
+        }
 
         return builder.build()
     }
 }
+
+/**
+ * Backward compatibility alias for [JobApplicationEventBuilder].
+ */
+public typealias EventBuilder = JobApplicationEventBuilder

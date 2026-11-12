@@ -3,7 +3,7 @@
   "$id": "https://github.com/fnc314/ai-job-search/tracker.schema.json",
   "title": "Job Search Tracker",
   "description": "Single contract for every document in the tracker store. Validates the JSON boundary (what scripts/tracker.py reads and writes); Firestore Timestamps are produced from these ISO strings on write. The enum registry lives ONLY in $defs so it cannot drift from the fields it constrains.",
-  "schemaVersion": 10,
+  "schemaVersion": 11,
   "x-supersedes": "job_search_tracker.schema.json v1 (CSV row contract)",
   "x-revision-log": [
     {
@@ -37,6 +37,10 @@
     {
       "version": 10,
       "note": "Single-source-of-truth official submission (submittedAt, submissionConfirmedAt, submissionConfirmation) and cryptographic event hash chaining (sequenceNumber, prevEventHash, eventHash)."
+    },
+    {
+      "version": 11,
+      "note": "Canonical 12 lifecycle states (NO_RESPONSE=1..HIRED=12) with resultative tense and flexible multi-round interview schema (interviewRound, currentInterviewRound)."
     }
   ],
   "x-naming": {
@@ -110,10 +114,10 @@
       "source": "source"
     },
     "statusMap": {
-      "drafting": "DRAFTING",
-      "applied": "APPLIED",
-      "interview": "INTERVIEW",
-      "offer": "OFFER_EXPECTED",
+      "drafting": "DRAFTED",
+      "applied": "SUBMITTED",
+      "interview": "INTERVIEWING",
+      "offer": "OFFER",
       "hired": "HIRED",
       "rejected": "REJECTED",
       "no_response": "NO_RESPONSE",
@@ -208,50 +212,59 @@
       "type": "string",
       "description": "Closed funnel vocabulary. Rank and terminality are declared alongside the enum so they cannot drift from it.",
       "enum": [
-        "LEAD",
-        "DRAFTING",
-        "APPLIED",
-        "INTERVIEW",
-        "OFFER_EXPECTED",
-        "HIRED",
-        "REJECTED",
-        "NO_RESPONSE",
-        "OFFER_DECLINED",
-        "APPLICATION_WITHDRAWN"
-      ],
-      "x-status-rank": {
-        "LEAD": 0,
-        "DRAFTING": 1,
-        "APPLIED": 2,
-        "INTERVIEW": 3,
-        "OFFER_EXPECTED": 4,
-        "HIRED": 5,
-        "REJECTED": 6,
-        "NO_RESPONSE": 7,
-        "OFFER_DECLINED": 8,
-        "APPLICATION_WITHDRAWN": 9,
-        "status:lead": 0,
-        "status:drafting": 1,
-        "status:applied": 2,
-        "status:interview": 3,
-        "status:offer": 4,
-        "status:hired": 5,
-        "status:rejected": 6,
-        "status:no-response": 7,
-        "status:offer-declined": 8,
-        "status:withdrawn": 9
-      },
-      "x-terminal": [
-        "HIRED",
-        "REJECTED",
         "NO_RESPONSE",
         "OFFER_DECLINED",
         "APPLICATION_WITHDRAWN",
-        "status:hired",
-        "status:rejected",
+        "REJECTED",
+        "DRAFTED",
+        "SUBMITTED",
+        "RECRUITER_SCREENED",
+        "INTERVIEWING",
+        "NEGOTIATING_PRE_OFFER",
+        "OFFER",
+        "NEGOTIATING_POST_OFFER",
+        "HIRED"
+      ],
+      "x-status-rank": {
+        "NO_RESPONSE": 0,
+        "OFFER_DECLINED": 1,
+        "APPLICATION_WITHDRAWN": 2,
+        "REJECTED": 3,
+        "DRAFTED": 4,
+        "SUBMITTED": 5,
+        "RECRUITER_SCREENED": 6,
+        "INTERVIEWING": 7,
+        "NEGOTIATING_PRE_OFFER": 8,
+        "OFFER": 9,
+        "NEGOTIATING_POST_OFFER": 10,
+        "HIRED": 11,
+        "LEAD": 4,
+        "DRAFTING": 4,
+        "APPLIED": 5,
+        "INTERVIEW": 7,
+        "OFFER_EXPECTED": 9,
+        "status:no-response": 0,
+        "status:offer-declined": 1,
+        "status:withdrawn": 2,
+        "status:rejected": 3,
+        "status:lead": 4,
+        "status:drafting": 4,
+        "status:applied": 5,
+        "status:interview": 7,
+        "status:offer": 9,
+        "status:hired": 11
+      },
+      "x-terminal": [
+        "NO_RESPONSE",
+        "OFFER_DECLINED",
+        "APPLICATION_WITHDRAWN",
+        "REJECTED",
+        "HIRED",
         "status:no-response",
         "status:offer-declined",
-        "status:withdrawn"
+        "status:withdrawn",
+        "status:rejected",
+        "status:hired"
       ]
     },
     "eventTypeValue": {
@@ -692,7 +705,7 @@
         "statusRank": {
           "type": "integer",
           "minimum": 0,
-          "maximum": 9
+          "maximum": 11
         },
         "isOpen": {
           "type": "boolean"
@@ -795,7 +808,7 @@
         "schemaVersion": {
           "type": "integer",
           "minimum": 9,
-          "maximum": 10
+          "maximum": 11
         },
         "submittedAt": {
           "oneOf": [
@@ -811,6 +824,16 @@
           "oneOf": [
             {
               "$ref": "#/$defs/submissionConfirmation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currentInterviewRound": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/interviewRound"
             },
             {
               "type": "null"
@@ -908,6 +931,16 @@
         },
         "eventHash": {
           "$ref": "#/$defs/nullableString"
+        },
+        "interviewRound": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/interviewRound"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -1720,6 +1753,74 @@
           "$ref": "#/$defs/isoTimestamp"
         }
       }
+    },
+    "interviewTypeValue": {
+      "type": "string",
+      "enum": [
+        "RECRUITER_SCREEN",
+        "TECHNICAL_KNOWLEDGE",
+        "TECHNICAL_DEMONSTRATION",
+        "SYSTEMS_DESIGN",
+        "BEHAVIORAL",
+        "ON_SITE",
+        "FINAL_ROUND"
+      ]
+    },
+    "interviewRound": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currentRound"
+      ],
+      "properties": {
+        "currentRound": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "totalRounds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "type": {
+          "$ref": "#/$defs/interviewTypeValue"
+        },
+        "title": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "interviewTimestamp": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scheduledAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "completedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/isoTimestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "notes": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
     }
   },
   "enums": {
@@ -1781,6 +1882,9 @@
       "REJECTION",
       "CORRESPONDENCE",
       "NOISE"
-    ]
+    ],
+    "interviewType": {
+      "$ref": "#/$defs/interviewTypeValue"
+    }
   }
 }

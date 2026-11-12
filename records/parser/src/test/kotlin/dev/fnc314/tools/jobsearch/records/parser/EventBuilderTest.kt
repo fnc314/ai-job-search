@@ -3,9 +3,12 @@ package dev.fnc314.tools.jobsearch.records.parser
 import com.google.protobuf.Timestamp
 import dev.fnc314.tools.jobsearch.parser.EventBuilder
 import dev.fnc314.tools.jobsearch.parser.EventError
+import dev.fnc314.tools.jobsearch.parser.JobApplicationEventBuilder
 import dev.fnc314.tools.jobsearch.tracker.v1.Confidence
 import dev.fnc314.tools.jobsearch.tracker.v1.DerivedFrom
 import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
+import dev.fnc314.tools.jobsearch.tracker.v1.InterviewRound
+import dev.fnc314.tools.jobsearch.tracker.v1.InterviewType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
@@ -22,11 +25,11 @@ class EventBuilderTest {
 
     @Test
     fun testImpliedStatusMapsStatusChangingEvents() {
-        assertEquals(TrackerStatus.APPLIED, EventBuilder.impliedStatus(TrackerEventType.APPLY))
-        assertEquals(TrackerStatus.INTERVIEW, EventBuilder.impliedStatus(TrackerEventType.RECRUITER_SCREEN))
-        assertEquals(TrackerStatus.INTERVIEW, EventBuilder.impliedStatus(TrackerEventType.SCHEDULE_INTERVIEW))
-        assertEquals(TrackerStatus.INTERVIEW, EventBuilder.impliedStatus(TrackerEventType.VISIT_ONSITE))
-        assertEquals(TrackerStatus.OFFER_EXPECTED, EventBuilder.impliedStatus(TrackerEventType.OFFER))
+        assertEquals(TrackerStatus.SUBMITTED, EventBuilder.impliedStatus(TrackerEventType.APPLY))
+        assertEquals(TrackerStatus.RECRUITER_SCREENED, EventBuilder.impliedStatus(TrackerEventType.RECRUITER_SCREEN))
+        assertEquals(TrackerStatus.INTERVIEWING, EventBuilder.impliedStatus(TrackerEventType.SCHEDULE_INTERVIEW))
+        assertEquals(TrackerStatus.INTERVIEWING, EventBuilder.impliedStatus(TrackerEventType.VISIT_ONSITE))
+        assertEquals(TrackerStatus.OFFER, EventBuilder.impliedStatus(TrackerEventType.OFFER))
         assertEquals(TrackerStatus.HIRED, EventBuilder.impliedStatus(TrackerEventType.ACCEPT_OFFER))
         assertEquals(TrackerStatus.OFFER_DECLINED, EventBuilder.impliedStatus(TrackerEventType.DECLINE_OFFER))
         assertEquals(TrackerStatus.REJECTED, EventBuilder.impliedStatus(TrackerEventType.REJECT))
@@ -60,7 +63,7 @@ class EventBuilderTest {
         val ev1 = TrackerEvent.newBuilder()
             .setId("ev-001")
             .setType(TrackerEventType.APPLY)
-            .setStatusTo(TrackerStatus.APPLIED)
+            .setStatusTo(TrackerStatus.SUBMITTED)
             .setCreatedAt(Timestamp.newBuilder().setSeconds(1000).build())
             .build()
 
@@ -73,11 +76,11 @@ class EventBuilderTest {
         val ev3 = TrackerEvent.newBuilder()
             .setId("ev-003")
             .setType(TrackerEventType.RECRUITER_SCREEN)
-            .setStatusTo(TrackerStatus.INTERVIEW)
+            .setStatusTo(TrackerStatus.RECRUITER_SCREENED)
             .setCreatedAt(Timestamp.newBuilder().setSeconds(3000).build())
             .build()
 
-        assertEquals(TrackerStatus.INTERVIEW, EventBuilder.latestStatus(listOf(ev1, ev2, ev3)))
+        assertEquals(TrackerStatus.RECRUITER_SCREENED, EventBuilder.latestStatus(listOf(ev1, ev2, ev3)))
     }
 
     @Test
@@ -85,7 +88,7 @@ class EventBuilderTest {
         val ev1 = TrackerEvent.newBuilder()
             .setId("ev-001")
             .setType(TrackerEventType.APPLY)
-            .setStatusTo(TrackerStatus.APPLIED)
+            .setStatusTo(TrackerStatus.SUBMITTED)
             .setCreatedAt(Timestamp.newBuilder().setSeconds(1000).build())
             .build()
 
@@ -95,7 +98,7 @@ class EventBuilderTest {
             .setCreatedAt(Timestamp.newBuilder().setSeconds(2000).build())
             .build()
 
-        assertEquals(TrackerStatus.APPLIED, EventBuilder.latestStatus(listOf(ev1, ev2)))
+        assertEquals(TrackerStatus.SUBMITTED, EventBuilder.latestStatus(listOf(ev1, ev2)))
     }
 
     @Test
@@ -103,21 +106,21 @@ class EventBuilderTest {
         val ev1 = TrackerEvent.newBuilder()
             .setId("ev-001")
             .setType(TrackerEventType.APPLY)
-            .setStatusTo(TrackerStatus.APPLIED)
+            .setStatusTo(TrackerStatus.SUBMITTED)
             .setSequenceNumber(1)
             .setCreatedAt(Timestamp.newBuilder().setSeconds(2000).build())
             .build()
 
         val ev2 = TrackerEvent.newBuilder()
             .setId("ev-002")
-            .setType(TrackerEventType.RECRUITER_SCREEN)
-            .setStatusTo(TrackerStatus.INTERVIEW)
+            .setType(TrackerEventType.SCHEDULE_INTERVIEW)
+            .setStatusTo(TrackerStatus.INTERVIEWING)
             .setSequenceNumber(2)
             .setCreatedAt(Timestamp.newBuilder().setSeconds(1000).build())
             .build()
 
         // Sequence number takes precedence over timestamp
-        assertEquals(TrackerStatus.INTERVIEW, EventBuilder.latestStatus(listOf(ev1, ev2)))
+        assertEquals(TrackerStatus.INTERVIEWING, EventBuilder.latestStatus(listOf(ev1, ev2)))
     }
 
     // === Actor Normalization ===
@@ -197,7 +200,7 @@ class EventBuilderTest {
         )
 
         assertEquals(TrackerEventType.APPLY, event.type)
-        assertEquals(TrackerStatus.APPLIED, event.statusTo)
+        assertEquals(TrackerStatus.SUBMITTED, event.statusTo)
         assertEquals(EventActor.ACTOR_USER, event.actor)
         assertEquals(DerivedFrom.DERIVED_MANUAL, event.derivedFrom)
         assertEquals(Confidence.HIGH_CONFIDENCE, event.confidence)
@@ -212,14 +215,14 @@ class EventBuilderTest {
             actor = EventActor.ACTOR_EMAIL_SYNC,
             derivedFrom = DerivedFrom.DERIVED_EMAIL,
             confidence = Confidence.MEDIUM_CONFIDENCE,
-            statusFrom = TrackerStatus.APPLIED,
+            statusFrom = TrackerStatus.SUBMITTED,
             note = "Recruiter called back",
             emailMessageId = "<msg-123@example.com>",
         )
 
         assertEquals(TrackerEventType.RECRUITER_SCREEN, event.type)
-        assertEquals(TrackerStatus.INTERVIEW, event.statusTo)
-        assertEquals(TrackerStatus.APPLIED, event.statusFrom)
+        assertEquals(TrackerStatus.RECRUITER_SCREENED, event.statusTo)
+        assertEquals(TrackerStatus.SUBMITTED, event.statusFrom)
         assertEquals(EventActor.ACTOR_EMAIL_SYNC, event.actor)
         assertEquals(DerivedFrom.DERIVED_EMAIL, event.derivedFrom)
         assertEquals(Confidence.MEDIUM_CONFIDENCE, event.confidence)
@@ -241,10 +244,31 @@ class EventBuilderTest {
     fun testBuildEventWithExplicitStatusTo() {
         val event = EventBuilder.buildEvent(
             eventType = TrackerEventType.APPLY,
-            statusTo = TrackerStatus.INTERVIEW,
+            statusTo = TrackerStatus.INTERVIEWING,
         )
 
-        assertEquals(TrackerStatus.INTERVIEW, event.statusTo)
+        assertEquals(TrackerStatus.INTERVIEWING, event.statusTo)
+    }
+
+    @Test
+    fun testBuildEventWithInterviewRound() {
+        val round = InterviewRound.newBuilder()
+            .setCurrentRound(1)
+            .setTotalRounds(3)
+            .setType(InterviewType.TECHNICAL_KNOWLEDGE)
+            .setTitle("Technical Deep Dive")
+            .build()
+
+        val event = JobApplicationEventBuilder.buildEvent(
+            eventType = TrackerEventType.SCHEDULE_INTERVIEW,
+            interviewRound = round,
+        )
+
+        assertEquals(TrackerStatus.INTERVIEWING, event.statusTo)
+        assertTrue(event.hasInterviewRound())
+        assertEquals(1, event.interviewRound.currentRound)
+        assertEquals(3, event.interviewRound.totalRounds)
+        assertEquals(InterviewType.TECHNICAL_KNOWLEDGE, event.interviewRound.type)
     }
 
     // === Normalize Date ===
@@ -301,13 +325,13 @@ class EventBuilderTest {
 
     @Test
     fun testStatusEventTypeReturnsCanonicalEvent() {
-        val eventType = EventBuilder.statusEventType(TrackerStatus.APPLIED)
+        val eventType = EventBuilder.statusEventType(TrackerStatus.SUBMITTED)
         assertEquals(TrackerEventType.APPLY, eventType)
     }
 
     @Test
     fun testStatusEventTypeForDraftingReturnsCorrectStatus() {
-        val eventType = EventBuilder.statusEventType(TrackerStatus.DRAFTING)
+        val eventType = EventBuilder.statusEventType(TrackerStatus.DRAFTED)
         assertEquals(TrackerEventType.CORRECT_STATUS, eventType)
     }
 

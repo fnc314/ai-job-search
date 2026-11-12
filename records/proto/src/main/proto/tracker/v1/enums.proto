@@ -7,31 +7,46 @@ option java_multiple_files = true;
 
 // ============================================================================
 // TrackerStatus
-// Application funnel status (drafting → hired/rejected)
-// Original namespaced values: status:drafting, status:applied, etc.
+// Canonical job application funnel lifecycle states.
+// Ranks 0-3: Terminal inactive states
+// Ranks 4-10: Active funnel states (chronological)
+// Rank 11: Terminal success
 // ============================================================================
 enum TrackerStatus {
   TRACKER_STATUS_UNSPECIFIED = 0;
-  // status:drafting
-  DRAFTING = 1;
-  // status:applied
-  APPLIED = 2;
-  // status:interview
-  INTERVIEW = 3;
-  // status:offer
-  OFFER_EXPECTED = 4;
-  // status:hired
-  HIRED = 5;
-  // status:rejected
-  REJECTED = 6;
-  // status:no-response
-  NO_RESPONSE = 7;
-  // status:offer-declined
-  OFFER_DECLINED = 8;
-  // status:withdrawn
-  APPLICATION_WITHDRAWN = 9;
-  // status:lead
-  LEAD = 10;
+
+  // Terminal inactive states (ranks 0-3)
+  NO_RESPONSE = 1;            // Employer ghosted (>30 days silence)
+  OFFER_DECLINED = 2;         // Candidate declined extended offer
+  APPLICATION_WITHDRAWN = 3;  // Candidate voluntarily withdrew
+  REJECTED = 4;               // Employer rejected candidate
+
+  // Active funnel states (ranks 4-10)
+  DRAFTED = 5;                // Application draft prepared; pending submission
+  SUBMITTED = 6;              // Application formally submitted to company/portal
+  RECRUITER_SCREENED = 7;     // Initial recruiter screen completed
+  INTERVIEWING = 8;           // Multi-round interview loop in progress
+  NEGOTIATING_PRE_OFFER = 9;  // Pre-offer compensation/leveling alignment
+  OFFER = 10;                 // Formal offer extended to candidate
+  NEGOTIATING_POST_OFFER = 11;// Post-offer counter-negotiation
+
+  // Terminal success (rank 11)
+  HIRED = 12;                 // Offer accepted, hiring complete
+}
+
+// ============================================================================
+// InterviewType
+// Classification of interview round format and structure
+// ============================================================================
+enum InterviewType {
+  INTERVIEW_TYPE_UNSPECIFIED = 0;
+  RECRUITER_SCREEN = 1;
+  TECHNICAL_KNOWLEDGE = 2;       // Domain deep dive / Q&A
+  TECHNICAL_DEMONSTRATION = 3;   // Coding, pairing, live exercise
+  SYSTEMS_DESIGN = 4;            // Distributed systems / architecture
+  BEHAVIORAL = 5;                // Leadership principles / culture fit
+  ON_SITE = 6;                   // Multi-interview full loop
+  FINAL_ROUND = 7;               // Executive / VP wrap-up
 }
 
 // ============================================================================

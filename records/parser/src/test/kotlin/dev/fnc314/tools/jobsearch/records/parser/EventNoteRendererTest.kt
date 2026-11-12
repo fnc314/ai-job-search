@@ -71,7 +71,7 @@ class EventNoteRendererTest {
         val ev1 = TrackerEvent.newBuilder()
             .setId("ev-1")
             .setType(TrackerEventType.APPLY)
-            .setStatusTo(TrackerStatus.APPLIED)
+            .setStatusTo(TrackerStatus.SUBMITTED)
             .setCreatedAt(Timestamp.newBuilder().setSeconds(1762776000).build())
             .setSequenceNumber(1)
             .build()

@@ -5,6 +5,7 @@ package tracker.v1;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "tracker/v1/enums.proto";
+import "tracker/v1/interview.proto";
 
 option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
 option java_multiple_files = true;
@@ -26,4 +27,5 @@ message TrackerEvent {
   int64 sequenceNumber = 13;
   string prevEventHash = 14;
   string eventHash = 15;
+  InterviewRound interview_round = 16;
 }

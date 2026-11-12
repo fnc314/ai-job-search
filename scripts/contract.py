@@ -253,15 +253,31 @@ def normalizeStatus(raw: str) -> str:
     underscored = key.replace(" ", "_")
     if underscored in mapping:
         return mapping[underscored]
-    # Check special mappings
+    # Check special mappings & legacy aliases
+    if cleaned in ("lead", "draft", "drafting", "drafted"):
+        return "DRAFTED"
+    if cleaned in ("applied", "submitted"):
+        return "SUBMITTED"
+    if cleaned in ("screening", "recruiter_screen", "recruiter_screened", "recruiter-screen", "recruiter-screened"):
+        return "RECRUITER_SCREENED"
+    if cleaned in ("interview", "interviewing", "onsite"):
+        return "INTERVIEWING"
+    if cleaned in ("negotiating_pre_offer", "negotiating-pre-offer", "pre_offer", "pre-offer"):
+        return "NEGOTIATING_PRE_OFFER"
     if cleaned in ("offer", "offer_expected", "offer-expected"):
-        return "OFFER_EXPECTED"
+        return "OFFER"
+    if cleaned in ("negotiating_post_offer", "negotiating-post-offer", "post_offer", "post-offer"):
+        return "NEGOTIATING_POST_OFFER"
+    if cleaned in ("hired",):
+        return "HIRED"
     if cleaned in ("withdrawn", "application_withdrawn", "application-withdrawn"):
         return "APPLICATION_WITHDRAWN"
     if cleaned in ("no-response", "no_response", "no response"):
         return "NO_RESPONSE"
     if cleaned in ("offer-declined", "offer_declined", "offer declined"):
         return "OFFER_DECLINED"
+    if cleaned in ("rejected",):
+        return "REJECTED"
     raise ContractError(
         f"status {raw!r} is not recognized. Known values: {sorted(values)}"
     )

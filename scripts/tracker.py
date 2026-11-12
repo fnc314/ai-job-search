@@ -1565,6 +1565,29 @@ def commandEdit(args, extra_args: list[str] | None = None) -> int:
                 val = contract.clean_url(val)
             updates[camel_k] = val
 
+    # Handle interview round flags
+    if any(getattr(args, attr, None) is not None for attr in ("interview_round", "interview_total", "interview_type")):
+        curr_round = dict(existing.get("currentInterviewRound") or {})
+        if getattr(args, "interview_round", None) is not None:
+            curr_round["currentRound"] = args.interview_round
+        elif "currentRound" not in curr_round:
+            curr_round["currentRound"] = 1
+
+        if getattr(args, "interview_total", None) is not None:
+            curr_round["totalRounds"] = args.interview_total
+
+        if getattr(args, "interview_type", None) is not None:
+            raw_type = args.interview_type.upper().replace("-", "_")
+            if raw_type not in contract.enums("interviewType"):
+                raise contract.ContractError(
+                    "unknown interview type " + repr(args.interview_type) + ". Known: " + ", ".join(contract.enums("interviewType"))
+                )
+            curr_round["type"] = raw_type
+
+        updates["currentInterviewRound"] = curr_round
+        if "status" not in updates and existing.get("status") not in ("INTERVIEWING", "status:interview"):
+            updates["status"] = "INTERVIEWING" 
+
     # Merge dynamic flags
     for k, v in extra_flags.items():
         if k in ("jobUrl", "jobApplicationUrl", "source") and isinstance(v, str):
@@ -1614,6 +1637,8 @@ def commandEdit(args, extra_args: list[str] | None = None) -> int:
                 updated_doc["location"] = {"city": v}
             elif isinstance(v, dict):
                 updated_doc["location"] = v
+        elif k == "currentInterviewRound":
+            updated_doc["currentInterviewRound"] = v
         else:
             updated_doc[k] = v
 
@@ -3260,6 +3285,9 @@ def buildParser() -> argparse.ArgumentParser:
     edit.add_argument("--role-type", help="role type")
     edit.add_argument("--source", help="source URL")
     edit.add_argument("--note", help="audit note explaining the change")
+    edit.add_argument("--interview-round", type=int, help="current interview round (1-based integer)")
+    edit.add_argument("--interview-total", type=int, help="total planned interview rounds")
+    edit.add_argument("--interview-type", help="interview format classification")
     edit.set_defaults(handler=commandEdit)
 
     align = subparsers.add_parser("align", help="align entries in Firebase to canonical IDs, recalculate fit, and update outcome.md")

@@ -10,6 +10,7 @@ import "tracker/v1/location.proto";
 import "tracker/v1/fit_evaluation.proto";
 import "tracker/v1/counters.proto";
 import "tracker/v1/timeline.proto";
+import "tracker/v1/interview.proto";
 
 option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
 option java_multiple_files = true;
@@ -40,6 +41,7 @@ message JobApplication {
   string uuid = 22;
   repeated string emailMessageIds = 23;
   SubmissionConfirmation submissionConfirmation = 24;
+  InterviewRound current_interview_round = 25;
 }
 
 // SubmissionConfirmation — Single source of truth for when an application was officially submitted
