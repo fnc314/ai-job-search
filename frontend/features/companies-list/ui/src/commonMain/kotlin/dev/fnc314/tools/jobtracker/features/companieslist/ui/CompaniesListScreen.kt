@@ -48,6 +48,7 @@ import dev.fnc314.tools.jobtracker.core.widgets.EmptyStateWidget
 import dev.fnc314.tools.jobtracker.core.widgets.ErrorBannerWidget
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
+import dev.fnc314.tools.jobtracker.core.widgets.TopLevelCardSurfaceVariant
 import dev.fnc314.tools.jobtracker.features.companieslist.domain.CompanySortOption
 import dev.fnc314.tools.jobtracker.features.companieslist.ui.component.CompanyCard
 import dev.fnc314.tools.jobtracker.features.companieslist.ui.component.CompanyFilterMenu
@@ -212,6 +213,7 @@ internal fun CompaniesListContent(
                                 CompanyCard(
                                     model = company,
                                     onCompanyClick = onCompanyClick,
+                                    variant = TopLevelCardSurfaceVariant.Highlighted,
                                 )
                             }
                         }
@@ -228,6 +230,7 @@ internal fun CompaniesListContent(
                                 CompanyCard(
                                     model = company,
                                     onCompanyClick = onCompanyClick,
+                                    variant = TopLevelCardSurfaceVariant.Highlighted,
                                 )
                             }
                         }
@@ -244,6 +247,7 @@ internal fun CompaniesListContent(
                                 CompanyCard(
                                     model = company,
                                     onCompanyClick = onCompanyClick,
+                                    variant = TopLevelCardSurfaceVariant.Highlighted,
                                 )
                             }
                         }

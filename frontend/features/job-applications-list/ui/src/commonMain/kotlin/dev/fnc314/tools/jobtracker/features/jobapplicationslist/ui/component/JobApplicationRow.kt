@@ -3,6 +3,7 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.component
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.fnc314.tools.jobtracker.core.widgets.JobApplicationCard
+import dev.fnc314.tools.jobtracker.core.widgets.TopLevelCardSurfaceVariant
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationItemUiModel
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.JobApplicationsListUiIntent
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.toCardUiModel
@@ -20,5 +21,6 @@ internal fun JobApplicationRow(
         model = model.toCardUiModel(),
         onApplicationClick = { onIntent(model.onClickIntent) },
         modifier = modifier,
+        variant = TopLevelCardSurfaceVariant.Elevated,
     )
 }
