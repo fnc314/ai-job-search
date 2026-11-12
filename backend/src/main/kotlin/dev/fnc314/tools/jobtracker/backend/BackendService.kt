@@ -1834,7 +1834,10 @@ public object BackendService {
         val rejectionKeywords = listOf(
             "unfortunately", "not moving forward", "regret", "no longer under consideration",
             "not selected", "won't be moving forward", "will not be moving forward",
-            "decided to move forward with other", "position has been filled", "position was filled"
+            "decided to move forward with other", "decision to move forward with other",
+            "move forward with other candidates", "difficult decision",
+            "other candidates were more aligned",
+            "position has been filled", "position was filled"
         )
         val offerKeywords = listOf("job offer", "pleased to offer", "offer letter", "we would like to offer")
         val interviewKeywords = listOf("interview", "phone screen", "schedule a call", "schedule a chat")
@@ -2075,7 +2078,7 @@ public object BackendService {
             "offer letter",
         )
         val atsSenderDomains = listOf(
-            "greenhouse.io", "lever.co", "myworkday.com", "ashbyhq.com",
+            "greenhouse.io", "greenhouse-mail.io", "lever.co", "myworkday.com", "ashbyhq.com",
             "smartrecruiters.com", "icims.com", "bamboohr.com",
             "workday.com", "talent.neptun.so",
         )
@@ -2120,7 +2123,7 @@ public object BackendService {
                     }
                 }
                 combinedLower.contains("offer") -> "OFFER"
-                combinedLower.contains("regret") || combinedLower.contains("not moving forward") || combinedLower.contains("unfortunately") -> "REJECTION"
+                combinedLower.contains("regret") || combinedLower.contains("not moving forward") || combinedLower.contains("unfortunately") || combinedLower.contains("decision to move forward with other") || combinedLower.contains("move forward with other candidates") || combinedLower.contains("difficult decision") || combinedLower.contains("other candidates were more aligned") -> "REJECTION"
                 combinedLower.contains("received your application") || combinedLower.contains("thank you for applying") -> "ACKNOWLEDGEMENT"
                 combinedLower.contains("assessment") || combinedLower.contains("coding challenge") -> "ASSESSMENT"
                 matchedAppId != null -> "CORRESPONDENCE"

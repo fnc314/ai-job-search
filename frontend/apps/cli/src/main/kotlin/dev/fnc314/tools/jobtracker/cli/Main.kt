@@ -11,6 +11,7 @@ import dev.fnc314.tools.jobtracker.cli.commands.CheckCommand
 import dev.fnc314.tools.jobtracker.cli.commands.EditCommand
 import dev.fnc314.tools.jobtracker.cli.commands.GetApplicationCommand
 import dev.fnc314.tools.jobtracker.cli.commands.MergeCommand
+import dev.fnc314.tools.jobtracker.cli.commands.ReclassifyCommand
 import dev.fnc314.tools.jobtracker.cli.commands.ListApplicationsCommand
 import dev.fnc314.tools.jobtracker.cli.commands.RankCommand
 import dev.fnc314.tools.jobtracker.cli.commands.SeedCommand
@@ -30,6 +31,7 @@ public class TrackerCommand : CliktCommand(name = "tracker") {
             AddApplicationCommand(),
             EditCommand(),
             MergeCommand(),
+            ReclassifyCommand(),
             UpdateStatusCommand(),
             UpdateScoreCommand(),
             AddEventCommand(),

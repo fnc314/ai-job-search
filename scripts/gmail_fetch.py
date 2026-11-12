@@ -123,7 +123,9 @@ def composioBin() -> str:
     raise FetchError("composio CLI not found. Set COMPOSIO_BIN or install it on PATH.")
 
 
-def runTool(slug: str, arguments: dict, *, timeout: int = 180, verbose: bool = False) -> dict:
+def runTool(
+    slug: str, arguments: dict, *, timeout: int = 180, verbose: bool = False
+) -> dict:
     """Execute one Composio tool and return its data object.
 
     The CLI stores large results in a temp file and returns a pointer instead
@@ -576,7 +578,7 @@ def main(argv: list[str] | None = None) -> int:
         jobLabels = jobLabelNames(labels)
 
         if verbose:
-            sys.stderr.write(f"  JOB labels: {', '.join(jobLabels)}\n")
+            sys.stderr.write(f"  JOB labels:\n{',\n'.join(jobLabels)}\n")
             sys.stderr.flush()
 
         jobLabelsPath = pathlib.Path(args.job_labels_out).expanduser()
@@ -680,7 +682,8 @@ def main(argv: list[str] | None = None) -> int:
                 "inbox": (args.inbox if not args.dry_run else None),
                 "labelsFile": (args.labels_out if not args.dry_run else None),
                 "jobLabelsFile": (str(jobLabelsPath) if not args.dry_run else None),
-            }
+            },
+            indent=2,
         )
     )
 
