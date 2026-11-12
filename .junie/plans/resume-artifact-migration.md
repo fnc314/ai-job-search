@@ -1,6 +1,6 @@
 # Migration Plan: Resume Artifact Migration
 
-**Status:** Proposed  
+**Status:** Complete
 **Date:** 2026-11-11  
 **Target:** tracker  
 **Harness:** Junie  
@@ -296,8 +296,8 @@ Add the following to `_COMPANY_SLUG_ALIASES` in both `scripts/contract.py` and `
 - Post-upload: `gsutil ls` or GCS console to verify blobs at kebab-case paths
 
 ## 5. Bookkeeping
-- [ ] Plan persisted at `.agents/plans/YYYY-MM-DD/HHMMSS_resume-artifact-migration.md`
-- [ ] Registry `README.md` row added / status synchronized
-- [ ] Craft a single commit of all changed files
-- [ ] Stage changed files and craft a commit message based on the name of this file
-- [ ] Push `git push origin main`
+- [x] Plan persisted at `.junie/plans/resume-artifact-migration.md`
+- [x] Registry `README.md` row added / status synchronized
+- [x] Craft a single commit of all changed files
+- [x] Stage changed files and craft a commit message based on the name of this file
+- [x] Push `git push origin main`
