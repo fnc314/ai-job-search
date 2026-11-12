@@ -7,6 +7,8 @@ import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
+import com.google.cloud.firestore.SetOptions
+import dev.fnc314.tools.jobsearch.parser.DocumentIdGenerator
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
 import dev.fnc314.tools.jobtracker.core.data.model.Uuid7
 import kotlinx.serialization.json.Json
@@ -47,9 +49,11 @@ public class AddApplicationCommand : CliktCommand(name = "add") {
             }
 
             val now = Timestamp.now()
+            val companyId = DocumentIdGenerator.slug(company, fallback = "unknown-company")
             val docData = mutableMapOf<String, Any>(
                 "id" to id,
                 "company" to company,
+                "companyId" to companyId,
                 "role" to role,
                 "status" to status,
                 "isOpen" to true,
@@ -66,6 +70,16 @@ public class AddApplicationCommand : CliktCommand(name = "add") {
             json["channel"]?.jsonPrimitive?.contentOrNull?.let { docData["channel"] = it }
 
             docRef.set(docData).get()
+
+            // Upsert canonical company entry so companies collection stays synchronized
+            db.collection("companies").document(companyId).set(
+                mapOf(
+                    "companyId" to companyId,
+                    "name" to company,
+                    "updatedAt" to now,
+                ),
+                SetOptions.merge(),
+            ).get()
 
             // Initial event
             val eventDoc = docRef.collection("events").document()

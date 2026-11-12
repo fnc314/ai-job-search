@@ -1,0 +1,35 @@
+# Unresolved Migration Entries
+
+These entries need manual review before running `--apply`.
+
+| Source | Company | Role | Confidence | Notes |
+|---|---|---|---|---|
+| `COLAIZZI_FRANCO_LIB_V3.docx` | _generic | resume | low | Generic resume file — no company detected |
+| `COLAIZZI_FRANCO_Res_Pinterest` | pinterest | general | low | No role detected |
+| `COLAIZZI_FRANCO_Res_V3.docx` | _generic | resume | low | Generic resume file — no company detected |
+| `Colaizzi_Franco_Resume_2026-05-25.pdf` | _generic | resume | low | Generic resume file — no company detected |
+| `FrancoNColaizzi_Resume_1Password.docx` | 1password | general | low | No role detected |
+| `FrancoNColaizzi_Resume_CapitalOne.docx` | capital-one | android-mobile-engineer-4 | medium | firestore_ambiguous (3 roles) |
+| `FrancoNColaizzi_Resume_ClassList.docx` | classlist | general | low | No role detected |
+| `FrancoNColaizzi_Resume_Colossus.docx` | colossus | general | low | No role detected |
+| `FrancoNColaizzi_Resume_ColossusTechnologies.docx` | colossus-technologies | general | low | No role detected |
+| `FrancoNColaizzi_Resume_FitnessTech.docx` | fitness-tech | general | low | No role detected |
+| `FrancoNColaizzi_Resume_Hightouch.docx` | hightouch | general | low | No role detected |
+| `FrancoNColaizzi_Resume_Jagger.docx` | jagger | general | low | No role detected |
+| `FrancoNColaizzi_Resume_Lyft.docx` | lyft | general | low | No role detected |
+| `FrancoNColaizzi_Resume_Meta.docx` | meta | software-engineer-android | medium | firestore_ambiguous (3 roles) |
+| `FrancoNColaizzi_Resume_Motorola.docx` | motorola | general | low | No role detected |
+| `FrancoNColaizzi_Resume_OpenAI.docx` | openai | android-engineer-applied-foundations | medium | firestore_ambiguous (2 roles) |
+| `FrancoNColaizzi_Resume_Peleton.docx` | peleton | general | low | No role detected |
+| `FrancoNColaizzi_Resume_PlanetFitness.docx` | planet-fitness | general | low | No role detected |
+| `FrancoNColaizzi_Resume_Reddit.docx` | reddit | android-software-engineer-consumer-engineering | medium | firestore_ambiguous (4 roles) |
+| `FrancoNColaizzi_Resume_Redfin.gdoc` | redfin | general | low | No role detected |
+| `FrancoNColaizzi_Resume_Temu.docx` | temu | general | low | No role detected |
+| `FrancoNColaizzi_Resume_ThompsonReuters.docx` | thompson-reuters | general | low | No role detected |
+| `capital-one/CapitalOne_FrancoNColaizzi_Resume.pdf` | capital-one | android-mobile-engineer-4 | medium | firestore_ambiguous (3 roles) |
+| `consumer-tech/SeniorAndroidDeveloperNewFeatureDevelopment/resume-edits.txt` | consumer-tech | senior-android-developer-new-feature-development | unresolved | Generic placeholder company — user must identify actual company |
+| `lyft/Lyft_FrancoNColaizzi_Resume.pdf` | lyft | general | low | No role detected |
+| `motorola/Motorola_FrancoNColaizzi_Resume.pdf` | motorola | general | low | No role detected |
+| `open-ai/OpenAI_FrancoNColaizzi_Resume.pdf` | openai | android-engineer-applied-foundations | medium | firestore_ambiguous (2 roles) |
+| `reddit/Reddit_FrancoNColaizzi_Resume.pdf` | reddit | android-software-engineer-consumer-engineering | medium | firestore_ambiguous (4 roles) |
+| `redfin/Redfin_FrancoNColaizzi_Resume.pdf` | redfin | general | low | No role detected |

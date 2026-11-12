@@ -10,6 +10,7 @@ import com.google.firebase.cloud.FirestoreClient
 import dev.fnc314.tools.jobsearch.parser.ApplicationTimelineProjector
 import dev.fnc314.tools.jobsearch.parser.CompanyMetricsParser
 import dev.fnc314.tools.jobsearch.parser.CompanySectorNormalizer
+import dev.fnc314.tools.jobsearch.parser.DocumentIdGenerator
 import dev.fnc314.tools.jobsearch.parser.EventChainBuilder
 import dev.fnc314.tools.jobsearch.parser.EventChainVerifier
 import dev.fnc314.tools.jobsearch.tracker.v1.ApplicationChannel
@@ -563,9 +564,13 @@ public object BackendService {
 
         val snapshot = query.get().get()
         val appsByCompany = snapshot.documents.groupBy { doc ->
-            doc.getString("companyId")?.takeIf { it.isNotBlank() }
-                ?: doc.getString("company")?.lowercase()?.replace(Regex("[^a-z0-9]+"), "-")?.trim('-')
-                ?: "unknown"
+            val rawCompanyId = doc.getString("companyId")?.takeIf { it.isNotBlank() }
+            val rawCompanyName = doc.getString("company")?.takeIf { it.isNotBlank() }
+            when {
+                rawCompanyId != null -> DocumentIdGenerator.slug(rawCompanyId, fallback = rawCompanyId)
+                rawCompanyName != null -> DocumentIdGenerator.slug(rawCompanyName, fallback = "unknown")
+                else -> "unknown"
+            }
         }
 
         var companiesUpdated = 0
@@ -754,15 +759,15 @@ public object BackendService {
 
     /**
      * Creates a new company record from name and optional website.
-     * Derives slug from name, resolves careersUrl from website if provided.
+     * Derives canonical slug via [DocumentIdGenerator.slug] from name, resolves careersUrl from website if provided.
+     *
+     * @param name Display name of the company.
+     * @param website Optional company website URL.
+     * @return Result map containing status (`EXISTS` or `CREATED`), `companyId`, and `company` fields.
      */
     public fun addCompany(name: String, website: String? = null): Map<String, Any?> {
         val db = firestore
-        val slug = name.lowercase()
-            .replace(Regex("[^a-z0-9]+"), "-")
-            .trim('-')
-            .takeIf { it.isNotBlank() }
-            ?: "unknown-company"
+        val slug = DocumentIdGenerator.slug(name, fallback = "unknown-company")
 
         val companyDoc = db.collection("companies").document(slug)
         val existingSnap = companyDoc.get().get()
@@ -807,6 +812,268 @@ public object BackendService {
             "companyId" to slug,
             "company" to finalDoc
         )
+    }
+
+    /**
+     * Deduplicates records in the Firestore `companies` collection and aligns `applications.companyId`
+     * to canonical slugs derived via [DocumentIdGenerator.slug].
+     *
+     * For any duplicate group (e.g., `ford-motor-company` and `ford-motor`, or `meta-platforms` and `meta`):
+     * 1. Merges non-blank fields (`logoUrl`, `linkedinUrl`, `website`, `sector`, `aliases`, etc.) into
+     *    the canonical `companies/{canonicalId}` document.
+     * 2. Re-points any `applications` documents referencing a non-canonical `companyId` to `canonicalId`.
+     * 3. Renames application document IDs when the company slug prefix has changed (e.g.,
+     *    `ford-motor--staff-android-app` → `ford--staff-android-app`), migrating all subcollections
+     *    (events, artifacts) and updating email references.
+     * 4. Deletes the non-canonical `companies/{duplicateId}` document when [dryRun] is `false`.
+     * 5. Recomputes company metrics across all merged companies.
+     *
+     * @param dryRun When `true`, computes and returns all planned merges without mutating Firestore.
+     * @return Summary map detailing merged groups, updated applications, renamed documents, and deleted duplicate IDs.
+     */
+    public fun deduplicateCompanies(dryRun: Boolean = false): Map<String, Any> {
+        val db = firestore
+        val companiesSnapshot = db.collection("companies").get().get()
+        val appsSnapshot = db.collection("applications").get().get()
+
+        data class CompanyEntry(
+            val docId: String,
+            val data: Map<String, Any?>,
+            val canonicalId: String,
+        )
+
+        val entries = companiesSnapshot.documents.map { doc ->
+            val data: Map<String, Any?> = doc.data
+            val name = (data["name"] as? String)?.takeIf { it.isNotBlank() }
+                ?: (data["company"] as? String)?.takeIf { it.isNotBlank() }
+                ?: doc.id
+            val byName = DocumentIdGenerator.slug(name)
+            val byId = DocumentIdGenerator.slug(doc.id)
+            val canonicalId = byName.ifEmpty { byId.ifEmpty { doc.id } }
+            CompanyEntry(docId = doc.id, data = data, canonicalId = canonicalId)
+        }
+
+        val grouped = entries.groupBy { it.canonicalId }
+        val mergedGroups = mutableListOf<String>()
+        val deletedIds = mutableListOf<String>()
+        var applicationsUpdated = 0
+        val renamedApplications = mutableListOf<String>()
+
+        for ((canonicalId, group) in grouped) {
+            val needsConsolidation = group.size > 1 || group.any { it.docId != canonicalId }
+            if (!needsConsolidation) continue
+
+            val canonicalEntry = group.find { it.docId == canonicalId }
+            val mergedData = mutableMapOf<String, Any?>()
+
+            // Seed from non-canonical entries first, then overlay canonical entry so canonical values win when present
+            val ordered = group.sortedBy { if (it.docId == canonicalId) 1 else 0 }
+            val collectedAliases = linkedSetOf<String>()
+
+            for (entry in ordered) {
+                for ((k, v) in entry.data) {
+                    if (v != null && (v !is String || v.isNotBlank())) {
+                        mergedData[k] = v
+                    }
+                }
+                val entryAliases = (entry.data["aliases"] as? List<*>)
+                    ?.mapNotNull { it?.toString()?.trim()?.takeIf { s -> s.isNotEmpty() } }
+                    .orEmpty()
+                collectedAliases.addAll(entryAliases)
+                val entryName = (entry.data["name"] as? String)?.trim()
+                if (!entryName.isNullOrBlank()) {
+                    collectedAliases.add(entryName)
+                }
+                if (entry.docId != canonicalId) {
+                    collectedAliases.add(entry.docId)
+                }
+            }
+
+            val canonicalName = (canonicalEntry?.data?.get("name") as? String)?.takeIf { it.isNotBlank() }
+                ?: (mergedData["name"] as? String)?.takeIf { it.isNotBlank() }
+                ?: canonicalId
+            collectedAliases.remove(canonicalName)
+            collectedAliases.remove(canonicalId)
+
+            mergedData["companyId"] = canonicalId
+            mergedData["name"] = canonicalName
+            if (collectedAliases.isNotEmpty()) {
+                mergedData["aliases"] = collectedAliases.toList()
+            }
+            mergedData["updatedAt"] = Timestamp.now()
+
+            val duplicateDocIds = group.map { it.docId }.filter { it != canonicalId }
+            mergedGroups.add("$canonicalId <- ${duplicateDocIds.ifEmpty { listOf(canonicalId) }}")
+
+            if (!dryRun) {
+                val filteredPayload = mergedData.filterValues { it != null }.mapValues { it.value!! }
+                db.collection("companies").document(canonicalId)
+                    .set(filteredPayload, SetOptions.merge())
+                    .get()
+
+                for (dupId in duplicateDocIds) {
+                    db.collection("companies").document(dupId).delete().get()
+                    deletedIds.add(dupId)
+                }
+            } else {
+                deletedIds.addAll(duplicateDocIds)
+            }
+        }
+
+        // Build a map of old company slugs to canonical slugs for document ID renaming
+        val oldSlugsToCanonical = mutableMapOf<String, String>()
+        for ((canonicalId, group) in grouped) {
+            val needsConsolidation = group.size > 1 || group.any { it.docId != canonicalId }
+            if (!needsConsolidation) continue
+            for (entry in group) {
+                if (entry.docId != canonicalId) {
+                    oldSlugsToCanonical[entry.docId] = canonicalId
+                }
+            }
+        }
+
+        // Also ensure all applications have canonical companyId and rename document IDs where needed
+        for (appDoc in appsSnapshot.documents) {
+            val existingCompanyId = appDoc.getString("companyId")?.trim().orEmpty()
+            val companyName = appDoc.getString("company")?.trim().orEmpty()
+            val role = appDoc.getString("role")?.trim().orEmpty()
+            val expectedCompanyId = when {
+                companyName.isNotEmpty() -> DocumentIdGenerator.slug(companyName)
+                existingCompanyId.isNotEmpty() -> DocumentIdGenerator.slug(existingCompanyId)
+                else -> ""
+            }
+
+            // Check if companyId field needs update
+            val needsCompanyIdUpdate = expectedCompanyId.isNotEmpty() && existingCompanyId != expectedCompanyId
+
+            // Check if document ID needs renaming (company slug prefix changed)
+            val currentDocId = appDoc.id
+            val expectedDocId = if (role.isNotEmpty()) {
+                DocumentIdGenerator.documentId(companyName, role)
+            } else {
+                expectedCompanyId
+            }
+            val needsDocIdRename = currentDocId != expectedDocId && expectedDocId.isNotEmpty()
+
+            if (needsCompanyIdUpdate) {
+                applicationsUpdated++
+            }
+
+            if (needsDocIdRename) {
+                renamedApplications.add("$currentDocId -> $expectedDocId")
+                if (!dryRun) {
+                    renameApplicationDocument(db, appDoc, expectedDocId, expectedCompanyId, companyName)
+                }
+            } else if (needsCompanyIdUpdate && !dryRun) {
+                // Only companyId field update, no document rename needed
+                appDoc.reference.set(
+                    mapOf(
+                        "companyId" to expectedCompanyId,
+                        "updatedAt" to Timestamp.now(),
+                    ),
+                    SetOptions.merge(),
+                ).get()
+            }
+        }
+
+        if (!dryRun && (deletedIds.isNotEmpty() || applicationsUpdated > 0 || renamedApplications.isNotEmpty())) {
+            recalculateCompanyMetrics()
+        }
+
+        return mapOf(
+            "status" to "SUCCESS",
+            "dryRun" to dryRun,
+            "mergedGroupsCount" to mergedGroups.size,
+            "mergedGroups" to mergedGroups,
+            "deletedCompanyIdsCount" to deletedIds.size,
+            "deletedCompanyIds" to deletedIds,
+            "applicationsUpdated" to applicationsUpdated,
+            "applicationsRenamedCount" to renamedApplications.size,
+            "applicationsRenamed" to renamedApplications,
+            "timestamp" to Timestamp.now().toString(),
+        )
+    }
+
+    /**
+     * Renames a Firestore application document, migrating all subcollections and updating email references.
+     *
+     * This is the core migration primitive: it creates the target document with all data and subcollections,
+     * updates all `emails` documents that reference the old application ID, then deletes the source document.
+     *
+     * @param db The Firestore instance.
+     * @param sourceDoc The source document snapshot.
+     * @param targetDocId The new document ID.
+     * @param canonicalCompanyId The canonical company ID to set.
+     * @param companyName The company name to preserve.
+     */
+    private fun renameApplicationDocument(
+        db: Firestore,
+        sourceDoc: com.google.cloud.firestore.DocumentSnapshot,
+        targetDocId: String,
+        canonicalCompanyId: String,
+        companyName: String,
+    ) {
+        val sourceRef = sourceDoc.reference
+        val targetRef = db.collection("applications").document(targetDocId)
+        val sourceData = (sourceDoc.data ?: emptyMap<String, Any?>()).toMutableMap()
+
+        // Update companyId and id fields in the target document
+        sourceData["companyId"] = canonicalCompanyId
+        sourceData["id"] = targetDocId
+        sourceData["updatedAt"] = Timestamp.now()
+
+        // Discover all subcollections under the source document
+        // Known subcollections: events, artifacts
+        val knownSubcollections = listOf("events", "artifacts")
+        val subcollectionsData = mutableMapOf<String, List<Pair<String, Map<String, Any?>>>>()
+
+        for (collName in knownSubcollections) {
+            val collRef = sourceRef.collection(collName)
+            val subdocsSnap = collRef.get().get()
+            val subdocs = subdocsSnap.documents.map { doc: com.google.cloud.firestore.DocumentSnapshot ->
+                doc.id to (doc.data ?: emptyMap<String, Any?>())
+            }
+            if (subdocs.isNotEmpty()) {
+                subcollectionsData[collName] = subdocs
+            }
+        }
+
+        // Write new document and copy all subcollections in a batch
+        val batch = db.batch()
+        batch.set(targetRef, sourceData)
+
+        subcollectionsData.forEach { (collName, subdocs) ->
+            subdocs.forEach { (subdocId, subdocData) ->
+                batch.set(targetRef.collection(collName).document(subdocId), subdocData)
+            }
+        }
+        batch.commit()
+
+        // Update all emails that reference the old application ID
+        val emailsSnapshot = db.collection("emails").whereEqualTo("applicationId", sourceDoc.id).get().get()
+        if (!emailsSnapshot.documents.isEmpty()) {
+            val emailBatch = db.batch()
+            for (emailDoc in emailsSnapshot.documents) {
+                emailBatch.set(
+                    emailDoc.reference,
+                    mapOf("applicationId" to targetDocId, "updatedAt" to Instant.now().toString()),
+                    SetOptions.merge(),
+                )
+            }
+            emailBatch.commit()
+        }
+
+        // Delete old subcollections and old document
+        val deleteBatch = db.batch()
+        subcollectionsData.forEach { (collName, subdocs) ->
+            subdocs.forEach { (subdocId, _) ->
+                deleteBatch.delete(sourceRef.collection(collName).document(subdocId))
+            }
+        }
+        deleteBatch.delete(sourceRef)
+        deleteBatch.commit()
+
+        println("Migrated application: $sourceDoc.id -> $targetDocId")
     }
 
     /**

@@ -52,7 +52,7 @@ public object CompanySectorNormalizer {
         // Automotive / Transportation
         "car-next-door" to CompanySector.AUTOMOTIVE,
         "doordash" to CompanySector.TECH,
-        "ford-motor-company" to CompanySector.AUTOMOTIVE,
+        "ford" to CompanySector.AUTOMOTIVE,
         "general-motors" to CompanySector.AUTOMOTIVE,
         "lime" to CompanySector.AUTOMOTIVE,
         "scout-motors" to CompanySector.AUTOMOTIVE,
@@ -126,7 +126,7 @@ public object CompanySectorNormalizer {
         "car-next-door" to "uber-carshare",
         "carnegie-mellon-university" to "carnegie-mellon-university",
         "fidelity-investments" to "fidelity-investments",
-        "ford-motor-company" to "ford-motor-company",
+        "ford" to "ford",
         "general-motors" to "general-motors",
         "grove-collaborative" to "grove-collaborative",
         "hims-hers" to "forhims",
@@ -162,8 +162,9 @@ public object CompanySectorNormalizer {
         companyName: String? = null
     ): CompanySector {
         if (!companyId.isNullOrBlank()) {
-            val normalizedId = companyId.trim().lowercase(Locale.ROOT)
+            val normalizedId = DocumentIdGenerator.slug(companyId).ifEmpty { companyId.trim().lowercase(Locale.ROOT) }
             KNOWN_COMPANY_SECTORS[normalizedId]?.let { return it }
+            KNOWN_COMPANY_SECTORS[companyId.trim().lowercase(Locale.ROOT)]?.let { return it }
         }
 
         if (!industryOrSector.isNullOrBlank()) {
@@ -188,8 +189,9 @@ public object CompanySectorNormalizer {
      */
     @JvmStatic
     public fun resolveLinkedinUrl(companyId: String): String {
-        val normalizedId = companyId.trim().lowercase(Locale.ROOT)
-        val slug = KNOWN_LINKEDIN_SLUGS[normalizedId] ?: normalizedId
+        val rawLower = companyId.trim().lowercase(Locale.ROOT)
+        val normalizedId = DocumentIdGenerator.slug(companyId).ifEmpty { rawLower }
+        val slug = KNOWN_LINKEDIN_SLUGS[normalizedId] ?: KNOWN_LINKEDIN_SLUGS[rawLower] ?: normalizedId
         return "https://www.linkedin.com/company/$slug"
     }
 

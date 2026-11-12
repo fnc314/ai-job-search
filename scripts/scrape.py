@@ -158,9 +158,10 @@ def _load_seen_from_firestore(db) -> dict[str, dict[str, object]]:
 
 
 def _slugify(s: str) -> str:
-    """Convert a string to a kebab-case slug."""
-    s = re.sub(r"[^a-z0-9]+", "-", s.lower().strip())
-    return s.strip("-")
+    """Convert a string to a canonical kebab-case slug via contract.slug."""
+    import contract  # noqa: E402
+
+    return contract.slug(s)
 
 
 def _save_seen_to_firestore(db, seen_dict: dict[str, dict[str, object]]) -> int:

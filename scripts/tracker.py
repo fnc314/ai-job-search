@@ -2802,7 +2802,6 @@ def commandMockClear(args) -> int:
 COMPANY_DOMAIN_ALIASES: dict[str, str] = {
     "general-motors": "gm.com",
     "gm": "gm.com",
-    "ford-motor-company": "ford.com",
     "ford": "ford.com",
     "jpmorgan-chase": "jpmorganchase.com",
     "jpmorgan": "jpmorganchase.com",

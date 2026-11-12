@@ -6,6 +6,7 @@ import com.github.ajalt.mordant.rendering.TextColors.cyan
 import com.github.ajalt.mordant.rendering.TextColors.gray
 import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.yellow
+import com.github.ajalt.mordant.table.ColumnWidth
 import com.github.ajalt.mordant.table.table
 import com.github.ajalt.mordant.terminal.Terminal
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
@@ -14,7 +15,7 @@ public class GetApplicationCommand : CliktCommand(name = "get") {
     private val applicationId: String by argument("id", help = "Application slug ID")
 
     override fun run() {
-        val t = Terminal()
+        val t = Terminal(nonInteractiveWidth = 200)
         val db = FirestoreProvider.firestore
         val docRef = db.collection("applications").document(applicationId)
         val snap = docRef.get().get()
@@ -51,7 +52,14 @@ public class GetApplicationCommand : CliktCommand(name = "get") {
         if (eventsSnap.isEmpty) {
             t.println(gray("No events recorded."))
         } else {
+            t.updateSize()
             val eventsTbl = table {
+                column(0) {
+                    width = ColumnWidth.Fixed(25)
+                }
+                column(4) {
+                    width = ColumnWidth.Expand(1f)
+                }
                 header {
                     row(cyan("Date/Time"), cyan("Event Type"), cyan("Actor"), cyan("Email Message ID"), cyan("Notes"))
                 }

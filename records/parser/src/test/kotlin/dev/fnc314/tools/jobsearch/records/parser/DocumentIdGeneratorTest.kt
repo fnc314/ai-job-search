@@ -19,6 +19,11 @@ class DocumentIdGeneratorTest {
         assertEquals("scout-motors", DocumentIdGenerator.slug("Scout Motors Inc."))
         assertEquals("major-league-baseball", DocumentIdGenerator.slug("Major League Baseball (MLB)"))
         assertEquals("snap", DocumentIdGenerator.slug("Snap Inc."))
+        assertEquals("ford", DocumentIdGenerator.slug("Ford Motor Company"))
+        assertEquals("ford", DocumentIdGenerator.slug("Ford"))
+        assertEquals("meta", DocumentIdGenerator.slug("Meta"))
+        assertEquals("meta", DocumentIdGenerator.slug("Meta Platforms"))
+        assertEquals("meta", DocumentIdGenerator.slug("Meta Platforms, Inc."))
     }
 
     @Test
@@ -71,8 +76,8 @@ class DocumentIdGeneratorTest {
         try {
             DocumentIdGenerator.documentId("", "Engineer")
             assertTrue(false, "should have thrown ContractError")
-        } catch (e: ContractError) {
-            // expected
+        } catch (expected: ContractError) {
+            assertTrue(expected.message.orEmpty().isNotEmpty())
         }
     }
 }

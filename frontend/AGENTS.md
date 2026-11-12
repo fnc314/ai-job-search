@@ -88,6 +88,12 @@ All technical architecture, design, and migration plans for `frontend` must adhe
 - Ensure all public interfaces, data classes, and properties in domain modules declare explicit visibility and explicit return types.
 - Pre-packaged vendor native binaries that lack NDK symbols must be excluded from stripping via `packaging.jniLibs.keepDebugSymbols` rather than emitting packaging warnings.
 
+### Rule 8: Unified Top-Level Card (`TopLevelCard`), `CompanyLogoImage`, & File-Level `@OptIn`
+- **File-Level Opt-Ins**: Always declare `@file:OptIn(ExperimentalGridApi::class)` and `@file:OptIn(ExperimentalMaterial3Api::class)` at the top of the Kotlin file rather than per-function.
+- **Top-Level Cards**: All top-level list cards (`JobApplicationCard`, `CompanyCard`, `EditCard`) must build upon `TopLevelCard` in `:frontend:core-widgets`, using its `Grid`-based slot layout, `TopLevelCardAction` equalized action buttons, and `TopLevelCardSurfaceVariant` elevation/surface treatments.
+- **Company Logos**: All company logo rendering must use `CompanyLogoImage` with `CompanyLogoSize` (`Small`, `Medium`, `Large`). Never construct ad-hoc `Box` + `JobApplicationTrackerImage` wrappers in feature screens.
+- **Canonical Company Slugs**: Always derive `companyId` via `DocumentIdGenerator.slug()` (or `canonicalCompanySlug` in KMP `commonMain`) so employer variants (`"Meta Platforms"` vs `"Meta"`, `"Ford Motor Company"` vs `"Ford"`) never create duplicate company cards.
+
 ---
 
 ## 3. Key Gradle & Mise Execution Commands

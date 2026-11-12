@@ -63,6 +63,20 @@ public fun main(args: Array<String>) {
         return
     }
 
+    if (args.contains("--deduplicate-companies")) {
+        val dryRun = args.contains("--dry-run")
+        println("Executing companies deduplication locally (dryRun: $dryRun)...")
+        try {
+            val result = BackendService.deduplicateCompanies(dryRun = dryRun)
+            println("Companies deduplication complete: $result")
+        } catch (e: Exception) {
+            System.err.println("Error during companies deduplication: ${e.message}")
+            e.printStackTrace()
+            exitProcess(1)
+        }
+        return
+    }
+
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
     embeddedServer(Netty, port = port) {
         routing {
@@ -208,6 +222,32 @@ public fun main(args: Array<String>) {
                                 kotlinx.serialization.json.JsonArray(v.map { kotlinx.serialization.json.JsonPrimitive(it?.toString() ?: "") })
                             }
                             else -> kotlinx.serialization.json.JsonPrimitive(v?.toString() ?: "")
+                        }
+                    }
+                    call.respondText(
+                        Json.encodeToString(JsonObject(jsonMap)),
+                        io.ktor.http.ContentType.Application.Json
+                    )
+                } catch (e: Exception) {
+                    call.respondText(
+                        """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
+                        io.ktor.http.ContentType.Application.Json,
+                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                    )
+                }
+            }
+            post("/companies/tasks/deduplicate") {
+                try {
+                    val dryRun = call.request.queryParameters["dryRun"]?.toBoolean() ?: false
+                    val result = BackendService.deduplicateCompanies(dryRun = dryRun)
+                    val jsonMap = result.mapValues { (_, v) ->
+                        when (v) {
+                            is List<*> -> {
+                                kotlinx.serialization.json.JsonArray(v.map { kotlinx.serialization.json.JsonPrimitive(it?.toString() ?: "") })
+                            }
+                            is Number -> kotlinx.serialization.json.JsonPrimitive(v)
+                            is Boolean -> kotlinx.serialization.json.JsonPrimitive(v)
+                            else -> kotlinx.serialization.json.JsonPrimitive(v.toString())
                         }
                     }
                     call.respondText(

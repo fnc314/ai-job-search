@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package dev.fnc314.tools.jobtracker.app.core.ui
 
 import androidx.compose.foundation.layout.Box
@@ -104,7 +106,6 @@ private fun isTopLevelDestination(key: JobApplicationsTrackerNavKey?): Boolean =
  * @param modifier Composable layout modifier.
  * @param content Slot rendering screen content with appropriate scaffold padding.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun AppScaffold(
   navigator: Navigator,

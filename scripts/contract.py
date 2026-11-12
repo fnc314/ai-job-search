@@ -97,6 +97,37 @@ _STOP_WORDS = {"the", "a", "an", "of", "and"}
 _CORP_SUFFIXES = {"inc", "llc", "corp", "corporation", "ltd", "co", "company"}
 _DIR_BAD_WORDS = {"the", "a", "an", "of", "and", "or", "in", "on", "at", "to", "for"}
 
+_COMPANY_SLUG_ALIASES = {
+    "meta-platforms": "meta",
+    "facebook": "meta",
+    "ford-motor-company": "ford",
+    "ford-motor": "ford",
+    "alphabet": "google",
+    "square": "block",
+    "pnc-financial-services": "pnc",
+    "pnc-bank": "pnc",
+    "jpmorgan": "jpmorgan-chase",
+    "jp-morgan": "jpmorgan-chase",
+    "jp-morgan-chase": "jpmorgan-chase",
+    "twitter2": "twitter",
+    "capitalone": "capital-one",
+    "edwardjones": "edward-jones",
+    "eightsleep": "eight-sleep",
+    "jpmorganchase": "jpmorgan-chase",
+    "homedepot": "home-depot",
+    "thompsonreuters": "thomson-reuters",
+    "colossustechnologies": "colossus-technologies",
+    "fitnesstech": "fitness-tech",
+    "planetfitness": "planet-fitness",
+    "paradigmnatl": "paradigm-natl",
+    "classlist": "classlist",
+    "class-list": "classlist",
+    "open-ai": "openai",
+    "yinz-cam": "yinzcam",
+    "on-x": "onx",
+    "spot-on": "spoton",
+}
+
 # Roman numerals
 _ROMAN_NUMERALS = {"i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"}
 
@@ -148,7 +179,8 @@ def normalize_dir_name(raw: str) -> str:
             continue
         deduped.append(word)
 
-    return "-".join(deduped)
+    candidate = "-".join(deduped)
+    return _COMPANY_SLUG_ALIASES.get(candidate, candidate)
 
 _CACHE: dict | None = None
 _VALIDATORS: dict[str, jsonschema.Draft202012Validator] = {}

@@ -26,7 +26,7 @@ class TestDomainNormalization(unittest.TestCase):
 
     def test_aliases(self):
         self.assertEqual(tracker.normalizeDomain("general-motors"), "gm.com")
-        self.assertEqual(tracker.normalizeDomain("ford-motor-company"), "ford.com")
+        self.assertEqual(tracker.normalizeDomain("ford"), "ford.com")
         self.assertEqual(tracker.normalizeDomain("american-eagle-outfitters"), "aeo.com")
         self.assertEqual(tracker.normalizeDomain("major-league-baseball"), "mlb.com")
         self.assertEqual(tracker.normalizeDomain("carnegie-mellon-university"), "cmu.edu")

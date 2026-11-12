@@ -8,6 +8,7 @@ import com.github.ajalt.mordant.rendering.TextColors.cyan
 import com.github.ajalt.mordant.rendering.TextColors.gray
 import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.yellow
+import com.github.ajalt.mordant.table.ColumnWidth
 import com.github.ajalt.mordant.table.table
 import com.github.ajalt.mordant.terminal.Terminal
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
@@ -23,7 +24,7 @@ public class ListApplicationsCommand : CliktCommand(name = "list") {
     private val jsonOutput: Boolean by option("--json", help = "Output as JSON").flag(default = false)
 
     override fun run() {
-        val t = Terminal()
+        val t = Terminal(nonInteractiveWidth = 200)
         val db = FirestoreProvider.firestore
         var query = db.collection("applications") as com.google.cloud.firestore.Query
 
@@ -57,7 +58,17 @@ public class ListApplicationsCommand : CliktCommand(name = "list") {
             return
         }
 
+        t.updateSize()
         val tbl = table {
+            column(0) {
+                width = ColumnWidth.Fixed(40)
+            }
+            column(1) {
+                width = ColumnWidth.Expand(1f)
+            }
+            column(2) {
+                width = ColumnWidth.Expand(1f)
+            }
             header {
                 row(cyan("ID"), cyan("Company"), cyan("Role"), cyan("Status"), cyan("Fit"), cyan("Emails"))
             }

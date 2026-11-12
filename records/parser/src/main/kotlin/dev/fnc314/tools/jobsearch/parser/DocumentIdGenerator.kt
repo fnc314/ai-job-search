@@ -5,6 +5,10 @@ import java.text.Normalizer
 /**
  * Derives stable, filesystem-safe identifiers from free-form company and role names.
  *
+ * This object is the **single source of truth** across the monorepo (`records`, `backend`,
+ * and `frontend`) for deriving canonical `companyId` slugs and `applications` document IDs.
+ * Never use ad-hoc regular expressions to derive `companyId` values.
+ *
  * Mirrors the Python `contract.normalize_dir_name` / `contract.slug` / `contract.documentId`
  * behaviour so that document IDs, GCS paths, and Sheet headers remain byte-identical
  * after the Kotlin-only migration.
@@ -16,9 +20,11 @@ import java.text.Normalizer
  *   4. Strip stop words and corporate suffixes.
  *   5. Convert to lower-kebab-case.
  *   6. Deduplicate adjacent identical tokens.
+ *   7. Apply canonical company alias resolution (e.g. `"meta-platforms"` → `"meta"`).
  */
 public object DocumentIdGenerator {
 
+    private const val ASCII_UPPER_BOUND = 128
     private val slugStrip = Regex("[^a-z0-9]+")
 
     private val dirContractions = mapOf(
@@ -36,6 +42,40 @@ public object DocumentIdGenerator {
     private val corpSuffixes = setOf("inc", "llc", "corp", "corporation", "ltd", "co", "company")
 
     /**
+     * Canonical company slug aliases mapping known employer name variants to a single `companyId`.
+     */
+    private val companySlugAliases: Map<String, String> = mapOf(
+        "meta-platforms" to "meta",
+        "facebook" to "meta",
+        "ford-motor-company" to "ford",
+        "ford-motor" to "ford",
+        "alphabet" to "google",
+        "square" to "block",
+        "pnc-financial-services" to "pnc",
+        "pnc-bank" to "pnc",
+        "jpmorgan" to "jpmorgan-chase",
+        "jp-morgan" to "jpmorgan-chase",
+        "jp-morgan-chase" to "jpmorgan-chase",
+        "twitter2" to "twitter",
+        "capitalone" to "capital-one",
+        "edwardjones" to "edward-jones",
+        "eightsleep" to "eight-sleep",
+        "jpmorganchase" to "jpmorgan-chase",
+        "homedepot" to "home-depot",
+        "thompsonreuters" to "thomson-reuters",
+        "colossustechnologies" to "colossus-technologies",
+        "fitnesstech" to "fitness-tech",
+        "planetfitness" to "planet-fitness",
+        "paradigmnatl" to "paradigm-natl",
+        "classlist" to "classlist",
+        "class-list" to "classlist",
+        "open-ai" to "openai",
+        "yinz-cam" to "yinzcam",
+        "on-x" to "onx",
+        "spot-on" to "spoton",
+    )
+
+    /**
      * Normalize a company or role name for use in lower-kebab-case directory paths and document IDs.
      *
      * Example transformations:
@@ -44,6 +84,8 @@ public object DocumentIdGenerator {
      *   "Sr. Software Engineer, Android"  ->  "senior-software-engineer-android"
      *   "Major League Baseball (MLB)"     ->  "major-league-baseball"
      *   "Snap Inc."                       ->  "snap"
+     *   "Ford Motor Company"              ->  "ford"
+     *   "Meta Platforms, Inc."            ->  "meta"
      *   "EBay"                            ->  "ebay"
      *   "onX"                             ->  "onx"
      *
@@ -58,7 +100,7 @@ public object DocumentIdGenerator {
 
         // 2. Unicode NFKD normalization, drop non-ASCII
         text = Normalizer.normalize(text, Normalizer.Form.NFKD)
-            .filter { c -> c.code < 128 }
+            .filter { c -> c.code < ASCII_UPPER_BOUND }
 
         val rawSlug = slugStrip.replace(text.lowercase(), "-").trim('-')
         if (rawSlug.isEmpty()) return ""
@@ -83,17 +125,18 @@ public object DocumentIdGenerator {
             }
         }
 
-        return deduped.joinToString("-")
+        val candidate = deduped.joinToString("-")
+        return companySlugAliases[candidate] ?: candidate
     }
 
     /**
-     * ASCII kebab slug for companyId and document IDs.
+     * ASCII kebab slug for `companyId` and document IDs.
      *
      * Delegates to [normalizeDirName] and falls back to [fallback] when the result is empty.
      *
      * @param value The raw company or role name.
      * @param fallback Returned when the slug is empty.
-     * @return A lower-kebab-case slug.
+     * @return A canonical lower-kebab-case slug.
      */
     public fun slug(value: String, fallback: String = ""): String {
         if (value.isBlank()) return fallback
@@ -123,5 +166,7 @@ public object DocumentIdGenerator {
 
 /**
  * Thrown when a document violates the tracker contract.
+ *
+ * @param message Description of the contract violation.
  */
 public class ContractError(message: String) : IllegalArgumentException(message)

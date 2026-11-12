@@ -153,7 +153,8 @@ public fun CompanyLogoImage(
     companyName: String,
     modifier: Modifier = Modifier,
     logoUrl: String? = null,
-    companyInitial: String = companyName.trim().firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "?",
+    companyInitial: String = companyName.trim().firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString()
+        ?: "?",
     logoSize: CompanyLogoSize = CompanyLogoSize.Small,
     size: Dp = logoSize.toDp(),
     shape: Shape = RoundedCornerShape(DEFAULT_CORNER_RADIUS),
@@ -223,6 +224,7 @@ public fun CompanyLogoImage(
                             isLoading = true
                             isValidLogoLoaded = false
                         }
+
                         is AsyncImagePainter.State.Success -> {
                             isLoading = false
                             if (isAcceptableSquareLogo(state.painter.intrinsicSize)) {
@@ -234,6 +236,7 @@ public fun CompanyLogoImage(
                                 isLogoRejected = true
                             }
                         }
+
                         is AsyncImagePainter.State.Error -> {
                             isLoading = false
                             isValidLogoLoaded = false
@@ -241,6 +244,7 @@ public fun CompanyLogoImage(
                             hasLoadError = true
                             errorHttpCode = extractHttpStatusCode(state.result.throwable)
                         }
+
                         is AsyncImagePainter.State.Empty -> {
                             isLoading = false
                             isValidLogoLoaded = false
