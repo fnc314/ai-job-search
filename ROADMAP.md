@@ -439,6 +439,52 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 |------------|-------------------|--------------------------------------|
 | 2026-11-11 | Item created      | Initial entry                        |
 | 2026-11-11 | Implementation    | Created `TopLevelCard`, unified `CompanyLogoImage` sizes/loading/HTTP error banner, and added company slug deduplication across `records`, `backend`, `frontend`, and `scripts` |
+
+---
+
+### [RM-010] Separate out RoadmapApp.kt from frontend/apps/terminal
+
+**Short Desc:** Address Separate out RoadmapApp.kt to address LOW concern
+**Criticality:** LOW
+**Priority:** LOW
+**Complexity:** 0 — Unknown
+**Status:** OPEN
+**Completion %:** 0
+**Creation Date:** 2026-11-12
+**Objective:** Refactor the RoadmapApp.kt from frontend/apps/terminal into a frontend/apps/internal or otherwise-located location
+
+**Dependencies:** None
+
+**Linked Plans:**
+- None
+
+**Changelog:**
+| Date       | Change            | Details                              |
+|------------|-------------------|--------------------------------------|
+| 2026-11-12 | Item created      | Initial entry                        |
+
+---
+
+### [RM-011] Break up /backend into proper Gradle Multi-Module architecture
+
+**Short Desc:** Expose Break up /backend to address MEDIUM concern
+**Criticality:** MEDIUM
+**Priority:** MEDIUM
+**Complexity:** 0 — Unknown
+**Status:** OPEN
+**Completion %:** 0
+**Creation Date:** 2026-11-12
+**Objective:** Explicitly define and separate each piece of functionality within `/backend` to more accurately represent a proper multi-module architecture.  Distribution can be a single JAR still.
+
+**Dependencies:** None
+
+**Linked Plans:**
+- None
+
+**Changelog:**
+| Date       | Change            | Details                              |
+|------------|-------------------|--------------------------------------|
+| 2026-11-12 | Item created      | Initial entry                        |
 ## Frozen Items
 
 Items in this section have been frozen via the nuclear clear roadmap option. They are archived and should not be considered active work items.

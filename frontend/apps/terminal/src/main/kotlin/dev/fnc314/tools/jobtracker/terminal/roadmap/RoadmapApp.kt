@@ -526,8 +526,9 @@ public object RoadmapApp {
             }
         }
 
-        // Close Scanner before entering raw mode to avoid input buffering conflicts
-        scanner.close()
+        // Note: We do NOT close scanner here because it would close System.in,
+        // breaking the stty fallback path (readKeyFallback -> readRawByte -> System.in.read()).
+        // The scanner is no longer used after this point, so it's harmless to leave it open.
 
         // Enter full-screen mode with raw input
         val termWidth = getTerminalWidth()
@@ -539,22 +540,28 @@ public object RoadmapApp {
             rawMode = t.enterRawMode()
         } catch (e: Exception) {
             // Mordant's native interfaces (FFM/JNA) failed — use stty fallback
-            useFallbackRawMode = true
             try {
-                ProcessBuilder("stty", "-f", "/dev/tty", "-echo", "-icanon", "-isig", "min", "1", "time", "0")
+                val sttyProcess = ProcessBuilder("stty", "-f", "/dev/tty", "-echo", "-icanon", "-isig", "min", "1", "time", "0")
                     .redirectInput(ProcessBuilder.Redirect.INHERIT)
                     .redirectOutput(ProcessBuilder.Redirect.DISCARD)
                     .redirectError(ProcessBuilder.Redirect.DISCARD)
                     .start()
-                    .waitFor(2, java.util.concurrent.TimeUnit.SECONDS)
+                val completed = sttyProcess.waitFor(2, java.util.concurrent.TimeUnit.SECONDS)
+                if (completed && sttyProcess.exitValue() == 0) {
+                    // stty succeeded — use byte-level fallback reader
+                    useFallbackRawMode = true
+                    // Save restore command for cleanup
+                    fallbackSttyRestore = ProcessBuilder("stty", "-f", "/dev/tty", "echo", "icanon", "isig")
+                        .redirectInput(ProcessBuilder.Redirect.INHERIT)
+                        .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                        .redirectError(ProcessBuilder.Redirect.DISCARD)
+                } else {
+                    // stty failed (non-zero exit) — terminal cannot be put in raw mode
+                    t.println(yellow("⚠ Raw terminal mode unavailable. Using line-based input (no arrow keys)."))
+                }
             } catch (_: Exception) {
-                t.println(red("Failed to enter raw mode. Arrow keys may not work."))
+                t.println(yellow("⚠ Raw terminal mode unavailable. Using line-based input (no arrow keys)."))
             }
-            // Save restore command for cleanup
-            fallbackSttyRestore = ProcessBuilder("stty", "-f", "/dev/tty", "echo", "icanon", "isig")
-                .redirectInput(ProcessBuilder.Redirect.INHERIT)
-                .redirectOutput(ProcessBuilder.Redirect.DISCARD)
-                .redirectError(ProcessBuilder.Redirect.DISCARD)
         }
         try {
             while (true) {
@@ -647,7 +654,7 @@ public object RoadmapApp {
         t.println()
         val hints = when (currentView) {
             "list" -> dim("↑/↓ navigate • Enter inspect • + add • clear freeze • q quit • Tab complete ID")
-            "detail" -> dim("e: show edit menu • s/c/p/k/m/t edit • o/g/a/n/l multiline • t: ↑/↓ ±1% Shift±10% Opt±5% • b back")
+            "detail" -> dim("e: show edit menu • s/c/p/k/m/t edit • o/g/a/n/l multiline • t: ↑/↓ ±1% Shift±10% Opt±5% • b back • q quit")
             "add" -> dim("Fill fields • Esc cancel")
             else -> dim("")
         }
@@ -660,14 +667,21 @@ public object RoadmapApp {
     // "opt_up", "opt_down", "opt_left", "opt_right", "enter", "tab", "backspace", "delete", "escape", "ctrl_d",
     // or the raw character.
     private fun readKey(): String {
-        // If Mordant raw mode failed, use fallback escape sequence parser
+        // If Mordant raw mode failed but stty succeeded, use fallback escape sequence parser
         if (useFallbackRawMode) {
             return readKeyFallback()
         }
-        val rm = rawMode ?: return "enter" // fallback if raw mode not active
+        val rm = rawMode
+        if (rm == null) {
+            // Raw mode is unavailable — fall back to Scanner line-based input.
+            // Read a full line and return the first character, or "enter" for empty.
+            return readKeyFromScanner()
+        }
         val event: KeyboardEvent = rm.readKey()
         if (event.isCtrlC) return "ctrl_c" // Ctrl+C exits the TUI
         val key = event.key
+        // Guard against spurious empty-key events that cause rapid re-render loops
+        if (key.isEmpty()) return readKey()
         return when {
             key == "ArrowUp" -> {
                 if (event.shift) "shift_up"
@@ -774,6 +788,27 @@ public object RoadmapApp {
             attempts++
             if (attempts > 50) return null // ~1 second timeout
             try { Thread.sleep(20) } catch (_: InterruptedException) { return null }
+        }
+    }
+
+    // Last-resort key reader: when both Mordant raw mode and stty fallback fail,
+    // use Scanner to read a full line and return the first character.
+    // This loses arrow-key support but prevents the infinite-loop deadlock.
+    private fun readKeyFromScanner(): String {
+        return try {
+            val scanner = Scanner(System.`in`)
+            if (scanner.hasNextLine()) {
+                val line = scanner.nextLine().trim()
+                when {
+                    line.isEmpty() -> "enter"
+                    line.length == 1 -> line
+                    else -> line[0].toString()
+                }
+            } else {
+                "enter"
+            }
+        } catch (_: Exception) {
+            "enter"
         }
     }
 
@@ -1055,12 +1090,14 @@ public object RoadmapApp {
         t.println("  l  - Dependencies (@file to import)")
         t.println(gray("  (ID, Title, Created, Age are read-only)"))
         t.println("  b  - Back to list")
+        t.println("  q  - Quit")
         t.print(brightBlue("${item.id} > "))
         val line = readSingleLine()
 
         return when {
             line == "exit" -> "exit"  // Ctrl+C propagates up to main loop
             line == "b" || line == "back" -> "back"
+            line == "q" || line == "quit" -> "exit"
             line == "e" || line == "edit" -> "detail"
             line == "c" || line == "criticality" -> {
                 updateCriticality(item)

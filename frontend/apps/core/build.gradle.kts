@@ -20,6 +20,7 @@ kotlin {
   }
   sourceSets {
     commonMain.dependencies {
+      implementation(libs.kermit)
       implementation(projects.coreData)
       implementation(projects.coreNetwork)
       implementation(projects.coreNavigation)

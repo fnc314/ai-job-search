@@ -47,7 +47,7 @@ CLASSIFIERS = [
     ),
     (
         "OFFER",
-        "OFFER_EXPECTED",
+        "OFFER",
         "HIGH_CONFIDENCE",
         [
             r"\bjob offer\b",
@@ -58,7 +58,7 @@ CLASSIFIERS = [
     ),
     (
         "SCHEDULE_INTERVIEW",
-        "INTERVIEW",
+        "INTERVIEWING",
         "MEDIUM_CONFIDENCE",
         [
             r"\binterview\b",
@@ -263,12 +263,14 @@ def buildProposal(
         if message.get("applicationId"):
             confidence = "high"
         current = applications[applicationId].get("status")
+        normalizedFrom = contract.normalizeStatus(current) if current else None
+        normalizedTo = contract.normalizeStatus(statusTo) if statusTo else None
         changes.append(
             {
                 "applicationId": applicationId,
                 "eventType": eventType,
-                "statusFrom": current,
-                "statusTo": statusTo,
+                "statusFrom": normalizedFrom,
+                "statusTo": normalizedTo,
                 "confidence": confidence,
                 "sourceEmail": {
                     "messageId": messageId,

@@ -33,6 +33,7 @@
   java-toolchain = "17"
   junit = "4.13.2"
   jvm = "17"
+  kermit = "2.2.0"
   kmp-inspector = "1.0.2"
   koin = "4.2.2"
   koin-compiler = "1.2.3"
@@ -102,6 +103,7 @@
   firebase-remote-config = { module = "com.google.firebase:firebase-config-ktx" }
   google-id = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "google-id" }
   junit = { module = "junit:junit", version.ref = "junit" }
+  kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
   kmp-inspector = { module = "io.github.waqas028:kmp-inspector", version.ref = "kmp-inspector" }
   kmp-inspector-ktor = { module = "io.github.waqas028:kmp-inspector-ktor", version.ref = "kmp-inspector" }
   kmp-inspector-noop = { module = "io.github.waqas028:kmp-inspector-no-op", version.ref = "kmp-inspector" }
