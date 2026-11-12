@@ -4,7 +4,7 @@
 > **Quick Facts for AI Agents & Developers**
 > - **Subproject**: `:frontend:core-widgets`
 > - **Package Root**: `dev.fnc314.tools.jobtracker.core.widgets`
-> - **Primary Contributions**: Universal shared Compose components (`StatusBadge`, `FitBadge`, `NotesWidget`, `TooltipIconButton`), Coil image loading subsystem (`JobApplicationTrackerImage`, `ProvideImageLoader`), re-exports `core:design-system`
+> - **Primary Contributions**: Universal shared Compose components (`TopLevelCard`, `JobApplicationCard`, `CompanyLogoImage`, `StatusBadge`, `FitBadge`, `NotesWidget`, `TooltipIconButton`), Coil image loading subsystem (`JobApplicationTrackerImage`, `ProvideImageLoader`), re-exports `core:design-system`
 > - **Architectural Invariant**: Acts as the single shared UI entry point for feature modules; re-exports `projects.coreDesignSystem` via `api(...)`. All image loading flows through `JobApplicationTrackerImage`.
 > - **DI Module**: `coreWidgetsModule` registers `ImageLoadEventListener` for Coil observability.
 > - **Key Build/Verification Command**: `./gradlew :frontend:core-widgets:compileCommonMainKotlinMetadata`
@@ -29,15 +29,17 @@ This module is the primary UI foundation consumed by all feature screens:
 ```
 core/widgets/src/
 ├── commonMain/kotlin/dev/fnc314/tools/jobtracker/core/widgets/
+│   ├── TopLevelCard.kt                 # Unified Grid-based adaptive card skeleton with actions & surface variants
+│   ├── JobApplicationCard.kt           # Job application card built on TopLevelCard
 │   ├── StatusBadge.kt                  # Visual tonal pill displaying application funnel status
 │   ├── FitBadge.kt                     # Color-tiered fit rating pill (green / amber / neutral)
 │   ├── NotesWidget.kt                  # Expandable / scrollable multi-note inspector
 │   ├── TooltipIconButton.kt            # Accessible icon button with desktop hover & mobile tooltip
-│   ├── CompanyLogoImage.kt             # Company logo with monogram fallback
+│   ├── CompanyLogoImage.kt             # Unified company logo with CompanyLogoSize, shimmer loading, & HTTP error banner
 │   ├── JobApplicationTrackerImage.kt   # Centralized image loading wrapper (Coil)
 │   ├── CoilImageLoaderProvider.kt      # App-level Coil singleton configurator
 │   └── di/
-│       └── CoreWidgetsModule.kt        # Koin DI module: ImageLoadEventListener + Coil config
+│       └── CoreWidgetsModule.kt        # Koin DI module: ImageLoadEventListener + Coil HTTP error logging
 └── androidMain/kotlin/                 # Android core KTX extensions
 ```
 
@@ -45,6 +47,13 @@ core/widgets/src/
 
 ## 4. Public API Surface & Significant Contributions
 
+- `TopLevelCard(title, modifier, onClick, contentDescription, onClickLabel, variant, isExpanded, onToggleExpand, showActionsWhenNotCollapsible, thumbnail, subtitle, compactSummary, wideTrailingHeader, wideBody, expandedContent, actions)`:
+  - Unified responsive `Grid`-based card skeleton (`@file:OptIn(ExperimentalGridApi::class)`) used across `JobApplicationCard`, `CompanyCard`, and `EditCard`.
+  - Automatically toggles collapsible `expandedContent` on compact viewports when hidden content exists, and acts as a direct navigation target when no content is hidden.
+  - Gives equal-width (`1.fr`) treatment to action buttons via `TopLevelCardAction` and `TopLevelCardActionsGrid`, and supports surface/elevation variations via `TopLevelCardSurfaceVariant` (`Surface`, `Elevated`, `FilledTonal`, `Highlighted`).
+- `CompanyLogoImage(companyName, modifier, logoUrl, companyInitial, logoSize, size, shape, contentScale, textStyle)`:
+  - Standardized across all use-sites via `CompanyLogoSize` (`Small` = `48.dp`, `Medium` = `64.dp`, `Large` = `72.dp`).
+  - Uses `Color.Transparent` background when a valid logo is loaded, renders an animated shimmer + progress indicator while loading, and displays a top red HTTP status code banner (`HTTP 404`, `ERR`) on load errors.
 - `StatusBadge(status: TrackerStatus, modifier: Modifier)`:
   - Renders a Material 3 tonal badge using `status.containerColor()` and `status.contentColor()`.
   - Accessible semantics announce the status label.

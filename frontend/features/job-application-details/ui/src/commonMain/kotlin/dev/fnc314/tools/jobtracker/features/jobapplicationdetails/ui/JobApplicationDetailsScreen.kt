@@ -53,9 +53,10 @@ import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.navigation.BackHandler
+import dev.fnc314.tools.jobtracker.core.widgets.CompanyLogoImage
+import dev.fnc314.tools.jobtracker.core.widgets.CompanyLogoSize
 import dev.fnc314.tools.jobtracker.core.widgets.ErrorBannerWidget
 import dev.fnc314.tools.jobtracker.core.widgets.FitBadge
-import dev.fnc314.tools.jobtracker.core.widgets.JobApplicationTrackerImage
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import dev.fnc314.tools.jobtracker.core.widgets.StatusBadge
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.component.ArtifactsList
@@ -569,8 +570,6 @@ internal fun CompanyProfileSection(
   modifier: Modifier = Modifier,
 ) {
   val logoUrl = company.logoUrl?.takeIf { company.logoShape != LogoShape.RECTANGLE }
-  var isLogoLoaded by remember(logoUrl) { mutableStateOf(false) }
-  var isLogoFailed by remember(logoUrl) { mutableStateOf(logoUrl == null) }
   val companyInitial = company.name.trim().firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString()
     ?: "?"
 
@@ -590,55 +589,13 @@ internal fun CompanyProfileSection(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
       ) {
-        Box(
-          modifier = Modifier
-            .size(MaterialTheme.iconSizes.extraLarge)
-            .background(
-              color = if (isLogoLoaded) {
-                MaterialTheme.colorScheme.surfaceContainerHighest
-              } else {
-                MaterialTheme.colorScheme.primaryContainer
-              },
-              shape = MaterialTheme.shapes.small,
-            ),
-          contentAlignment = Alignment.Center,
-        ) {
-          if (!isLogoLoaded) {
-            Text(
-              text = companyInitial,
-              style = MaterialTheme.typography.titleMedium,
-              color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-          }
-          if (logoUrl != null && !isLogoFailed) {
-            JobApplicationTrackerImage(
-              model = logoUrl,
-              contentDescription = stringResource(Res.string.detail_company_logo_cd, company.name),
-              modifier = Modifier
-                .size(MaterialTheme.iconSizes.extraLarge)
-                .clip(MaterialTheme.shapes.small)
-                .alpha(if (isLogoLoaded) 1f else 0f),
-              onState = { state ->
-                when (state) {
-                  is AsyncImagePainter.State.Success -> {
-                    isLogoLoaded = true
-                  }
-
-                  is AsyncImagePainter.State.Error -> {
-                    isLogoLoaded = false
-                    isLogoFailed = true
-                  }
-
-                  is AsyncImagePainter.State.Loading,
-                  is AsyncImagePainter.State.Empty,
-                    -> {
-                    isLogoLoaded = false
-                  }
-                }
-              },
-            )
-          }
-        }
+        CompanyLogoImage(
+          companyName = company.name,
+          logoUrl = logoUrl,
+          companyInitial = companyInitial,
+          logoSize = CompanyLogoSize.Small,
+          shape = MaterialTheme.shapes.small,
+        )
         Text(
           text = stringResource(Res.string.detail_company_profile_title, company.name),
           style = MaterialTheme.typography.titleMedium,

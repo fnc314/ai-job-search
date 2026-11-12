@@ -24,6 +24,8 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`225300_company-slug-deduplication-migration.md`](./2026-11-11/225300_company-slug-deduplication-migration.md) | Completed | Complete migration template: Firestore document ID renaming, GCS blob relocation, local folder migration, email reference updates — demonstrated with `ford-motor` → `ford` |
+| [`220303_rm-009-unify-top-level-card-and-company-dedup.md`](./2026-11-11/220303_rm-009-unify-top-level-card-and-company-dedup.md) | Completed | RM-009: Unified Grid-based TopLevelCard, CompanyLogoImage size/loading/HTTP-error unification, and canonical company slug deduplication across records, backend, frontend, and scripts |
 | [`183900_proposal_inspect_table_and_interview_state_machine.md`](./2026-11-11/183900_proposal_inspect_table_and_interview_state_machine.md) | Completed | Status enum lifecycle reordering, interview rounds Proto3 message & sealed hierarchy, and inline proposal inspect table |
 | [`190100_markdown_rendering_in_artifacts_preview.md`](./2026-11-10/190100_markdown_rendering_in_artifacts_preview.md) | Completed | Replace plain text display in MarkdownPreviewDialog with proper markdown rendering using `mikepenz/multiplatform-markdown-renderer` (M3) |
 | [`173600_unify_notes_and_events_timeline.md`](./2026-11-10/173600_unify_notes_and_events_timeline.md) | Completed | Single source of truth for application activity, elimination of duplicate NOTES section, subcollection event querying, and interview scheduling (`scheduledAt`) |

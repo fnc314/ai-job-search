@@ -40,6 +40,18 @@ public data class CompanyCardUiModel(
 }
 
 /**
+ * Resolves the last submitted date string for a [Company].
+ */
+private fun Company.resolveLastSubmittedDate(submittedCount: Int): String? {
+    if (submittedCount <= 0) return null
+    val m = metrics
+    val dateInstant = m?.lastApplicationSubmittedAt
+        ?: m?.lastCalculatedAt?.takeUnless { it == Instant.DISTANT_PAST }
+        ?: updatedAt?.takeUnless { it == Instant.DISTANT_PAST }
+    return dateInstant?.toString()?.substringBefore('T')
+}
+
+/**
  * Maps a [Company] domain entity into a presentation [CompanyCardUiModel].
  */
 public fun Company.toUiModel(isExpanded: Boolean = false): CompanyCardUiModel {
@@ -47,15 +59,6 @@ public fun Company.toUiModel(isExpanded: Boolean = false): CompanyCardUiModel {
     val counts = m?.counts
     val percentages = m?.percentages
     val submittedCount = counts?.submitted ?: 0
-
-    val lastSubmittedDate = if (submittedCount > 0) {
-        val dateInstant = m?.lastApplicationSubmittedAt
-            ?: m?.lastCalculatedAt?.takeUnless { it == Instant.DISTANT_PAST }
-            ?: updatedAt?.takeUnless { it == Instant.DISTANT_PAST }
-        dateInstant?.toString()?.substringBefore('T')
-    } else {
-        null
-    }
 
     return CompanyCardUiModel(
         id = id,
@@ -79,7 +82,7 @@ public fun Company.toUiModel(isExpanded: Boolean = false): CompanyCardUiModel {
         salaryRangeDisplay = m?.salaryRange?.display.orEmpty(),
         primaryChannelDisplay = m?.primaryChannel?.displayName().orEmpty(),
         locationsText = m?.locations?.joinToString(", ").orEmpty(),
-        lastApplicationSubmittedDate = lastSubmittedDate,
+        lastApplicationSubmittedDate = resolveLastSubmittedDate(submittedCount),
         isExpanded = isExpanded,
     )
 }

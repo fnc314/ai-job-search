@@ -1,9 +1,11 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalGridApi::class)
+
 package dev.fnc314.tools.jobtracker.features.trackeredits.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalGridApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,11 +20,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,6 +43,9 @@ import dev.fnc314.tools.jobtracker.core.widgets.EmptyStateWidget
 import dev.fnc314.tools.jobtracker.core.widgets.ErrorBannerWidget
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
+import dev.fnc314.tools.jobtracker.core.widgets.TopLevelCard
+import dev.fnc314.tools.jobtracker.core.widgets.TopLevelCardAction
+import dev.fnc314.tools.jobtracker.core.widgets.TopLevelCardSurfaceVariant
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_action_approve
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_action_approve_for_app
@@ -65,6 +66,7 @@ import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edit
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_reason_label
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_source_email_from
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_source_email_subject
+import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -80,7 +82,6 @@ import org.koin.compose.viewmodel.koinViewModel
  * @param onSettingsChange Callback receiving settings adjustments.
  * @param viewModel [TrackerEditsViewModel] providing UI state and handling approvals/rejections.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun TrackerEditsScreen(
     onNavigateBack: () -> Unit,
@@ -232,6 +233,12 @@ public fun TrackerEditsScreen(
     }
 }
 
+/**
+ * Top-level card presenting a pending tracker edit proposal built on [TopLevelCard].
+ *
+ * When no collapsible content is hidden, clicking the card navigates to the target application,
+ * while the "Approve" and "Reject" buttons receive equal-width action treatment via [TopLevelCardAction].
+ */
 @Composable
 internal fun EditCard(
     item: TrackerEditItemUiModel,
@@ -240,103 +247,94 @@ internal fun EditCard(
     onReject: () -> Unit,
     onViewApplication: () -> Unit,
     modifier: Modifier = Modifier,
+    variant: TopLevelCardSurfaceVariant = TopLevelCardSurfaceVariant.Elevated,
 ): Unit {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(MaterialTheme.spacing.medium),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-        ) {
-            // Header: kind + confidence
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = item.kindDisplayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                )
-                Text(
-                    text = stringResource(Res.string.edits_confidence_label, item.confidenceDisplayName),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+    val viewAppCd: String = stringResource(Res.string.edits_cd_view_application, item.applicationId)
+    val approveLabel: String = stringResource(Res.string.edits_action_approve)
+    val rejectLabel: String = stringResource(Res.string.edits_action_reject)
+    val approveCd: String = stringResource(Res.string.edits_action_approve_for_app, item.applicationId)
+    val rejectCd: String = stringResource(Res.string.edits_action_reject_for_app, item.applicationId)
 
-            // Timestamp if available
-            if (item.timestamp.isNotBlank()) {
-                Text(
-                    text = item.timestamp,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            // Application ID
-            val viewAppCd: String = stringResource(Res.string.edits_cd_view_application, item.applicationId)
+    TopLevelCard(
+        modifier = modifier,
+        onClick = onViewApplication,
+        contentDescription = viewAppCd,
+        variant = variant,
+        showActionsWhenNotCollapsible = true,
+        title = {
             Text(
-                text = stringResource(Res.string.edits_application_label, item.applicationId),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .semantics { contentDescription = viewAppCd }
-                    .clickableArea(onClick = onViewApplication),
+                text = item.kindDisplayName,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
             )
-
-            // Changes list
-            if (item.changes.isNotEmpty()) {
-                Text(
-                    text = stringResource(Res.string.edits_changes_header),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                item.changes.forEach { change ->
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        ),
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(MaterialTheme.spacing.small),
-                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.micro),
-                        ) {
-                            Text(
-                                text = change.field,
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Medium,
-                            )
-                            Text(
-                                text = change.changeDescription,
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                            change.reason?.let { reasonText ->
-                                Text(
-                                    text = stringResource(Res.string.edits_reason_label, reasonText),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
+        },
+        subtitle = {
+            Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.micro)) {
+                if (item.timestamp.isNotBlank()) {
+                    Text(
+                        text = item.timestamp,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
-            } else if (item.changeSummary.isNotBlank()) {
                 Text(
-                    text = item.changeSummary,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = stringResource(Res.string.edits_application_label, item.applicationId),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .semantics { contentDescription = viewAppCd }
+                        .clickableArea(onClick = onViewApplication),
                 )
             }
+        },
+        wideTrailingHeader = {
+            Text(
+                text = stringResource(Res.string.edits_confidence_label, item.confidenceDisplayName),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        wideBody = {
+            EditCardBodyContent(item = item)
+        },
+        actions = persistentListOf(
+            TopLevelCardAction(
+                label = approveLabel,
+                onClick = onApprove,
+                enabled = !isActionInProgress,
+                contentDescription = approveCd,
+                isPrimary = true,
+            ),
+            TopLevelCardAction(
+                label = rejectLabel,
+                onClick = onReject,
+                enabled = !isActionInProgress,
+                contentDescription = rejectCd,
+                isPrimary = false,
+            ),
+        ),
+    )
+}
 
-            // Source email info
-            item.sourceEmail?.let { email ->
+@Composable
+private fun EditCardBodyContent(
+    item: TrackerEditItemUiModel,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+    ) {
+        if (item.changes.isNotEmpty()) {
+            Text(
+                text = stringResource(Res.string.edits_changes_header),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            item.changes.forEach { change ->
                 Card(
+                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     ),
                 ) {
                     Column(
@@ -344,41 +342,51 @@ internal fun EditCard(
                         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.micro),
                     ) {
                         Text(
-                            text = stringResource(Res.string.edits_source_email_from, email.from),
-                            style = MaterialTheme.typography.bodySmall,
+                            text = change.field,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Medium,
                         )
                         Text(
-                            text = stringResource(Res.string.edits_source_email_subject, email.subject),
+                            text = change.changeDescription,
                             style = MaterialTheme.typography.bodySmall,
                         )
+                        change.reason?.let { reasonText ->
+                            Text(
+                                text = stringResource(Res.string.edits_reason_label, reasonText),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }
+        } else if (item.changeSummary.isNotBlank()) {
+            Text(
+                text = item.changeSummary,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
 
-            // Action buttons
-            val approveCd: String = stringResource(Res.string.edits_action_approve_for_app, item.applicationId)
-            val rejectCd: String = stringResource(Res.string.edits_action_reject_for_app, item.applicationId)
-            Row(
+        item.sourceEmail?.let { email ->
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
             ) {
-                FilledTonalButton(
-                    onClick = onApprove,
-                    enabled = !isActionInProgress,
-                    modifier = Modifier
-                        .weight(1f)
-                        .semantics { contentDescription = approveCd },
+                Column(
+                    modifier = Modifier.padding(MaterialTheme.spacing.small),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.micro),
                 ) {
-                    Text(stringResource(Res.string.edits_action_approve))
-                }
-                OutlinedButton(
-                    onClick = onReject,
-                    enabled = !isActionInProgress,
-                    modifier = Modifier
-                        .weight(1f)
-                        .semantics { contentDescription = rejectCd },
-                ) {
-                    Text(stringResource(Res.string.edits_action_reject))
+                    Text(
+                        text = stringResource(Res.string.edits_source_email_from, email.from),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text(
+                        text = stringResource(Res.string.edits_source_email_subject, email.subject),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
             }
         }

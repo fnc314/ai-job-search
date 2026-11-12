@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package dev.fnc314.tools.jobtracker.features.companieslist.ui
 
 import androidx.compose.foundation.layout.Arrangement
@@ -89,7 +91,6 @@ public fun CompaniesListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CompaniesListContent(
     content: CompaniesListUiState.Content,

@@ -47,6 +47,14 @@ public data class IconSizes(
  * @property formMaxWidth Maximum centered width for data entry forms (`760.dp`).
  * @property detailMaxWidth Maximum centered width for detail view layouts (`1200.dp`).
  * @property formBottomClearance Bottom scrolling clearance for keyboard and action buttons (`280.dp`).
+ * @property companyLogoSmall Compact inline company logo dimension (`48.dp`).
+ * @property companyLogoMedium Standard list card company logo dimension (`64.dp`).
+ * @property companyLogoLarge Prominent wide card and overview company logo dimension (`72.dp`).
+ * @property cardElevationDefault Default flat card elevation (`0.dp`).
+ * @property cardElevationLow Subtle low card elevation (`1.dp`).
+ * @property cardElevationMedium Medium tonal card elevation (`3.dp`).
+ * @property cardElevationHigh High highlighted card elevation (`6.dp`).
+ * @property chevronTouchWidth Touch target width for expandable card chevron indicator (`40.dp`).
  */
 public data class ComponentSizes(
     public val hairline: Dp = 1.dp,
@@ -63,6 +71,14 @@ public data class ComponentSizes(
     public val formMaxWidth: Dp = 760.dp,
     public val detailMaxWidth: Dp = 1200.dp,
     public val formBottomClearance: Dp = 280.dp,
+    public val companyLogoSmall: Dp = 48.dp,
+    public val companyLogoMedium: Dp = 64.dp,
+    public val companyLogoLarge: Dp = 72.dp,
+    public val cardElevationDefault: Dp = 0.dp,
+    public val cardElevationLow: Dp = 1.dp,
+    public val cardElevationMedium: Dp = 3.dp,
+    public val cardElevationHigh: Dp = 6.dp,
+    public val chevronTouchWidth: Dp = 40.dp,
 )
 
 /** CompositionLocal providing active [IconSizes] values down the hierarchy. */

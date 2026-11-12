@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package dev.fnc314.tools.jobtracker.features.companydetails.ui
 
 import androidx.compose.foundation.layout.Arrangement
@@ -9,22 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Public
 import com.composables.icons.fontawesome.FontAwesome
 import com.composables.icons.fontawesome.brands.Linkedin
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.widgets.CompanyLogoImage
+import dev.fnc314.tools.jobtracker.core.widgets.CompanyLogoSize
 import dev.fnc314.tools.jobtracker.core.widgets.CompanyMetricsTextRow
 import dev.fnc314.tools.jobtracker.core.widgets.FitBadge
 import dev.fnc314.tools.jobtracker.core.widgets.JobApplicationCard
@@ -48,15 +46,23 @@ import fnc314jobsearchtracker.features_company_details_ui.generated.resources.co
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_industry_label
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_locations_label
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_no_applications
-import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_linkedin_label
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_open_linkedin_tooltip
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_open_website_tooltip
-import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_overview_header
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_salary_label
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_source_label
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Screen presenting detailed profile metrics and associated job applications for a single company.
+ *
+ * @param companyId Canonical identifier of the company to load.
+ * @param onNavigateBack Callback invoked when navigating back.
+ * @param onNavigateToApplication Callback invoked when a job application card is selected.
+ * @param modifier Layout modifier.
+ * @param onOpenUrl Optional callback for opening external company URLs (website, LinkedIn).
+ * @param viewModel [CompanyDetailsViewModel] managing UI state.
+ */
 @Composable
 public fun CompanyDetailsScreen(
     companyId: String,
@@ -65,7 +71,7 @@ public fun CompanyDetailsScreen(
     modifier: Modifier = Modifier,
     onOpenUrl: ((String) -> Unit)? = null,
     viewModel: CompanyDetailsViewModel = koinViewModel(),
-) {
+): Unit {
     LaunchedEffect(companyId) {
         viewModel.loadCompany(companyId)
     }
@@ -97,7 +103,6 @@ public fun CompanyDetailsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CompanyDetailsContent(
     details: CompanyDetailsUiModel,
@@ -201,7 +206,7 @@ private fun CompanyOverviewCard(
                         companyName = details.companyName,
                         logoUrl = details.logoUrl,
                         companyInitial = details.companyInitial,
-                        size = 72.dp,
+                        logoSize = CompanyLogoSize.Large,
                     )
 
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {

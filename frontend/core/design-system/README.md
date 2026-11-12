@@ -52,7 +52,7 @@ core/design-system/src/
 
 ### Design Tokens
 - `MaterialTheme.spacing`: Semantic spacing scale (`none`, `compact`, `extraSmall`, `small`, `subMedium`, `medium`, `large`, `extraLarge`).
-- `MaterialTheme.componentSizes`: Standardized component heights, card padding, and avatar sizes.
+- `MaterialTheme.componentSizes`: Standardized component heights, card padding, company logo dimensions (`companyLogoSmall`, `companyLogoMedium`, `companyLogoLarge`), card elevation tiers (`cardElevationDefault`, `cardElevationLow`, `cardElevationMedium`, `cardElevationHigh`), and expandable card chevron touch targets (`chevronTouchWidth`).
 - `MaterialTheme.iconSizes`: Consistent icon dimensions (`tiny`, `small`, `medium`, `large`).
 - `SeedColors`: Canonical theme seed colors (`ProfessionalBlue`, `MaterialPurple`, `ForestTeal`, `SlateIndigo`, `NordicSage`, `WarmAmber`) and `DEFAULT_SEED_HEX`.
 

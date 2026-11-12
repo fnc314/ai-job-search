@@ -1,5 +1,7 @@
 package dev.fnc314.tools.jobtracker.core.navigation
 
+import kotlin.jvm.JvmInline
+
 /**
  * Type-safe wrapper for a job application identifier used in navigation routes.
  *

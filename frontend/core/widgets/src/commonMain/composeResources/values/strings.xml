@@ -35,9 +35,12 @@
     <string name="card_not_evaluated">Not Evaluated</string>
     <string name="card_not_applied">Not Applied</string>
     <string name="card_not_available">Not Available</string>
-    <string name="card_created">Created %s</string>
-    <string name="card_applied">Applied %s</string>
-    <string name="card_updated">Updated %s</string>
+    <string name="card_created">Created %1$s</string>
+    <string name="card_applied">Applied %1$s</string>
+    <string name="card_updated">Updated %1$s</string>
     <string name="card_cd">%1$s, %2$s, %3$s</string>
     <string name="card_click_cd">%1$s at %2$s. Double tap to view details.</string>
+    <string name="card_auto_synced">[AUTO-SYNCED]</string>
+    <string name="logo_http_error_code">HTTP %1$d</string>
+    <string name="logo_error_generic">ERR</string>
 </resources>

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui
 
 import androidx.compose.foundation.layout.Arrangement
@@ -247,7 +249,6 @@ internal fun JobApplicationsListContent(
       }
 
       // Content with pull-to-refresh
-      @OptIn(ExperimentalMaterial3Api::class)
       PullToRefreshBox(
         isRefreshing = content.isRefreshing,
         onRefresh = { onIntent(JobApplicationsListUiIntent.Refresh) },

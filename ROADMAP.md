@@ -51,7 +51,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | DONE   |
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
 | RM-007   | Fix KMP Inspector                      | Fix Room and Ktor integrations       | PIVOTAL    | CRITICAL | 0 d    | DONE        |
-| RM-009   | Unify Top-Level Card Component         | Unify Card skeletal approach         | HIGH       | MEDIUM   | 0 d    | OPEN        |
+| RM-009   | Unify Top-Level Card Component         | Unify Card skeletal approach         | HIGH       | MEDIUM   | 0 d    | DONE        |
 
 ---
 
@@ -400,15 +400,15 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Criticality:** PIVOTAL
 **Priority:** CRITICAL
 **Complexity:** Moderate
-**Status:** OPEN
-**Completion %:** 0
+**Status:** DONE
+**Completion %:** 100
 **Creation Date:** 2026-11-11
 **Objective:** Unify the base skeletal approach to the recycled `Card` treatment found in no less than 2 instances.
 
 ## Instances
 - [`JobApplicationCard`](frontend/core/widgets/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/core/widgets/JobApplicationCard.kt)
 - [`CompanyCard`](frontend/features/companies-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/companieslist/ui/component/CompanyCard.kt)
-- ...
+- [`EditCard`](frontend/features/tracker-edits/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/ui/TrackerEditsScreen.kt)
 
 ## Objective
 1. Unify the responsive treatment to these "Top-Level" `Card`s
@@ -432,12 +432,13 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Dependencies:** None
 
 **Linked Plans:**
-- None
+- [`.agents/plans/2026-11-11/220303_rm-009-unify-top-level-card-and-company-dedup.md`](.agents/plans/2026-11-11/220303_rm-009-unify-top-level-card-and-company-dedup.md)
 
 **Changelog:**
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-11 | Item created      | Initial entry                        |
+| 2026-11-11 | Implementation    | Created `TopLevelCard`, unified `CompanyLogoImage` sizes/loading/HTTP error banner, and added company slug deduplication across `records`, `backend`, `frontend`, and `scripts` |
 ## Frozen Items
 
 Items in this section have been frozen via the nuclear clear roadmap option. They are archived and should not be considered active work items.
