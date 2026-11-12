@@ -40,13 +40,6 @@ class CompanySectorNormalizerTest {
     }
 
     @Test
-    fun testLinkedinUrlResolution() {
-        assertEquals("https://www.linkedin.com/company/anthropicresearch", CompanySectorNormalizer.resolveLinkedinUrl("anthropic"))
-        assertEquals("https://www.linkedin.com/company/affirm", CompanySectorNormalizer.resolveLinkedinUrl("affirm"))
-        assertEquals("https://www.linkedin.com/company/pnc", CompanySectorNormalizer.resolveLinkedinUrl("pnc"))
-    }
-
-    @Test
     fun testFormatDisplay() {
         assertEquals("FinTech", CompanySectorNormalizer.formatDisplay(CompanySector.FINTECH))
         assertEquals("Technology", CompanySectorNormalizer.formatDisplay(CompanySector.TECH))

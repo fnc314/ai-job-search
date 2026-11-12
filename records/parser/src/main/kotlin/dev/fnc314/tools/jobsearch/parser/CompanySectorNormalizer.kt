@@ -171,17 +171,6 @@ public object CompanySectorNormalizer {
     }
 
     /**
-     * Resolves the LinkedIn company profile URL.
-     * Returns null — Hunter.io is now the primary source for LinkedIn handles.
-     * Callers should use the LinkedIn handle from Hunter.io enrichment instead.
-     */
-    @JvmStatic
-    public fun resolveLinkedinUrl(companyId: String): String? {
-        // Hunter.io provides LinkedIn handles directly — no longer using hardcoded slugs.
-        return null
-    }
-
-    /**
      * Formats a [CompanySector] enum into a human-readable display string.
      */
     @JvmStatic

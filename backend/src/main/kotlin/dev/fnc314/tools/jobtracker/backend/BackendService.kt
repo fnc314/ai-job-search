@@ -714,12 +714,10 @@ public object BackendService {
                         companyId = companyId,
                         companyName = companyName
                     ).name
-                    val resolvedLinkedinUrl = CompanySectorNormalizer.resolveLinkedinUrl(companyId)
-
                     val enrichResult = enrichCompany(
                         companyId = companyId,
                         companyName = companyName,
-                        linkedinUrl = resolvedLinkedinUrl,
+                        linkedinUrl = null,
                         industry = resolvedSector
                     )
 
@@ -747,12 +745,10 @@ public object BackendService {
                     industryOrSector = hunterIndustry ?: hunterSector,
                     companyName = companyName
                 ).name
-                val resolvedLinkedinUrl = hunterLinkedinUrl ?: CompanySectorNormalizer.resolveLinkedinUrl(companyId)
-
                 val enrichResult = enrichCompany(
                     companyId = companyId,
                     companyName = companyName,
-                    linkedinUrl = resolvedLinkedinUrl,
+                    linkedinUrl = hunterLinkedinUrl,
                     industry = hunterIndustry ?: hunterSector ?: resolvedSector,
                     logoUrl = hunterResult["logo_url"] as? String,
                     hunterIoId = hunterResult["hunter_io_id"] as? String,

@@ -47,9 +47,7 @@ import fnc314jobsearchtracker.core_widgets.generated.resources.logo_error_generi
 import fnc314jobsearchtracker.core_widgets.generated.resources.logo_http_error_code
 import org.jetbrains.compose.resources.stringResource
 
-private const val MIN_LOGO_DIMENSION_PX = 64f
-private const val MIN_SQUARE_ASPECT_RATIO = 0.8f
-private const val MAX_SQUARE_ASPECT_RATIO = 1.25f
+private const val MIN_LOGO_DIMENSION_PX = 32f
 private const val VISIBLE_ALPHA = 1f
 private const val HIDDEN_ALPHA = 0f
 private const val SHIMMER_DURATION_MS = 1100
@@ -96,36 +94,13 @@ public fun CompanyLogoSize.toTextStyle(): TextStyle = when (this) {
     CompanyLogoSize.Large -> MaterialTheme.typography.headlineSmall
 }
 
-/**
- * Resolves a default hunter.io logo URL given an employer's company name.
- *
- * @param companyName The raw employer name.
- * @return A default hunter.io logo URL, or `null` if the company name is blank or unknown.
- */
-public fun resolveCompanyLogoUrl(companyName: String): String? {
-    val trimmed = companyName.trim()
-    if (trimmed.isEmpty() || trimmed.equals("Unknown Company", ignoreCase = true)) {
-        return null
-    }
-    val clean = trimmed.lowercase()
-        .replace(" financial services", "")
-        .replace(" technologies", "")
-        .replace(" motor company", "")
-        .replace(" platforms", "")
-        .replace(" inc", "")
-        .replace(" corp", "")
-        .replace(" llc", "")
-        .replace(" l.p.", "")
-        .replace(Regex("[^a-z0-9]"), "")
-    return clean.takeIf { it.isNotEmpty() }?.let { "https://logos.hunter.io/$it.com" }
-}
 
-private fun isAcceptableSquareLogo(intrinsicSize: Size): Boolean {
+private fun isValidLogoSize(intrinsicSize: Size): Boolean {
     if (!intrinsicSize.isSpecified || intrinsicSize.width < MIN_LOGO_DIMENSION_PX || intrinsicSize.height < MIN_LOGO_DIMENSION_PX) {
+        println("[CompanyLogoImage] Logo rejected: dimensions too small (${intrinsicSize.width}x${intrinsicSize.height})")
         return false
     }
-    val aspectRatio = intrinsicSize.width / intrinsicSize.height
-    return aspectRatio in MIN_SQUARE_ASPECT_RATIO..MAX_SQUARE_ASPECT_RATIO
+    return true
 }
 
 /**
@@ -140,7 +115,7 @@ private fun isAcceptableSquareLogo(intrinsicSize: Size): Boolean {
  *
  * @param companyName Name of the company used for monogram fallback and content description.
  * @param modifier Layout modifier.
- * @param logoUrl Remote image URL or `null` (falls back to [resolveCompanyLogoUrl] if `null`).
+ * @param logoUrl Remote image URL or `null` (shows monogram fallback if `null`).
  * @param companyInitial Initial character for monogram fallback.
  * @param logoSize Predefined [CompanyLogoSize] tier controlling dimension and monogram typography.
  * @param size Explicit box dimension override in [Dp] (defaults to `logoSize.toDp()`).
@@ -161,7 +136,7 @@ public fun CompanyLogoImage(
     contentScale: ContentScale = ContentScale.Crop,
     textStyle: TextStyle = logoSize.toTextStyle(),
 ): Unit {
-    val effectiveUrl = remember(logoUrl, companyName) { logoUrl ?: resolveCompanyLogoUrl(companyName) }
+    val effectiveUrl = remember(logoUrl) { logoUrl }
     var isValidLogoLoaded by remember(effectiveUrl) { mutableStateOf(false) }
     var isLoading by remember(effectiveUrl) { mutableStateOf(effectiveUrl != null) }
     var isLogoRejected by remember(effectiveUrl) { mutableStateOf(effectiveUrl == null) }
@@ -227,7 +202,7 @@ public fun CompanyLogoImage(
 
                         is AsyncImagePainter.State.Success -> {
                             isLoading = false
-                            if (isAcceptableSquareLogo(state.painter.intrinsicSize)) {
+                            if (isValidLogoSize(state.painter.intrinsicSize)) {
                                 isValidLogoLoaded = true
                                 hasLoadError = false
                                 errorHttpCode = null

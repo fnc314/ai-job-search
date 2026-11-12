@@ -138,7 +138,11 @@ public interface ImageLoadEventListener {
 public class DefaultImageLoadEventListener(
     private val onStart: OnImageLoadStart = OnImageLoadStart {},
     private val onSuccess: OnImageLoadSuccess = OnImageLoadSuccess { _, _ -> },
-    private val onError: OnImageLoadError = OnImageLoadError { _, _ -> },
+    private val onError: OnImageLoadError = OnImageLoadError { url, throwable ->
+        val httpCode = extractHttpStatusCode(throwable)
+        val statusDetail = httpCode?.let { "HTTP $it" } ?: "NON_HTTP_ERROR"
+        println("[$COIL_LOG_TAG] Image load failed [$statusDetail] for url=$url: ${throwable.message}")
+    },
     private val onCancel: OnImageLoadCancel = OnImageLoadCancel {},
 ) : ImageLoadEventListener {
     override fun onLoadStart(url: String): Unit = onStart(url)
