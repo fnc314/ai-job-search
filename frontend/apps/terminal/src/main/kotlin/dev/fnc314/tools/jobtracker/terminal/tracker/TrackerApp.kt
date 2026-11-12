@@ -943,16 +943,29 @@ public object TerminalApp {
                 "t", "toggle" -> {
                     if (parts.size > 1) {
                         val targetId = parts[1]
-                        val prop = proposals.find { it.proposalId.startsWith(targetId) }
-                        if (prop != null) {
-                            prop.enabled = !prop.enabled
-                            renderProposalsList()
-                        } else {
-                            System.err.println(red("Proposal not found: $targetId"))
+                        when {
+                            targetId == "all" -> {
+                                proposals.forEach { it.enabled = true }
+                                System.err.println(green("Selected all ${proposals.size} proposals."))
+                                renderProposalsList()
+                            }
+                            targetId == "none" -> {
+                                proposals.forEach { it.enabled = false }
+                                System.err.println(yellow("Cleared all proposal selections."))
+                                renderProposalsList()
+                            }
+                            else -> {
+                                val prop = proposals.find { it.proposalId.startsWith(targetId) }
+                                if (prop != null) {
+                                    prop.enabled = !prop.enabled
+                                    renderProposalsList()
+                                } else {
+                                    System.err.println(red("Proposal not found: $targetId"))
+                                }
+                            }
                         }
                     } else {
-                        // Toggle first or prompt
-                        System.err.println(yellow("Usage: t <id-prefix> to toggle selection (or 'all' / 'none')"))
+                        System.err.println(yellow("Usage: t <id-prefix> to toggle selection (or 't all' / 't none')"))
                     }
                 }
 

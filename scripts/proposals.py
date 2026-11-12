@@ -415,6 +415,60 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
             leadRecords.append((leadDoc, [event]))
             continue
 
+        # Discovery changes create a new application record from email evidence
+        if change.get("discoveredCompany"):
+            company = change["discoveredCompany"]
+            company_id = change.get("discoveredCompanyId") or contract.slug(company)
+            role = change.get("discoveredRole", "Unknown / To Be Confirmed")
+            status_to = change.get("statusTo", "SUBMITTED")
+
+            # Check if an application for this company already exists
+            snapshot = db.collection(client.APPLICATIONS).document(company_id).get()
+            if snapshot.exists:
+                skipped.append(
+                    {
+                        "applicationId": company_id,
+                        "reason": f"application for {company} already exists",
+                    }
+                )
+                continue
+
+            # Build the discovered application record
+            timestamp = nowIso()
+            sourceEmail = change.get("sourceEmail") or {}
+            discoveredDoc = {
+                "id": company_id,
+                "date": timestamp[:10],
+                "company": company,
+                "companyId": company_id,
+                "role": role,
+                "channel": "EMAIL_DISCOVERY",
+                "status": status_to,
+                "statusRank": contract.statusRank().get(status_to, 4) if hasattr(contract, "statusRank") else 4,
+                "isOpen": status_to not in ("REJECTED", "APPLICATION_WITHDRAWN", "OFFER_DECLINED", "HIRED"),
+                "tags": ["process:discovered"],
+                "metadata": {},
+                "contactIds": [],
+                "createdAt": timestamp,
+                "updatedAt": timestamp,
+                "schemaVersion": contract.schemaVersion(),
+            }
+
+            # Build the discovery event
+            event = eventsModule.buildEvent(
+                "DISCOVER",
+                date=sourceEmail.get("receivedAt"),
+                note=f"Discovered from email: {sourceEmail.get('subject', '')}",
+                actor="EMAIL_SYNC",
+                derivedFrom="EMAIL",
+                confidence=change.get("confidence") or "MEDIUM_CONFIDENCE",
+                statusTo=status_to,
+                emailMessageId=sourceEmail.get("messageId"),
+            )
+            discoveredDoc.update(render.project(discoveredDoc, [event]))
+            leadRecords.append((discoveredDoc, [event]))
+            continue
+
         # Standard changes on existing applications
         applicationId = change["applicationId"]
         if applicationId not in applications:

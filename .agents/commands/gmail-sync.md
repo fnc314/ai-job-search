@@ -48,7 +48,7 @@ TRACKER_ALLOW_WRITES=0 mise run tracker proposals list --state proposal:pending
 
 ## Step 2: Load Tracked Applications
 
-1. Read the tracker with `mise run tracker list --open`. If it returns no documents, tell the user there is nothing to sync against yet (suggest `/outcome` or `/apply` first) and stop. `/gmail-sync` never originates new applications.
+1. Read the tracker with `mise run tracker list --open`. If it returns no documents, tell the user there is nothing to sync against yet (suggest `/outcome` or `/apply` first) and stop. `/gmail-sync` can discover new applications from email evidence via discovery proposals (see Step 3e).
 2. For each open application, note `id`, `company`, `role`, and current `status`; the collector uses these to match and classify, and the review table quotes them.
 3. If `$ARGUMENTS` named a company, filter this set case-insensitively. No match → say so and stop; do not guess.
 
@@ -169,6 +169,22 @@ TRACKER_ALLOW_WRITES=1 mise run tracker collect --trigger trigger:manual --label
 
 If the result says `staged: false`, report the reason (`no new messages`, `no messages to stage`) and stop. Do not force a proposal.
 
+### Step 3e: Check for discovery proposals
+
+After staging, run a discovery scan to find untracked applications referenced in cached emails:
+
+```bash
+TRACKER_ALLOW_WRITES=1 mise run email:discover --dry-run
+```
+
+If discovery candidates are found, stage them:
+
+```bash
+TRACKER_ALLOW_WRITES=1 mise run email:discover
+```
+
+Discovery proposals appear in the pending queue with `kind: "DISCOVER"`. They will be presented alongside EMAIL_SYNC proposals in Step 4.
+
 ---
 
 ## Step 4: Review the Queue
@@ -185,13 +201,21 @@ Present every pending proposal as one table. The collector's `changes[]` already
 ```
 ## Gmail Sync - Review Queue - YYYY-MM-DD
 
-Proposal <proposalId> · staged <createdAt> · trigger <trigger>
+Proposal <proposalId> · staged <createdAt> · trigger <trigger> · kind <kind>
 
 ### Changes (reply "approve all", or name the rows, e.g. "1, 3")
 | # | Company | Role | Signal | Current -> Proposed | Confidence | Source Email (date) |
 |---|---|---|---|---|---|---|
 | 1 | Acme | Staff Android Engineer | rejection | applied -> rejected | high | "Update on your application" (2026-10-29) |
 | 2 | BigCo | Android Lead | interview | applied -> interview | medium | "Let's schedule a call" (2026-10-30) |
+
+### Discovery Proposals (kind: DISCOVER)
+For discovery proposals, the inferred role is shown for validation. The user can edit the role before approving:
+| # | Company | Inferred Role | Inferred Status | Confidence | Source Email (date) |
+|---|---|---|---|---|---|
+| 1 | Fabletics | Software Engineer | rejected | high | "Update on your job application" (2026-10-28) |
+
+To correct the role: "approve 1 with role 'Android Engineer'"
 
 ### Unmatched (no change proposed)
 - "<subject>" from <sender> — <collector's reason>

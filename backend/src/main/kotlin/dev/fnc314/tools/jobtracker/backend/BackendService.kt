@@ -1518,8 +1518,468 @@ public object BackendService {
         )
     }
 
+    // ============================================================================
+    // Discovery Classifier: finds untracked job applications from email evidence
+    // ============================================================================
+
     /**
-     * Ingests and correlates raw messages from generated/gmail-inbox.json into the top-level emails collection.
+     * A candidate discovered application inferred from email evidence.
+     */
+    public data class DiscoveryCandidate(
+        val company: String,
+        val companyId: String,
+        val role: String,
+        val status: String,
+        val messageId: String,
+        val subject: String,
+        val sender: String,
+        val receivedAt: String?,
+        val confidence: String,
+        val relatedMessageIds: List<String>,
+        val sourceLabel: String?
+    )
+
+    /**
+     * Scans the emails collection and inbox file for untracked job applications.
+     * Returns a list of discovery candidates that can be staged as proposals.
+     */
+    public fun discoverUntrackedApplications(
+        inboxFile: File? = null,
+        since: String? = null,
+    ): List<DiscoveryCandidate> {
+        val db = firestore
+
+        // Build index of tracked company IDs
+        val appsSnap = db.collection("applications").get().get()
+        val trackedCompanyIds = mutableSetOf<String>()
+        val trackedCompanies = mutableSetOf<String>()
+        for (doc in appsSnap.documents) {
+            val cid = doc.getString("companyId")
+            if (!cid.isNullOrBlank()) {
+                trackedCompanyIds.add(cid)
+                val name = doc.getString("company")
+                if (!name.isNullOrBlank()) {
+                    trackedCompanies.add(name.lowercase())
+                }
+            }
+        }
+
+        // Load inbox file for label-based signals
+        val inboxMessages = loadInboxMessages(inboxFile)
+        val labelToMessages = mutableMapOf<String, MutableList<Map<String, Any?>>>()
+        for (msg in inboxMessages) {
+            val labels = (msg["labels"] as? List<*>)?.map { it.toString() } ?: emptyList()
+            for (label in labels) {
+                if (label.startsWith("JOB/")) {
+                    labelToMessages.computeIfAbsent(label) { mutableListOf() }.add(msg)
+                }
+            }
+        }
+
+        // Scan emails collection for uncorrelated messages with job signals
+        val emailsSnap = db.collection("emails").get().get()
+        val uncorrelatedEmails = mutableListOf<Map<String, Any?>>()
+        for (doc in emailsSnap.documents) {
+            val data = doc.data ?: continue
+            val appId = data["applicationId"] as? String
+            val status = (data["status"] as? String) ?: "UNCLASSIFIED"
+            if (appId.isNullOrBlank() && status != "NOISE") {
+                val receivedAt = data["receivedAt"] as? String
+                // Filter by date if specified
+                if (!since.isNullOrBlank() && !receivedAt.isNullOrBlank()) {
+                    if (receivedAt.substringBefore("T").substringBefore("t") < since) continue
+                }
+                uncorrelatedEmails.add(data)
+            }
+        }
+
+        // Also scan inbox file for JOB/<Firm> labeled messages
+        val jobLabelEmails = mutableListOf<Map<String, Any?>>()
+        for ((label, messages) in labelToMessages) {
+            for (msg in messages) {
+                val messageId = msg["messageId"] as? String ?: continue
+                // Check if this message is already correlated
+                val emailDoc = db.collection("emails").document(messageId).get().get()
+                val emailData = emailDoc.data ?: continue
+                val appId = emailData["applicationId"] as? String
+                if (appId.isNullOrBlank()) {
+                    jobLabelEmails.add(emailData)
+                }
+            }
+        }
+
+        // Merge and deduplicate by messageId
+        val allUncorrelated = mutableMapOf<String, Map<String, Any?>>()
+        for (email in uncorrelatedEmails + jobLabelEmails) {
+            val mid = (email["id"] as? String) ?: (email["messageId"] as? String) ?: continue
+            allUncorrelated[mid] = email
+        }
+
+        // Group by company and extract candidates
+        val candidates = mutableListOf<DiscoveryCandidate>()
+        val companyGroups = mutableMapOf<String, MutableList<Map<String, Any?>>>()
+
+        for (email in allUncorrelated.values) {
+            val company = extractCompanyFromEmail(email, inboxMessages, labelToMessages)
+            if (!company.isNullOrBlank() && !trackedCompanies.contains(company.lowercase())) {
+                companyGroups.computeIfAbsent(company.lowercase()) { mutableListOf() }.add(email)
+            }
+        }
+
+        for ((companyLower, emails) in companyGroups) {
+            val company = companyLower.replaceFirstChar { it.uppercase() }
+            val companyId = DocumentIdGenerator.slug(company)
+            if (trackedCompanyIds.contains(companyId)) continue
+
+            val status = inferStatusFromEmails(emails)
+            val role = extractRoleFromEmails(emails, inboxMessages)
+            val primaryEmail = emails.first()
+            val messageId = (primaryEmail["id"] as? String) ?: (primaryEmail["messageId"] as? String) ?: ""
+            val subject = primaryEmail["subject"] as? String ?: ""
+            val sender = primaryEmail["from"] as? String ?: ""
+            val receivedAt = primaryEmail["receivedAt"] as? String
+            val sourceLabel = extractSourceLabel(primaryEmail, labelToMessages)
+
+            // Find related emails
+            val relatedIds = findRelatedEmails(companyId, messageId, allUncorrelated)
+
+            candidates.add(
+                DiscoveryCandidate(
+                    company = company,
+                    companyId = companyId,
+                    role = role,
+                    status = status,
+                    messageId = messageId,
+                    subject = subject,
+                    sender = sender,
+                    receivedAt = receivedAt,
+                    confidence = if (sourceLabel != null) "HIGH_CONFIDENCE" else "MEDIUM_CONFIDENCE",
+                    relatedMessageIds = relatedIds,
+                    sourceLabel = sourceLabel
+                )
+            )
+        }
+
+        return candidates
+    }
+
+    private fun loadInboxMessages(inboxFile: File?): List<Map<String, Any?>> {
+        val candidates = listOfNotNull(
+            inboxFile,
+            File("generated/email-inbox.json"),
+            File("generated/gmail-inbox.json"),
+            File("../generated/email-inbox.json"),
+            File("../generated/gmail-inbox.json"),
+            File("../../generated/email-inbox.json"),
+            File("../../generated/gmail-inbox.json")
+        )
+        val file = candidates.firstOrNull { it.exists() } ?: return emptyList()
+        return try {
+            val content = file.readText()
+            val parsed = Json.parseToJsonElement(content).jsonObject
+            val messages = parsed["messages"]?.jsonArray ?: JsonArray(emptyList())
+            messages.mapNotNull { msgElem ->
+                val msg = msgElem.jsonObject
+                mapOf<String, Any?>(
+                    "messageId" to (msg["messageId"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null),
+                    "subject" to (msg["subject"]?.jsonPrimitive?.contentOrNull ?: ""),
+                    "sender" to (msg["sender"]?.jsonPrimitive?.contentOrNull ?: ""),
+                    "snippet" to (msg["snippet"]?.jsonPrimitive?.contentOrNull ?: ""),
+                    "receivedAt" to (msg["receivedAt"]?.jsonPrimitive?.contentOrNull),
+                    "labels" to (msg["labels"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList()),
+                    "body" to (msg["body"]?.jsonPrimitive?.contentOrNull ?: "")
+                )
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun extractCompanyFromEmail(
+        email: Map<String, Any?>,
+        inboxMessages: List<Map<String, Any?>>,
+        labelToMessages: Map<String, MutableList<Map<String, Any?>>>
+    ): String? {
+        val messageId = (email["id"] as? String) ?: (email["messageId"] as? String) ?: ""
+        val subject = (email["subject"] as? String) ?: ""
+        val sender = (email["from"] as? String) ?: ""
+        val snippet = (email["snippet"] as? String) ?: ""
+
+        // 1. Check JOB/<Firm> labels from inbox file
+        for ((label, messages) in labelToMessages) {
+            if (label.startsWith("JOB/")) {
+                for (msg in messages) {
+                    if ((msg["messageId"] as? String) == messageId) {
+                        return label.substringAfter("/")
+                    }
+                }
+            }
+        }
+
+        // 2. Check inbox messages for label match
+        for (msg in inboxMessages) {
+            if ((msg["messageId"] as? String) == messageId) {
+                val labels = (msg["labels"] as? List<*>)?.map { it.toString() } ?: emptyList()
+                for (label in labels) {
+                    if (label.startsWith("JOB/")) {
+                        return label.substringAfter("/")
+                    }
+                }
+            }
+        }
+
+        // 3. Extract from sender domain (ATS patterns)
+        val atsDomains = mapOf(
+            "greenhouse.io" to null,
+            "lever.co" to null,
+            "myworkday.com" to null,
+            "ashbyhq.com" to null,
+            "smartrecruiters.com" to null,
+            "icims.com" to null,
+            "bamboohr.com" to null,
+            "workday.com" to null,
+            "talent.neptun.so" to null
+        )
+        for ((domain, _) in atsDomains) {
+            if (sender.contains(domain, ignoreCase = true)) {
+                // Try to extract company from subject
+                val companyPatterns = listOf(
+                    Regex("update on your (?:job )?application at ([^\\s,]+)", RegexOption.IGNORE_CASE),
+                    Regex("your application to ([^\\s,]+)", RegexOption.IGNORE_CASE),
+                    Regex("application status at ([^\\s,]+)", RegexOption.IGNORE_CASE),
+                    Regex("from ([^\\s,]+) recruiting", RegexOption.IGNORE_CASE),
+                    Regex("from ([^\\s,]+) careers", RegexOption.IGNORE_CASE),
+                    Regex("from ([^\\s,]+) talent", RegexOption.IGNORE_CASE),
+                    Regex("from ([^\\s,]+) hiring", RegexOption.IGNORE_CASE),
+                    Regex("from ([^\\s,]+) hr", RegexOption.IGNORE_CASE)
+                )
+                for (pattern in companyPatterns) {
+                    val match = pattern.find(subject + " " + snippet)
+                    if (match != null) {
+                        val company = match.groupValues[1].trim()
+                        if (company.length > 2) return company
+                    }
+                }
+            }
+        }
+
+        // 4. Try to extract company name from subject line patterns
+        val subjectCompanyPatterns = listOf(
+            Regex("update on your (?:job )?application at ([^\\s,]+)", RegexOption.IGNORE_CASE),
+            Regex("your application to ([^\\s,]+)", RegexOption.IGNORE_CASE),
+            Regex("application status at ([^\\s,]+)", RegexOption.IGNORE_CASE),
+            Regex("regarding your application at ([^\\s,]+)", RegexOption.IGNORE_CASE),
+            Regex("your application with ([^\\s,]+)", RegexOption.IGNORE_CASE)
+        )
+        for (pattern in subjectCompanyPatterns) {
+            val match = pattern.find(subject + " " + snippet)
+            if (match != null) {
+                val company = match.groupValues[1].trim()
+                if (company.length > 2) return company
+            }
+        }
+
+        return null
+    }
+
+    private fun extractRoleFromEmails(
+        emails: List<Map<String, Any?>>,
+        inboxMessages: List<Map<String, Any?>>
+    ): String {
+        val rolePatterns = listOf(
+            Regex("position[:\\s]+([^\\n,]+)", RegexOption.IGNORE_CASE),
+            Regex("role[:\\s]+([^\\n,]+)", RegexOption.IGNORE_CASE),
+            Regex("job title[:\\s]+([^\\n,]+)", RegexOption.IGNORE_CASE),
+            Regex("for the ([^\\s,]+) (?:position|role|opening)", RegexOption.IGNORE_CASE),
+            Regex("as ([^\\s,]+) (?:engineer|developer|architect|lead|manager)", RegexOption.IGNORE_CASE),
+            Regex("([A-Za-z]+ (?:Engineer|Developer|Architect|Lead|Manager|Director|Principal)) (?:position|role|opening)", RegexOption.IGNORE_CASE),
+            Regex("application for ([^\\n,]+)", RegexOption.IGNORE_CASE),
+            Regex("re: ([^\\n,]+) (?:application|position|role)", RegexOption.IGNORE_CASE)
+        )
+
+        for (email in emails) {
+            val subject = (email["subject"] as? String) ?: ""
+            val snippet = (email["snippet"] as? String) ?: ""
+            val combined = subject + " " + snippet
+
+            // Check inbox body for more context
+            val messageId = (email["id"] as? String) ?: (email["messageId"] as? String) ?: ""
+            for (msg in inboxMessages) {
+                if ((msg["messageId"] as? String) == messageId) {
+                    val body = msg["body"] as? String ?: ""
+                    for (pattern in rolePatterns) {
+                        val match = pattern.find(body)
+                        if (match != null) {
+                            val role = match.groupValues[1].trim()
+                            if (role.length > 2 && role.length < 100) return role
+                        }
+                    }
+                }
+            }
+
+            // Check subject and snippet
+            for (pattern in rolePatterns) {
+                val match = pattern.find(combined)
+                if (match != null) {
+                    val role = match.groupValues[1].trim()
+                    if (role.length > 2 && role.length < 100) return role
+                }
+            }
+        }
+
+        return "Unknown / To Be Confirmed"
+    }
+
+    private fun inferStatusFromEmails(emails: List<Map<String, Any?>>): String {
+        val rejectionKeywords = listOf(
+            "unfortunately", "not moving forward", "regret", "no longer under consideration",
+            "not selected", "won't be moving forward", "will not be moving forward",
+            "decided to move forward with other", "position has been filled", "position was filled"
+        )
+        val offerKeywords = listOf("job offer", "pleased to offer", "offer letter", "we would like to offer")
+        val interviewKeywords = listOf("interview", "phone screen", "schedule a call", "schedule a chat")
+        val acknowledgementKeywords = listOf("thank you for applying", "application received", "we have received")
+
+        for (email in emails) {
+            val subject = (email["subject"] as? String) ?: ""
+            val snippet = (email["snippet"] as? String) ?: ""
+            val combined = "$subject $snippet".lowercase()
+
+            if (rejectionKeywords.any { combined.contains(it) }) return "REJECTED"
+            if (offerKeywords.any { combined.contains(it) }) return "OFFER"
+            if (interviewKeywords.any { combined.contains(it) }) return "INTERVIEWING"
+            if (acknowledgementKeywords.any { combined.contains(it) }) return "SUBMITTED"
+        }
+
+        return "SUBMITTED"
+    }
+
+    private fun extractSourceLabel(
+        email: Map<String, Any?>,
+        labelToMessages: Map<String, MutableList<Map<String, Any?>>>
+    ): String? {
+        val messageId = (email["id"] as? String) ?: (email["messageId"] as? String) ?: ""
+        for ((label, messages) in labelToMessages) {
+            if (label.startsWith("JOB/")) {
+                for (msg in messages) {
+                    if ((msg["messageId"] as? String) == messageId) {
+                        return label
+                    }
+                }
+            }
+        }
+        return null
+    }
+
+    /**
+     * Searches for related emails by company/ATS sender to find missing breadcrumbs.
+     */
+    public fun findRelatedEmails(
+        companyId: String,
+        excludeMessageId: String,
+        allEmails: Map<String, Map<String, Any?>>? = null
+    ): List<String> {
+        val db = firestore
+        val related = mutableListOf<String>()
+
+        // Search emails collection for messages from the same company
+        val emailsSnap = db.collection("emails").get().get()
+        for (doc in emailsSnap.documents) {
+            val data = doc.data ?: continue
+            val mid = (data["id"] as? String) ?: (data["messageId"] as? String) ?: continue
+            if (mid == excludeMessageId) continue
+            if ((data["companyId"] as? String) == companyId) {
+                related.add(mid)
+                continue
+            }
+            // Check by company name in subject/snippet
+            val subject = (data["subject"] as? String) ?: ""
+            val snippet = (data["snippet"] as? String) ?: ""
+            val combined = "$subject $snippet".lowercase()
+            val companyWords = companyId.split("-").filter { it.length >= 3 }
+            if (companyWords.all { combined.contains(it) }) {
+                related.add(mid)
+            }
+        }
+
+        return related.distinct()
+    }
+
+    /**
+     * Stages discovery proposals in the pending-proposals queue.
+     */
+    public fun stageDiscoveryProposals(
+        candidates: List<DiscoveryCandidate>,
+        dryRun: Boolean = false
+    ): Map<String, Any> {
+        if (candidates.isEmpty()) {
+            return mapOf(
+                "status" to "SUCCESS",
+                "proposalsStaged" to 0,
+                "message" to "No discovery candidates found"
+            )
+        }
+
+        val db = firestore
+        val timestamp = Instant.now().toString()
+        val changes = mutableListOf<Map<String, Any?>>()
+
+        for (candidate in candidates) {
+            changes.add(
+                mapOf(
+                    "applicationId" to null,
+                    "eventType" to "DISCOVER",
+                    "statusFrom" to null,
+                    "statusTo" to candidate.status,
+                    "confidence" to candidate.confidence,
+                    "discoveredCompany" to candidate.company,
+                    "discoveredCompanyId" to candidate.companyId,
+                    "discoveredRole" to candidate.role,
+                    "sourceEmail" to mapOf(
+                        "messageId" to candidate.messageId,
+                        "subject" to candidate.subject,
+                        "sender" to candidate.sender,
+                        "receivedAt" to candidate.receivedAt
+                    ),
+                    "relatedEmails" to candidate.relatedMessageIds,
+                    "sourceLabel" to candidate.sourceLabel
+                )
+            )
+        }
+
+        val proposalId = java.util.UUID.randomUUID().toString()
+        val proposal = mapOf(
+            "proposalId" to proposalId,
+            "createdAt" to timestamp,
+            "dueAt" to Instant.now().plus(1, ChronoUnit.DAYS).toString(),
+            "collectedAt" to timestamp,
+            "kind" to "DISCOVER",
+            "state" to "PENDING",
+            "trigger" to "DISCOVERY",
+            "scope" to mapOf(
+                "applicationIds" to emptyList<String>(),
+                "lookbackFrom" to null,
+                "query" to null
+            ),
+            "changes" to changes,
+            "unmatched" to emptyList<Any>()
+        )
+
+        if (!dryRun) {
+            db.collection("pending-proposals").document(proposalId).set(proposal)
+        }
+
+        return mapOf(
+            "status" to "SUCCESS",
+            "proposalsStaged" to 1,
+            "proposalId" to proposalId,
+            "candidates" to candidates.size,
+            "dryRun" to dryRun
+        )
+    }
+
+    /**
+     * Ingests and correlates raw messages from generated/email-inbox.json into the top-level emails collection.
      */
     public fun backfillEmails(
         inboxFile: File? = null,
@@ -1527,11 +1987,14 @@ public object BackendService {
     ): Map<String, Any> {
         val candidates = listOfNotNull(
             inboxFile,
+            File("generated/email-inbox.json"),
             File("generated/gmail-inbox.json"),
+            File("../generated/email-inbox.json"),
             File("../generated/gmail-inbox.json"),
+            File("../../generated/email-inbox.json"),
             File("../../generated/gmail-inbox.json")
         )
-        val file = candidates.firstOrNull { it.exists() } ?: File("generated/gmail-inbox.json")
+        val file = candidates.firstOrNull { it.exists() } ?: File("generated/email-inbox.json")
         if (!file.exists()) {
             return mapOf(
                 "status" to "ERROR",
@@ -1576,10 +2039,45 @@ public object BackendService {
         var updated = 0
         var noiseCount = 0
 
+        // Noise keywords use word-boundary matching to avoid false positives
+        // (e.g., "order" matching "border" in HTML/CSS from ATS emails)
         val noiseKeywords = listOf(
-            "receipt", "payment", "order", "invoice", "statement", "deposit",
+            "receipt", "payment", "\\border\\b", "invoice", "statement", "deposit",
             "security alert", "sign-in", "free cloud", "cookie", "talent scout digest",
             "digest", "newsletter"
+        )
+        val noisePatterns = noiseKeywords.map { keyword ->
+            if (keyword.startsWith("\\b")) {
+                Regex(keyword.removePrefix("\\b").removeSuffix("\\b").let { "\\b$it\\b" }, RegexOption.IGNORE_CASE)
+            } else {
+                Regex(keyword, RegexOption.IGNORE_CASE)
+            }
+        }
+
+        // Job signal phrases — if present, override noise classification
+        val jobSignalPhrases = listOf(
+            "update on your job application",
+            "your application to",
+            "application status",
+            "thank you for applying",
+            "application received",
+            "unfortunately",
+            "not moving forward",
+            "no longer under consideration",
+            "not selected",
+            "position has been filled",
+            "job offer",
+            "pleased to offer",
+            "interview",
+            "phone screen",
+            "schedule a call",
+            "assessment",
+            "offer letter",
+        )
+        val atsSenderDomains = listOf(
+            "greenhouse.io", "lever.co", "myworkday.com", "ashbyhq.com",
+            "smartrecruiters.com", "icims.com", "bamboohr.com",
+            "workday.com", "talent.neptun.so",
         )
 
         val batch = db.batch()
@@ -1602,8 +2100,12 @@ public object BackendService {
             var matchedAppId: String? = appCorrelation?.first
             var matchedCompanyId: String? = appCorrelation?.second
 
-            // Check noise
-            val isNoise = noiseKeywords.any { combinedLower.contains(it) }
+            // Check for job signals FIRST — overrides noise classification
+            val hasJobSignals = jobSignalPhrases.any { combinedLower.contains(it) } ||
+                    atsSenderDomains.any { sender.lowercase().contains(it) }
+
+            // Check noise (only if no job signals)
+            val isNoise = !hasJobSignals && noisePatterns.any { pattern -> pattern.containsMatchIn("$subject $snippet") }
 
             val initialStatus = when {
                 isNoise -> {

@@ -294,7 +294,8 @@
         "ADD_NOTE",
         "IMPORT",
         "CORRECT_STATUS",
-        "RECRUITER_OUTREACH"
+        "RECRUITER_OUTREACH",
+        "DISCOVER"
       ]
     },
     "channelValue": {

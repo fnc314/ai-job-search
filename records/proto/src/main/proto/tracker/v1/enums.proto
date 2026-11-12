@@ -98,6 +98,8 @@ enum TrackerEventType {
   CORRECT_STATUS = 20;
   // event:recruiter-outreach
   RECRUITER_OUTREACH = 21;
+  // event:discovered
+  DISCOVER = 22;
 }
 
 // ============================================================================

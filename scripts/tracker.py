@@ -2597,8 +2597,10 @@ def loadInbox(path: str | None) -> tuple[list[dict], dict]:
     matching, classification, and staging deterministically.
     """
     candidate = pathlib.Path(path).expanduser() if path else pathlib.Path(
-        str(client.REPO_ROOT / "generated" / "gmail-inbox.json")
+        str(client.REPO_ROOT / "generated" / "email-inbox.json")
     )
+    if not candidate.exists():
+        candidate = pathlib.Path(str(client.REPO_ROOT / "generated" / "gmail-inbox.json"))
     if not candidate.exists():
         return [], {"found": False, "path": str(candidate)}
     value = json.loads(candidate.read_text(encoding="utf-8"))
