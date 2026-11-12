@@ -98,8 +98,12 @@ public class SettingsViewModel(
   }
 
   private fun handleChangeSeedColor(hex: String): Unit {
-    val currentSettings: AppSettings = observeSettingsUseCase().value
-    updateSettingsUseCase(currentSettings.copy(seedColorHex = hex))
+    // Defense-in-depth: accept both #RRGGBB and RRGGBB, normalize to #RRGGBB
+    val normalized = hex.removePrefix("#")
+    if (normalized.length == 6 && normalized.matches(Regex("[0-9a-fA-F]{6}"))) {
+      val currentSettings: AppSettings = observeSettingsUseCase().value
+      updateSettingsUseCase(currentSettings.copy(seedColorHex = "#$normalized"))
+    }
   }
 
   private fun handleSignOut(): Unit {

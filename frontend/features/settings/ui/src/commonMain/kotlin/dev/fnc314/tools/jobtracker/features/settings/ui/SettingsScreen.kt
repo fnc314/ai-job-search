@@ -17,22 +17,28 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import dev.fnc314.tools.jobtracker.core.data.settings.UiMode
@@ -40,6 +46,10 @@ import dev.fnc314.tools.jobtracker.core.designsystem.SeedColors
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.designsystem.toHexString
+import dev.fnc314.tools.jobtracker.core.designsystem.toColorOrNull
+import dev.fnc314.tools.jobtracker.core.designsystem.toColorWithAlphaOrNull
+import dev.fnc314.tools.jobtracker.core.designsystem.toRgbaChannels
+import dev.fnc314.tools.jobtracker.core.designsystem.toColor
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_settings_ui.generated.resources.settings_in_app_text_viewer_disabled
@@ -134,7 +144,7 @@ internal fun SettingsContent(
     onIntent: (SettingsUiIntent) -> Unit,
     modifier: Modifier = Modifier,
 ): Unit {
-    val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
+    var showColorPickerDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -237,21 +247,47 @@ internal fun SettingsContent(
                     }
 
                     val customSeedCd: String = stringResource(Res.string.settings_cd_custom_seed_hex)
-                    OutlinedTextField(
-                        value = model.seedColorHex,
-                        onValueChange = { newHex: String ->
-                            val sanitized = newHex.trim().replace("#", "")
-                            if (sanitized.length == 6 && sanitized.matches(Regex("[0-9a-fA-F]{6}"))) {
-                                onIntent(SettingsUiIntent.ChangeSeedColor(hex = sanitized))
-                                keyboardController?.hide()
-                            }
-                        },
-                        label = { Text(stringResource(Res.string.settings_label_custom_seed_hex)) },
+                    val currentPreviewColor = model.seedColorHex.toColorOrNull()
+
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clickable { showColorPickerDialog = true }
+                            .padding(MaterialTheme.spacing.small)
                             .semantics { contentDescription = customSeedCd },
-                        singleLine = true,
-                    )
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(MaterialTheme.componentSizes.iconButtonSize)
+                                .clip(CircleShape)
+                                .then(
+                                    if (currentPreviewColor != null) {
+                                        Modifier.background(currentPreviewColor)
+                                    } else {
+                                        Modifier.background(
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                                        )
+                                    }
+                                ),
+                        )
+                        Text(
+                            text = model.seedColorHex,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+
+                    if (showColorPickerDialog) {
+                        ColorPickerDialog(
+                            currentHex = model.seedColorHex,
+                            onConfirm = { hex: String ->
+                                showColorPickerDialog = false
+                                onIntent(SettingsUiIntent.ChangeSeedColor(hex = hex))
+                            },
+                            onDismiss = { showColorPickerDialog = false },
+                        )
+                    }
                 }
             }
 
@@ -377,4 +413,244 @@ internal fun SettingsContent(
             }
         }
     }
+}
+
+/**
+ * Color picker dialog allowing the user to adjust R, G, B, and A channels independently.
+ *
+ * Inspired by Android's TimePickerDialog — large preview, channel inputs, and Submit/Cancel.
+ *
+ * @param currentHex The current seed color hex (`#RRGGBB` or `#AARRGGBB`).
+ * @param onConfirm Called when the user submits a valid color. Receives the hex string.
+ * @param onDismiss Called when the user cancels or dismisses the dialog.
+ */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+internal fun ColorPickerDialog(
+    currentHex: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+): Unit {
+    // Parse initial RGBA values from the current hex
+    val initialChannels = currentHex.toColorWithAlphaOrNull()?.toRgbaChannels()
+        ?: SeedColors.ProfessionalBlue.toRgbaChannels()
+
+    var r by remember { mutableStateOf(initialChannels[0]) }
+    var g by remember { mutableStateOf(initialChannels[1]) }
+    var b by remember { mutableStateOf(initialChannels[2]) }
+    var a by remember { mutableStateOf(initialChannels[3]) }
+
+    // Text input state for each channel
+    var rText by remember { mutableStateOf(initialChannels[0].toString()) }
+    var gText by remember { mutableStateOf(initialChannels[1].toString()) }
+    var bText by remember { mutableStateOf(initialChannels[2].toString()) }
+    var aText by remember { mutableStateOf(initialChannels[3].toString()) }
+
+    // Decimal vs Hex mode toggle
+    var isHexMode by remember { mutableStateOf(false) }
+
+    // Validate each channel independently
+    val decimalRegex = Regex("^\\d+$")
+    val hexRegex = Regex("^[0-9a-fA-F]{1,2}$")
+
+    fun isValidChannel(text: String): Boolean {
+        return if (isHexMode) {
+            text.matches(hexRegex)
+        } else {
+            text.matches(decimalRegex) && text.toInt() in 0..255
+        }
+    }
+
+    val rValid = isValidChannel(rText)
+    val gValid = isValidChannel(gText)
+    val bValid = isValidChannel(bText)
+    val aValid = isValidChannel(aText)
+    val allValid = rValid && gValid && bValid && aValid
+
+    // Parse channel value to 0-255 int, defaulting to current value if invalid
+    fun parseChannel(text: String, default: Int): Int {
+        return try {
+            if (isHexMode) {
+                text.toInt(16).coerceIn(0, 255)
+            } else {
+                text.toInt().coerceIn(0, 255)
+            }
+        } catch (_: Exception) {
+            default
+        }
+    }
+
+    val previewR = parseChannel(rText, r)
+    val previewG = parseChannel(gText, g)
+    val previewB = parseChannel(bText, b)
+    val previewA = parseChannel(aText, a)
+    val previewColor = intArrayOf(previewR, previewG, previewB, previewA).toColor()
+
+    // Update numeric state when text becomes valid
+    if (rValid) r = parseChannel(rText, r)
+    if (gValid) g = parseChannel(gText, g)
+    if (bValid) b = parseChannel(bText, b)
+    if (aValid) a = parseChannel(aText, a)
+
+    // Sync text when toggling mode
+    fun intToDisplay(value: Int): String {
+        return if (isHexMode) {
+            value.toString(16).padStart(2, '0').uppercase()
+        } else {
+            value.toString()
+        }
+    }
+
+    // When mode changes, sync all text fields
+    val isHexModeKey = isHexMode
+    LaunchedEffect(isHexModeKey) {
+        rText = intToDisplay(r)
+        gText = intToDisplay(g)
+        bText = intToDisplay(b)
+        aText = intToDisplay(a)
+    }
+
+    fun buildHexString(): String {
+        val finalR = parseChannel(rText, r)
+        val finalG = parseChannel(gText, g)
+        val finalB = parseChannel(bText, b)
+        val finalA = parseChannel(aText, a)
+        // If alpha is 255, store as #RRGGBB for backward compatibility
+        return if (finalA == 255) {
+            "#" + finalR.toString(16).padStart(2, '0').uppercase() +
+                    finalG.toString(16).padStart(2, '0').uppercase() +
+                    finalB.toString(16).padStart(2, '0').uppercase()
+        } else {
+            "#" + finalA.toString(16).padStart(2, '0').uppercase() +
+                    finalR.toString(16).padStart(2, '0').uppercase() +
+                    finalG.toString(16).padStart(2, '0').uppercase() +
+                    finalB.toString(16).padStart(2, '0').uppercase()
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Custom Theme Color") },
+        text = {
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+            ) {
+                // Large color preview region (≥50% of dialog)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    // Color preview overlay
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(previewColor),
+                    )
+                }
+
+                // Decimal/Hex mode toggle
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = if (isHexMode) "Hex (00–FF)" else "Decimal (0–255)",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    Switch(
+                        checked = isHexMode,
+                        onCheckedChange = { isHexMode = it },
+                    )
+                }
+
+                // 2x2 Grid of channel inputs
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                ) {
+                    ChannelInputField(
+                        label = "Red",
+                        value = rText,
+                        onValueChange = { rText = it },
+                        isValid = rValid,
+                        modifier = Modifier.weight(1f),
+                    )
+                    ChannelInputField(
+                        label = "Green",
+                        value = gText,
+                        onValueChange = { gText = it },
+                        isValid = gValid,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                ) {
+                    ChannelInputField(
+                        label = "Blue",
+                        value = bText,
+                        onValueChange = { bText = it },
+                        isValid = bValid,
+                        modifier = Modifier.weight(1f),
+                    )
+                    ChannelInputField(
+                        label = "Alpha",
+                        value = aText,
+                        onValueChange = { aText = it },
+                        isValid = aValid,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(buildHexString()) },
+                enabled = allValid,
+            ) {
+                Text("Submit")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+    )
+}
+
+@Composable
+private fun ChannelInputField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    isValid: Boolean,
+    modifier: Modifier = Modifier,
+): Unit {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        isError = value.isNotEmpty() && !isValid,
+        supportingText = if (value.isNotEmpty() && !isValid) {
+            @Composable { Text("Enter 0–255 or 00–FF") }
+        } else {
+            null
+        },
+        modifier = modifier,
+        singleLine = true,
+    )
 }
