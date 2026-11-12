@@ -46,7 +46,12 @@ internal class AppNavigatorImpl(
     }
 
     override fun login() {
-        navigator.switchRoot(JobApplicationListRoute)
+        // Idempotent: skip switchRoot if the back stack root is already JobApplicationListRoute
+        // to avoid clearing a Navigation3-restored back stack after config changes.
+        val currentRoot = navigator.backStack.firstOrNull()
+        if (currentRoot !is JobApplicationListRoute) {
+            navigator.switchRoot(JobApplicationListRoute)
+        }
     }
 
     override fun logout() {
