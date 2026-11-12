@@ -30,7 +30,7 @@ public sealed interface SettingsUiIntent {
  * Presentation model capturing user-configurable application preferences.
  *
  * @property uiMode Active theme mode ([UiMode]).
- * @property seedColorHex Primary brand seed color formatted as `#RRGGBB` or `#AARRGGBB`.
+ * @property seedColorHex Primary brand seed color formatted as `#RRGGBB`.
  * @property isSystemDark Whether dark theme appearance is currently active.
  * @property randomSeedSuggestions Curated preset seed color hex strings for quick selection.
  */

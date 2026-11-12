@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -38,6 +39,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -47,7 +50,6 @@ import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.designsystem.toHexString
 import dev.fnc314.tools.jobtracker.core.designsystem.toColorOrNull
-import dev.fnc314.tools.jobtracker.core.designsystem.toColorWithAlphaOrNull
 import dev.fnc314.tools.jobtracker.core.designsystem.toRgbaChannels
 import dev.fnc314.tools.jobtracker.core.designsystem.toColor
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
@@ -249,33 +251,50 @@ internal fun SettingsContent(
                     val customSeedCd: String = stringResource(Res.string.settings_cd_custom_seed_hex)
                     val currentPreviewColor = model.seedColorHex.toColorOrNull()
 
-                    Row(
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
+
+                    OutlinedCard(
+                        shape = MaterialTheme.shapes.medium,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { showColorPickerDialog = true }
-                            .padding(MaterialTheme.spacing.small)
                             .semantics { contentDescription = customSeedCd },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
                     ) {
-                        Box(
+                        Row(
                             modifier = Modifier
-                                .size(MaterialTheme.componentSizes.iconButtonSize)
-                                .clip(CircleShape)
-                                .then(
-                                    if (currentPreviewColor != null) {
-                                        Modifier.background(currentPreviewColor)
-                                    } else {
-                                        Modifier.background(
-                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-                                        )
-                                    }
-                                ),
-                        )
-                        Text(
-                            text = model.seedColorHex,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
+                                .fillMaxWidth()
+                                .padding(MaterialTheme.spacing.small),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(MaterialTheme.componentSizes.iconButtonSize)
+                                    .clip(CircleShape)
+                                    .then(
+                                        if (currentPreviewColor != null) {
+                                            Modifier.background(currentPreviewColor)
+                                        } else {
+                                            Modifier.background(
+                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                                            )
+                                        }
+                                    ),
+                            )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.settings_label_custom_seed_hex),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text = model.seedColorHex.toColorOrNull()?.toHexString() ?: model.seedColorHex,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            }
+                        }
                     }
 
                     if (showColorPickerDialog) {
@@ -416,11 +435,11 @@ internal fun SettingsContent(
 }
 
 /**
- * Color picker dialog allowing the user to adjust R, G, B, and A channels independently.
+ * Color picker dialog allowing the user to adjust R, G, and B channels independently.
  *
  * Inspired by Android's TimePickerDialog — large preview, channel inputs, and Submit/Cancel.
  *
- * @param currentHex The current seed color hex (`#RRGGBB` or `#AARRGGBB`).
+ * @param currentHex The current seed color hex (`#RRGGBB`).
  * @param onConfirm Called when the user submits a valid color. Receives the hex string.
  * @param onDismiss Called when the user cancels or dismisses the dialog.
  */
@@ -432,20 +451,18 @@ internal fun ColorPickerDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ): Unit {
-    // Parse initial RGBA values from the current hex
-    val initialChannels = currentHex.toColorWithAlphaOrNull()?.toRgbaChannels()
-        ?: SeedColors.ProfessionalBlue.toRgbaChannels()
+    // Parse initial RGB values from the current hex
+    val initialColor = currentHex.toColorOrNull() ?: SeedColors.ProfessionalBlue
+    val initialChannels = initialColor.toRgbaChannels()
 
     var r by remember { mutableStateOf(initialChannels[0]) }
     var g by remember { mutableStateOf(initialChannels[1]) }
     var b by remember { mutableStateOf(initialChannels[2]) }
-    var a by remember { mutableStateOf(initialChannels[3]) }
 
     // Text input state for each channel
     var rText by remember { mutableStateOf(initialChannels[0].toString()) }
     var gText by remember { mutableStateOf(initialChannels[1].toString()) }
     var bText by remember { mutableStateOf(initialChannels[2].toString()) }
-    var aText by remember { mutableStateOf(initialChannels[3].toString()) }
 
     // Decimal vs Hex mode toggle
     var isHexMode by remember { mutableStateOf(false) }
@@ -465,8 +482,7 @@ internal fun ColorPickerDialog(
     val rValid = isValidChannel(rText)
     val gValid = isValidChannel(gText)
     val bValid = isValidChannel(bText)
-    val aValid = isValidChannel(aText)
-    val allValid = rValid && gValid && bValid && aValid
+    val allValid = rValid && gValid && bValid
 
     // Parse channel value to 0-255 int, defaulting to current value if invalid
     fun parseChannel(text: String, default: Int): Int {
@@ -484,14 +500,12 @@ internal fun ColorPickerDialog(
     val previewR = parseChannel(rText, r)
     val previewG = parseChannel(gText, g)
     val previewB = parseChannel(bText, b)
-    val previewA = parseChannel(aText, a)
-    val previewColor = intArrayOf(previewR, previewG, previewB, previewA).toColor()
+    val previewColor = intArrayOf(previewR, previewG, previewB).toColor()
 
     // Update numeric state when text becomes valid
     if (rValid) r = parseChannel(rText, r)
     if (gValid) g = parseChannel(gText, g)
     if (bValid) b = parseChannel(bText, b)
-    if (aValid) a = parseChannel(aText, a)
 
     // Sync text when toggling mode
     fun intToDisplay(value: Int): String {
@@ -508,25 +522,15 @@ internal fun ColorPickerDialog(
         rText = intToDisplay(r)
         gText = intToDisplay(g)
         bText = intToDisplay(b)
-        aText = intToDisplay(a)
     }
 
     fun buildHexString(): String {
         val finalR = parseChannel(rText, r)
         val finalG = parseChannel(gText, g)
         val finalB = parseChannel(bText, b)
-        val finalA = parseChannel(aText, a)
-        // If alpha is 255, store as #RRGGBB for backward compatibility
-        return if (finalA == 255) {
-            "#" + finalR.toString(16).padStart(2, '0').uppercase() +
-                    finalG.toString(16).padStart(2, '0').uppercase() +
-                    finalB.toString(16).padStart(2, '0').uppercase()
-        } else {
-            "#" + finalA.toString(16).padStart(2, '0').uppercase() +
-                    finalR.toString(16).padStart(2, '0').uppercase() +
-                    finalG.toString(16).padStart(2, '0').uppercase() +
-                    finalB.toString(16).padStart(2, '0').uppercase()
-        }
+        return "#" + finalR.toString(16).padStart(2, '0').uppercase() +
+                finalG.toString(16).padStart(2, '0').uppercase() +
+                finalB.toString(16).padStart(2, '0').uppercase()
     }
 
     AlertDialog(
@@ -585,6 +589,7 @@ internal fun ColorPickerDialog(
                         value = rText,
                         onValueChange = { rText = it },
                         isValid = rValid,
+                        isHexMode = isHexMode,
                         modifier = Modifier.weight(1f),
                     )
                     ChannelInputField(
@@ -592,6 +597,7 @@ internal fun ColorPickerDialog(
                         value = gText,
                         onValueChange = { gText = it },
                         isValid = gValid,
+                        isHexMode = isHexMode,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -604,14 +610,8 @@ internal fun ColorPickerDialog(
                         value = bText,
                         onValueChange = { bText = it },
                         isValid = bValid,
-                        modifier = Modifier.weight(1f),
-                    )
-                    ChannelInputField(
-                        label = "Alpha",
-                        value = aText,
-                        onValueChange = { aText = it },
-                        isValid = aValid,
-                        modifier = Modifier.weight(1f),
+                        isHexMode = isHexMode,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
@@ -638,12 +638,21 @@ private fun ChannelInputField(
     value: String,
     onValueChange: (String) -> Unit,
     isValid: Boolean,
+    isHexMode: Boolean,
     modifier: Modifier = Modifier,
 ): Unit {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
+        keyboardOptions = if (isHexMode) {
+            KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                capitalization = KeyboardCapitalization.Characters,
+            )
+        } else {
+            KeyboardOptions(keyboardType = KeyboardType.Number)
+        },
         isError = value.isNotEmpty() && !isValid,
         supportingText = if (value.isNotEmpty() && !isValid) {
             @Composable { Text("Enter 0–255 or 00–FF") }

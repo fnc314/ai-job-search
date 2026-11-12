@@ -1,6 +1,6 @@
 # Implementation Plan: Config-Change Navigation and Settings Color Picker Dialog
 
-**Status:** Completed  
+**Status:** Completed
 **Date:** 2026-11-11  
 **Target:** `frontend`  
 **Harness:** Junie  
@@ -15,12 +15,18 @@ Three issues affect the frontend's user experience on foldable devices and in th
 
 1. **Configuration-change navigation loss**: On a Galaxy Fold6 (or any device), opening the fold or rotating the screen resets the app to the initial list screen, losing the user's navigation position (e.g., details screen, scroll position, etc.).
 2. **Settings color input UX**: The custom theme color hex input in Settings was difficult to use — intermediate typing was silently ignored, there was no visual feedback for invalid input, and the `#` prefix handling was inconsistent.
-3. **Color picker enhancement**: The hex-only input was replaced with a full color picker dialog inspired by Android's TimePickerDialog, providing RGBA channel control, a large preview region, and decimal/hex input modes.
+3. **Color picker enhancement**: The hex-only input was replaced with a full color picker dialog inspired by Android's TimePickerDialog, providing RGB channel control, a large preview region, and decimal/hex input modes.
+4. **Color picker keyboard types**: The channel input fields should show a numeric keypad for decimal mode and a text keyboard for hex mode.
+5. **Custom color visual treatment**: The custom color row should be visually distinct and show the seed color clearly.
+6. **Alpha channel removal**: The dialog supported alpha, but the ViewModel and theme application only support RGB — alpha was silently discarded. The alpha channel must be removed from the dialog and the custom color row simplified.
 
 **Goals:**
 - Ensure device rotation and shape-change preserve all temporary application state (navigation, scroll, etc.).
 - Replace the hex text field with a full color picker dialog for precise, accessible color control.
 - Extend color utilities to support RGBA parsing and formatting with alpha channel.
+- Use appropriate keyboard types for each input mode (numeric for decimal, text for hex).
+- Provide a distinct visual treatment for custom colors.
+- Remove the non-functional alpha channel from the dialog and simplify the custom color row to RGB-only.
 
 ## 2. Architecture & Design Principles
 
@@ -33,13 +39,21 @@ Three issues affect the frontend's user experience on foldable devices and in th
 
 ### Color Picker Dialog
 - Triggered by tapping the current custom seed color row (showing a color swatch and hex value)
-- 4 input fields: Red, Green, Blue, Alpha — each accepting 0-255 (decimal) or 00-FF (hex)
-- A toggle switch to switch between decimal and hex input mode (affects all 4 fields)
-- A large color preview region (≥50% of dialog area, 200dp height) showing the current parsed color with alpha
-- A "Submit" button — enabled only when all 4 channels have valid values
+- 3 input fields: Red, Green, Blue — each accepting 0-255 (decimal) or 00-FF (hex)
+- A toggle switch to switch between decimal and hex input mode (affects all 3 fields)
+- A large color preview region (≥50% of dialog area, 200dp height) showing the current parsed color
+- A "Submit" button — enabled only when all 3 channels have valid values
 - A "Cancel" button — always enabled; dismisses the dialog without changing the color
 - The dialog initializes with the current seed color values
 - On Submit, the color is applied via the existing `ChangeSeedColor` intent
+- In decimal mode, each channel input shows a numeric keyboard (`KeyboardType.Number`)
+- In hex mode, each channel input shows a text keyboard with uppercase capitalization (`KeyboardType.Text` + `KeyboardCapitalization.Characters`)
+
+### Custom Color Visual Treatment
+- The custom color row should be visually distinct from the preset color row (e.g., outlined container, divider, or background treatment)
+- The color swatch uses `toColorOrNull()` to display the RGB seed color
+- The hex text displays the `#RRGGBB` value
+- A label or indicator (e.g., "Custom") should clarify that this is a custom color, not a preset
 
 ### Scope
 **In Scope:**
@@ -50,11 +64,12 @@ Three issues affect the frontend's user experience on foldable devices and in th
 
 **Out of Scope:**
 - `SettingsViewModel.kt` — no changes needed; the dialog dispatches the existing `ChangeSeedColor` intent
-- `SettingsUiIntent.kt` / `SettingsUiState.kt` — no changes needed
+- `SettingsUiState.kt` — no changes needed
 - Multi-pane / list-detail adaptive layouts (separate concern)
 - Process-death state restoration beyond what Navigation3's `rememberNavBackStack` provides
 - Adding a color palette/picker wheel
 - HSL/HSV color space support
+- Changing the preset color selection behavior
 
 ## 3. Proposed Changes & Implementation Steps
 
@@ -73,34 +88,83 @@ Three issues affect the frontend's user experience on foldable devices and in th
 - No alpha channel support
 - No visual preview of the color while adjusting
 
-**Changes:**
+**Changes Implemented:**
 - **`Color.kt`**: Added RGBA utilities — `toRgbChannels()`, `toRgbaChannels()`, `IntArray.toColor()` factory, `toColorWithAlphaOrNull()` for parsing `#RRGGBB`/`#AARRGGBB`, and updated `toHexString(includeAlpha)` with a default parameter for backward compatibility.
 - **`SettingsScreen.kt`**: Replaced the hex `OutlinedTextField` with a clickable `Row` showing a color swatch and hex value. Added `ColorPickerDialog` composable with:
   - `AlertDialog` wrapper with `@OptIn(ExperimentalMaterial3Api::class)`
   - Large color preview `Box` (200dp height, ≥50% of dialog) with dynamic background color
   - Decimal/Hex mode toggle using `Switch`
-  - 4 `OutlinedTextField` inputs in a 2x2 grid for R, G, B, A channels
+  - 3 `OutlinedTextField` inputs (R, G on first row; B full-width on second row)
   - Each field validates independently (0-255 decimal or 00-FF hex)
-  - Submit button enabled only when all 4 channels are valid
+  - Submit button enabled only when all 3 channels are valid
   - Cancel button always enabled
-  - Initialize R/G/B/A from `currentHex.toColorWithAlphaOrNull()`
-  - On Submit: construct hex string (`#RRGGBB` if alpha=255 for backward compat, `#AARRGGBB` otherwise), dispatch `ChangeSeedColor`
+  - Initialize R/G/B from `currentHex.toColorOrNull()`
+  - On Submit: construct `#RRGGBB` hex string, dispatch `ChangeSeedColor`
   - On Cancel/Dismiss: no state change
   - `ChannelInputField` helper composable for individual channel inputs
+
+### Issue 3: Color Picker Keyboard Types
+
+**Changes Implemented:**
+- **`SettingsScreen.kt`**: Added `isHexMode: Boolean` parameter to `ChannelInputField` composable. Applied `KeyboardOptions(keyboardType = KeyboardType.Number)` for decimal mode and `KeyboardOptions(keyboardType = KeyboardType.Text, capitalization = KeyboardCapitalization.Characters)` for hex mode. Passed `isHexMode` from all 3 call sites (R, G, B).
+
+### Issue 4: Custom Color Visual Treatment
+
+**Current Problems:**
+- The custom color row blends visually with the preset color row — no clear distinction
+- No label or indicator to clarify that this is a custom (non-preset) color
+
+**Changes Implemented:**
+- **`SettingsScreen.kt`**: Wrapped the custom color row in an `OutlinedCard` with a "Custom Seed Hex" label to visually separate it from preset colors. Simple swatch using `toColorOrNull()` for the color preview. Display shows `#RRGGBB` hex value. Added spacing between preset colors and the custom color card.
+
+### Issue 5: Remove Alpha Channel from Color Picker
+
+**Current Problems:**
+- The `ColorPickerDialog` supported alpha (4-channel RGBA input), but `SettingsViewModel.handleChangeSeedColor()` only accepts 6-char hex (`normalized.length == 6`) and stores `#$normalized` — alpha was always stripped.
+- `App.kt` uses `toColorOrNull()` (RGB-only) to parse the seed color for the theme — alpha is ignored even if stored.
+- The dialog's `buildHexString()` produced `#AARRGGBB` when alpha < 255, but the ViewModel rejected 8-char hex silently.
+- The custom color row used `toColorWithAlphaOrNull()` and showed `#AARRGGBB` when alpha < 255, but alpha could never be < 255 since the ViewModel stripped it.
+
+**Root cause:** The dialog supported alpha, but the ViewModel and theme application only support RGB. Alpha was silently discarded, creating a misleading UX where users could adjust alpha but it never took effect.
+
+**Key Decisions:**
+1. **Remove Alpha entirely** — rather than adding alpha support to the ViewModel and theme, remove it from the dialog. Material3 seed colors don't support alpha (they're used for color scheme derivation which requires opaque colors).
+2. **Simplify custom color row** — remove checkerboard background and alpha-aware display logic since alpha is never stored.
+3. **Keep RGBA utilities in `Color.kt`** — they're not harmful and may be useful for other features.
+
+**Changes Implemented:**
+
+**`SettingsScreen.kt`:**
+- Removed `a`, `aText`, `aValid` state variables from `ColorPickerDialog`
+- Removed Alpha `ChannelInputField` from the second row; Blue row becomes a single full-width field
+- Removed alpha from `previewColor`: uses `intArrayOf(previewR, previewG, previewB).toColor()` (size 3)
+- Simplified `buildHexString()` to always produce `#RRGGBB`
+- Removed `aText` from `LaunchedEffect` mode sync
+- Updated `allValid` to check only R, G, B
+- Updated dialog KDoc to remove alpha references
+- In custom color row: replaced `toColorWithAlphaOrNull()` with `toColorOrNull()`, removed `rgbaChannels`/`alpha`/`displayHex` logic, shows normalized hex directly
+- Removed checkerboard gradient background — simple swatch
+
+**`SettingsUiIntent.kt`:**
+- Updated `SettingsUiModel` KDoc: changed `"#RRGGBB" or "#AARRGGBB"` to `"#RRGGBB"`
 
 ### Architecture Diagram
 ```mermaid
 graph LR
   A[SettingsScreen color row] -->|tap| B[showColorPickerDialog = true]
-  B -->|renders| C[ColorPickerDialog]
+  B -->|renders| C[ColorPickerDialog RGB only]
   C -->|init from| D[model.seedColorHex]
-  C -->|local state| E[R/G/B/A values]
+  C -->|local state| E[R/G/B values]
   C -->|local state| F[isHexMode toggle]
   E -->|validates| G[Submit enabled?]
   C -->|preview| H[Color preview Box]
-  G -->|Submit| I[onConfirm hex string]
+  G -->|Submit| I[onConfirm #RRGGBB]
   I -->|dispatches| J[ChangeSeedColor intent]
   C -->|Cancel| K[onDismiss]
+  L[Custom color row] -->|swatch| M[toColorOrNull RGB]
+  L -->|display| N[#RRGGBB hex]
+  L -->|container| O[OutlinedCard]
+  L -->|label| P["Custom" indicator]
 ```
 
 ## 4. Verification Plan & Testing Checklist
@@ -113,19 +177,17 @@ graph LR
 
 ### Color Picker Dialog
 - Tap the custom seed color row → dialog opens with current color values
-- Dialog initializes R/G/B/A from the current `seedColorHex`
-- Enter 0-255 in each field in decimal mode → preview updates, submit enabled when all valid
+- Dialog initializes R/G/B from the current `seedColorHex`
+- Enter 0-255 in each field in decimal mode → numeric keyboard shown, preview updates, submit enabled when all valid
 - Enter 256 → field shows error, submit disabled
-- Toggle to hex mode → fields show 00-FF values
+- Toggle to hex mode → fields show 00-FF values, text keyboard with uppercase shown
 - Enter "FF" in Red → preview updates to red
 - Enter "GG" → field shows error, submit disabled
 - Preview region updates in real-time as any channel changes
-- Alpha channel affects preview opacity
-- Submit with valid values → color applied, dialog dismisses
-- Submit with alpha=255 → stored as `#RRGGBB` (backward compat)
-- Submit with alpha<255 → stored as `#AARRGGBB`
+- Submit with valid values → color applied as `#RRGGBB`, dialog dismisses
 - Cancel → dialog dismisses, color unchanged
 - Back press → dialog dismisses, color unchanged
+- Keyboard type switches when toggling between decimal and hex modes
 
 ### Edge Cases
 - Config change during auth initialization (rare race condition) → app should not crash
