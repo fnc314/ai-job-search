@@ -237,6 +237,7 @@ def buildProposal(
                                 "subject": message.get("subject"),
                                 "sender": message.get("sender"),
                                 "receivedAt": message.get("receivedAt"),
+                                "snippet": message.get("snippet"),
                             },
                         }
                     )
@@ -248,6 +249,7 @@ def buildProposal(
                             "subject": message.get("subject"),
                             "receivedAt": message.get("receivedAt"),
                             "reason": "outreach detected but no company identified",
+                            "snippet": message.get("snippet"),
                         }
                     )
                     continue
@@ -259,6 +261,7 @@ def buildProposal(
                     "subject": message.get("subject"),
                     "receivedAt": message.get("receivedAt"),
                     "reason": reason or "no classification pattern matched",
+                    "snippet": message.get("snippet"),
                 }
             )
             continue
@@ -281,6 +284,7 @@ def buildProposal(
                     "subject": message.get("subject"),
                     "sender": message.get("sender"),
                     "receivedAt": message.get("receivedAt"),
+                    "snippet": message.get("snippet"),
                 },
             }
         )

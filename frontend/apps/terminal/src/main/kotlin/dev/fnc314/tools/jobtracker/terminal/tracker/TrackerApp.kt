@@ -871,10 +871,17 @@ public object TerminalApp {
         System.err.println(t.render(
             Panel(
                 content = bold(brightBlue("AI Job Search Tracker — Interactive Proposals Review")) +
-                    "\n" + dim("Review staged inbox proposals • Select: [t <id>] toggle, [all] select all, [none] clear, [i <id>] inspect, [a] approve, [r] reject, [q] quit"),
+                    "\n" + dim("Review staged inbox proposals • Actions:"),
                 title = cyan("★ Staged Proposals Review ★")
             )
         ))
+        System.err.println(t.render(dim("")))
+        System.err.println(t.render(dim("  a  - Approve selected: apply status changes to applications")))
+        System.err.println(t.render(dim("  r  - Reject selected: discard these proposals without changes")))
+        System.err.println(t.render(dim("  t <id> - Toggle selection for a proposal")))
+        System.err.println(t.render(dim("  all  - Select all proposals | none - Clear selection")))
+        System.err.println(t.render(dim("  i <id> - Inspect proposal details (email content, changes)")))
+        System.err.println(t.render(dim("  q  - Quit without changes")))
 
         fun renderProposalsList() {
             val enabledCount = proposals.count { it.enabled }
@@ -888,15 +895,18 @@ public object TerminalApp {
 
             val tbl = table {
                 header {
-                    row(cyan("Sel"), cyan("Proposal ID"), cyan("Created Date"), cyan("Changes"), cyan("Unmatched"))
+                    row(cyan("Sel"), cyan("Proposal ID"), cyan("Created Date"), cyan("Sender"), cyan("Changes"), cyan("Unmatched"))
                 }
                 body {
                     proposals.forEachIndexed { idx, p ->
                         val check = if (p.enabled) green("[x]") else dim("[ ]")
                         val dateFormatted = p.createdAt.take(19).replace("T", " ")
+                        val sender = p.changes.firstOrNull()?.let { ch ->
+                            (ch["sourceEmail"] as? Map<*, *>)?.get("sender") as? String
+                        }?.take(20) ?: "-"
                         val changesFormatted = if (p.changesCount > 0) green(p.changesCount.toString()) else dim("0")
                         val unmatchedFormatted = if (p.unmatchedCount > 0) yellow(p.unmatchedCount.toString()) else dim("0")
-                        row(check, p.proposalId, dateFormatted, changesFormatted, unmatchedFormatted)
+                        row(check, p.proposalId, dateFormatted, sender, changesFormatted, unmatchedFormatted)
                     }
                 }
             }
@@ -917,7 +927,7 @@ public object TerminalApp {
 
         while (true) {
             System.err.println()
-            System.err.print(t.render(brightBlue("proposals [a:approve, r:reject, t <id>:toggle, all, none, i <id>:inspect, q:quit] > ")))
+            System.err.print(t.render(brightBlue("proposals > ")))
             if (!scanner.hasNextLine()) break
             val line = scanner.nextLine().trim()
             if (line.isEmpty()) continue
@@ -1075,7 +1085,7 @@ public object TerminalApp {
                 }
 
                 else -> {
-                    System.err.println(red("Unknown command '$cmd'. Commands: 't <id>' (toggle), 'all', 'none', 'i <id>' (inspect), 'a' (approve), 'r' (reject), 'q' (quit)."))
+                    System.err.println(red("Unknown command '$cmd'. Actions: a (approve), r (reject), t <id> (toggle), all, none, i <id> (inspect), q (quit)."))
                 }
             }
         }
@@ -1208,18 +1218,69 @@ public object TerminalApp {
             }
         } else null
 
+        val changesSnippets = if (changes.isNotEmpty()) {
+            val snippets = changes.mapNotNull { ch ->
+                val srcEmail = ch["sourceEmail"] as? Map<*, *>
+                val snippet = (srcEmail?.get("snippet") as? String)?.takeIf { it.isNotBlank() }
+                snippet
+            }
+            snippets.ifEmpty { null }
+        } else null
+
         val renderedUnmatched = if (unmatched.isNotEmpty()) {
             table {
                 header {
-                    row(yellow("#"), yellow("Subject"), yellow("Reason"))
+                    row(yellow("#"), yellow("Sender"), yellow("Subject"), yellow("Reason"))
                 }
                 body {
                     unmatched.take(15).forEachIndexed { idx, u ->
+                        val sender = (u["sender"] as? String)?.takeIf { it.isNotBlank() } ?: "-"
                         val subj = (u["subject"] as? String) ?: "(no subject)"
                         val reason = (u["reason"] as? String) ?: "-"
-                        row((idx + 1).toString(), subj, reason)
+                        row((idx + 1).toString(), sender, subj, reason)
                     }
                 }
+            }
+        } else null
+
+        val unmatchedSnippets = if (unmatched.isNotEmpty()) {
+            val snippets = unmatched.take(15).mapNotNull { u ->
+                val snippet = (u["snippet"] as? String)?.takeIf { it.isNotBlank() }
+                snippet
+            }
+            snippets.ifEmpty { null }
+        } else null
+
+        val unmatchedReasons = unmatched.mapNotNull { u ->
+            (u["reason"] as? String)?.takeIf { it.isNotBlank() }
+        }.toSet()
+
+        val reasonLegend = if (unmatchedReasons.isNotEmpty()) {
+            val explanations = mapOf(
+                "no application matched" to "No existing application's company was found in this email. It may be a new opportunity or unrelated mail.",
+                "ambiguous" to "This email matched multiple applications for the same company. Review manually to determine which application it relates to.",
+                "no classification pattern matched" to "An application was found but no known status-change phrase (e.g. interview, reject, offer) was detected in the email.",
+                "outreach detected but no company identified" to "This appears to be recruiter outreach, but the company name could not be extracted automatically."
+            )
+            val matchedReasons = unmatchedReasons.filter { reason ->
+                explanations.keys.any { it.startsWith(reason) || reason.startsWith(it) }
+            }
+            if (matchedReasons.isNotEmpty()) {
+                buildString {
+                    appendLine()
+                    appendLine(bold(dim("=== Reason Legend ===")))
+                    matchedReasons.forEach { reason ->
+                        val explanation = explanations.entries.firstNotNullOfOrNull { (key, _) ->
+                            if (key.startsWith(reason) || reason.startsWith(key)) explanation else null
+                        }
+                        if (explanation != null) {
+                            appendLine(dim("  • $reason"))
+                            appendLine(dim("    $explanation"))
+                        }
+                    }
+                }
+            } else {
+                null
             }
         } else null
 
@@ -1229,6 +1290,18 @@ public object TerminalApp {
                 appendLine()
                 appendLine(bold(cyan("=== Proposed State Changes (${changes.size}) ===")))
                 appendLine(t.render(renderedChanges))
+                if (changesSnippets != null) {
+                    appendLine()
+                    appendLine(bold(dim("=== Email Content ===")))
+                    changesSnippets.forEachIndexed { idx, snippet ->
+                        val display = if (snippet.length > 400) snippet.substring(0, 400) + "..." else snippet
+                        appendLine(dim("  Change ${idx + 1}:"))
+                        val lines = display.split("\n")
+                        lines.forEach { line ->
+                            appendLine(dim("    > $line"))
+                        }
+                    }
+                }
             }
             if (renderedUnmatched != null) {
                 appendLine()
@@ -1236,6 +1309,21 @@ public object TerminalApp {
                 appendLine(t.render(renderedUnmatched))
                 if (unmatched.size > 15) {
                     appendLine(dim("... and ${unmatched.size - 15} more unmatched emails"))
+                }
+                if (unmatchedSnippets != null) {
+                    appendLine()
+                    appendLine(bold(dim("=== Unmatched Email Content ===")))
+                    unmatchedSnippets.forEachIndexed { idx, snippet ->
+                        val display = if (snippet.length > 400) snippet.substring(0, 400) + "..." else snippet
+                        appendLine(dim("  Email ${idx + 1}:"))
+                        val lines = display.split("\n")
+                        lines.forEach { line ->
+                            appendLine(dim("    > $line"))
+                        }
+                    }
+                }
+                if (reasonLegend != null) {
+                    append(reasonLegend)
                 }
             }
         }

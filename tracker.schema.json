@@ -3,7 +3,7 @@
   "$id": "https://github.com/fnc314/ai-job-search/tracker.schema.json",
   "title": "Job Search Tracker",
   "description": "Single contract for every document in the tracker store. Validates the JSON boundary (what scripts/tracker.py reads and writes); Firestore Timestamps are produced from these ISO strings on write. The enum registry lives ONLY in $defs so it cannot drift from the fields it constrains.",
-  "schemaVersion": 12,
+  "schemaVersion": 13,
   "x-supersedes": "job_search_tracker.schema.json v1 (CSV row contract)",
   "x-revision-log": [
     {
@@ -45,6 +45,10 @@
     {
       "version": 12,
       "note": "Added Hunter.io company enrichment fields: hunterIoId (UUID), description, foundedYear, companyType, employees, employeesCount, location, city, state, country, subIndustry, twitterUrl, crunchbaseUrl, lastHunterEnrichedAt. Metadata map now includes hunterTags (array) and hunterRaised (number)."
+    },
+    {
+      "version": 13,
+      "note": "Added snippet (nullableString) to sourceEmail and unmatched items in proposal definition so email body content flows through the TUI for informed approval decisions."
     }
   ],
   "x-naming": {
@@ -1169,6 +1173,9 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "snippet": {
+                    "$ref": "#/$defs/nullableString"
                   }
                 }
               }
@@ -1198,6 +1205,9 @@
                 ]
               },
               "reason": {
+                "$ref": "#/$defs/nullableString"
+              },
+              "snippet": {
                 "$ref": "#/$defs/nullableString"
               }
             }

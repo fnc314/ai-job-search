@@ -38,6 +38,7 @@ public data class SourceEmail(
     val subject: String?,
     val sender: String?,
     val receivedAt: String?,
+    val snippet: String? = null,
 )
 
 /**
@@ -49,6 +50,7 @@ public data class UnmatchedMessage(
     val subject: String?,
     val receivedAt: String?,
     val reason: String,
+    val snippet: String? = null,
 )
 
 /**
