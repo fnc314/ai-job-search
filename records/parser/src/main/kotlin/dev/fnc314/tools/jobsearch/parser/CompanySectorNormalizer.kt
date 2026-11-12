@@ -5,9 +5,14 @@ import java.util.Locale
 
 /**
  * Normalizes industry strings, keywords, and tokens to canonical [CompanySector] enumeration values.
+ *
+ * NOTE: Hunter.io Company Enrichment API is now the primary source for company metadata
+ * (sector, LinkedIn URL, logo, etc.). This normalizer serves as a secondary fallback
+ * for companies where Hunter.io returns no data.
  */
 public object CompanySectorNormalizer {
 
+    /** Hardcoded sector mappings — fallback for companies where Hunter.io returns no data. */
     private val KNOWN_COMPANY_SECTORS: Map<String, CompanySector> = mapOf(
         // FinTech / Banking / Crypto
         "affirm" to CompanySector.FINTECH,
@@ -119,25 +124,6 @@ public object CompanySectorNormalizer {
         "ziprecruiter" to CompanySector.TECH
     )
 
-    private val KNOWN_LINKEDIN_SLUGS: Map<String, String> = mapOf(
-        "american-eagle-outfitters" to "american-eagle-outfitters-inc-",
-        "anthropic" to "anthropicresearch",
-        "baxter-international" to "baxter-healthcare",
-        "car-next-door" to "uber-carshare",
-        "carnegie-mellon-university" to "carnegie-mellon-university",
-        "fidelity-investments" to "fidelity-investments",
-        "ford" to "ford",
-        "general-motors" to "general-motors",
-        "grove-collaborative" to "grove-collaborative",
-        "hims-hers" to "forhims",
-        "jpmorgan-chase" to "jpmorganchase",
-        "major-league-baseball" to "major-league-baseball",
-        "scout-motors" to "scoutmotors",
-        "trade-desk" to "the-trade-desk",
-        "ulta-beauty" to "ulta",
-        "washington-post" to "the-washington-post"
-    )
-
     private val INDUSTRY_KEYWORD_RULES: List<Pair<List<String>, CompanySector>> = listOf(
         listOf("financ", "bank", "invest", "credit") to CompanySector.FINTECH,
         listOf("health", "medical", "hospital", "biotech", "pharma") to CompanySector.HEALTHCARE,
@@ -185,14 +171,14 @@ public object CompanySectorNormalizer {
     }
 
     /**
-     * Resolves the verified LinkedIn company profile URL.
+     * Resolves the LinkedIn company profile URL.
+     * Returns null — Hunter.io is now the primary source for LinkedIn handles.
+     * Callers should use the LinkedIn handle from Hunter.io enrichment instead.
      */
     @JvmStatic
-    public fun resolveLinkedinUrl(companyId: String): String {
-        val rawLower = companyId.trim().lowercase(Locale.ROOT)
-        val normalizedId = DocumentIdGenerator.slug(companyId).ifEmpty { rawLower }
-        val slug = KNOWN_LINKEDIN_SLUGS[normalizedId] ?: KNOWN_LINKEDIN_SLUGS[rawLower] ?: normalizedId
-        return "https://www.linkedin.com/company/$slug"
+    public fun resolveLinkedinUrl(companyId: String): String? {
+        // Hunter.io provides LinkedIn handles directly — no longer using hardcoded slugs.
+        return null
     }
 
     /**

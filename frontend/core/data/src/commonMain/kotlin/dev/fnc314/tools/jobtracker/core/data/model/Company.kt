@@ -39,6 +39,20 @@ public enum class LogoShape {
  * @property logoShape Aspect shape (SQUARE vs RECTANGLE).
  * @property logoFetchedAt Timestamp when the logo was fetched and verified.
  * @property linkedinUrl LinkedIn company page URL.
+ * @property hunterIoId Stable Hunter.io company identifier (UUID).
+ * @property description Company description from Hunter.io.
+ * @property foundedYear Year the company was founded.
+ * @property companyType Company type (e.g., "public company", "privately held").
+ * @property employees Employee range string (e.g., "10K-50K").
+ * @property employeesCount Exact employee count.
+ * @property location Full address string from Hunter.io.
+ * @property city City from Hunter.io geo data.
+ * @property state State from Hunter.io geo data.
+ * @property country Country from Hunter.io geo data.
+ * @property subIndustry Sub-industry from Hunter.io category data.
+ * @property twitterUrl Twitter/X company profile URL.
+ * @property crunchbaseUrl Crunchbase company profile URL.
+ * @property lastHunterEnrichedAt Timestamp of the last successful Hunter.io enrichment.
  */
 public data class Company(
     public val id: String,
@@ -56,6 +70,20 @@ public data class Company(
     public val logoFetchedAt: Instant = Instant.DISTANT_PAST,
     public val metrics: CompanyMetrics? = null,
     public val linkedinUrl: String? = null,
+    public val hunterIoId: String? = null,
+    public val description: String? = null,
+    public val foundedYear: Int? = null,
+    public val companyType: String? = null,
+    public val employees: String? = null,
+    public val employeesCount: Int? = null,
+    public val location: String? = null,
+    public val city: String? = null,
+    public val state: String? = null,
+    public val country: String? = null,
+    public val subIndustry: String? = null,
+    public val twitterUrl: String? = null,
+    public val crunchbaseUrl: String? = null,
+    public val lastHunterEnrichedAt: Instant? = null,
 ) {
     /** Whether the logo has equal width and height dimensions. */
     public val isSquare: Boolean get() = logoShape == LogoShape.SQUARE

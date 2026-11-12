@@ -3,7 +3,7 @@
   "$id": "https://github.com/fnc314/ai-job-search/tracker.schema.json",
   "title": "Job Search Tracker",
   "description": "Single contract for every document in the tracker store. Validates the JSON boundary (what scripts/tracker.py reads and writes); Firestore Timestamps are produced from these ISO strings on write. The enum registry lives ONLY in $defs so it cannot drift from the fields it constrains.",
-  "schemaVersion": 11,
+  "schemaVersion": 12,
   "x-supersedes": "job_search_tracker.schema.json v1 (CSV row contract)",
   "x-revision-log": [
     {
@@ -41,6 +41,10 @@
     {
       "version": 11,
       "note": "Canonical 12 lifecycle states (NO_RESPONSE=1..HIRED=12) with resultative tense and flexible multi-round interview schema (interviewRound, currentInterviewRound)."
+    },
+    {
+      "version": 12,
+      "note": "Added Hunter.io company enrichment fields: hunterIoId (UUID), description, foundedYear, companyType, employees, employeesCount, location, city, state, country, subIndustry, twitterUrl, crunchbaseUrl, lastHunterEnrichedAt. Metadata map now includes hunterTags (array) and hunterRaised (number)."
     }
   ],
   "x-naming": {
@@ -1324,6 +1328,56 @@
         },
         "logoFetchedAt": {
           "$ref": "#/$defs/isoDateTime"
+        },
+        "hunterIoId": {
+          "$ref": "#/$defs/nullableString",
+          "description": "Stable Hunter.io company identifier (UUID)."
+        },
+        "description": {
+          "$ref": "#/$defs/nullableString",
+          "description": "Company description from Hunter.io."
+        },
+        "foundedYear": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "companyType": {
+          "$ref": "#/$defs/nullableString",
+          "description": "e.g. \"public company\", \"privately held\"."
+        },
+        "employees": {
+          "$ref": "#/$defs/nullableString",
+          "description": "Employee range string, e.g. \"10K-50K\"."
+        },
+        "employeesCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "location": {
+          "$ref": "#/$defs/nullableString",
+          "description": "Full address string from Hunter.io."
+        },
+        "city": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "state": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "country": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "subIndustry": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "twitterUrl": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "crunchbaseUrl": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "lastHunterEnrichedAt": {
+          "$ref": "#/$defs/isoDateTime",
+          "description": "Timestamp of the last successful Hunter.io enrichment."
         },
         "metadata": {
           "type": "object",

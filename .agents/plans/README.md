@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`021900_hunter-io-company-enrichment-migration.md`](./2026-11-12/021900_hunter-io-company-enrichment-migration.md) | Completed | Migrate company enrichment to Hunter.io Company API (`/v2/companies/find`), extract 20+ metadata fields, credit-aware batching, schema v12, and deprecate hardcoded LinkedIn slugs |
 | [`225300_company-slug-deduplication-migration.md`](./2026-11-11/225300_company-slug-deduplication-migration.md) | Completed | Complete migration template: Firestore document ID renaming, GCS blob relocation, local folder migration, email reference updates — demonstrated with `ford-motor` → `ford` |
 | [`220303_rm-009-unify-top-level-card-and-company-dedup.md`](./2026-11-11/220303_rm-009-unify-top-level-card-and-company-dedup.md) | Completed | RM-009: Unified Grid-based TopLevelCard, CompanyLogoImage size/loading/HTTP-error unification, and canonical company slug deduplication across records, backend, frontend, and scripts |
 | [`183900_proposal_inspect_table_and_interview_state_machine.md`](./2026-11-11/183900_proposal_inspect_table_and_interview_state_machine.md) | Completed | Status enum lifecycle reordering, interview rounds Proto3 message & sealed hierarchy, and inline proposal inspect table |

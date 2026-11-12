@@ -278,6 +278,20 @@ public object Factory {
      * @param createdAt Creation timestamp. Defaults to [Clock.System.now].
      * @param updatedAt Last update timestamp. Defaults to [Clock.System.now].
      * @param linkedinUrl LinkedIn company page URL.
+     * @param hunterIoId Stable Hunter.io company identifier (UUID).
+     * @param description Company description from Hunter.io.
+     * @param foundedYear Year the company was founded.
+     * @param companyType Company type (e.g., "public company", "privately held").
+     * @param employees Employee range string (e.g., "10K-50K").
+     * @param employeesCount Exact employee count.
+     * @param location Full address string from Hunter.io.
+     * @param city City from Hunter.io geo data.
+     * @param state State from Hunter.io geo data.
+     * @param country Country from Hunter.io geo data.
+     * @param subIndustry Sub-industry from Hunter.io category data.
+     * @param twitterUrl Twitter/X company profile URL.
+     * @param crunchbaseUrl Crunchbase company profile URL.
+     * @param lastHunterEnrichedAt Timestamp of the last successful Hunter.io enrichment.
      * @return A constructed [Company] instance.
      */
     public fun createCompany(
@@ -296,6 +310,20 @@ public object Factory {
         logoFetchedAt: Instant = Instant.DISTANT_PAST,
         metrics: dev.fnc314.tools.jobtracker.core.data.model.CompanyMetrics? = null,
         linkedinUrl: String? = null,
+        hunterIoId: String? = null,
+        description: String? = null,
+        foundedYear: Int? = null,
+        companyType: String? = null,
+        employees: String? = null,
+        employeesCount: Int? = null,
+        location: String? = null,
+        city: String? = null,
+        state: String? = null,
+        country: String? = null,
+        subIndustry: String? = null,
+        twitterUrl: String? = null,
+        crunchbaseUrl: String? = null,
+        lastHunterEnrichedAt: Instant? = null,
     ): Company = Company(
         id = id,
         name = name,
@@ -312,6 +340,20 @@ public object Factory {
         logoFetchedAt = logoFetchedAt,
         metrics = metrics,
         linkedinUrl = linkedinUrl,
+        hunterIoId = hunterIoId,
+        description = description,
+        foundedYear = foundedYear,
+        companyType = companyType,
+        employees = employees,
+        employeesCount = employeesCount,
+        location = location,
+        city = city,
+        state = state,
+        country = country,
+        subIndustry = subIndustry,
+        twitterUrl = twitterUrl,
+        crunchbaseUrl = crunchbaseUrl,
+        lastHunterEnrichedAt = lastHunterEnrichedAt,
     )
 
     /**

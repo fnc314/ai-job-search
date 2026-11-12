@@ -117,6 +117,20 @@ internal class RemoteCompaniesListDataSourceImpl(
             logoFetchedAt = bestLogoItem.logoFetchedAt,
             metrics = bestMetrics,
             linkedinUrl = primary.linkedinUrl ?: group.firstNotNullOfOrNull { it.linkedinUrl },
+            hunterIoId = primary.hunterIoId ?: group.firstNotNullOfOrNull { it.hunterIoId },
+            description = primary.description ?: group.firstNotNullOfOrNull { it.description },
+            foundedYear = primary.foundedYear ?: group.firstNotNullOfOrNull { it.foundedYear },
+            companyType = primary.companyType ?: group.firstNotNullOfOrNull { it.companyType },
+            employees = primary.employees ?: group.firstNotNullOfOrNull { it.employees },
+            employeesCount = primary.employeesCount ?: group.firstNotNullOfOrNull { it.employeesCount },
+            location = primary.location ?: group.firstNotNullOfOrNull { it.location },
+            city = primary.city ?: group.firstNotNullOfOrNull { it.city },
+            state = primary.state ?: group.firstNotNullOfOrNull { it.state },
+            country = primary.country ?: group.firstNotNullOfOrNull { it.country },
+            subIndustry = primary.subIndustry ?: group.firstNotNullOfOrNull { it.subIndustry },
+            twitterUrl = primary.twitterUrl ?: group.firstNotNullOfOrNull { it.twitterUrl },
+            crunchbaseUrl = primary.crunchbaseUrl ?: group.firstNotNullOfOrNull { it.crunchbaseUrl },
+            lastHunterEnrichedAt = primary.lastHunterEnrichedAt ?: group.firstNotNullOfOrNull { it.lastHunterEnrichedAt },
         )
     }
 
@@ -157,6 +171,20 @@ internal class RemoteCompaniesListDataSourceImpl(
             logoFetchedAt = InstantParser.parse(record.fields["logoFetchedAt"]),
             metrics = metrics,
             linkedinUrl = record.getString("linkedinUrl"),
+            hunterIoId = record.getString("hunterIoId"),
+            description = record.getString("description"),
+            foundedYear = (record.getLong("foundedYear") ?: record.getLong("founded_year"))?.toInt(),
+            companyType = record.getString("companyType"),
+            employees = record.getString("employees"),
+            employeesCount = (record.getLong("employeesCount") ?: record.getLong("employees_count"))?.toInt(),
+            location = record.getString("location"),
+            city = record.getString("city"),
+            state = record.getString("state"),
+            country = record.getString("country"),
+            subIndustry = record.getString("subIndustry"),
+            twitterUrl = record.getString("twitterUrl"),
+            crunchbaseUrl = record.getString("crunchbaseUrl"),
+            lastHunterEnrichedAt = InstantParser.parse(record.fields["lastHunterEnrichedAt"]),
         )
     }
 

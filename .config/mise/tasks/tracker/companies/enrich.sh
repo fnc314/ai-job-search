@@ -27,6 +27,6 @@ if [ -z "$DRY_RUN" ]; then
   "${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" run --args="--enrich-batch"
 else
   echo "Dry run mode — listing companies that need enrichment..."
-  echo "(Requires HUNTER_API_KEY for full enrichment; this preview only checks missing fields.)"
+  echo "(Requires HUNTER_IO_API_KEY for full enrichment; this preview only checks missing fields.)"
   "${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" run --args="--enrich-batch"
 fi

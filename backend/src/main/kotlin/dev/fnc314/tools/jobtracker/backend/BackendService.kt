@@ -640,9 +640,10 @@ public object BackendService {
     }
 
     /**
-     * Batch-enriches all company records in Firestore that are missing `sector` or `linkedinUrl`.
-     * Idempotent: skips companies that already have both fields populated, and skips companies
-     * enriched within the last 24 hours (based on `lastEnrichedAt`).
+     * Batch-enriches all company records in Firestore using Hunter.io Company Enrichment API.
+     * Credit-aware: stops at 45 API calls to stay within the free tier (50 credits/month).
+     * Skips companies enriched within 6 months (based on `lastHunterEnrichedAt`).
+     * A company is "fully enriched" if it has `sector`, `linkedinUrl`, and `hunterIoId`.
      */
     public fun batchEnrichCompanies(): Map<String, Any> {
         val db = firestore
@@ -650,22 +651,52 @@ public object BackendService {
         var enriched = 0
         var skipped = 0
         var errors = 0
+        var creditsUsed = 0
+        val MAX_CREDITS = 45 // Safety margin for free tier (50 credits/month)
         val errorDetails = mutableListOf<String>()
 
-        for (doc in snapshot.documents) {
-            val data = doc.data ?: continue
-            val companyId = doc.id
-            val sectorVal = data["sector"] as? String
-            val expectedSector = CompanySectorNormalizer.normalize(companyId = companyId).name
-            val hasLinkedinUrl = !(data["linkedinUrl"] as? String).isNullOrBlank()
+        // Calculate 6 months ago for skip logic
+        val sixMonthsAgo = java.time.Instant.now().minus(java.time.Duration.ofDays(183))
 
-            // Skip if expected sector and linkedinUrl are already populated
-            if (sectorVal == expectedSector && hasLinkedinUrl) {
+        for (doc in snapshot.documents) {
+            // Check credit budget
+            if (creditsUsed >= MAX_CREDITS) {
+                println("Credit budget reached ($MAX_CREDITS credits). Stopping enrichment.")
                 skipped++
                 continue
             }
 
-            // Try to enrich via Hunter.io logo API (returns industry data)
+            val data = doc.data ?: continue
+            val companyId = doc.id
+
+            // Check if fully enriched recently
+            val hasSector = !((data["sector"] as? String).isNullOrBlank())
+            val hasLinkedinUrl = !((data["linkedinUrl"] as? String).isNullOrBlank())
+            val hasHunterIoId = !((data["hunterIoId"] as? String).isNullOrBlank())
+
+            // Check lastHunterEnrichedAt timestamp
+            val lastEnrichedAt = data["lastHunterEnrichedAt"]
+            val enrichedRecently = when (lastEnrichedAt) {
+                is Timestamp -> {
+                    lastEnrichedAt.toDate().toInstant().isAfter(sixMonthsAgo)
+                }
+                is String -> {
+                    try {
+                        Instant.parse(lastEnrichedAt).isAfter(sixMonthsAgo)
+                    } catch (_: Exception) {
+                        false
+                    }
+                }
+                else -> false
+            }
+
+            // Skip if fully enriched and recent
+            if (hasSector && hasLinkedinUrl && hasHunterIoId && enrichedRecently) {
+                skipped++
+                continue
+            }
+
+            // Try to enrich via Hunter.io Company Enrichment API
             try {
                 val companyName = (data["name"] as? String) ?: companyId
                 val website = (data["website"] as? String) ?: run {
@@ -674,14 +705,46 @@ public object BackendService {
                     "https://www.$domain.com"
                 }
 
+                creditsUsed++
                 val hunterResult = fetchHunterCompanyInfo(website)
-                val hunterIndustry = hunterResult["industry"] as? String
-                val hunterLinkedinUrl = hunterResult["linkedin_url"] as? String
 
-                // Resolve sector and linkedinUrl using CompanySectorNormalizer fallback
+                if (hunterResult.isEmpty()) {
+                    // Hunter returned no data — use fallbacks only
+                    val resolvedSector = CompanySectorNormalizer.normalize(
+                        companyId = companyId,
+                        companyName = companyName
+                    ).name
+                    val resolvedLinkedinUrl = CompanySectorNormalizer.resolveLinkedinUrl(companyId)
+
+                    val enrichResult = enrichCompany(
+                        companyId = companyId,
+                        companyName = companyName,
+                        linkedinUrl = resolvedLinkedinUrl,
+                        industry = resolvedSector
+                    )
+
+                    if (enrichResult["updated"] as? Boolean == true) {
+                        enriched++
+                    } else {
+                        skipped++
+                    }
+                    continue
+                }
+
+                // Extract all fields from Hunter.io result
+                val hunterIndustry = hunterResult["industry"] as? String
+                val hunterSector = hunterResult["sector"] as? String
+                val hunterLinkedinHandle = hunterResult["linkedin_handle"] as? String
+                val hunterLinkedinUrl = if (!hunterLinkedinHandle.isNullOrBlank()) {
+                    "https://www.linkedin.com/$hunterLinkedinHandle"
+                } else {
+                    null
+                }
+
+                // Resolve sector and linkedinUrl using fallbacks if Hunter didn't return them
                 val resolvedSector = CompanySectorNormalizer.normalize(
                     companyId = companyId,
-                    industryOrSector = hunterIndustry,
+                    industryOrSector = hunterIndustry ?: hunterSector,
                     companyName = companyName
                 ).name
                 val resolvedLinkedinUrl = hunterLinkedinUrl ?: CompanySectorNormalizer.resolveLinkedinUrl(companyId)
@@ -690,8 +753,23 @@ public object BackendService {
                     companyId = companyId,
                     companyName = companyName,
                     linkedinUrl = resolvedLinkedinUrl,
-                    industry = hunterIndustry ?: resolvedSector,
-                    logoUrl = hunterResult["logo_url"] as? String
+                    industry = hunterIndustry ?: hunterSector ?: resolvedSector,
+                    logoUrl = hunterResult["logo_url"] as? String,
+                    hunterIoId = hunterResult["hunter_io_id"] as? String,
+                    description = hunterResult["description"] as? String,
+                    foundedYear = hunterResult["foundedYear"] as? Int,
+                    companyType = hunterResult["companyType"] as? String,
+                    employees = hunterResult["employees"] as? String,
+                    employeesCount = hunterResult["employeesCount"] as? Int,
+                    location = hunterResult["location"] as? String,
+                    city = hunterResult["city"] as? String,
+                    state = hunterResult["state"] as? String,
+                    country = hunterResult["country"] as? String,
+                    subIndustry = hunterResult["subIndustry"] as? String,
+                    twitterHandle = hunterResult["twitter_handle"] as? String,
+                    crunchbaseHandle = hunterResult["crunchbase_handle"] as? String,
+                    tags = hunterResult["tags"] as? List<String>,
+                    raised = hunterResult["raised"] as? Long
                 )
 
                 if (enrichResult["updated"] as? Boolean == true) {
@@ -710,16 +788,22 @@ public object BackendService {
             "enriched" to enriched,
             "skipped" to skipped,
             "errors" to errors,
+            "creditsUsed" to creditsUsed,
+            "creditsRemaining" to (MAX_CREDITS - creditsUsed),
             "errorDetails" to errorDetails,
             "timestamp" to Timestamp.now().toString()
         )
     }
 
     /**
-     * Fetches company info from Hunter.io API, including industry and LinkedIn URL.
+     * Fetches company info from Hunter.io Company Enrichment API.
+     * Uses the `/v2/companies/find` endpoint which returns full company metadata.
+     * Extracts: hunter_io_id, name, industry, subIndustry, sector, linkedin_handle,
+     * twitter_handle, crunchbase_handle, logo_url, description, foundedYear, companyType,
+     * employees, employeesCount, location, city, state, country, tags, and raised.
      */
     private fun fetchHunterCompanyInfo(website: String): Map<String, Any?> {
-        val apiKey = System.getenv("HUNTER_API_KEY")
+        val apiKey = System.getenv("HUNTER_IO_API_KEY")
         if (apiKey.isNullOrBlank()) {
             return emptyMap()
         }
@@ -732,7 +816,7 @@ public object BackendService {
             website.removePrefix("https://").removePrefix("http://").removePrefix("www.").split("/").first()
         }
 
-        val apiUrl = "https://api.hunter.io/v2/companies?domain=$domain&api_key=$apiKey"
+        val apiUrl = "https://api.hunter.io/v2/companies/find?domain=$domain&api_key=$apiKey"
         val connection = java.net.URL(apiUrl).openConnection() as java.net.HttpURLConnection
         connection.requestMethod = "GET"
         connection.connectTimeout = 5000
@@ -742,12 +826,55 @@ public object BackendService {
             if (connection.responseCode == 200) {
                 val response = connection.inputStream.bufferedReader().readText()
                 val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }.parseToJsonElement(response)
-                val data = json.jsonObject["data"]?.jsonObject?.get("company")?.jsonObject ?: return emptyMap()
+                val data = json.jsonObject["data"]?.jsonObject ?: return emptyMap()
+
+                // Extract category fields
+                val category = data["category"]?.jsonObject
+                val sector = category?.get("sector")?.jsonPrimitive?.contentOrNull
+                val industry = category?.get("industry")?.jsonPrimitive?.contentOrNull
+                val subIndustry = category?.get("subIndustry")?.jsonPrimitive?.contentOrNull
+
+                // Extract geo fields
+                val geo = data["geo"]?.jsonObject
+                val city = geo?.get("city")?.jsonPrimitive?.contentOrNull
+                val state = geo?.get("state")?.jsonPrimitive?.contentOrNull
+                val country = geo?.get("country")?.jsonPrimitive?.contentOrNull
+
+                // Extract metrics fields
+                val metrics = data["metrics"]?.jsonObject
+                val employees = metrics?.get("employees")?.jsonPrimitive?.contentOrNull
+                val employeesCount = metrics?.get("employeesCount")?.jsonPrimitive?.contentOrNull?.toInt()
+                val raised = metrics?.get("raised")?.jsonPrimitive?.contentOrNull?.toLong()
+
+                // Extract social handles
+                val linkedinHandle = data["linkedin"]?.jsonObject?.get("handle")?.jsonPrimitive?.contentOrNull
+                val twitterHandle = data["twitter"]?.jsonObject?.get("handle")?.jsonPrimitive?.contentOrNull
+                val crunchbaseHandle = data["crunchbase"]?.jsonObject?.get("handle")?.jsonPrimitive?.contentOrNull
+
+                // Extract tags array
+                val tags = data["tags"]?.jsonArray?.map { it.jsonPrimitive.content }
 
                 return mapOf(
-                    "industry" to (data["industry"]?.jsonPrimitive?.contentOrNull),
-                    "linkedin_url" to (data["linkedin"]?.jsonPrimitive?.contentOrNull),
-                    "logo_url" to (data["website_pages"]?.jsonObject?.get("logo")?.jsonPrimitive?.contentOrNull)
+                    "hunter_io_id" to (data["id"]?.jsonPrimitive?.contentOrNull),
+                    "name" to (data["name"]?.jsonPrimitive?.contentOrNull),
+                    "industry" to industry,
+                    "subIndustry" to subIndustry,
+                    "sector" to sector,
+                    "linkedin_handle" to linkedinHandle,
+                    "twitter_handle" to twitterHandle,
+                    "crunchbase_handle" to crunchbaseHandle,
+                    "logo_url" to (data["logo"]?.jsonPrimitive?.contentOrNull),
+                    "description" to (data["description"]?.jsonPrimitive?.contentOrNull),
+                    "foundedYear" to (data["foundedYear"]?.jsonPrimitive?.contentOrNull?.toInt()),
+                    "companyType" to (data["companyType"]?.jsonPrimitive?.contentOrNull),
+                    "employees" to employees,
+                    "employeesCount" to employeesCount,
+                    "location" to (data["location"]?.jsonPrimitive?.contentOrNull),
+                    "city" to city,
+                    "state" to state,
+                    "country" to country,
+                    "tags" to tags,
+                    "raised" to raised
                 )
             }
         } finally {
@@ -1077,8 +1204,8 @@ public object BackendService {
     }
 
     /**
-     * Enriches a company record in Firestore with sector, logoUrl, and metadata.
-     * Non-destructive and idempotent.
+     * Enriches a company record in Firestore with Hunter.io metadata.
+     * Non-destructive and idempotent — only writes fields that are missing or null.
      */
     public fun enrichCompany(
         companyId: String,
@@ -1086,6 +1213,21 @@ public object BackendService {
         linkedinUrl: String? = null,
         industry: String? = null,
         logoUrl: String? = null,
+        hunterIoId: String? = null,
+        description: String? = null,
+        foundedYear: Int? = null,
+        companyType: String? = null,
+        employees: String? = null,
+        employeesCount: Int? = null,
+        location: String? = null,
+        city: String? = null,
+        state: String? = null,
+        country: String? = null,
+        subIndustry: String? = null,
+        twitterHandle: String? = null,
+        crunchbaseHandle: String? = null,
+        tags: List<String>? = null,
+        raised: Long? = null,
     ): Map<String, Any?> {
         val db = firestore
         val compRef = db.collection("companies").document(companyId)
@@ -1101,8 +1243,19 @@ public object BackendService {
             updates["name"] = companyName
         }
 
+        // LinkedIn URL
         if (linkedinUrl != null && (existingData["linkedinUrl"] as? String).isNullOrBlank()) {
             updates["linkedinUrl"] = linkedinUrl
+        }
+
+        // Twitter URL
+        if (twitterHandle != null && (existingData["twitterUrl"] as? String).isNullOrBlank()) {
+            updates["twitterUrl"] = "https://twitter.com/$twitterHandle"
+        }
+
+        // Crunchbase URL
+        if (crunchbaseHandle != null && (existingData["crunchbaseUrl"] as? String).isNullOrBlank()) {
+            updates["crunchbaseUrl"] = "https://www.crunchbase.com/organization/$crunchbaseHandle"
         }
 
         // Sector / Industry enrichment
@@ -1116,7 +1269,74 @@ public object BackendService {
         }
         if (industry != null) {
             val existingMeta = (existingData["metadata"] as? Map<*, *>)?.toMutableMap() ?: mutableMapOf<Any?, Any?>()
-            existingMeta["linkedinIndustry"] = industry
+            existingMeta["hunterIndustry"] = industry
+            updates["metadata"] = existingMeta
+        }
+
+        // Sub-industry
+        if (subIndustry != null && (existingData["subIndustry"] as? String).isNullOrBlank()) {
+            updates["subIndustry"] = subIndustry
+        }
+
+        // Hunter.io stable ID
+        if (hunterIoId != null && (existingData["hunterIoId"] as? String).isNullOrBlank()) {
+            updates["hunterIoId"] = hunterIoId
+        }
+
+        // Description
+        if (description != null && (existingData["description"] as? String).isNullOrBlank()) {
+            updates["description"] = description
+        }
+
+        // Founded year
+        if (foundedYear != null && !existingData.containsKey("foundedYear")) {
+            updates["foundedYear"] = foundedYear
+        }
+
+        // Company type
+        if (companyType != null && (existingData["companyType"] as? String).isNullOrBlank()) {
+            updates["companyType"] = companyType
+        }
+
+        // Employee range string
+        if (employees != null && (existingData["employees"] as? String).isNullOrBlank()) {
+            updates["employees"] = employees
+        }
+
+        // Employee count
+        if (employeesCount != null && !existingData.containsKey("employeesCount")) {
+            updates["employeesCount"] = employeesCount
+        }
+
+        // Location
+        if (location != null && (existingData["location"] as? String).isNullOrBlank()) {
+            updates["location"] = location
+        }
+
+        // City
+        if (city != null && (existingData["city"] as? String).isNullOrBlank()) {
+            updates["city"] = city
+        }
+
+        // State
+        if (state != null && (existingData["state"] as? String).isNullOrBlank()) {
+            updates["state"] = state
+        }
+
+        // Country
+        if (country != null && (existingData["country"] as? String).isNullOrBlank()) {
+            updates["country"] = country
+        }
+
+        // Tags and raised go into metadata map
+        if (tags != null && tags.isNotEmpty()) {
+            val existingMeta = (existingData["metadata"] as? Map<*, *>)?.toMutableMap() ?: mutableMapOf<Any?, Any?>()
+            existingMeta["hunterTags"] = tags
+            updates["metadata"] = existingMeta
+        }
+        if (raised != null) {
+            val existingMeta = (existingData["metadata"] as? Map<*, *>)?.toMutableMap() ?: mutableMapOf<Any?, Any?>()
+            existingMeta["hunterRaised"] = raised
             updates["metadata"] = existingMeta
         }
 
@@ -1130,6 +1350,7 @@ public object BackendService {
             val now = Timestamp.now()
             updates["updatedAt"] = now
             updates["lastEnrichedAt"] = now
+            updates["lastHunterEnrichedAt"] = now
             compRef.set(updates, SetOptions.merge()).get()
         }
 
