@@ -1,6 +1,9 @@
-"""DEPRECATED: As part of RM-001, proposal classification logic has moved to Kotlin
-records/parser (ProposalClassifier).
-This module is in Phase 1 of retirement and will be removed in Phase 3.
+"""Email classification and proposal queue management for the Python CLI.
+
+The Kotlin `EmailClassifier` (backend/email-classification/) mirrors the classifier
+rules here, but this Python module remains the active implementation for the CLI
+(`tracker.py`, `discover.py`) since Kotlin cannot be called from Python scripts.
+Removal is blocked until the Python CLI is fully migrated to Kotlin.
 
 The proposal queue: collector output that a human must approve.
 
