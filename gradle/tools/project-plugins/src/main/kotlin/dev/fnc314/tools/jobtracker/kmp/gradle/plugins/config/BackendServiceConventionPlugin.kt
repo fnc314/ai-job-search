@@ -4,9 +4,7 @@ import dev.fnc314.tools.jobtracker.kmp.gradle.catalog.CatalogTypes
 import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.BaseConventionPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 /**
@@ -23,12 +21,8 @@ public class BackendServiceConventionPlugin : Plugin<Project>, BaseConventionPlu
         plugins.apply(CatalogTypes.Plugins.KOTLIN_JVM(this).get().pluginId)
 
         val kotlin = extensions.getByType(KotlinJvmProjectExtension::class.java)
-        kotlin.jvmToolchain(JavaLanguageVersion.of(21))
+        kotlin.jvmToolchain(21)
 
-        // Apply application plugin if not already applied
-        if (pluginManager.hasPlugin(ApplicationPlugin::class.java)) {
-            // Application plugin config is handled by the module's build.gradle.kts
-        }
 
         // Add common dependencies
         dependencies.add("implementation", CatalogTypes.Libraries.KTOR_SERVER_CORE(project))

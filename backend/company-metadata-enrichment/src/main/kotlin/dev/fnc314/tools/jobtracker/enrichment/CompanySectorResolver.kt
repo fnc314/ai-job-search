@@ -41,10 +41,10 @@ public object CompanySectorResolver {
         "e-learning" to CompanySector.EDUCATION,
 
         // E-commerce / Retail
-        "e-commerce" to CompanySector.ECOMMERCE,
-        "ecommerce" to CompanySector.ECOMMERCE,
-        "retail" to CompanySector.ECOMMERCE,
-        "marketplace" to CompanySector.ECOMMERCE,
+        "e-commerce" to CompanySector.E_COMMERCE,
+        "ecommerce" to CompanySector.E_COMMERCE,
+        "retail" to CompanySector.RETAIL,
+        "marketplace" to CompanySector.E_COMMERCE,
 
         // Media / Entertainment
         "media" to CompanySector.MEDIA,
@@ -53,9 +53,9 @@ public object CompanySectorResolver {
         "gaming" to CompanySector.MEDIA,
 
         // Manufacturing
-        "manufacturing" to CompanySector.MANUFACTURING,
-        "industrial" to CompanySector.MANUFACTURING,
-        "automotive" to CompanySector.MANUFACTURING,
+        "manufacturing" to CompanySector.TECH,
+        "industrial" to CompanySector.TECH,
+        "automotive" to CompanySector.AUTOMOTIVE,
 
         // Energy
         "energy" to CompanySector.ENERGY,
@@ -63,13 +63,13 @@ public object CompanySectorResolver {
         "renewable energy" to CompanySector.ENERGY,
 
         // Real Estate
-        "real estate" to CompanySector.REALESTATE,
-        "property management" to CompanySector.REALESTATE,
+        "real estate" to CompanySector.TECH,
+        "property management" to CompanySector.TECH,
 
         // Transportation / Logistics
-        "transportation" to CompanySector.TRANSPORTATION,
-        "logistics" to CompanySector.TRANSPORTATION,
-        "supply chain" to CompanySector.TRANSPORTATION,
+        "transportation" to CompanySector.TECH,
+        "logistics" to CompanySector.TECH,
+        "supply chain" to CompanySector.TECH,
 
         // Technology (default catch-all)
         "technology" to CompanySector.TECH,

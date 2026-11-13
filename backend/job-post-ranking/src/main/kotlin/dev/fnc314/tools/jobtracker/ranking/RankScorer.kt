@@ -79,7 +79,11 @@ public object RankScorer {
             "react native", "flutter", "hybrid mobile", "cross-platform framework",
         ),
         "people_management" to listOf(
-            "people manager", "people management", "direct reports",
+            // Strict keywords only — terms that explicitly imply managing people.
+            // "Thought leader", "technical anchor", "drives integration projects" are NOT
+            // people management — they describe technical influence and IC leadership.
+            "people manager", "people management", "direct reports", "direct-reports",
+            "managerial responsibility", "managerial responsibilities", "managerial role",
             "vp of engineering", "engineering manager", "director of engineering",
             "head of engineering", "cto", "cfo",
         ),

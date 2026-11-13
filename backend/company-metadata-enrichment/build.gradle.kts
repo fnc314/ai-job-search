@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.kotlinSerialization)
+    `maven-publish`
 }
 
 kotlin {
@@ -21,7 +22,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
     implementation(projects.trackerConventions)
-    implementation(projects.recordsProto)
+    implementation(libs.records.proto)
+    implementation(libs.protobuf.kotlin)
 
     testImplementation(kotlin("test"))
 }

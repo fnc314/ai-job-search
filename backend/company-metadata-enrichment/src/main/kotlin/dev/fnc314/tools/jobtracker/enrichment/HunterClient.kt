@@ -55,43 +55,45 @@ public class HunterHttpClient(private val apiKey: String) : HunterClient {
         val jsonElement = json.parseToJsonElement(response)
         val data = jsonElement.jsonObject["data"]?.jsonObject ?: return null
 
+        fun String.orNull(): String? = if (isNullOrEmpty()) null else this
+
         val category = data["category"]?.jsonObject
-        val sector = category?.get("sector")?.jsonPrimitive?.contentOrNull
-        val industry = category?.get("industry")?.jsonPrimitive?.contentOrNull
-        val subIndustry = category?.get("subIndustry")?.jsonPrimitive?.contentOrNull
+        val sector = category?.get("sector")?.jsonPrimitive?.content?.orNull()
+        val industry = category?.get("industry")?.jsonPrimitive?.content?.orNull()
+        val subIndustry = category?.get("subIndustry")?.jsonPrimitive?.content?.orNull()
 
         val geo = data["geo"]?.jsonObject
-        val city = geo?.get("city")?.jsonPrimitive?.contentOrNull
-        val state = geo?.get("state")?.jsonPrimitive?.contentOrNull
-        val country = geo?.get("country")?.jsonPrimitive?.contentOrNull
+        val city = geo?.get("city")?.jsonPrimitive?.content?.orNull()
+        val state = geo?.get("state")?.jsonPrimitive?.content?.orNull()
+        val country = geo?.get("country")?.jsonPrimitive?.content?.orNull()
 
         val metrics = data["metrics"]?.jsonObject
-        val employees = metrics?.get("employees")?.jsonPrimitive?.contentOrNull
-        val employeesCount = metrics?.get("employeesCount")?.jsonPrimitive?.contentOrNull?.toInt()
-        val raised = metrics?.get("raised")?.jsonPrimitive?.contentOrNull?.toLong()
+        val employees = metrics?.get("employees")?.jsonPrimitive?.content?.orNull()
+        val employeesCount = metrics?.get("employeesCount")?.jsonPrimitive?.content?.toInt()
+        val raised = metrics?.get("raised")?.jsonPrimitive?.content?.toLong()
 
-        val linkedinHandle = data["linkedin"]?.jsonObject?.get("handle")?.jsonPrimitive?.contentOrNull
-        val twitterHandle = data["twitter"]?.jsonObject?.get("handle")?.jsonPrimitive?.contentOrNull
-        val crunchbaseHandle = data["crunchbase"]?.jsonObject?.get("handle")?.jsonPrimitive?.contentOrNull
+        val linkedinHandle = data["linkedin"]?.jsonObject?.get("handle")?.jsonPrimitive?.content?.orNull()
+        val twitterHandle = data["twitter"]?.jsonObject?.get("handle")?.jsonPrimitive?.content?.orNull()
+        val crunchbaseHandle = data["crunchbase"]?.jsonObject?.get("handle")?.jsonPrimitive?.content?.orNull()
 
         val tags = data["tags"]?.jsonArray?.map { it.jsonPrimitive.content }
 
         return HunterCompanyInfo(
-            id = data["id"]?.jsonPrimitive?.contentOrNull,
-            name = data["name"]?.jsonPrimitive?.contentOrNull,
+            id = data["id"]?.jsonPrimitive?.content?.orNull(),
+            name = data["name"]?.jsonPrimitive?.content?.orNull(),
             industry = industry,
             subIndustry = subIndustry,
             sector = sector,
             linkedinHandle = linkedinHandle,
             twitterHandle = twitterHandle,
             crunchbaseHandle = crunchbaseHandle,
-            logoUrl = data["logo"]?.jsonPrimitive?.contentOrNull,
-            description = data["description"]?.jsonPrimitive?.contentOrNull,
-            foundedYear = data["foundedYear"]?.jsonPrimitive?.contentOrNull?.toInt(),
-            companyType = data["companyType"]?.jsonPrimitive?.contentOrNull,
+            logoUrl = data["logo"]?.jsonPrimitive?.content?.orNull(),
+            description = data["description"]?.jsonPrimitive?.content?.orNull(),
+            foundedYear = data["foundedYear"]?.jsonPrimitive?.content?.toInt(),
+            companyType = data["companyType"]?.jsonPrimitive?.content?.orNull(),
             employees = employees,
             employeesCount = employeesCount,
-            location = data["location"]?.jsonPrimitive?.contentOrNull,
+            location = data["location"]?.jsonPrimitive?.content?.orNull(),
             city = city,
             state = state,
             country = country,
