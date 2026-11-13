@@ -53,9 +53,12 @@ public object AppLogger {
     }
 
     private fun defaultTag(): String {
-        // Stack trace: [0] = getStackTrace, [1] = defaultTag, [2] = caller
-        val stackTrace = Throwable().stackTrace
-        val className = stackTrace.getOrNull(2)?.className ?: "AppLogger"
-        return className.substringAfterLast('.')
+        return getCallerClassName()
     }
 }
+
+/**
+ * Extracts the simple class name of the caller from the stack trace.
+ * Platform-specific implementation via expect/actual.
+ */
+internal expect fun getCallerClassName(): String

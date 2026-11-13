@@ -41,8 +41,14 @@ public object EventChainBuilder {
                 .thenBy { it.id }
         )
 
-        val nextSeq = (sorted.lastOrNull()?.sequenceNumber ?: 0L) + 1L
-        val prevHash = sorted.lastOrNull()?.eventHash?.takeIf { it.isNotBlank() } ?: GENESIS_PREV_HASH
+        // Find the event with the highest sequence number that has a valid hash.
+        // Events without hash chain fields (e.g. legacy CORRECT_STATUS) should be ignored
+        // for chain resolution but still counted in the sequence.
+        val chainedHead = sorted.asReversed().firstOrNull { it.eventHash.isNotBlank() }
+        val maxSeq = sorted.maxOfOrNull { it.sequenceNumber } ?: 0L
+        val headSeq = chainedHead?.sequenceNumber ?: 0L
+        val nextSeq = maxSeq + 1L
+        val prevHash = chainedHead?.eventHash ?: GENESIS_PREV_HASH
         val tsIso = resolveTimestampIso(newEvent)
         val statusToStr = if (newEvent.statusTo != dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus.TRACKER_STATUS_UNSPECIFIED) {
             newEvent.statusTo.name

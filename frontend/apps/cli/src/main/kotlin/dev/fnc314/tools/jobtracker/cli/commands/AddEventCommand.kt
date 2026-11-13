@@ -57,7 +57,16 @@ public class AddEventCommand : CliktCommand(name = "event") {
             (data["sequenceNumber"] as? Number)?.let { b.setSequenceNumber(it.toLong()) }
             (data["eventHash"] as? String)?.let { b.setEventHash(it) }
             (data["prevEventHash"] as? String)?.let { b.setPrevEventHash(it) }
-            val tsStr = (data["ts"] as? String) ?: (data["date"] as? String)
+            // Handle ts/date as either String or Firestore Timestamp
+            val tsStr = when (val ts = data["ts"]) {
+                is String -> ts.takeIf { it.isNotBlank() }
+                is com.google.cloud.Timestamp -> Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()).toString()
+                else -> null
+            } ?: when (val d = data["date"]) {
+                is String -> d.takeIf { it.isNotBlank() }
+                is com.google.cloud.Timestamp -> Instant.ofEpochSecond(d.seconds, d.nanos.toLong()).toString()
+                else -> null
+            }
             if (!tsStr.isNullOrBlank()) {
                 try {
                     val inst = Instant.parse(tsStr)

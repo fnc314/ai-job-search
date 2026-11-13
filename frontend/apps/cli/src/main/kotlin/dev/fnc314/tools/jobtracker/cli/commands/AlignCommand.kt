@@ -11,6 +11,7 @@ import com.github.ajalt.mordant.rendering.TextColors.yellow
 import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
 import dev.fnc314.tools.jobsearch.parser.ApplicationTimelineProjector
+import dev.fnc314.tools.jobsearch.parser.EventChainBuilder
 import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
@@ -47,14 +48,49 @@ public class AlignCommand : CliktCommand(name = "align") {
         var alignedCount = 0
 
         for (appDoc in appsToProcess) {
-            val eventsDocs = appDoc.reference.collection("events").get().get().documents
+            val appId = appDoc.reference.id
+            val eventsColl = appDoc.reference.collection("events")
+            val eventsDocs = eventsColl.get().get().documents
             val events = eventsDocs.map { mapDocToTrackerEvent(it.id, it.data) }
 
-            val timeline = ApplicationTimelineProjector.projectTimeline(events)
-            val confirmation = ApplicationTimelineProjector.projectSubmissionConfirmation(null, events)
-            val counters = ApplicationTimelineProjector.projectCounters(events)
-            val notesRendered = ApplicationTimelineProjector.projectNotes(events)
-            val latestStatus = ApplicationTimelineProjector.latestStatus(events)
+            // Repair broken hash chains — if any event has an invalid prevEventHash,
+            // rebuild the entire chain from scratch
+            val seqCounts = events.map { it.sequenceNumber }.toSet()
+            val allSameSeq = events.size > 1 && seqCounts.size <= 1
+            val hasMissingHashes = events.any { e ->
+                e.eventHash.isBlank() || e.prevEventHash.isBlank()
+            }
+            val needsChainRepair = events.size > 1 && (allSameSeq || hasMissingHashes || events.any { e ->
+                val seq = e.sequenceNumber
+                val prevHash = e.prevEventHash
+                // Any event after #1 with genesis hash
+                seq > 1 && prevHash == EventChainBuilder.GENESIS_PREV_HASH
+            })
+
+            val repairedEvents = if (needsChainRepair) {
+                EventChainBuilder.chainEvents(events, appId)
+            } else {
+                events
+            }
+
+            // Write repaired events back to Firestore
+            if (needsChainRepair && !dryRun) {
+                t.println(yellow("  Repairing hash chain for $appId (${repairedEvents.size} events)"))
+                for (repaired in repairedEvents) {
+                    val updateData = mutableMapOf<String, Any?>(
+                        "sequenceNumber" to repaired.sequenceNumber,
+                        "prevEventHash" to repaired.prevEventHash,
+                        "eventHash" to repaired.eventHash
+                    )
+                    eventsColl.document(repaired.id).set(updateData, com.google.cloud.firestore.SetOptions.merge()).get()
+                }
+            }
+
+            val timeline = ApplicationTimelineProjector.projectTimeline(repairedEvents)
+            val confirmation = ApplicationTimelineProjector.projectSubmissionConfirmation(null, repairedEvents)
+            val counters = ApplicationTimelineProjector.projectCounters(repairedEvents)
+            val notesRendered = ApplicationTimelineProjector.projectNotes(repairedEvents)
+            val latestStatus = ApplicationTimelineProjector.latestStatus(repairedEvents)
 
             val updates = mutableMapOf<String, Any?>(
                 "notesRendered" to notesRendered,
@@ -120,7 +156,16 @@ public class AlignCommand : CliktCommand(name = "align") {
         (data["eventHash"] as? String)?.let { b.setEventHash(it) }
         (data["prevEventHash"] as? String)?.let { b.setPrevEventHash(it) }
         (data["note"] as? String)?.let { b.setNote(it) }
-        val tsStr = (data["ts"] as? String) ?: (data["date"] as? String)
+        // Handle ts/date as either String or Firestore Timestamp
+        val tsStr = when (val ts = data["ts"]) {
+            is String -> ts.takeIf { it.isNotBlank() }
+            is com.google.cloud.Timestamp -> Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()).toString()
+            else -> null
+        } ?: when (val d = data["date"]) {
+            is String -> d.takeIf { it.isNotBlank() }
+            is com.google.cloud.Timestamp -> Instant.ofEpochSecond(d.seconds, d.nanos.toLong()).toString()
+            else -> null
+        }
         if (!tsStr.isNullOrBlank()) {
             try {
                 val inst = Instant.parse(tsStr)

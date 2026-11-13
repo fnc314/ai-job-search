@@ -34,13 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import coil3.compose.AsyncImagePainter
 import dev.fnc314.tools.jobtracker.core.data.model.Company
-import dev.fnc314.tools.jobtracker.core.data.model.LogoShape
 import dev.fnc314.tools.jobtracker.core.artifacts.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
@@ -506,7 +502,6 @@ internal fun CompanyProfileSection(
   company: Company,
   modifier: Modifier = Modifier,
 ) {
-  val logoUrl = company.logoUrl?.takeIf { company.logoShape != LogoShape.RECTANGLE }
   val companyInitial = company.name.trim().firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString()
     ?: "?"
 
@@ -528,7 +523,7 @@ internal fun CompanyProfileSection(
       ) {
         CompanyLogoImage(
           companyName = company.name,
-          logoUrl = logoUrl,
+          logoUrl = company.logoUrl,
           companyInitial = companyInitial,
           logoSize = CompanyLogoSize.Small,
           shape = MaterialTheme.shapes.small,

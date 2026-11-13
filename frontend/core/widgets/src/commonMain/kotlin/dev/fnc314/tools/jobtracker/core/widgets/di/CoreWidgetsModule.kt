@@ -156,17 +156,17 @@ public class DefaultImageLoadEventListener(
 internal class CoilEventListenerBridge(
     private val delegate: ImageLoadEventListener,
 ) : EventListener() {
-    private var startTimeNanos: Long = 0
+    private var startTimeMs: Long = 0
 
     override fun onStart(request: ImageRequest) {
-        startTimeNanos = System.nanoTime()
+        startTimeMs = kotlin.time.Clock.System.now().toEpochMilliseconds()
         val url = request.data.toString()
         delegate.onLoadStart(url)
     }
 
     override fun onSuccess(request: ImageRequest, result: SuccessResult) {
         val url = request.data.toString()
-        val durationMs = (System.nanoTime() - startTimeNanos) / NANOS_PER_MILLISECOND
+        val durationMs = kotlin.time.Clock.System.now().toEpochMilliseconds() - startTimeMs
         delegate.onLoadSuccess(url, durationMs)
     }
 
