@@ -13,5 +13,4 @@ internal interface RemoteJobApplicationDetailsDataSource {
     suspend fun getArtifacts(applicationId: String): List<TrackerArtifact>
     suspend fun updateStatus(id: String, status: TrackerStatus, date: String?, note: String?): JobApplication
     suspend fun recordEvent(event: TrackerEvent): String
-    suspend fun updateFitScore(id: String, score: Int): JobApplication
 }

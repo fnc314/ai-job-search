@@ -30,13 +30,6 @@ public sealed interface JobApplicationDetailUiIntent {
     ) : JobApplicationDetailUiIntent
 
     /**
-     * User updated the numerical alignment fit score.
-     *
-     * @property newScore New fit rating (0..100).
-     */
-    public data class UpdateFitScore(public val newScore: Int) : JobApplicationDetailUiIntent
-
-    /**
      * User recorded a milestone event to the application timeline.
      *
      * @property type Categorical event kind [TrackerEventType].

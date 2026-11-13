@@ -31,9 +31,10 @@ public data class JobInfo(val company: String, val role: String)
 /**
  * Keyword-based job fit scorer mirroring Python `rank.py`.
  *
- * Unlike [FitEvaluator], which uses a base-score-plus-adjustments model grounded in
- * the candidate profile, this scorer uses keyword matching across four weighted
- * dimensions: technical, experience, behavioral, and career.
+ * Uses keyword matching across four weighted dimensions: technical, experience,
+ * behavioral, and career. The unified scorer in `backend/job-post-ranking`
+ * extends this with role-level detection, sector alignment, location scoring,
+ * calibration rules, and deal-breaker penalties.
  */
 public object RankScorer {
 

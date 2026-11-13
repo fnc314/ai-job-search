@@ -104,25 +104,6 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     event.id
   }
 
-  override suspend fun updateFitScore(id: String, score: Int): JobApplication = withContext(Dispatchers.Default) {
-    val fields = mapOf<String, Any?>(
-      "fitScore" to score.toLong(),
-      "fitRating" to score.toLong(),
-    )
-    remoteDataSource.updateDocument(
-      collectionPath = "applications",
-      documentId = id,
-      record = MapRemoteRecord(id = id, fields = fields),
-    )
-    getJobApplication(id)
-      ?: Factory.createJobApplication(
-        id = id,
-        company = "",
-        fitRating = score,
-        fitEvaluation = Factory.createTrackerFit(score = score),
-      )
-  }
-
   private fun mapRecordToJobApplication(record: RemoteRecord): JobApplication {
     val timeline = parseTimeline(record.fields["timeline"] as? Map<*, *>)
     val createdAt = resolveCreatedAt(record)

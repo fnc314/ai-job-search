@@ -1,25 +1,8 @@
 plugins {
-    alias(libs.plugins.kotlinJvm)
-    application
+    alias(libs.plugins.kotlinJvm) apply false
 }
 
-kotlin {
-    jvmToolchain(21)
-}
-
-application {
-    mainClass.set("dev.fnc314.tools.jobtracker.backend.MainKt")
-}
-
-dependencies {
-    implementation(libs.records.proto)
-    implementation(libs.records.parser)
-    implementation(libs.ktor.server.core)
-    implementation(libs.ktor.server.netty)
-    implementation(libs.firebase.admin)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.datetime)
-    implementation(libs.kotlinx.serialization.json)
-
-    testImplementation(kotlin("test"))
+subprojects {
+    group = "dev.fnc314.tools.jobtracker.backend"
+    version = "1.0.0"
 }

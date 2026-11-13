@@ -19,7 +19,6 @@ import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.LoadJobApplicationUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.RecordEventUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.UpdateApplicationStatusUseCase
-import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.UpdateFitScoreUseCase
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -39,7 +38,6 @@ import kotlinx.coroutines.launch
  * @param getEventsUseCase Use case loading audit events from the application subcollection.
  * @param updateStatusUseCase Use case mutating the application lifecycle status.
  * @param recordEventUseCase Use case appending a new timeline event.
- * @param updateFitScoreUseCase Use case adjusting the candidate fit score and confidence.
  * @param getSignedUrlUseCase Use case resolving download URLs for stored artifacts.
  * @param loadArtifactsUseCase Use case fetching artifacts associated with the application.
  */
@@ -49,7 +47,6 @@ public class JobApplicationDetailViewModel(
     private val getEventsUseCase: GetEventsUseCase,
     private val updateStatusUseCase: UpdateApplicationStatusUseCase,
     private val recordEventUseCase: RecordEventUseCase,
-    private val updateFitScoreUseCase: UpdateFitScoreUseCase,
     private val getSignedUrlUseCase: GetArtifactSignedUrlUseCase,
     private val loadArtifactsUseCase: LoadArtifactsUseCase,
 ) : ViewModel() {
@@ -76,7 +73,6 @@ public class JobApplicationDetailViewModel(
         when (intent) {
             is JobApplicationDetailUiIntent.Load -> handleLoad(intent.id)
             is JobApplicationDetailUiIntent.UpdateStatus -> handleUpdateStatus(intent.newStatus, intent.date, intent.note)
-            is JobApplicationDetailUiIntent.UpdateFitScore -> handleUpdateFitScore(intent.newScore)
             is JobApplicationDetailUiIntent.RecordEvent -> handleRecordEvent(intent.type, intent.notes, intent.scheduledAt)
             is JobApplicationDetailUiIntent.OpenArtifact -> handleOpenArtifact(intent.artifactId)
             is JobApplicationDetailUiIntent.ClickBack -> handleClickBack()
@@ -153,36 +149,6 @@ public class JobApplicationDetailViewModel(
         }
     }
 
-    private fun handleUpdateFitScore(newScore: Int): Unit {
-        val app = currentApplication ?: return
-        val currentContent = _uiState.value as? JobApplicationDetailUiState.Content ?: return
-        _uiState.value = currentContent.copy(isUpdating = true)
-        viewModelScope.launch {
-            try {
-                val updated = updateFitScoreUseCase(
-                    UpdateFitScoreUseCase.Params(
-                        id = app.id,
-                        score = newScore,
-                    )
-                )
-                currentApplication = updated
-                val updatedModel = createJobApplicationDetailUiModel(
-                    app = updated,
-                    company = currentCompany,
-                    events = currentEvents,
-                    artifacts = currentArtifacts,
-                )
-                _uiState.value = JobApplicationDetailUiState.Content(
-                    model = updatedModel,
-                    isUpdating = false,
-                )
-            } catch (e: Exception) {
-                _uiState.value = JobApplicationDetailUiState.Error(
-                    message = e.message ?: "Failed to update fit score"
-                )
-            }
-        }
-    }
 
     private fun handleRecordEvent(type: TrackerEventType, notes: String, scheduledAt: Instant?): Unit {
         val app = currentApplication ?: return

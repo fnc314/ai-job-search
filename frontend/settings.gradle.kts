@@ -27,3 +27,4 @@ projectCollections {
 }
 
 includeBuild("../records")
+includeBuild("../backend")

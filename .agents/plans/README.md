@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`185800_deterministic-fit-score-unification.md`](./2026-11-12/185800_deterministic-fit-score-unification.md) | Completed | Unify RankScorer with FitEvaluator rules, isolate into `backend/job-post-ranking/`, rework backend into multi-module Gradle, eradicate manual fit editing, add dynamic ScoringWeights, and update `/rank` AI command |
 | [`183200_proposal-snippet-display.md`](./2026-11-12/183200_proposal-snippet-display.md) | Completed | Propagate email `snippet` through proposal pipeline (schema v13, proposals.py, Kotlin models, TUI) with snippet display, sender column, reason legend, and expanded action help text |
 | [`023100_fix-company-logo-rendering-compose-ui.md`](./2026-11-12/023100_fix-company-logo-rendering-compose-ui.md) | Completed | Fix inconsistent company logo rendering by removing aspect ratio check, deleting fallback URL generation, and adding diagnostic logging in Compose UI |
 | [`021900_hunter-io-company-enrichment-migration.md`](./2026-11-12/021900_hunter-io-company-enrichment-migration.md) | Completed | Migrate company enrichment to Hunter.io Company API (`/v2/companies/find`), extract 20+ metadata fields, credit-aware batching, schema v12, and deprecate hardcoded LinkedIn slugs |

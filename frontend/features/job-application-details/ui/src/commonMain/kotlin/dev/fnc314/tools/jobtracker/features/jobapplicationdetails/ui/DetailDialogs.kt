@@ -17,14 +17,12 @@ import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -254,60 +252,6 @@ internal fun RecordEventDialog(
                 },
             ) {
                 Text(stringResource(Res.string.dialog_action_record))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(Res.string.dialog_action_cancel))
-            }
-        },
-    )
-}
-
-@Composable
-internal fun UpdateFitScoreDialog(
-    currentScore: Int? = null,
-    onConfirm: (Int) -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-): Unit {
-    var score by remember(currentScore) { mutableIntStateOf(currentScore ?: 50) }
-    val sliderCd: String = stringResource(Res.string.dialog_fit_slider_cd)
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(Res.string.dialog_fit_title)) },
-        text = {
-            Column(
-                modifier = modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-            ) {
-                Text(
-                    text = stringResource(Res.string.dialog_fit_score_label, score),
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                )
-                Slider(
-                    value = score.toFloat(),
-                    onValueChange = { score = it.toInt() },
-                    valueRange = 0f..100f,
-                    steps = 99,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .semantics { contentDescription = sliderCd },
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(stringResource(Res.string.dialog_fit_min), style = MaterialTheme.typography.bodySmall)
-                    Text(stringResource(Res.string.dialog_fit_max), style = MaterialTheme.typography.bodySmall)
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(score) }) {
-                Text(stringResource(Res.string.dialog_action_update))
             }
         },
         dismissButton = {

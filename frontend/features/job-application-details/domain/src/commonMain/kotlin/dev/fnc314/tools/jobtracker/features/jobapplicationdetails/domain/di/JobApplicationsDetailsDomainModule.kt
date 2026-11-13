@@ -7,7 +7,6 @@ import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.LoadJobApplicationUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.RecordEventUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.UpdateApplicationStatusUseCase
-import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.UpdateFitScoreUseCase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.GetArtifactSignedUrlUseCaseImpl
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.GetEventsUseCaseImpl
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.LoadArtifactsUseCaseImpl
@@ -15,7 +14,6 @@ import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.LoadJobApplicationUseCaseImpl
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.RecordEventUseCaseImpl
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.UpdateApplicationStatusUseCaseImpl
-import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.impl.UpdateFitScoreUseCaseImpl
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.bind
@@ -32,5 +30,4 @@ public val jobApplicationsDetailsDomainModule: Module = module {
     factoryOf(::LoadJobApplicationUseCaseImpl) bind LoadJobApplicationUseCase::class
     factoryOf(::RecordEventUseCaseImpl) bind RecordEventUseCase::class
     factoryOf(::UpdateApplicationStatusUseCaseImpl) bind UpdateApplicationStatusUseCase::class
-    factoryOf(::UpdateFitScoreUseCaseImpl) bind UpdateFitScoreUseCase::class
 }

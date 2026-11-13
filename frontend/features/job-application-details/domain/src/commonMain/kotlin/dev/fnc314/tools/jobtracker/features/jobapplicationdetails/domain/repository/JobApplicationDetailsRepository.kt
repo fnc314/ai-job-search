@@ -54,15 +54,6 @@ public interface JobApplicationDetailsRepository {
     public suspend fun recordEvent(event: TrackerEvent): String
 
     /**
-     * Updates the rubric fit score rating for an application.
-     *
-     * @param id The target application identifier.
-     * @param score New fit score rating (0..100).
-     * @return The updated [JobApplication] instance.
-     */
-    public suspend fun updateFitScore(id: String, score: Int): JobApplication
-
-    /**
      * Requests a time-limited signed download URL for an artifact stored in Google Cloud Storage.
      *
      * @param path The cloud storage object path.

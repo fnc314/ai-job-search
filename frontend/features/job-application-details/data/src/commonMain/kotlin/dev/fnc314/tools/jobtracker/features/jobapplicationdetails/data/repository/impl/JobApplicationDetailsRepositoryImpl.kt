@@ -55,12 +55,6 @@ internal class JobApplicationDetailsRepositoryImpl(
         return remoteDataSource.recordEvent(event)
     }
 
-    override suspend fun updateFitScore(id: String, score: Int): JobApplication {
-        val updated = remoteDataSource.updateFitScore(id, score)
-        runCatching { localDataSource.saveJobApplication(updated) }
-        return updated
-    }
-
     override suspend fun getArtifactSignedUrl(path: String): String {
         return networkDataSource.getArtifactSignedUrl(path)
     }

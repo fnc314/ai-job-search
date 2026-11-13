@@ -120,5 +120,11 @@ gradlePlugin {
       implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DetektConventionPlugin"
       displayName = "Detekt Static Analysis Convention"
     }
+    create("backend-service") {
+      id = "dev.fnc314.tools.jobtracker.backend-service"
+      description = "Applies backend service conventions (Ktor, Firebase, JVM 21)"
+      implementationClass = "dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.BackendServiceConventionPlugin"
+      displayName = "Backend Service Convention"
+    }
   }
 }

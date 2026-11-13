@@ -556,7 +556,23 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "weights": {
+          "$ref": "#/$defs/scoringWeights"
         }
+      }
+    },
+    "scoringWeights": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "technical": { "type": "number", "default": 0.30 },
+        "experience": { "type": "number", "default": 0.25 },
+        "behavioral": { "type": "number", "default": 0.15 },
+        "career": { "type": "number", "default": 0.30 },
+        "roleLevelMultiplier": { "type": "number", "default": 1.0 },
+        "sectorMultiplier": { "type": "number", "default": 1.0 },
+        "locationMultiplier": { "type": "number", "default": 1.0 }
       }
     },
     "logoFormat": {

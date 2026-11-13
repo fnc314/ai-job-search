@@ -35,28 +35,19 @@ State how many jobs will be ranked before proceeding.
 
 ## Step 2: Batch-Fetch and Score
 
-Dispatch parallel `general-purpose` agents via the **Agent tool**, ~5 jobs per agent (a single agent is fine for ≤5 jobs). Token-efficiency rules, consistent with `/apply`:
+For each candidate job from Step 1:
 
-- Pass each agent everything it needs **inline in the prompt** - the job list (title, company, URL) and a compact scoring rubric extracted from the files you read in Step 1: the strong/moderate/weak skill match areas, direct/adjacent experience domains, behavioral thrive/drain factors, career goals, deal-breakers, and the location constraints. Do **not** make agents re-read the profile files.
-- Agents fetch each posting URL with WebFetch and score **only from actually fetched content**. If a URL is dead, redirects to a listing page, or the posting has expired, the agent marks that job `expired` - it never scores from the title alone and never fabricates posting content.
-- Scope is triage: posting text vs. rubric. **No company research, no salary lookup, no web searches** - that depth belongs to `/apply`.
+1. **Fetch the posting** using WebFetch. If a URL is dead, redirects to a listing page, or the posting has expired, mark that job `expired` — never score from the title alone and never fabricate posting content.
+2. **Score deterministically** using the `RankScorer` CLI. For each fetched posting, save the text to a temporary file and run:
+   ```
+   mise run search:rank <path-to-job-text-file> --json
+   ```
+   This invokes the deterministic `RankScorer.evaluate()` from `backend/job-post-ranking/`, which produces a JSON `RankResult` with dimension scores, deal-breakers, strengths, gaps, and verdict.
+3. The `RankScorer` uses keyword matching across 4 dimensions (Technical 30%, Experience 25%, Behavioral 15%, Career 30%), plus role-level detection, sector alignment, location scoring, calibration rules, and deal-breaker penalties — all encoded as code, not AI judgment.
 
-Each agent returns a JSON array, one object per job:
+If `mise run search:rank` is unavailable, fall back to dispatching parallel `general-purpose` agents via the **Agent tool** with the scoring rubric from `04-job-evaluation.md` inline in the prompt. Each agent returns a JSON array matching the `RankResult` structure.
 
-```json
-{
-  "key": "<the job's key in seen_jobs.json>",
-  "status": "scored" | "expired",
-  "scores": { "technical": 0-100, "experience": 0-100, "behavioral": 0-100, "career": 0-100 },
-  "location": "PASS" | "FAIL" | "FLAG",
-  "deadline": "YYYY-MM-DD" | null,
-  "strengths": ["1-3 bullets, grounded in the posting text"],
-  "gaps": ["1-3 bullets, honest"],
-  "language": "<posting language>"
-}
-```
-
-Scoring uses the dimension definitions from `04-job-evaluation.md` verbatim. The honesty rule applies to triage too: gaps are stated, never smoothed over, and a posting that is a poor fit gets a low score even if it looks prestigious.
+Scoring is fully deterministic: the same posting text always produces the same score. No AI judgment, no company research, no salary lookup — that depth belongs to `/apply`.
 
 ---
 

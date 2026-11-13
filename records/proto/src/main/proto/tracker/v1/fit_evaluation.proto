@@ -7,9 +7,21 @@ import "google/protobuf/timestamp.proto";
 option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
 option java_multiple_files = true;
 
-// TrackerFit — rubric version, evaluatedAt, gaps array
+// ScoringWeights — dynamic dimension weights for deterministic fit scoring
+message ScoringWeights {
+  double technical = 1;
+  double experience = 2;
+  double behavioral = 3;
+  double career = 4;
+  double roleLevelMultiplier = 5;
+  double sectorMultiplier = 6;
+  double locationMultiplier = 7;
+}
+
+// TrackerFit — rubric version, evaluatedAt, gaps array, and scoring weights
 message TrackerFit {
   int32 rubricVersion = 1;
   google.protobuf.Timestamp evaluatedAt = 2;
   repeated string gaps = 3;
+  ScoringWeights weights = 4;
 }

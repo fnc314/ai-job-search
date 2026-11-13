@@ -1,7 +1,5 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +12,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.sharp.Edit
 import androidx.compose.material.icons.sharp.Notifications
@@ -62,10 +59,8 @@ import dev.fnc314.tools.jobtracker.core.widgets.StatusBadge
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.component.ArtifactsList
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.component.EventsTimeline
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.Res
-import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_adjust_fit_cd
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_go_back
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_record_event
-import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_update_fit
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_action_update_status
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_applied_on
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.detail_company_aliases
@@ -173,7 +168,6 @@ private fun JobApplicationDetailContent(
   val model = state.model
   var showStatusDialog by remember { mutableStateOf(false) }
   var showEventDialog by remember { mutableStateOf(false) }
-  var showFitDialog by remember { mutableStateOf(false) }
   var fabMenuExpanded by remember { mutableStateOf(false) }
 
   if (showStatusDialog) {
@@ -194,17 +188,6 @@ private fun JobApplicationDetailContent(
         showEventDialog = false
       },
       onDismiss = { showEventDialog = false },
-    )
-  }
-
-  if (showFitDialog) {
-    UpdateFitScoreDialog(
-      currentScore = model.fitScore,
-      onConfirm = { score ->
-        onIntent(JobApplicationDetailUiIntent.UpdateFitScore(newScore = score))
-        showFitDialog = false
-      },
-      onDismiss = { showFitDialog = false },
     )
   }
 
@@ -237,10 +220,7 @@ private fun JobApplicationDetailContent(
               modifier = Modifier.weight(1f),
               verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             ) {
-              ApplicationSummarySection(
-                model = model,
-                onAdjustFitClick = { showFitDialog = true },
-              )
+              ApplicationSummarySection(model = model)
               model.company?.let { CompanyProfileSection(company = it) }
               ApplicationEmailsSection(model = model)
             }
@@ -271,10 +251,7 @@ private fun JobApplicationDetailContent(
               .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
           ) {
-            ApplicationSummarySection(
-              model = model,
-              onAdjustFitClick = { showFitDialog = true },
-            )
+            ApplicationSummarySection(model = model)
             model.company?.let { CompanyProfileSection(company = it) }
             ApplicationEmailsSection(model = model)
 
@@ -346,21 +323,6 @@ private fun JobApplicationDetailContent(
             showEventDialog = true
           },
         )
-        DropdownMenuItem(
-          text = { Text(stringResource(Res.string.detail_action_update_fit)) },
-          leadingIcon = {
-            Icon(
-              imageVector = Icons.Default.Build,
-              contentDescription = null,
-              tint = MaterialTheme.colorScheme.tertiary,
-              modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-            )
-          },
-          onClick = {
-            fabMenuExpanded = false
-            showFitDialog = true
-          },
-        )
       }
     }
   }
@@ -370,7 +332,6 @@ private fun JobApplicationDetailContent(
 internal fun ApplicationSummarySection(
   model: JobApplicationDetailUiModel,
   modifier: Modifier = Modifier,
-  onAdjustFitClick: (() -> Unit)? = null,
 ) {
   OutlinedCard(
     shape = MaterialTheme.shapes.medium,
@@ -429,18 +390,9 @@ internal fun ApplicationSummarySection(
       }
 
       val fitScore = model.fitScore
-      val adjustFitLabel: String = stringResource(Res.string.detail_action_adjust_fit_cd)
       Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-        modifier = if (onAdjustFitClick != null) {
-          Modifier.clickable(
-            onClick = onAdjustFitClick,
-            onClickLabel = adjustFitLabel,
-          )
-        } else {
-          Modifier
-        },
       ) {
         Text(
           text = stringResource(Res.string.detail_fit_rating_label, model.fitScoreDisplayText),
@@ -448,14 +400,6 @@ internal fun ApplicationSummarySection(
         )
         if (fitScore != null) {
           FitBadge(score = fitScore)
-        }
-        if (onAdjustFitClick != null) {
-          Icon(
-            imageVector = Icons.Default.Edit,
-            contentDescription = adjustFitLabel,
-            modifier = Modifier.size(MaterialTheme.iconSizes.small),
-            tint = MaterialTheme.colorScheme.primary,
-          )
         }
       }
 
