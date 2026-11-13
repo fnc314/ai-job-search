@@ -11,6 +11,7 @@ kotlin {
         commonMain.dependencies {
             api(projects.coreDesignSystem)
             api(projects.coreData)
+            implementation(projects.coreLogging)
             implementation(libs.bundles.coil)
         }
         androidMain.dependencies {

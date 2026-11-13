@@ -1,8 +1,9 @@
 package dev.fnc314.tools.jobtracker.app.core
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import co.touchlab.kermit.Logger
 import co.touchlab.kermit.platformLogWriter
+import dev.fnc314.tools.jobtracker.core.logging.AppLogger
+import dev.fnc314.tools.jobtracker.core.logging.KmpInspectorLogWriter
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -92,7 +93,7 @@ private val navigationSavedStateConfig = SavedStateConfiguration {
 @Composable
 public fun App() {
   // Initialize Kermit to route logs to both platform loggers and KMP Inspector
-  Logger.setLogWriters(listOf(platformLogWriter(), KmpInspectorLogWriter()))
+  AppLogger.init(platformLogWriter(), KmpInspectorLogWriter())
   KoinApplication(
     configuration =
       koinConfiguration<MainApplication> {

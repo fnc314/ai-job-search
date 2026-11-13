@@ -8,13 +8,11 @@ import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
-import coil3.util.DebugLogger
-import coil3.util.Logger
+import dev.fnc314.tools.jobtracker.core.logging.AppLogger
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 private const val NANOS_PER_MILLISECOND = 1_000_000L
-private const val COIL_LOG_TAG = "CoilImageLoader"
 private val HTTP_CODE_REGEX = Regex("""\b([45]\d{2})\b""")
 
 /**
@@ -141,7 +139,7 @@ public class DefaultImageLoadEventListener(
     private val onError: OnImageLoadError = OnImageLoadError { url, throwable ->
         val httpCode = extractHttpStatusCode(throwable)
         val statusDetail = httpCode?.let { "HTTP $it" } ?: "NON_HTTP_ERROR"
-        println("[$COIL_LOG_TAG] Image load failed [$statusDetail] for url=$url: ${throwable.message}")
+        AppLogger.e { "Image load failed [$statusDetail] for url=$url: ${throwable.message}" }
     },
     private val onCancel: OnImageLoadCancel = OnImageLoadCancel {},
 ) : ImageLoadEventListener {
@@ -153,11 +151,10 @@ public class DefaultImageLoadEventListener(
 
 /**
  * Bridges [ImageLoadEventListener] to Coil's [EventListener] so the Koin-injected listener
- * can be attached to the [ImageLoader] and emit detailed HTTP error diagnostics via [logger].
+ * can be attached to the [ImageLoader] and emit detailed HTTP error diagnostics via [AppLogger].
  */
 internal class CoilEventListenerBridge(
     private val delegate: ImageLoadEventListener,
-    private val logger: Logger? = null,
 ) : EventListener() {
     private var startTimeNanos: Long = 0
 
@@ -175,14 +172,6 @@ internal class CoilEventListenerBridge(
 
     override fun onError(request: ImageRequest, result: ErrorResult) {
         val url = request.data.toString()
-        val httpCode = extractHttpStatusCode(result.throwable)
-        val statusDetail = httpCode?.let { "HTTP $it" } ?: "NON_HTTP_ERROR"
-        logger?.log(
-            tag = COIL_LOG_TAG,
-            level = Logger.Level.Error,
-            message = "Image load failed [$statusDetail] for url=$url: ${result.throwable.message}",
-            throwable = result.throwable,
-        )
         delegate.onLoadError(url, result.throwable)
     }
 
@@ -193,17 +182,15 @@ internal class CoilEventListenerBridge(
 }
 
 /**
- * Creates a configured [ImageLoader] with [DebugLogger] and Ktor3 network fetcher,
+ * Creates a configured [ImageLoader] with Ktor3 network fetcher,
  * wired to the given [eventListener] for observability.
  */
 internal fun createImageLoader(
     context: PlatformContext,
     eventListener: ImageLoadEventListener,
 ): ImageLoader {
-    val debugLogger = DebugLogger()
     return ImageLoader.Builder(context)
-        .logger(debugLogger)
-        .eventListenerFactory { CoilEventListenerBridge(eventListener, debugLogger) }
+        .eventListenerFactory { CoilEventListenerBridge(eventListener) }
         .components {
             add(KtorNetworkFetcherFactory())
         }

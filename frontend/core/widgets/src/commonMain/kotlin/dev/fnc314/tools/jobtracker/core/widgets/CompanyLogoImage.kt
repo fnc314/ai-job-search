@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
+import dev.fnc314.tools.jobtracker.core.logging.AppLogger
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.widgets.di.extractHttpStatusCode
@@ -97,7 +98,7 @@ public fun CompanyLogoSize.toTextStyle(): TextStyle = when (this) {
 
 private fun isValidLogoSize(intrinsicSize: Size): Boolean {
     if (!intrinsicSize.isSpecified || intrinsicSize.width < MIN_LOGO_DIMENSION_PX || intrinsicSize.height < MIN_LOGO_DIMENSION_PX) {
-        println("[CompanyLogoImage] Logo rejected: dimensions too small (${intrinsicSize.width}x${intrinsicSize.height})")
+        AppLogger.w { "Logo rejected: dimensions too small (${intrinsicSize.width}x${intrinsicSize.height})" }
         return false
     }
     return true

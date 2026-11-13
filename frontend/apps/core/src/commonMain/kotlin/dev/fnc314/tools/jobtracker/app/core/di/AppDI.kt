@@ -2,6 +2,7 @@ package dev.fnc314.tools.jobtracker.app.core.di
 
 import dev.fnc314.tools.jobtracker.core.artifacts.di.coreArtifactsModule
 import dev.fnc314.tools.jobtracker.core.data.di.coreDataModule
+import dev.fnc314.tools.jobtracker.core.logging.di.coreLoggingModule
 import dev.fnc314.tools.jobtracker.core.network.di.coreNetworkModule
 import dev.fnc314.tools.jobtracker.core.widgets.di.coreWidgetsModule
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.di.addJobApplicationFeatureModule
@@ -37,6 +38,7 @@ public val appModule: KoinModule = module {
   includes(
     coreArtifactsModule,
     coreDataModule,
+    coreLoggingModule,
     coreNetworkModule,
     coreWidgetsModule,
     signInFeatureModule,

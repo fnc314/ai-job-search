@@ -1,11 +1,11 @@
-package dev.fnc314.tools.jobtracker.app.core
+package dev.fnc314.tools.jobtracker.core.logging
 
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
 import com.waqas028.kmpinspector.InspectorLog
 
 public actual class KmpInspectorLogWriter : LogWriter() {
-    override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
+    override fun log(severity: Severity, message: String, tag: String, throwable: Throwable? = null) {
         when (severity) {
             Severity.Verbose -> InspectorLog.v(tag, message)
             Severity.Debug -> InspectorLog.d(tag, message)

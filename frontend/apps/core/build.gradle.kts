@@ -20,7 +20,7 @@ kotlin {
   }
   sourceSets {
     commonMain.dependencies {
-      implementation(libs.kermit)
+      implementation(projects.coreLogging)
       implementation(projects.coreArtifacts)
       implementation(projects.coreData)
       implementation(projects.coreNetwork)

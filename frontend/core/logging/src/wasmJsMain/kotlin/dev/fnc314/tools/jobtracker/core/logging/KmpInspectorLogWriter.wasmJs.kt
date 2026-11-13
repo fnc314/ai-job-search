@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.app.core
+package dev.fnc314.tools.jobtracker.core.logging
 
 import co.touchlab.kermit.LogWriter
 

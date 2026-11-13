@@ -49,10 +49,11 @@ import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
 import dev.fnc314.tools.jobtracker.core.widgets.EmptyStateWidget
 import dev.fnc314.tools.jobtracker.core.widgets.ErrorBannerWidget
+import dev.fnc314.tools.jobtracker.core.widgets.JobApplicationCard
 import dev.fnc314.tools.jobtracker.core.widgets.LoadingWidget
 import dev.fnc314.tools.jobtracker.core.widgets.TooltipIconButton
+import dev.fnc314.tools.jobtracker.core.widgets.TopLevelCardSurfaceVariant
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.component.FilterMenu
-import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.component.JobApplicationRow
 import dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui.component.SortMenu
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.list_action_add_application
@@ -275,9 +276,11 @@ internal fun JobApplicationsListContent(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
               ) {
                 items(content.applications, key = { it.id }) { item ->
-                  JobApplicationRow(
-                    model = item,
-                    onIntent = onIntent,
+                  JobApplicationCard(
+                    model = item.toCardUiModel(),
+                    onApplicationClick = { onIntent(item.onClickIntent) },
+                    modifier = Modifier,
+                    variant = TopLevelCardSurfaceVariant.Elevated,
                   )
                 }
               }
@@ -292,9 +295,11 @@ internal fun JobApplicationsListContent(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
               ) {
                 items(content.applications, key = { it.id }) { item ->
-                  JobApplicationRow(
-                    model = item,
-                    onIntent = onIntent,
+                  JobApplicationCard(
+                    model = item.toCardUiModel(),
+                    onApplicationClick = { onIntent(item.onClickIntent) },
+                    modifier = Modifier,
+                    variant = TopLevelCardSurfaceVariant.Elevated,
                   )
                 }
               }
@@ -309,9 +314,11 @@ internal fun JobApplicationsListContent(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
               ) {
                 items(content.applications, key = { it.id }) { item ->
-                  JobApplicationRow(
-                    model = item,
-                    onIntent = onIntent,
+                  JobApplicationCard(
+                    model = item.toCardUiModel(),
+                    onApplicationClick = { onIntent(item.onClickIntent) },
+                    modifier = Modifier,
+                    variant = TopLevelCardSurfaceVariant.Elevated,
                   )
                 }
               }
