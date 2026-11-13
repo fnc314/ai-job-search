@@ -114,6 +114,8 @@ Fetch every returned message by id:
 
 The classifier reads `subject` + `snippet`, so the snippet you write must contain the signal phrase, not a truncated preview. Put the subject and the first ~800 characters of the plain-text body into `snippet`.
 
+**Note:** Email classification is implemented as a standalone library in `backend/email-classification/` (`EmailClassifier`). The `mise run tracker collect` command uses this module internally to match and classify emails.
+
 ### Step 3c: Write the inbox payload
 
 Create `generated/gmail-inbox.json` (gitignored, regenerated every run). One object per new message:

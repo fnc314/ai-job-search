@@ -69,7 +69,17 @@ public data class ClassifierRule(
  *
  * Ordered by specificity: the first rule that matches wins, so a rejection that
  * also says "thank you for applying" is filed as a rejection.
+ *
+ * @deprecated Use [dev.fnc314.tools.jobtracker.classification.EmailClassifier] instead.
+ * This class is superseded by the email-classification module.
  */
+@Deprecated(
+    message = "Use EmailClassifier from the email-classification module instead.",
+    replaceWith = ReplaceWith(
+        "EmailClassifier",
+        "dev.fnc314.tools.jobtracker.classification.EmailClassifier"
+    )
+)
 public object ProposalClassifier {
 
     public val CLASSIFIERS: List<ClassifierRule> = listOf(

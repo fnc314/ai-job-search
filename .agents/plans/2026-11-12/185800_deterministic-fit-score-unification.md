@@ -1,244 +1,553 @@
-# Implementation Plan: Deterministic Fit Score Unification & Backend Multi-Module Migration
+# Implementation Plan: Extract Deterministic AI-Flow Processes into Standalone Libraries
 
-**Status:** Completed  
+**Status:** Proposed  
 **Date:** 2026-11-12  
-**Target:** `backend`, `records`, `frontend` (cross-subsystem)  
+**Target:** `records`, `backend` (cross-subsystem)  
 **Harness:** Junie  
 **Model:** Qwen/Qwen3.6-27B-FP8  
-**Supersedes:** previous draft of deterministic-fit-score-unification  
+**Depends On:** [`185800_deterministic-fit-score-unification.md`](./2026-11-12/185800_deterministic-fit-score-unification.md)  
 
 ---
 
 ## 1. Executive Summary & Goals
 
-The `/rank` workflow currently dispatches AI agents to score job postings. The user wants a **fully deterministic, code-based Fit Score** that requires no AI entity, with the ranking logic isolated into its own Gradle module (`job-post-ranking`) under `backend/`. Additionally, the current `backend/` (a single-module Ktor service) will be reworked into a multi-module Gradle project with the existing service code moving to a `service` sub-module.
+The `185800_deterministic-fit-score-unification` plan successfully extracted `RankScorer` into `backend/job-post-ranking/` as a standalone library. This plan identifies **all other deterministic, idempotent processes** embedded in AI command flows that can be similarly packaged as isolated Kotlin libraries.
 
-**Key objectives:**
-1. **Unify & enhance** `RankScorer` with FitEvaluator rules (absorb, then **DELETE** FitEvaluator — no deprecation)
-2. **Eradicate manual fit editing** — remove the ability to hand-edit the `fit` value, replace with a **dynamic weights** mechanism so the user can "weigh in"
-3. **Isolate ranking logic** into `backend/job-post-ranking/` — a standalone, testable, JAR-exportable module
-4. **Rework `backend/`** into multi-module Gradle: existing code → `backend/service/`, new `backend/settings.gradle.kts` with sub-module includes
-5. **Add backend convention plugins** via `gradle/tools/project-plugins` for cross-sub-module consistency
-6. **Update `/rank` AI command** to use deterministic scorer
+The goal is to catalog every pure-function process currently living in `records/parser/` that AI commands (`/apply`, `/gmail-sync`, `/outcome`, `/scrape`, `/rank`) rely on — and determine which ones should be extracted into their own Gradle modules under `backend/`, following the `job-post-ranking` pattern. This extends the amount of work UIs can perform locally without being coupled to AI flows or the backend service.
 
-### Current State
-
-| Component | Location | Status | Called By |
-|-----------|----------|--------|-----------|  
-| `RankScorer.kt` | `records/parser/` | Active | `RankCommand.kt` (CLI) |
-| `FitEvaluator.kt` | `records/parser/` | Dead in production (tests only) | `FitEvaluatorTest.kt` only |
-| `rank.py` | `scripts/` | Deprecated (RM-001) | None |
-| `/rank` AI command | `.agents/commands/rank.md` | Active | AI agents during `/scrape` flow |
-| `UpdateFitScoreDialog` | `frontend/.../DetailDialogs.kt` | Active | User manual fit editing |
-| `UpdateFitScoreUseCase` | `frontend/.../domain/` | Active | ViewModel → BackendService |
-| `backend/` | Single-module Gradle | Active | Cloud Run, local CLI tasks |
-
-### Key Gap
-
-`RankScorer` uses keyword matching across 4 dimensions but lacks:
-- **Role-level detection** (principal/staff/senior bonuses from FitEvaluator)
-- **Sector alignment** (FinTech/FinServ bonus)
-- **Location scoring** (remote/Pittsburgh bonus, NYC/DC neutral)
-- **Calibration signals** (Reddit cap at 75, known low-conversion company caps)
-- **Deal-breaker penalties** (hybrid-only -30, consulting -25, people management -20)
-- **Dynamic weights** — user cannot influence scoring without manually overriding the fit value
-
-`FitEvaluator` has role/sector/location/calibration rules but is dead production code — only tests call it.
+### Key Objectives
+1. **Catalog** all deterministic processes in `records/parser/` used by AI flows
+2. **Assess** each for extraction readiness (pure functions, no framework deps, test coverage)
+3. **Propose** which processes to extract into standalone `backend/` modules
+4. **Define** the module boundaries and inter-module dependencies
+5. **Address** proto availability, Hunter.io packaging, proto scoping, and naming concerns
 
 ### Scope
 
 **In Scope:**
-- Absorb FitEvaluator's rules into RankScorer, then **DELETE** FitEvaluator (no deprecation)
-- Isolate all ranking logic into `backend/job-post-ranking/` module
-- Rework `backend/` into multi-module Gradle (`service/` + `job-post-ranking/`)
-- Eradicate manual fit editing (`UpdateFitScoreDialog`, `UpdateFitScoreUseCase`)
-- Add dynamic `ScoringWeights` so users can "weigh in" on the scoring process
-- Add backend convention plugin via `gradle/tools/project-plugins`
-- Update `/rank` AI command to use deterministic RankScorer
-- Update proto, schema, and Kotlin models for `ScoringWeights`
-- Ensure all tests pass
+- Inventory of deterministic processes in `records/parser/`
+- Assessment of extraction readiness per process
+- Proposal of new `backend/` modules with clear boundaries
+- Module dependency map
+- Proto availability strategy for extracted modules
+- Hunter.io API integration as a standalone package
+- Proto definition scoping analysis
+- Naming corrections (ProposalClassifier → EmailClassifier)
 
 **Out of Scope:**
-- Removing `rank.py` (already tracked by RM-001 Phase 3)
-- Modifying the `/apply` workflow (it re-evaluates independently)
+- Actual implementation (this is a planning/cataloging exercise)
+- Modifying AI command workflows
+- Frontend UI changes
 
+## 2. Current State: Deterministic Processes in `records/parser/`
 
-## 2. Architecture & Design Principles
+The following pure Kotlin processes live in `records/parser/` and are used by AI command flows. Each is idempotent, well-tested, and framework-agnostic.
 
-### Backend Multi-Module Structure (Target)
+### 2.1 DocumentIdGenerator
+
+**Location:** `records/parser/src/main/kotlin/.../parser/DocumentIdGenerator.kt` (173 lines)  
+**Tests:** `DocumentIdGeneratorTest.kt`  
+**Used by:** `/outcome`, `/apply`, `/gmail-sync`, `/rank` (via `mise run tracker` CLI)  
+**What it does:** Derives canonical company slugs and application document IDs from free-form names. Strips corporate suffixes, stop words, expands contractions, applies alias resolution (e.g. `meta-platforms` → `meta`).  
+**Dependencies:** None (pure Kotlin, `java.text.Normalizer` only)  
+**Extraction readiness:** ✅ High — pure functions, no framework deps, comprehensive tests
+
+### 2.2 ProposalClassifier
+
+**Location:** `records/parser/src/main/kotlin/.../parser/ProposalClassifier.kt` (280 lines)  
+**Tests:** `ProposalClassifierTest.kt`  
+**Used by:** `/gmail-sync` Step 3d (email classification)  
+**What it does:** Classifies email messages into event types (REJECT, OFFER, SCHEDULE_INTERVIEW, ASSESS, ACKNOWLEDGE, RECRUITER_OUTREACH) using regex patterns. Matches messages to applications via company name matching.  
+**Dependencies:** `kotlinx.serialization` (for `@Serializable` data classes), `DocumentIdGenerator` (for company matching)  
+**Extraction readiness:** ✅ High — pure regex matching, no framework deps
+
+### 2.3 StatusNormalizer
+
+**Location:** `records/parser/src/main/kotlin/.../parser/StatusNormalizer.kt` (154 lines)  
+**Tests:** None (but trivially testable)  
+**Used by:** `/outcome`, TUI, CLI (status normalization and ranking)  
+**What it does:** Normalizes legacy/human-entered status strings to canonical Firestore status keys. Provides status rank ordering and terminal state detection.  
+**Dependencies:** None (pure Kotlin, lookup tables)  
+**Extraction readiness:** ✅ High — pure lookup tables, no framework deps
+
+### 2.4 UrlSanitizer
+
+**Location:** `records/parser/src/main/kotlin/.../parser/UrlSanitizer.kt` (134 lines)  
+**Tests:** `UrlSanitizerTest.kt`  
+**Used by:** `/scrape`, `/apply`, `/gmail-sync` (URL cleaning)  
+**What it does:** Strips tracking, click IDs, referral sources, and telemetry query parameters from URLs. Preserves functional parameters (e.g. `gh_jid`).  
+**Dependencies:** None (pure Kotlin, `java.net.URI` only)  
+**Extraction readiness:** ✅ High — pure functions, no framework deps
+
+### 2.5 CompanySectorNormalizer
+
+**Location:** `records/parser/src/main/kotlin/.../parser/CompanySectorNormalizer.kt` (217 lines)  
+**Tests:** `CompanySectorNormalizerTest.kt`  
+**Used by:** `/apply` evaluation, `/rank` (sector alignment)  
+**What it does:** Maps company slugs to canonical `CompanySector` enum values (FinTech, Healthcare, Tech, etc.). Fallback for companies where Hunter.io returns no data.  
+**Dependencies:** `tracker.v1.CompanySector` proto enum  
+**Extraction readiness:** ⚠️ Medium — depends on proto enum. Could be extracted if the enum is moved to a shared module or the normalizer uses its own enum.
+
+### 2.6 EventChainBuilder / EventChainVerifier
+
+**Location:** `records/parser/src/main/kotlin/.../parser/EventChainBuilder.kt` (123 lines), `EventChainVerifier.kt` (77 lines)  
+**Tests:** `EventChainBuilderTest.kt`  
+**Used by:** `/outcome`, backend (cryptographic event hash chains)  
+**What it does:** Constructs and verifies SHA-256 hash chains for tamper-evident event timelines. Blockchain pattern for immutable tracker logs.  
+**Dependencies:** `tracker.v1.TrackerEvent` proto message, `tracker.v1.TrackerStatus` proto enum  
+**Extraction readiness:** ⚠️ Medium — depends on proto messages. Could be extracted if the proto types are in a shared module.
+
+### 2.7 Already Extracted: RankScorer
+
+**Location:** `backend/job-post-ranking/` (extracted by the previous plan)  
+**Tests:** `RankScorerTest.kt`, `ScoringWeightsTest.kt`  
+**Used by:** `/rank` (via CLI), `RankCommand.kt`  
+**Status:** ✅ Already done. Serves as the reference pattern.
+
+### 2.8 UuidGenerator — What it does
+
+**Location:** `records/parser/src/main/kotlin/.../parser/UuidGenerator.kt` (77 lines)  
+**Tests:** `UuidGeneratorTest.kt`  
+**Used by:** `/outcome`, `/apply`, backend (document ID generation for new records)  
+**What it does:** Generates and validates UUIDv7 (RFC 9562) identifiers. UUIDv7 carries a 48-bit millisecond timestamp in its high bits, so the textual form sorts in creation order — critical for Firestore document IDs that need chronological ordering. Provides three operations:
+- `newUuid()` — generates a local UUIDv7 (manual construction for JVM compatibility, not relying on Java 20+ built-in support)
+- `isUuid(value)` — validates canonical lowercase UUIDv7 format (version nibble = 7, variant = RFC 4122)
+- `uuidTimestamp(value)` — extracts the millisecond timestamp from a UUIDv7
+
+**Dependencies:** None (pure Kotlin, `java.util.UUID`, `java.security.SecureRandom`)  
+**Extraction readiness:** ✅ High — pure functions, no framework deps. Small enough to include in `tracker-conventions` alongside `DocumentIdGenerator`.
+
+### 2.9 Not Candidates for Extraction
+
+The following are **not** good candidates because they depend on framework-specific types or are tightly coupled to the tracker data model:
+
+| Process | Reason |
+|---------|--------|
+| `ApplicationTimelineProjector` | Depends on proto `TrackerApplication` and Firestore projection logic |
+| `ArtifactMetadata` | Tied to GCS artifact storage |
+| `CompanyMetricsParser` | Depends on Hunter.io API response parsing — **will be replaced by `company-metadata-enrichment` package** |
+| `EventNoteRenderer` | Depends on proto event types and rendering templates |
+| `InterviewProgress` | Depends on proto interview round types |
+| `JPypeBridge` | Python interop bridge (RM-001 target) |
+| `JobApplicationEventBuilder` | Depends on proto event types |
+| `JobApplicationStatus` | Depends on proto status enum |
+| `LegacyRowProjector` | CSV-to-Firestore migration logic |
+| `ProtoWireContracts` | Proto conversion utilities |
+| `TrackerCache` | In-memory cache for tracker documents |
+| `TimestampConverter` | Proto timestamp conversion |
+
+## 3. Addressing User Questions
+
+### 3.1 Proto Availability — What do we need to do for `proto` to be available as necessary?
+
+**Current state:** `records/proto/` is a single Gradle module (`:records-proto`) that compiles all 17 `.proto` files into Kotlin classes under `dev.fnc314.tools.jobsearch.tracker.v1`. Consumers access it via `includeBuild("../records")` in their `settings.gradle.kts` (used by `frontend/` and `backend/`).
+
+**The problem for extracted modules:** If `backend/email-classification/` or `backend/event-chain/` need proto types, they currently cannot depend on `:records-proto` directly because `backend/` is a separate Gradle composite build from `records/`. The only way to access proto types is via `includeBuild("../records")` in `backend/settings.gradle.kts` — but `backend/settings.gradle.kts` currently does not include this.
+
+**Options:**
+
+**Option A: Add `includeBuild("../records")` to `backend/settings.gradle.kts`** (Recommended)
+- Simplest change. Proto types become available to any `backend/` sub-module via `implementation(projects.recordsProto)`.
+- This is already how `frontend/` consumes proto types.
+- Drawback: `backend/` becomes coupled to the `records/` build. If `records/` fails to build, `backend/` cannot build.
+
+**Option B: Publish `records-proto` to a local Maven repo**
+- `records/proto` already has `maven-publish` configured in `records/build.gradle.kts`.
+- Run `cd records && ./gradlew :records-proto:publishToMavenLocal` to publish.
+- `backend/` modules depend on `dev.fnc314.tools.jobsearch.records:records-proto:1.0.0`.
+- Drawback: Requires explicit publish step. Version drift between published proto and source proto.
+
+**Option C: Duplicate the needed proto types as plain Kotlin data classes**
+- For modules that need only a few proto types (e.g., `CompanySector` enum), duplicate them as plain Kotlin `enum class` in the extracted module.
+- Drawback: Duplication, divergence risk. Only viable for small types.
+
+**Recommendation:** Use **Option A** for modules that need proto types (`event-chain`, `company-metadata-enrichment`). Use **Option C** for modules that need only a single enum (`CompanySectorNormalizer` if extracted). Pure modules (`tracker-conventions`, `email-classification`) need no proto access.
+
+**Action required:**
+- Add `includeBuild("../records")` to `backend/settings.gradle.kts`
+- Modules needing proto add `implementation(projects.recordsProto)` in their `build.gradle.kts`
+
+### 3.2 Hunter.io as `company-metadata-enrichment` Package
+
+**Current state:** Hunter.io integration is embedded directly in `BackendService.kt` as three private methods:
+- `fetchHunterCompanyInfo(website: String)` — HTTP GET to `api.hunter.io/v2/companies/find`, parses JSON response into a `Map<String, Any?>`
+- `enrichCompany(...)` — 20+ optional parameters, writes to Firestore (non-destructive merge)
+- `batchEnrichCompanies()` — iterates all companies, credit-aware (45 calls max), skips recently enriched
+
+**The problem:** The Hunter.io logic is tightly coupled to `BackendService` and Firestore. The HTTP call + JSON parsing is a pure function that could be extracted. The Firestore write logic is framework-bound.
+
+**Proposed `backend/company-metadata-enrichment/` module:**
 
 ```
-backend/
-  settings.gradle.kts          (rewritten: includes :service, :job-post-ranking)
-  build.gradle.kts             (new: root build, applies conventions)
-  service/
-    build.gradle.kts           (existing backend build.gradle.kts moved here)
-    src/                       (existing backend/src/ moved here)
-  job-post-ranking/
-    build.gradle.kts           (new: pure Kotlin JVM library)
-    src/main/kotlin/           (RankScorer, ScoringConfig, etc.)
-    src/test/kotlin/           (RankScorerTest, ScoringWeightsTest)
+company-metadata-enrichment/
+  src/main/kotlin/
+    dev/fnc314/tools/jobtracker/enrichment/
+      HunterClient.kt          — HTTP client for Hunter.io API
+      HunterCompanyInfo.kt     — Data class for Hunter.io response
+      CompanyEnricher.kt       — Pure function: HunterCompanyInfo → enrichment result
+      CompanySectorResolver.kt — Sector resolution from Hunter.io data
 ```
 
-### Key Decisions
+**`HunterClient` interface:**
+```kotlin
+interface HunterClient {
+    suspend fun lookup(domain: String): HunterCompanyInfo?
+}
 
-1. **DELETE, not deprecate.** FitEvaluator will be deleted entirely. Its rules are absorbed into the unified scorer in `job-post-ranking`. No `@Deprecated` annotation — the file will be removed.
-2. **Dynamic weights instead of manual fit.** Replace the `UpdateFitScoreDialog` slider with a `ScoringWeights` configuration object. Users can adjust dimension weights (e.g. Technical 30% → 40%) via a new dialog. The score is always computed deterministically from weights + posting text.
-3. **`job-post-ranking` as a pure library.** No framework dependencies (no Ktor, no Firebase). Just Kotlin + kotlinx.serialization. Exportable as a JAR via `maven-publish`. Consumable by `backend/service`, CLI, and any future client.
-4. **Backend convention plugin.** A new convention plugin (`backend-service`) in `gradle/tools/project-plugins` will apply shared configuration (Ktor deps, Firebase deps, JVM toolchain, testing) across `backend` sub-modules.
-5. **Fit score is computed, not stored as a user override.** The `fitRating` field in Firestore will be populated only by the deterministic scorer. The `UpdateFitScoreUseCase` and `UpdateFitScoreDialog` will be removed. User influence flows through `ScoringWeights` only.
-6. **ScoringWeights as a first-class config.** `data class ScoringWeights(val technical: Double = 0.30, val experience: Double = 0.25, val behavioral: Double = 0.15, val career: Double = 0.30, val roleLevelMultiplier: Double = 1.0, val sectorMultiplier: Double = 1.0, val locationMultiplier: Double = 1.0)` — serializable, storable in Firestore `metadata`, and passable to `evaluate()`.
-
-### Architecture Diagram
-
-```mermaid
-graph LR
-    A[Job Posting Text] --> B[job-post-ranking: RankScorer.evaluate]
-    B --> C[Keyword Dimension Scoring
-    Technical/Experience/Behavioral/Career]
-    C --> D[Role-Level Detection
-    +15/+10/+5 bonus]
-    D --> E[Sector Alignment
-    +5 FinTech/FinServ]
-    E --> F[Location Scoring
-    +5 remote/Pittsburgh]
-    F --> G[Calibration Caps
-    Reddit≤75, etc.]
-    G --> H[Deal-Breaker Penalties
-    -30/-25/-20]
-    H --> I[Verdict Band
-    Strong/Good/Moderate/Weak/Poor]
-    I --> J[RankResult]
-    K[ScoringWeights] --> B
-    L[backend/service] --> B
-    M[RankCommand CLI] --> B
-    N[/rank AI Command] --> M
+class HunterHttpClient(private val apiKey: String) : HunterClient {
+    override suspend fun lookup(domain: String): HunterCompanyInfo? { ... }
+}
 ```
 
-### Risks
+**`HunterCompanyInfo` data class:**
+```kotlin
+@Serializable
+data class HunterCompanyInfo(
+    val id: String?,
+    val name: String?,
+    val industry: String?,
+    val subIndustry: String?,
+    val sector: String?,
+    val linkedinHandle: String?,
+    val twitterHandle: String?,
+    val crunchbaseHandle: String?,
+    val logoUrl: String?,
+    val description: String?,
+    val foundedYear: Int?,
+    val companyType: String?,
+    val employees: String?,
+    val employeesCount: Int?,
+    val location: String?,
+    val city: String?,
+    val state: String?,
+    val country: String?,
+    val tags: List<String>?,
+    val raised: Long?
+)
+```
 
-- **Over-scoring:** Adding FitEvaluator's adjustments on top of keyword scoring could push scores too high. Mitigation: keyword dimensions remain the primary signal (weighted 0-100), adjustments are bounded (±15 max per category, total score clamped to 0-100).
-- **Calibration staleness:** Company-specific calibration rules will become outdated. Mitigation: encode them as a configurable map with a comment pointing to `04-job-evaluation.md` as the source of truth.
-- **Backend migration risk:** Moving `backend/src/` to `backend/service/src/` could break Cloud Run deployment. Mitigation: `MainKt` class fully qualified name remains the same; Dockerfile entry point is unchanged.
+**What this makes redundant:** `CompanySectorNormalizer` becomes a **fallback** for when Hunter.io returns no data. The normalizer's hardcoded `KNOWN_COMPANY_SECTORS` map (120+ entries) can be pruned to only cover companies that Hunter.io consistently misses. The `CompanySectorResolver` in the enrichment module will:
+1. Try Hunter.io first (via `HunterClient`)
+2. Fall back to `CompanySectorNormalizer` if Hunter.io returns empty
+3. Return `CompanySector.TECH` as the ultimate default
 
+**Dependencies:** `kotlinx.serialization`, `kotlinx.coroutines` (for `suspend`), `tracker-conventions` (for `DocumentIdGenerator.slug()`)
 
-## 3. Steps
+**Impact on `CompanySectorNormalizer`:** It becomes a secondary fallback, not the primary source. The hardcoded map can be reduced to ~20 entries for companies Hunter.io consistently misses (small startups, private companies). The keyword-based guessing rules stay intact.
 
-### ✓ Step 1: Create `backend/job-post-ranking/` Module
-Create the new pure Kotlin JVM library module with all ranking logic.
+### 3.3 Proto Definition Scoping — Is it worth breaking `records/proto` into scoped definitions?
 
-### ✓ Step 2: Move `backend/` Existing Code to `backend/service/`
-Move existing backend code to service sub-module.
+**Current state:** All 17 proto files live in `tracker/v1/` under a single package `tracker.v1`. They are compiled by one Gradle task into one JAR. The files are:
 
-### ✓ Step 3: Rewrite `backend/settings.gradle.kts`
-Include `:service` and `:job-post-ranking` sub-modules.
+| Proto File | Purpose | Size |
+|------------|---------|------|
+| `enums.proto` | All enums (TrackerStatus, InterviewType, etc.) | 360 lines |
+| `application.proto` | JobApplication core record | 57 lines |
+| `company.proto` | Company record + metrics | 78 lines |
+| `event.proto` | TrackerEvent timeline entries | 32 lines |
+| `fit_evaluation.proto` | TrackerFit, ScoringWeights | 28 lines |
+| `artifact.proto` | GCS artifact metadata | ~30 lines |
+| `compensation.proto` | Compensation ranges | ~30 lines |
+| `contact.proto` | Contact person records | ~30 lines |
+| `counters.proto` | Event counters | ~20 lines |
+| `edit.proto` | Edit lifecycle | ~30 lines |
+| `interview.proto` | Interview rounds | ~40 lines |
+| `location.proto` | Location details | ~20 lines |
+| `scraped_posting.proto` | Scraped job postings | 40 lines |
+| `sync_request.proto` | Sync operations | ~30 lines |
+| `timeline.proto` | Timeline projection | ~20 lines |
+| `fit_evaluation.proto` | Fit scoring | 28 lines |
+| `README.md` | Proto documentation | — |
 
-### ✓ Step 4: Add Backend Convention Plugin
-New convention plugin in `gradle/tools/project-plugins/`.
+**Analysis:** The proto files are already logically scoped by domain (application, company, event, etc.). However, they all share the same `java_package` and depend heavily on `enums.proto`. Breaking them into separate Gradle modules would:
+- **Add complexity:** Each proto module needs its own `build.gradle.kts`, proto compilation config, and publish config
+- **Provide minimal benefit:** The total proto code is ~900 lines. The compilation time is negligible
+- **Create circular dependency risks:** `application.proto` imports 8 other proto files. Splitting them means each sub-module must depend on the others
 
-### ✓ Step 5: DELETE FitEvaluator
-Delete `FitEvaluator.kt` and `FitEvaluatorTest.kt` from `records/parser/`.
+**Recommendation: Do NOT split `records/proto` into separate Gradle modules.** The current single-module approach is the right balance. The proto files are already logically separated by file — that's sufficient scoping.
 
-### ✓ Step 6: Eradicate Manual Fit Editing
-Remove `UpdateFitScoreDialog`, `UpdateFitScoreUseCase`, and related code.
+**What to do instead:** If a module needs only specific proto types (e.g., `event-chain` needs only `TrackerEvent` and `TrackerEventType`), it can still depend on the full `:records-proto` module. The unused types add no runtime cost — they're just compiled classes on the classpath. The Gradle dependency is resolved at build time, not runtime.
 
-### ✓ Step 7: Update Proto & Schema
-Add `ScoringWeights` message to proto and schema files.
+**Exception:** If `CompanySector` enum is needed by a module that should NOT depend on the full proto (e.g., a pure Kotlin library published independently), duplicate `CompanySector` as a plain Kotlin `enum class` in that module. This is Option C from section 3.1.
 
-### ✓ Step 8: Update `/rank` AI Command
-Use deterministic `RankScorer.evaluate()` via CLI.
+### 3.4 ProposalClassifier Naming — Is it an accurate name?
 
-### ✓ Step 9: Update CLI
-`RankCommand.kt` depends on `job-post-ranking`.
+**Answer: No.** `ProposalClassifier` is a misnomer. The class processes **email contents**, not proposals. The name comes from the Python `proposals.py` module it mirrors, where "proposal" referred to "proposed status changes from email classification" — not job proposals or proposals in any business sense.
+
+**What it actually does:**
+1. **Classifies emails** into event types (REJECT, OFFER, SCHEDULE_INTERVIEW, ASSESS, ACKNOWLEDGE, RECRUITER_OUTREACH) using regex patterns
+2. **Matches emails to applications** via company name matching
+3. **Extracts company names** from outreach emails
+
+**Recommended rename:** `EmailClassifier`
+
+**Changes required:**
+- Rename `ProposalClassifier.kt` → `EmailClassifier.kt`
+- Rename `object ProposalClassifier` → `object EmailClassifier`
+- Rename `ProposalClassifierTest.kt` → `EmailClassifierTest.kt`
+- Update all import statements and references in:
+  - `BackendService.kt` (if it references the classifier)
+  - AI commands (`/gmail-sync`)
+  - Any CLI commands
+- Update `CLASSIFIERS` → `EMAIL_CLASSIFIERS` (or keep as `CLASSIFIERS` since it's scoped to the object)
+
+**Data class renames (optional but recommended):**
+- `ClassificationResult` → `EmailClassificationResult` (to distinguish from other classification domains)
+- `StagedChange` → `StagedEmailChange`
+- `SourceEmail` — keep as-is (already accurate)
+- `UnmatchedMessage` → `UnmatchedEmail`
+- `ClassifierRule` → `EmailClassifierRule`
+
+**Recommendation:** Perform the rename during extraction to `backend/email-classification/`. The old name in `records/parser/` can be kept with `@Deprecated("Renamed to EmailClassifier", ReplaceWith("EmailClassifier"))` during a transition period, then removed.
+
+### 3.5 UuidGenerator — Summary
+
+See section 2.8 for full details. Short answer: **UUIDv7 generation and validation**. Generates timestamp-sortable identifiers for Firestore document IDs. Small enough to include in `tracker-conventions` alongside `DocumentIdGenerator`. Not worth extracting as its own module.
 
 ---
 
-## 4. Proposed Changes & Implementation Steps
+## 4. Proposed Module Structure
 
-### 3.1. Create `backend/job-post-ranking/` Module
+### 4.1 New Modules
 
-New `backend/job-post-ranking/` as a pure Kotlin JVM library (no Ktor, no Firebase). Contains:
-- `RankScorer.kt` — moved from `records/parser/`, enhanced with FitEvaluator rules and dynamic `ScoringWeights`
-- `ScoringWeights.kt` — `data class` for dimension weights and multiplier toggles
-- `CalibrationRule.kt` — company-specific calibration (caps, overrides)
-- `RankResult.kt` — enhanced with `location_verdict` field
-- `JobInfo.kt` — extracted job metadata
-- `RankScorerTest.kt` — migrated + new tests
-- `ScoringWeightsTest.kt` — weight validation tests
+Based on the analysis, the following new modules are proposed under `backend/`:
 
-### 3.2. Move `backend/` Existing Code to `backend/service/`
+#### `backend/tracker-conventions/` — Slug, Status, URL Utilities
 
-- Move `backend/src/` → `backend/service/src/`
-- Move `backend/build.gradle.kts` → `backend/service/build.gradle.kts`
-- Package stays `dev.fnc314.tools.jobtracker.backend`
-- Add `implementation(projects.jobPostRanking)` to `service/build.gradle.kts`
+**Contents:**
+- `DocumentIdGenerator` — Company slug and document ID generation
+- `StatusNormalizer` — Status string normalization and ranking
+- `UrlSanitizer` — URL tracking parameter stripping
+- `UuidGenerator` — UUIDv7 generation and validation (timestamp-sortable IDs for Firestore)
 
-### 3.3. Rewrite `backend/settings.gradle.kts`
+**Rationale:** These four utilities are tightly related — they all normalize free-form input into canonical forms or generate canonical identifiers. They share no dependencies beyond pure Kotlin. Together they form a "conventions" library that any consumer can use to derive IDs, clean URLs, normalize statuses, and generate sortable document IDs.
 
-Include `:service` and `:job-post-ranking` sub-modules plus `includeBuild("../records")`.
+**Isolation Boundary:** Pure input/output functions. If exposed behind a URL, each operation would be a separate endpoint:
+- `POST /slug` → `{"name": "Meta Platforms, Inc."}` returns `{"slug": "meta"}`
+- `POST /status/normalize` → `{"status": "interview"}` returns `{"canonical": "INTERVIEWING", "rank": 3}`
+- `POST /url/clean` → `{"url": "..."}` returns `{"cleanUrl": "..."}`
+- `GET /uuid` → returns `{"uuid": "..."}`
 
-### 3.4. Add Backend Convention Plugin
+No state, no side effects. Each function is independently callable.
 
-New `BackendServiceConventionPlugin.kt` in `gradle/tools/project-plugins/` — applies Ktor, Firebase, serialization, JVM 21 toolchain. Registered in `project-plugins/build.gradle.kts`.
+**Dependencies:** None (pure Kotlin)
 
-### 3.5. DELETE FitEvaluator
+**Consumers:** `/outcome`, `/apply`, `/gmail-sync`, `/rank`, CLI, frontend (for local ID derivation)
 
-Delete `FitEvaluator.kt` and `FitEvaluatorTest.kt` from `records/parser/`. All rules absorbed into `job-post-ranking/RankScorer.kt`.
+#### `backend/email-classification/` — Email Event Classification
 
-### 3.6. Eradicate Manual Fit Editing
+**Contents:**
+- `EmailClassifier` (renamed from `ProposalClassifier`) — Email-to-event-type classification
+- `EmailClassificationResult`, `StagedEmailChange`, `SourceEmail`, `UnmatchedEmail`, `EmailClassifierRule`, `MatchResult` data classes
 
-**Remove:** `UpdateFitScoreDialog`, `UpdateFitScoreUseCase`, `handleUpdateFitScore`, `UpdateFitScore` intent, fit score button, related string resources.
+**Rationale:** Email classification is a self-contained pipeline: fetch emails → classify → match to applications → stage changes. The classifier is pure regex matching and could be used by any email integration (Gmail, Outlook, etc.) without depending on the tracker data model.
 
-**Replace with:** `AdjustScoringWeightsDialog` (sliders for dimension weights), `UpdateScoringWeightsUseCase` (persists to Firestore `metadata`), `AdjustScoringWeights` intent in ViewModel.
+**Isolation Boundary:** Accepts raw email text and known application slugs; returns classified results. If exposed behind a URL:
+- `POST /classify` → `{"subject": "...", "body": "...", "knownSlugs": [...]}` returns `{"eventType": "REJECT", "matchedSlug": "pnc", "confidence": 0.95}`
+- `POST /batch-classify` → `{"emails": [...], "knownSlugs": [...]}` returns `{"results": [...], "unmatched": [...]}`
 
-### 3.7. Update Proto & Schema
+No state. The `tracker-conventions` dependency is only for slug matching, which could be replaced by passing pre-computed slugs in the input.
 
-Add `ScoringWeights` message to `fit_evaluation.proto`, add `ScoringWeights weights = 4` to `TrackerFit`, update `tracker.schema.json` and `TrackerFit.kt`.
+**Dependencies:** `kotlinx.serialization`, `tracker-conventions` (for `DocumentIdGenerator` used in company matching)
 
-### 3.8. Update `/rank` AI Command
+**Consumers:** `/gmail-sync`, backend email sync endpoint
 
-Use deterministic `RankScorer.evaluate()` via CLI. Remove AI scoring rubric. Keep aggregation/ranking/state steps.
+#### `backend/company-metadata-enrichment/` — Hunter.io API Integration
 
-### 3.9. Update CLI
+**Contents:**
+- `HunterClient` — Interface for Hunter.io API access
+- `HunterHttpClient` — HTTP implementation of `HunterClient`
+- `HunterCompanyInfo` — Data class for Hunter.io response
+- `CompanySectorResolver` — Sector resolution: Hunter.io → CompanySectorNormalizer fallback → TECH default
 
-`RankCommand.kt` depends on `job-post-ranking`. Add `--weights` option for custom `ScoringWeights` as JSON.
+**Rationale:** Hunter.io integration is currently embedded in `BackendService.kt` as inline HTTP calls and JSON parsing. Extracting it into a standalone package allows:
+- Testing without Firestore
+- Reuse by CLI, frontend, or other services
+- Clear separation between API client logic and Firestore write logic
+- `CompanySectorNormalizer` becomes a documented fallback, not the primary source
 
-## 4. Verification Plan & Testing Checklist
+**Isolation Boundary:** Accepts a company domain or slug; returns enriched metadata. If exposed behind a URL:
+- `POST /lookup` → `{"domain": "pnc.com"}` returns `{"name": "PNC", "sector": "FINTECH", "industry": "...", "employees": 19000}`
+- `POST /sector/resolve` → `{"slug": "pnc"}` returns `{"sector": "FINTECH"}`
+
+The `HunterClient` interface abstracts the HTTP layer, allowing the module to be tested with mock implementations. The `records-proto` dependency is only for the `CompanySector` enum, which defines the output format.
+
+**Dependencies:** `kotlinx.serialization`, `kotlinx.coroutines` (for `suspend`), `tracker-conventions` (for `DocumentIdGenerator.slug()`), `records-proto` (for `CompanySector` enum via `includeBuild("../records")`)
+
+**Consumers:** `backend/service` (replaces inline Hunter.io methods), CLI enrichment command
+
+#### `backend/event-chain/` — Cryptographic Event Hash Chains
+
+**Contents:**
+- `EventChainBuilder` — Hash chain construction
+- `EventChainVerifier` — Hash chain verification
+
+**Rationale:** Event chain integrity is a cross-cutting concern used by both the backend service and any client that appends events. Extracting it allows UIs to verify chain integrity locally without calling the backend.
+
+**Isolation Boundary:** Accepts a list of events and produces a hash chain; or accepts a hash chain and verifies its integrity. If exposed behind a URL, it would accept `{"events": [...]}` and return `{"chain": [...], "rootHash": "..."}` for building, or `{"chain": [...], "valid": true}` for verification. The proto dependency is only for the `TrackerEvent` message structure, which defines the input format.
+
+**Dependencies:** Proto types (`TrackerEvent`, `TrackerStatus`) via `records-proto` (accessible via `includeBuild("../records")` in `backend/settings.gradle.kts`)
+
+**Consumers:** `/outcome`, backend event-append endpoint, frontend (for local verification)
+
+### 4.2 Module Dependency Graph
+
+```mermaid
+graph LR
+    A[tracker-conventions] -->|none| Z[(pure Kotlin)]
+    B[email-classification] --> A
+    B -->|kotlinx.serialization| W[(stdlib)]
+    C[company-metadata-enrichment] --> A
+    C -->|kotlinx.serialization| W
+    C -->|kotlinx.coroutines| V[(coroutines)]
+    C -->|CompanySector enum| D[(records/proto)]
+    E[event-chain] -->|proto types| D
+    F[job-post-ranking] -->|none| Z
+    G[backend/service] --> F
+    G --> B
+    G --> C
+    G --> E
+    G --> A
+```
+
+### 4.3 Updated `backend/settings.gradle.kts`
+
+```
+includeBuild("../records")
+
+include(":service")
+include(":job-post-ranking")
+include(":tracker-conventions")
+include(":email-classification")
+include(":company-metadata-enrichment")
+include(":event-chain")
+```
+
+## 5. Key Decisions
+
+1. **Each module is an isolation boundary.** Design every extracted module as if it will be exposed behind a URL — a standalone service with a clear input/output contract. This means:
+- Each module's public API is self-contained: no hidden dependencies on sibling modules
+- Inputs are data classes or primitive types, not framework-specific types
+- Outputs are data classes or sealed classes, not framework-specific types
+- The module could be replaced by an HTTP call to a remote service without changing its callers
+- This principle guides which processes are extractable and how their boundaries are drawn
+
+2. **Extract only pure processes.** Processes that depend on proto types, Firestore, or framework-specific APIs stay in `records/parser/` unless the dependency can be abstracted. This keeps the extracted modules truly standalone.
+
+3. **`tracker-conventions` as the foundation.** `DocumentIdGenerator`, `StatusNormalizer`, `UrlSanitizer`, and `UuidGenerator` are the most widely used utilities. Grouping them together reduces the number of modules and creates a natural dependency for other extracted modules.
+
+4. **Proto dependency via `includeBuild`.** `backend/settings.gradle.kts` will add `includeBuild("../records")` to make proto types available to modules that need them (`company-metadata-enrichment`, `event-chain`). Pure modules (`tracker-conventions`, `email-classification`) need no proto access.
+
+5. **`CompanySectorNormalizer` becomes a fallback.** With `company-metadata-enrichment` providing Hunter.io as the primary source, `CompanySectorNormalizer` is demoted to secondary fallback. The hardcoded map can be pruned to ~20 entries for companies Hunter.io consistently misses.
+
+6. **`ProposalClassifier` renamed to `EmailClassifier`.** The old name is a misnomer inherited from Python `proposals.py`. The rename happens during extraction to `backend/email-classification/`.
+
+7. **Do NOT split `records/proto` into separate Gradle modules.** The 17 proto files (~900 lines total) are already logically scoped by file. Splitting them adds complexity with minimal benefit. Modules that need specific proto types depend on the full `:records-proto` module.
+
+8. **Follow the `job-post-ranking` pattern.** Each new module uses the same `build.gradle.kts` template: Kotlin JVM, `kotlinx.serialization`, `explicitApi()`, JVM 21 toolchain, `maven-publish` for local JAR export.
+
+## 6. Delivery Steps
+
+### Step 1: Create `backend/tracker-conventions/` Module
+Extract `DocumentIdGenerator`, `StatusNormalizer`, `UrlSanitizer`, and `UuidGenerator` into a new pure Kotlin library module.
+
+- Create `backend/tracker-conventions/build.gradle.kts` following the `job-post-ranking` template
+- Move `DocumentIdGenerator.kt` and `ContractError` to `tracker-conventions/src/main/kotlin/`
+- Move `StatusNormalizer.kt` to `tracker-conventions/src/main/kotlin/`
+- Move `UrlSanitizer.kt` to `tracker-conventions/src/main/kotlin/`
+- Move `UuidGenerator.kt` to `tracker-conventions/src/main/kotlin/`
+- Migrate tests: `DocumentIdGeneratorTest.kt`, `UrlSanitizerTest.kt`, `UuidGeneratorTest.kt`; add `StatusNormalizerTest.kt`
+- Update `backend/settings.gradle.kts` to include `:tracker-conventions`
+- Update `records/parser/` to depend on `tracker-conventions` via `includeBuild` or keep copies with `@Deprecated` pointers
+
+### Step 2: Create `backend/email-classification/` Module
+Extract `ProposalClassifier` (renamed to `EmailClassifier`) and its data classes into a standalone email classification library.
+
+- Create `backend/email-classification/build.gradle.kts`
+- Move `ProposalClassifier.kt` (renamed to `EmailClassifier.kt`) and all data classes to `email-classification/src/main/kotlin/`
+- Rename data classes: `ClassificationResult` → `EmailClassificationResult`, `StagedChange` → `StagedEmailChange`, `UnmatchedMessage` → `UnmatchedEmail`, `ClassifierRule` → `EmailClassifierRule`
+- Add `implementation(projects.trackerConventions)` for `DocumentIdGenerator` used in company matching
+- Migrate `ProposalClassifierTest.kt` (renamed to `EmailClassifierTest.kt`)
+- Add `@Deprecated` annotation to the old `ProposalClassifier` in `records/parser/` with `ReplaceWith("EmailClassifier")`
+- Update `backend/settings.gradle.kts` to include `:email-classification`
+
+### Step 3: Create `backend/company-metadata-enrichment/` Module
+Extract Hunter.io API integration from `BackendService.kt` into a standalone enrichment package.
+
+- Create `backend/company-metadata-enrichment/build.gradle.kts`
+- Create `HunterClient.kt` with interface and `HunterHttpClient` implementation
+- Create `HunterCompanyInfo.kt` data class mirroring Hunter.io response fields
+- Create `CompanySectorResolver.kt` with fallback chain: Hunter.io → CompanySectorNormalizer → TECH default
+- Add `implementation(projects.trackerConventions)` for `DocumentIdGenerator.slug()`
+- Add `implementation(projects.recordsProto)` for `CompanySector` enum (requires `includeBuild("../records")` in `backend/settings.gradle.kts`)
+- Add `implementation(libs.kotlinx.coroutines.core)` for `suspend` support
+- Add tests for `HunterHttpClient` (mock HTTP responses), `CompanySectorResolver` (fallback chain)
+- Update `backend/settings.gradle.kts` to include `:company-metadata-enrichment` and add `includeBuild("../records")`
+- Update `BackendService.kt` to use `HunterClient` instead of inline HTTP calls
+
+### Step 4: Extract `event-chain/` and Verify Proto Access
+Extract `EventChainBuilder/Verifier` now that `includeBuild("../records")` is available in `backend/`.
+
+- Create `backend/event-chain/build.gradle.kts`
+- Move `EventChainBuilder.kt` and `EventChainVerifier.kt` to `event-chain/src/main/kotlin/`
+- Add `implementation(projects.recordsProto)` for `TrackerEvent`, `TrackerStatus` proto types
+- Migrate `EventChainBuilderTest.kt`
+- Update `backend/settings.gradle.kts` to include `:event-chain`
+- Verify that proto types are accessible via the `includeBuild` composite build
+
+### Step 5: Update AI Commands, CLI, and Bookkeeping
+Update AI commands, CLI, and registry to reference the new modules.
+
+- Update `/gmail-sync` command to note that `EmailClassifier` is available via `email-classification` module
+- Update `/outcome` command to note that `DocumentIdGenerator` is available via `tracker-conventions` module
+- Update `RankCommand.kt` if it uses any extracted utilities
+- Register this plan in `.agents/plans/README.md`
+- Update plan frontmatter to `Completed` after implementation
+- Commit and push
+
+## 7. Verification Plan & Testing Checklist
 
 ### Key Scenarios
 
-**RankScorerTest.kt — in `job-post-ranking/`:**
-1. Role-level detection: principal/staff+Android +15, senior+Android +10, mobile +5
-2. Sector alignment: FinTech/FinServ +5
-3. Location scoring: remote/Pittsburgh +5, NYC/DC neutral
-4. Calibration: Reddit cap 75, low-conversion cap 75, Capital One override 95
-5. Deal-breaker penalties: hybrid-only -30, consulting -25, people management -20
-6. Dynamic weights: custom weights produce different scores than DEFAULT
-7. Score bounds: clamped to 0-100 after all adjustments
-8. Empty text with structured fields → baseline from role/sector/location
-9. All deal-breakers → score ≥ 0
-10. Calibration override vs cap → override wins
+**tracker-conventions:**
+1. `DocumentIdGenerator.normalizeDirName("Meta Platforms, Inc.")` → `"meta"`
+2. `StatusNormalizer.normalizeStatus("interview")` → `"INTERVIEWING"`
+3. `UrlSanitizer.cleanUrl("https://example.com?utm_source=google&gh_jid=123")` → `"https://example.com?gh_jid=123"`
+4. `UuidGenerator.newUuid()` produces valid UUIDv7 (passes `isUuid()` check)
+5. `UuidGenerator.uuidTimestamp(uuid)` extracts correct millisecond timestamp
+6. All existing tests pass after migration
 
-**ScoringWeightsTest.kt:**
-1. DEFAULT weights sum to 1.0
-2. Invalid weights (sum ≠ 1.0) → validation error
-3. Serialization round-trip
+**email-classification:**
+1. `EmailClassifier.classify("We regret to inform you", "")` → `REJECT`
+2. `EmailClassifier.classify("Job Offer", "")` → `OFFER`
+3. `EmailClassifier.match()` with company name matching works
+4. All existing tests pass after migration
+
+**company-metadata-enrichment:**
+1. `HunterHttpClient.lookup("pnc.com")` returns `HunterCompanyInfo` with sector, industry, etc.
+2. `HunterHttpClient.lookup("nonexistent-domain-xyz.com")` returns `null`
+3. `CompanySectorResolver.resolve("pnc")` → `FINTECH` (from Hunter.io)
+4. `CompanySectorResolver.resolve("unknown-company")` → falls back to `CompanySectorNormalizer`
+5. Missing `HUNTER_IO_API_KEY` → skips Hunter.io, uses fallback
+
+**event-chain:**
+1. `EventChainBuilder.chainEvents()` produces valid hash chain
+2. `EventChainVerifier.verifyChain()` returns true for valid chain
+3. All existing tests pass after migration
 
 ### Regression Checks
-- `records:test` still passes (FitEvaluator files are gone, no broken imports)
-- `backend/service` builds and tests pass
-- `frontend` builds without `UpdateFitScoreUseCase` references
-- `RankCommand` CLI still works
+- `records:test` still passes (extracted files are replaced by module dependencies)
+- `backend/service` builds and tests pass with new module dependencies
+- CLI still works with extracted utilities
+- No broken imports in `records/parser/` after extraction
+- `backend/settings.gradle.kts` `includeBuild("../records")` resolves correctly
 
-### Edge Cases
-- Weight sum validation: weights must sum to 1.0 (or normalize automatically)
-- Zero-weight dimension: allowed, contributes 0 to overall score
-- Negative weights: rejected by validation
+## 8. Bookkeeping
+- [ ] Plan persisted at `.agents/plans/2026-11-12/HHMMSS_extract-deterministic-ai-flow-processes.md`
+- [ ] Registry `README.md` row added / status synchronized
+- [ ] Craft a single commit of all changed files
+- [ ] Stage changed files and craft a commit message based on the name of this file
+- [ ] Push `git push origin main`
 
-## 5. Bookkeeping
-- [x] Plan persisted at `.agents/plans/2026-11-12/185800_deterministic-fit-score-unification.md`
-- [x] Registry `README.md` row added / status synchronized
-- [x] Craft a single commit of all changed files
-- [x] Stage changed files and craft a commit message based on the name of this file
-- [x] Push `git push origin main`
+
 

@@ -52,6 +52,8 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
 | RM-007   | Fix KMP Inspector                      | Fix Room and Ktor integrations       | PIVOTAL    | CRITICAL | 0 d    | DONE        |
 | RM-009   | Unify Top-Level Card Component         | Unify Card skeletal approach         | HIGH       | MEDIUM   | 0 d    | DONE        |
+| RM-011   | Break up /backend into proper Gradle Multi-Module | Rework backend into multi-module Gradle | MEDIUM     | MEDIUM   | 0 d    | IN_PROGRESS |
+| RM-010   | Separate out RoadmapApp.kt             | Refactor RoadmapApp.kt location      | LOW        | LOW      | 0 d    | OPEN        |
 
 ---
 
@@ -470,20 +472,21 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Short Desc:** Expose Break up /backend to address MEDIUM concern
 **Criticality:** MEDIUM
 **Priority:** MEDIUM
-**Complexity:** 0 — Unknown
-**Status:** OPEN
-**Completion %:** 0
+**Complexity:** 4 — Complex
+**Status:** IN_PROGRESS
+**Completion %:** 80
 **Creation Date:** 2026-11-12
 **Objective:** Explicitly define and separate each piece of functionality within `/backend` to more accurately represent a proper multi-module architecture.  Distribution can be a single JAR still.
 
 **Dependencies:** None
 
 **Linked Plans:**
-- None
+- `.agents/plans/2026-11-12/185800_deterministic-fit-score-unification.md`
 
 **Changelog:**
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-12 | Implementation    | Reworked `backend/` into multi-module Gradle: created `backend/job-post-ranking/` pure Kotlin library with unified RankScorer, moved existing code to `backend/service/`, added BackendServiceConventionPlugin, and added new `backend/settings.gradle.kts` |
 | 2026-11-12 | Item created      | Initial entry                        |
 ## Frozen Items
 
