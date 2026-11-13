@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
-#MISE description: Deletes garbage companies and moves legitimate-looking zero-app companies to a new 'potentials' collection
-#USAGE flag "--dry-run" help="Report only; do not modify Firestore"
-#MISE aliases: migrate-potentials
+#MISE description="Migrate zero-application companies to potentials collection"
+#USAGE flag "--dry-run" help="Report only; do not modify Firestore" default="false"
 #
 # Without TRACKER_ALLOW_WRITES=1, runs in dry-run mode (report only).
 # With TRACKER_ALLOW_WRITES=1, actually deletes garbage and migrates to potentials.
-#
-# Usage:
-#   mise run tracker:companies:migrate-potentials --dry-run   # Report only (default)
-#   TRACKER_ALLOW_WRITES=1 mise run tracker:companies:migrate-potentials  # Execute migration
 
 set -euo pipefail
 
