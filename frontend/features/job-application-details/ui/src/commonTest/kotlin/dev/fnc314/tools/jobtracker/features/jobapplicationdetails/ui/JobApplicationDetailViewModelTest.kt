@@ -3,7 +3,7 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui
 import dev.fnc314.tools.jobtracker.core.data.model.ApplicationChannel
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.artifacts.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase.GetArtifactSignedUrlUseCase

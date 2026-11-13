@@ -8,6 +8,7 @@ import dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository
 import dev.fnc314.tools.jobtracker.core.navigation.ApplicationId
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
 import dev.fnc314.tools.jobtracker.core.navigation.JobApplicationsTrackerNavKey
+import dev.fnc314.tools.jobtracker.core.navigation.TopBarActions
 import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestinationEnum
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddApplicationRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddLeadRoute
@@ -22,6 +23,9 @@ import org.koin.compose.koinInject
 public data object JobApplicationListRoute : JobApplicationsTrackerNavKey {
     @Transient
     override val titleRes: StringResource = Res.string.list_route_title
+
+    @Transient
+    override val topBarActions: TopBarActions = TopBarActions.TopLevel
 }
 
 public class JobApplicationsEntryRegistry : FeatureEntryRegistry {

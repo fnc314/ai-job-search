@@ -1,4 +1,7 @@
-package dev.fnc314.tools.jobtracker.core.data.model
+package dev.fnc314.tools.jobtracker.core.artifacts.model
+
+import dev.fnc314.tools.jobtracker.core.data.model.WireContract
+import dev.fnc314.tools.jobtracker.core.data.model.toWireLookupMap
 
 /**
  * Functional classification of an attached document or compiled asset.

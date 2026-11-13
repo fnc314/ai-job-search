@@ -6,6 +6,7 @@ import dev.fnc314.tools.jobtracker.core.navigation.LocalAppNavigator
 import dev.fnc314.tools.jobtracker.core.navigation.CompanyId
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
 import dev.fnc314.tools.jobtracker.core.navigation.JobApplicationsTrackerNavKey
+import dev.fnc314.tools.jobtracker.core.navigation.TopBarActions
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_companies_list_ui.generated.resources.companies_route_title
 import kotlinx.serialization.Serializable
@@ -16,6 +17,9 @@ import org.jetbrains.compose.resources.StringResource
 public data object JobApplicationCompaniesRoute : JobApplicationsTrackerNavKey {
     @Transient
     override val titleRes: StringResource = Res.string.companies_route_title
+
+    @Transient
+    override val topBarActions: TopBarActions = TopBarActions.TopLevel
 }
 
 public class CompaniesEntryRegistry : FeatureEntryRegistry {

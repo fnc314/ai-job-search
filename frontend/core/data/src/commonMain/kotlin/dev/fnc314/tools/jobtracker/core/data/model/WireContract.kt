@@ -28,7 +28,7 @@ public interface WireContract {
  * Builds an immutable O(1) lookup map indexing entries by their canonical [WireContract.wireKey]
  * and enum [Enum.name].
  */
-internal fun <E> Iterable<E>.toWireLookupMap(): Map<String, E>
+public fun <E> Iterable<E>.toWireLookupMap(): Map<String, E>
     where E : Enum<E>, E : WireContract = buildMap {
         for (entry in this@toWireLookupMap) {
             put(entry.wireKey.lowercase(), entry)
@@ -40,7 +40,7 @@ internal fun <E> Iterable<E>.toWireLookupMap(): Map<String, E>
  * Builds an immutable O(1) lookup map indexing entries by canonical [WireContract.wireKey],
  * enum [Enum.name], and additional custom aliases provided by [aliasSelector].
  */
-internal inline fun <E> Iterable<E>.toWireLookupMap(
+public inline fun <E> Iterable<E>.toWireLookupMap(
     crossinline aliasSelector: (E) -> List<String>
 ): Map<String, E> where E : Enum<E>, E : WireContract = buildMap {
     for (entry in this@toWireLookupMap) {

@@ -9,6 +9,7 @@
   node = "26.13.1"
 
 [env]
+  GOOGLE_CLOUD_LOCATION = "global"
   WORKSPACE_ROOT = "{{config_root}}"
   _ = { file = ".env.local", python = { venv = { path = ".venv", create = false } } }
   PYTHONPATH = "{{config_root}}/lib:{{config_root}}/scripts:{{config_root}}"

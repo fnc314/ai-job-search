@@ -1,5 +1,9 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source.impl
 
+import dev.fnc314.tools.jobtracker.core.artifacts.factory.ArtifactFactory
+import dev.fnc314.tools.jobtracker.core.artifacts.model.ArtifactStorage
+import dev.fnc314.tools.jobtracker.core.artifacts.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.artifacts.model.TrackerArtifactKind
 import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.ApplicationChannel
 import dev.fnc314.tools.jobtracker.core.data.model.Company
@@ -10,9 +14,6 @@ import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.data.model.LogoFormat
 import dev.fnc314.tools.jobtracker.core.data.model.LogoShape
 import dev.fnc314.tools.jobtracker.core.data.model.Timeline
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifactKind
-import dev.fnc314.tools.jobtracker.core.data.model.ArtifactStorage
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
@@ -290,7 +291,7 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     val createdAtRaw = record.fields["createdAt"] ?: record.fields["created_at"]
     val createdAt = InstantParser.parse(createdAtRaw).takeIf { it != Instant.DISTANT_PAST }
 
-    return Factory.createTrackerArtifact(
+    return ArtifactFactory.createTrackerArtifact(
       id = record.getString("artifactId") ?: record.id,
       applicationId = record.getString("applicationId") ?: fallbackApplicationId,
       kind = TrackerArtifactKind.fromFirestore(record.getString("kind")),

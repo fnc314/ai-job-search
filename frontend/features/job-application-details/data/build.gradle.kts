@@ -8,6 +8,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.coreArtifacts)
             implementation(projects.coreData)
             implementation(projects.featuresJobApplicationDetailsDomain)
             implementation(libs.kotlinx.coroutines.core)

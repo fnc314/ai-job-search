@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.core.data.model
+package dev.fnc314.tools.jobtracker.core.artifacts.model
 
 import kotlin.time.Instant
 

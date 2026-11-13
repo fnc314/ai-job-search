@@ -41,9 +41,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import coil3.compose.AsyncImagePainter
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.LogoShape
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.artifacts.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
-import dev.fnc314.tools.jobtracker.core.data.source.NetworkDataSource
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.WindowWidthSizeClass
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
@@ -104,7 +103,6 @@ public fun JobApplicationDetailsScreen(
   onNavigateBack: () -> Unit,
   onArtifactClick: (TrackerArtifact) -> Unit = {},
   settings: AppSettings = AppSettings(),
-  networkDataSource: NetworkDataSource = koinInject(),
   modifier: Modifier = Modifier,
 ) {
   val uiState by viewModel.uiState.collectAsState()
@@ -146,7 +144,6 @@ public fun JobApplicationDetailsScreen(
         onIntent = viewModel::onIntent,
         onArtifactClick = onArtifactClick,
         settings = settings,
-        networkDataSource = networkDataSource,
         modifier = modifier,
       )
     }
@@ -159,12 +156,8 @@ private fun JobApplicationDetailContent(
   onIntent: (JobApplicationDetailUiIntent) -> Unit,
   onArtifactClick: (TrackerArtifact) -> Unit,
   settings: AppSettings,
-  networkDataSource: NetworkDataSource,
   modifier: Modifier = Modifier,
 ) {
-  val fetchContent: suspend (String) -> String? = { url ->
-    runCatching { networkDataSource.get(url) }.getOrNull()
-  }
   val model = state.model
   var showStatusDialog by remember { mutableStateOf(false) }
   var showEventDialog by remember { mutableStateOf(false) }
@@ -237,7 +230,7 @@ private fun JobApplicationDetailContent(
                   onArtifactClick(artifact)
                 },
                 settings = settings,
-                fetchContent = fetchContent,
+                applicationId = model.id,
               )
 
               ApplicationTimelineSection(model = model)
@@ -264,7 +257,7 @@ private fun JobApplicationDetailContent(
                 onArtifactClick(artifact)
               },
               settings = settings,
-              fetchContent = fetchContent,
+              applicationId = model.id,
             )
 
             ApplicationTimelineSection(model = model)

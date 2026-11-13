@@ -8,6 +8,7 @@ import dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository
 import dev.fnc314.tools.jobtracker.core.navigation.ApplicationId
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
 import dev.fnc314.tools.jobtracker.core.navigation.JobApplicationsTrackerNavKey
+import dev.fnc314.tools.jobtracker.core.navigation.TopBarActions
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_tracker_edits_ui.generated.resources.edits_route_title
 import kotlinx.serialization.Serializable
@@ -22,6 +23,9 @@ import org.koin.compose.koinInject
 public data object JobApplicationEditsRoute : JobApplicationsTrackerNavKey {
   @Transient
   override val titleRes: StringResource = Res.string.edits_route_title
+
+  @Transient
+  override val topBarActions: TopBarActions = TopBarActions.TopLevel
 }
 
 public class TrackerEditsEntryRegistry : FeatureEntryRegistry {

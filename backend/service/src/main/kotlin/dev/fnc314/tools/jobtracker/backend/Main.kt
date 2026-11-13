@@ -77,6 +77,34 @@ public fun main(args: Array<String>) {
         return
     }
 
+    if (args.contains("--audit-companies")) {
+        val dryRun = args.contains("--dry-run")
+        println("Executing company audit locally (dryRun: $dryRun)...")
+        try {
+            val result = BackendService.auditOrphanCompanies(dryRun = dryRun)
+            println("Company audit complete: $result")
+        } catch (e: Exception) {
+            System.err.println("Error during company audit: ${e.message}")
+            e.printStackTrace()
+            exitProcess(1)
+        }
+        return
+    }
+
+    if (args.contains("--migrate-potentials")) {
+        val dryRun = args.contains("--dry-run")
+        println("Executing zero-app migration to potentials locally (dryRun: $dryRun)...")
+        try {
+            val result = BackendService.migrateZeroAppToPotentials(dryRun = dryRun)
+            println("Migration complete: $result")
+        } catch (e: Exception) {
+            System.err.println("Error during migration: ${e.message}")
+            e.printStackTrace()
+            exitProcess(1)
+        }
+        return
+    }
+
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
     embeddedServer(Netty, port = port) {
         routing {

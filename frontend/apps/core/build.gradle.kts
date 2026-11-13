@@ -21,6 +21,7 @@ kotlin {
   sourceSets {
     commonMain.dependencies {
       implementation(libs.kermit)
+      implementation(projects.coreArtifacts)
       implementation(projects.coreData)
       implementation(projects.coreNetwork)
       implementation(projects.coreNavigation)
@@ -41,6 +42,7 @@ kotlin {
       implementation(projects.featuresSettingsUi)
       implementation(projects.featuresAddJobApplicationUi)
       implementation(projects.featuresTrackerEditsUi)
+      implementation(projects.featuresArtifactPreviewerUi)
 
       // Lifecycle
       implementation(libs.bundles.androidx.lifecycle.compose)

@@ -228,6 +228,90 @@ class EmailClassifierTest {
         assertNull(company)
     }
 
+    // === Company Extraction Hardening ===
+
+    @Test
+    fun testExtractCompanyRejectsUrl() {
+        val message = mapOf(
+            "sender" to "careers.dolby.com <noreply@dolby.com>",
+            "subject" to "Job opportunity"
+        )
+        val company = EmailClassifier.extractCompany(message)
+        assertNull(company)
+    }
+
+    @Test
+    fun testExtractCompanyRejectsHrPhrase() {
+        val message = mapOf(
+            "sender" to "human resources me <hr@company.com>",
+            "subject" to "Hiring for your role"
+        )
+        val company = EmailClassifier.extractCompany(message)
+        assertNull(company)
+    }
+
+    @Test
+    fun testExtractCompanyRejectsCareerPoster() {
+        val message = mapOf(
+            "sender" to "Career poster <noreply@careerposter.com>",
+            "subject" to "Job opening"
+        )
+        val company = EmailClassifier.extractCompany(message)
+        assertNull(company)
+    }
+
+    @Test
+    fun testExtractCompanyRejectsAnonymousPosting() {
+        val message = mapOf(
+            "sender" to "Major Polish Mobile Telecom Operator <jobs@anonymous.com>",
+            "subject" to "Exciting role"
+        )
+        val company = EmailClassifier.extractCompany(message)
+        assertNull(company)
+    }
+
+    @Test
+    fun testExtractCompanyRejectsHashLikeString() {
+        val message = mapOf(
+            "sender" to "a3c41b8b71eff8c4 recruiting <noreply@example.com>",
+            "subject" to "Job opportunity"
+        )
+        val company = EmailClassifier.extractCompany(message)
+        assertNull(company)
+    }
+
+    @Test
+    fun testExtractCompanyRejectsShortSingleWord() {
+        val message = mapOf(
+            "sender" to "hr hiring <hr@example.com>",
+            "subject" to "Job opening"
+        )
+        val company = EmailClassifier.extractCompany(message)
+        assertNull(company)
+    }
+
+    @Test
+    fun testExtractCompanyAllowsLegitimateCompany() {
+        val message = mapOf(
+            "sender" to "Google Talent <jobs@google.com>",
+            "subject" to "Exciting opportunity"
+        )
+        val company = EmailClassifier.extractCompany(message)
+        assertNotNull(company)
+        assertEquals("Google", company)
+    }
+
+    @Test
+    fun testExtractCompanyAllowsMultiWordCompany() {
+        val message = mapOf(
+            "sender" to "Capital One Hiring <jobs@capitalone.com>",
+            "subject" to "Android role"
+        )
+        val company = EmailClassifier.extractCompany(message)
+        assertNotNull(company)
+        assertEquals("Capital One", company)
+    }
+
     // === Classifier Rules ===
 
     @Test

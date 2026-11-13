@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="artifact_previewer_route_title">Artifact Preview</string>
+    <string name="artifact_previewer_loading">Loading artifact content…</string>
+    <string name="artifact_previewer_error_not_found">Artifact not found</string>
+    <string name="artifact_previewer_error_fetch">Failed to load artifact content</string>
+    <string name="artifact_previewer_error_no_content">No content available for this artifact</string>
+    <string name="artifact_previewer_action_back">Go back</string>
+    <string name="artifact_previewer_action_save">Save to device</string>
+    <string name="artifact_previewer_save_success">File saved successfully</string>
+    <string name="artifact_previewer_save_error">Failed to save file</string>
+</resources>

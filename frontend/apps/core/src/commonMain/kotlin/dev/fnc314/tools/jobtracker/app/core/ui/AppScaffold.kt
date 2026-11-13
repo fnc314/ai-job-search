@@ -36,12 +36,17 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.fnc314.tools.jobtracker.core.navigation.LocalAppNavigator
 import dev.fnc314.tools.jobtracker.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.tools.jobtracker.core.navigation.JobApplicationsTrackerNavKey
+import dev.fnc314.tools.jobtracker.core.navigation.LocalTopBarActionsSlot
+import dev.fnc314.tools.jobtracker.core.navigation.TopBarActions
+import dev.fnc314.tools.jobtracker.core.navigation.TopBarActionsSlot
 import dev.fnc314.tools.jobtracker.core.navigation.Navigator
 import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestinationEnum
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddApplicationRoute
@@ -96,6 +101,7 @@ private fun isTopLevelDestination(key: JobApplicationsTrackerNavKey?): Boolean =
         key == JobApplicationCompaniesRoute ||
         key == JobApplicationEditsRoute
 
+
 /**
  * Responsive application scaffold adapting navigation chrome between mobile (bottom navigation bar)
  * and tablet/desktop (navigation rail).
@@ -105,6 +111,8 @@ private fun isTopLevelDestination(key: JobApplicationsTrackerNavKey?): Boolean =
  * @param snackbarHostState State manager for displaying transient snackbar alerts.
  * @param modifier Composable layout modifier.
  * @param content Slot rendering screen content with appropriate scaffold padding.
+ *   Child screens contribute top-bar actions via [LocalTopBarActionsSlot] to the
+ *   shared TopAppBar.
  */
 @Composable
 public fun AppScaffold(
@@ -121,7 +129,10 @@ public fun AppScaffold(
   val currentDestination: JobApplicationsTrackerNavKey? = navigator.backStack.lastOrNull() as? JobApplicationsTrackerNavKey
   val currentTopLevel = resolveTopLevelDestination(currentDestination)
   val showNav = isAuthenticated && isTopLevelDestination(currentDestination)
-  val canNavigateBack = navigator.backStack.size > 1 && !isTopLevelDestination(currentDestination)
+
+  // Resolve toolbar actions from the current route's declaration
+  val topBarActions: TopBarActions = currentDestination?.topBarActions ?: TopBarActions.None
+  val canNavigateBack = topBarActions.showBackButton && navigator.backStack.size > 1
 
   // Title resolution: use JobApplicationsTrackerNavKey.titleRes for all routes
   val titleText: String = when (currentDestination) {
@@ -162,6 +173,19 @@ public fun AppScaffold(
     )
   }
 
+  // Shared actions slot: child screens populate this via the content lambda,
+  // and the TopAppBar reads it.
+  val childActionsSlot = remember { TopBarActionsSlot() }
+
+  // Clear custom actions when the current route declares none, so leftover
+  // buttons from a previous destination (e.g., ArtifactPreview save) don't
+  // persist when navigating away.
+  LaunchedEffect(currentDestination) {
+    if (!topBarActions.hasCustomActions) {
+      childActionsSlot.render.value = {}
+    }
+  }
+
   Scaffold(
     modifier = modifier,
     contentWindowInsets = WindowInsets.safeDrawing,
@@ -184,7 +208,12 @@ public fun AppScaffold(
           }
         },
         actions = {
-          if (isAuthenticated && showNav) {
+          // Render custom actions when the current route declares them
+          if (topBarActions.hasCustomActions) {
+            childActionsSlot.render.value()
+          }
+          // Render settings icon when the current route declares it
+          if (topBarActions.showSettingsIcon) {
             IconButton(onClick = { appNavigator.navigateToSettings() }) {
               Icon(
                 imageVector = Icons.Filled.Settings,
@@ -256,7 +285,9 @@ public fun AppScaffold(
         }
 
         Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-          content(PaddingValues())
+          CompositionLocalProvider(LocalTopBarActionsSlot provides childActionsSlot) {
+            content(PaddingValues())
+          }
         }
       }
     } else {
@@ -266,7 +297,9 @@ public fun AppScaffold(
           .padding(innerPadding)
           .consumeWindowInsets(innerPadding),
       ) {
-        content(PaddingValues())
+        CompositionLocalProvider(LocalTopBarActionsSlot provides childActionsSlot) {
+          content(PaddingValues())
+        }
       }
     }
   }

@@ -11,7 +11,6 @@ import dev.fnc314.tools.jobtracker.core.data.model.Region
 import dev.fnc314.tools.jobtracker.core.data.model.SyncKind
 import dev.fnc314.tools.jobtracker.core.data.model.SyncState
 import dev.fnc314.tools.jobtracker.core.data.model.Tag
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifactKind
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEditKind
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEditState
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
@@ -154,7 +153,6 @@ class EnumLogicTest {
         assertEquals(EventActor.EMAIL_SYNC, EventActor.fromWireKey("actor:email-sync"))
         assertIs<EventActor.Unrecognized>(EventActor.fromWireKey("actor:alien"))
 
-        assertEquals(TrackerArtifactKind.CV, TrackerArtifactKind.fromWireKey("artifact:cv"))
         assertEquals(TrackerEditKind.EMAIL_SYNC, TrackerEditKind.fromWireKey("proposal:gmail-sync"))
         assertEquals(TrackerEditKind.EMAIL_SYNC, TrackerEditKind.fromWireKey("proposal:email-sync"))
         assertEquals(TrackerEditState.PENDING, TrackerEditState.fromWireKey("proposal:pending"))

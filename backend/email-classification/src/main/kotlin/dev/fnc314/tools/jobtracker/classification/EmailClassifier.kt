@@ -252,7 +252,25 @@ public object EmailClassifier {
     }
 
     /**
+     * Keywords that indicate a non-employer entity (recruitment agencies, staffing firms,
+     * job board artifacts, generic HR phrases). If an extracted company name contains
+     * any of these, it is rejected.
+     */
+    private val NON_EMPLOYER_KEYWORDS = setOf(
+        "recruit", "recruitment", "staffing", "placements",
+        "career poster", "career guidant", "talent acquisition",
+        "human resources", "hr department", "hr team",
+    )
+
+    private val urlDomainPattern = Regex(".*\\.(com|org|net).*", RegexOption.IGNORE_CASE)
+    private val hashPattern = Regex("^[0-9a-f]{16,}$", RegexOption.IGNORE_CASE)
+    private val anonymousPostingPattern = Regex("major.*operator", RegexOption.IGNORE_CASE)
+
+    /**
      * Try to extract a company name from an outreach email's sender or subject.
+     *
+     * Returns `null` if the extracted name looks like a URL, hash ID, recruitment agency,
+     * generic HR phrase, or anonymous posting — preventing garbage company records.
      */
     public fun extractCompany(message: Map<String, Any?>): String? {
         val sender = (message["sender"] as? String).orEmpty().lowercase()
@@ -267,12 +285,44 @@ public object EmailClassifier {
         for (pattern in recruitingPatterns) {
             val match = pattern.find(combined)
             match?.let {
-                val company = it.groupValues[1].trim().replaceFirstChar { char ->
-                    if (char.isLowerCase()) char.titlecase() else char.toString()
+                val company = it.groupValues[1].trim()
+
+                // Title-case each word for proper company names
+                val companyTitle = company.split(Regex("\\s+")).joinToString(" ") { word ->
+                    word.replaceFirstChar { char ->
+                        if (char.isLowerCase()) char.titlecase() else char.toString()
+                    }
                 }
-                if (company.length >= 2) return company
+
+                if (companyTitle.length >= 2 && isValidCompanyName(companyTitle)) return companyTitle
             }
         }
         return null
+    }
+
+    /**
+     * Validates an extracted company name against known garbage patterns.
+     * Returns `false` for URLs, hash IDs, non-employer keywords, and anonymous postings.
+     */
+    private fun isValidCompanyName(name: String): Boolean {
+        val nameLower = name.lowercase()
+
+        // Reject URLs (e.g., "careers.dolby.com")
+        if (urlDomainPattern.matches(nameLower)) return false
+
+        // Reject hash-like strings (e.g., "a3c41b8b71eff8c4")
+        if (hashPattern.matches(nameLower)) return false
+
+        // Reject non-employer keywords (recruitment agencies, HR phrases, etc.)
+        if (NON_EMPLOYER_KEYWORDS.any { keyword -> nameLower.contains(keyword) }) return false
+
+        // Reject anonymous job postings (e.g., "major polish mobile telecom operator")
+        if (anonymousPostingPattern.containsMatchIn(nameLower)) return false
+
+        // Reject single-word results shorter than 3 characters
+        val words = nameLower.split(Regex("\\s+"))
+        if (words.size == 1 && words[0].length < 3) return false
+
+        return true
     }
 }

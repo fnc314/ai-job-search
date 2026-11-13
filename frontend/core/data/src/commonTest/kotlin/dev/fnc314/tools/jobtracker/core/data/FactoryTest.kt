@@ -4,7 +4,6 @@ import dev.fnc314.tools.jobtracker.core.data.factory.Factory
 import dev.fnc314.tools.jobtracker.core.data.model.Confidence
 import dev.fnc314.tools.jobtracker.core.data.model.DerivedFrom
 import dev.fnc314.tools.jobtracker.core.data.model.EventActor
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifactKind
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
 import kotlin.test.Test
@@ -87,20 +86,4 @@ class FactoryTest {
         assertNull(event.note)
     }
 
-    @Test
-    fun testFactory_TrackerArtifactSpecialCharsAndHashes() {
-        val artifact = Factory.createTrackerArtifact(
-            id = "art-1",
-            applicationId = "app-1",
-            kind = TrackerArtifactKind.CV,
-            filename = "CV_Franco_Colaizzi_2026_日本語.pdf",
-            contentType = "application/pdf",
-            size = 142857L,
-            sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        )
-        assertEquals("CV_Franco_Colaizzi_2026_日本語.pdf", artifact.filename)
-        assertEquals(142857L, artifact.size)
-        assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", artifact.sha256)
-        assertNotNull(artifact.createdAt)
-    }
 }

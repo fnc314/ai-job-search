@@ -5,7 +5,7 @@ import dev.fnc314.tools.jobtracker.core.data.database.JobApplicationMapper
 import dev.fnc314.tools.jobtracker.core.data.database.dao.JobApplicationDao
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.artifacts.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.source.LocalDataSource
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source.LocalJobApplicationDetailsDataSource
 

@@ -2166,4 +2166,426 @@ public object BackendService {
             "dryRun" to dryRun
         )
     }
+
+    /**
+     * Audits the Firestore `companies` collection to identify ALL records with zero applications.
+     * The companies database should only hold entities with direct interaction (via /scrape, /apply,
+     * or external tracker addition). Any company with 0 applications is a candidate for removal.
+     *
+     * Returns all companies with 0 apps, categorized by:
+     * - **Enriched + 0 apps**: Have Hunter.io data but no applications — potential leads or stale entries
+     * - **No enrichment + 0 apps**: Orphans with no data and no apps — prime removal candidates
+     * - **Garbage patterns**: Classified garbage (URLs, hash IDs, recruitment agencies, etc.)
+     *
+     * @param dryRun When `true`, computes and returns the audit report without mutating Firestore.
+     * @return Summary map with breakdowns by category and detailed lists for interactive review.
+     */
+    public fun auditOrphanCompanies(dryRun: Boolean = true): Map<String, Any> {
+        val db = firestore
+        val snapshot = db.collection("companies").get().get()
+
+        // Companies to explicitly keep even if they match garbage patterns
+        val keepList = setOf("motorola-solutions")
+
+        // Deny-list for non-employer patterns
+        val nonEmployerKeywords = setOf(
+            "recruit", "recruitment", "staffing", "placements",
+            "career poster", "career guidant", "talent acquisition",
+            "human resources", "hr department", "hr team",
+        )
+
+        // Corporate suffixes that indicate garbage entries from email parsing
+        val corporateSuffixes = listOf("KG", "GmbH", "LTD", "LTD.", "AB", "Co.", "BV", "B.V.", "LLP", "PVT")
+
+        val urlPattern = Regex(".*\\.(com|org|net).*", RegexOption.IGNORE_CASE)
+        val hashPattern = Regex("^[0-9a-f]{16,}$", RegexOption.IGNORE_CASE)
+        // Only match the dedup artifact pattern: lowercase letters followed by a single digit
+        val numberSuffixPattern = Regex("^[a-z]+[0-9]$")
+        val anonymousPostingPattern = Regex("major.*operator", RegexOption.IGNORE_CASE)
+
+        data class AuditEntry(
+            val docId: String,
+            val name: String,
+            val enriched: Boolean,
+            val appsTotal: Int,
+            val garbageReason: String?,
+        )
+
+        val allCompanies = mutableListOf<AuditEntry>()
+        val orphans = mutableListOf<AuditEntry>()
+        val garbage = mutableListOf<AuditEntry>()
+        val flagged = mutableListOf<AuditEntry>()
+        val zeroAppCompanies = mutableListOf<AuditEntry>()
+        val enrichedZeroApp = mutableListOf<AuditEntry>()
+
+        for (doc in snapshot.documents) {
+            val data = doc.data ?: continue
+            val docId = doc.id
+            val name = (data["name"] as? String)?.takeIf { it.isNotBlank() } ?: docId
+
+            // Check enrichment fields
+            val hasSector = !((data["sector"] as? String).isNullOrBlank())
+            val hasLinkedinUrl = !((data["linkedinUrl"] as? String).isNullOrBlank())
+            val hasWebsite = !((data["website"] as? String).isNullOrBlank())
+            val hasDescription = !((data["description"] as? String).isNullOrBlank())
+            val hasHunterIoId = !((data["hunterIoId"] as? String).isNullOrBlank())
+            val enriched = hasSector || hasLinkedinUrl || hasWebsite || hasDescription || hasHunterIoId
+
+            // Check application count
+            val metrics = data["metrics"] as? Map<*, *>
+            val counts = metrics?.get("counts") as? Map<*, *>
+            val appsTotal = (counts?.get("total") as? Number)?.toInt() ?: 0
+
+            val entry = AuditEntry(docId = docId, name = name, enriched = enriched, appsTotal = appsTotal, garbageReason = null)
+            allCompanies.add(entry)
+
+            // Track ALL companies with 0 applications regardless of enrichment status
+            if (appsTotal == 0) {
+                zeroAppCompanies.add(entry)
+                if (enriched) {
+                    enrichedZeroApp.add(entry)
+                }
+            }
+
+            // Only consider orphans: no enrichment AND 0 apps
+            if (!enriched && appsTotal == 0) {
+                orphans.add(entry)
+
+                // Skip companies on the keep list
+                if (docId in keepList) {
+                    flagged.add(entry)
+                    continue
+                }
+
+                // Classify garbage patterns
+                val nameLower = name.lowercase()
+                val reason = when {
+                    // URL-like names (e.g., careers.dolby.com)
+                    urlPattern.matches(name) -> "URL"
+                    // Hash-like IDs (e.g., a3c41b8b71eff8c4)
+                    hashPattern.matches(docId) -> "Hash ID"
+                    // Number suffix dedup artifacts (e.g., 360itprofessionals1)
+                    numberSuffixPattern.containsMatchIn(name) && !Regex("[0-9]{4}").containsMatchIn(name) -> "Number suffix"
+                    // Recruitment agencies
+                    nonEmployerKeywords.any { keyword -> nameLower.contains(keyword) } -> "Recruitment agency"
+                    // Anonymous job postings (e.g., major polish mobile telecom operator)
+                    anonymousPostingPattern.containsMatchIn(nameLower) -> "Anonymous posting"
+                    // Job board artifacts
+                    nameLower.contains("career poster") || nameLower.contains("career guidant") -> "Job board artifact"
+                    // Corporate suffixes (e.g., ABOUT YOU SE & Co. KG, ALTECH GROUP LTD)
+                    corporateSuffixes.any { suffix -> name.contains(suffix) } -> "Corporate suffix"
+                    // Consulting firms
+                    nameLower.contains("consulting") || nameLower.contains("consultancy") -> "Consulting firm"
+                    // Search firms
+                    nameLower.contains("search") -> "Search firm"
+                    // Agency
+                    nameLower.contains("agency") -> "Agency"
+                    // Creative agency
+                    nameLower.contains("creative") -> "Creative agency"
+                    // Professional services
+                    nameLower.contains("professional") -> "Professional services"
+                    // Generic industry suffixes
+                    nameLower.endsWith(" group") || nameLower.endsWith("group") -> "Group suffix"
+                    nameLower.endsWith(" technologies") || nameLower.endsWith("technologies") -> "Technologies suffix"
+                    nameLower.endsWith(" services") || nameLower.endsWith("services") -> "Services suffix"
+                    nameLower.endsWith(" solutions") || nameLower.endsWith("solutions") -> "Solutions suffix"
+                    nameLower.endsWith(" systems") || nameLower.endsWith("systems") -> "Systems suffix"
+                    nameLower.endsWith(" global") || nameLower.endsWith("global") -> "Global suffix"
+                    nameLower.endsWith(" international") || nameLower.endsWith("international") -> "International suffix"
+                    else -> null
+                }
+
+                if (reason != null) {
+                    val updated = entry.copy(garbageReason = reason)
+                    orphans[orphans.indexOf(entry)] = updated
+                    garbage.add(updated)
+                } else {
+                    flagged.add(entry)
+                }
+            }
+        }
+
+        // Delete garbage companies if not dry-run
+        val deletedIds = mutableListOf<String>()
+        if (!dryRun) {
+            for (g in garbage) {
+                db.collection("companies").document(g.docId).delete().get()
+                deletedIds.add(g.docId)
+            }
+        }
+
+        val result = mutableMapOf<String, Any>(
+            "totalCompanies" to allCompanies.size,
+            "zeroAppCompanies" to zeroAppCompanies.size,
+            "enrichedZeroApp" to enrichedZeroApp.size,
+            "orphans" to orphans.size,
+            "garbage" to garbage.size,
+            "flagged" to flagged.size,
+            "deleted" to deletedIds.size,
+            "dryRun" to dryRun,
+        )
+
+        // Include garbage details for reporting
+        if (garbage.isNotEmpty()) {
+            result["garbageList"] = garbage.map { mapOf("id" to it.docId, "name" to it.name, "reason" to it.garbageReason) }
+        }
+
+        // Include flagged companies for review
+        if (flagged.isNotEmpty()) {
+            result["flaggedList"] = flagged.map { mapOf("id" to it.docId, "name" to it.name) }
+        }
+
+        // Include enriched companies with 0 apps — these have Hunter.io data but no applications
+        if (enrichedZeroApp.isNotEmpty()) {
+            result["enrichedZeroAppList"] = enrichedZeroApp.map { mapOf("id" to it.docId, "name" to it.name) }
+        }
+
+        // Include all zero-app companies for comprehensive review
+        if (zeroAppCompanies.isNotEmpty()) {
+            result["zeroAppList"] = zeroAppCompanies.map { mapOf("id" to it.docId, "name" to it.name, "enriched" to it.enriched) }
+        }
+
+        if (!dryRun && deletedIds.isNotEmpty()) {
+            result["deletedIds"] = deletedIds
+        }
+
+        return result
+    }
+
+    /**
+     * Migrates all companies with zero applications out of the `companies` collection.
+     *
+     * - Garbage patterns (URLs, hash IDs, recruitment agencies, corporate suffixes, consulting firms)
+     *   are deleted permanently.
+     * - Legitimate-looking companies are moved to a new `potentials` collection for future reference.
+     * - Companies on the keep list (e.g., `motorola-solutions`) remain in `companies`.
+     * - Duplicate entries (e.g., `john-lewis` + `john-lewis-partnership`) are collapsed into one.
+     *
+     * @param dryRun When `true`, computes and returns the migration report without mutating Firestore.
+     * @return Summary map with deleted, migrated, and kept counts.
+     */
+    public fun migrateZeroAppToPotentials(dryRun: Boolean = true): Map<String, Any> {
+        val db = firestore
+        val snapshot = db.collection("companies").get().get()
+
+        // Companies to explicitly keep in the companies collection
+        val keepList = setOf("motorola", "motorola-solutions")
+
+        // Companies explicitly approved for deletion via interactive review
+        val deleteList = setOf(
+            // Job boards, staffing, recruitment artifacts
+            "bof-careers", "getpowerplay-talent", "hrtx", "indihire-consultants",
+            "info-test-productteam", "jobgether", "jobs-for-humanity", "jobsbridge",
+            "m365connect", "m365consult", "referrals-only", "teamquest", "testingxperts",
+            "upcruit", "f5-hiring-solutions-f5-global-talent", "peoplemorepl",
+            "wealth-india-financial-services-pvt", "spadeworxsoftwareservicesinc",
+            "mdtkangaroo", "cshark", "cosmo", "benovymed-healthcare-private",
+            // Consulting and IT services firms
+            "capgemini", "cognizant", "mantech", "neoris", "ust",
+            "innominds-software", "tekmindz", "elwood-roberts", "globalxperts",
+            "geocomply-geotech-hub-vietnam", "hiberuspoland",
+            "reliable-software-resources", "sri-tech-solutions",
+            "sh-square-consultants", "sigma-embedded-engineering",
+            // Corporate suffix garbage
+            "bickham-services-unlimited", "blue-cloud-softech-solutions",
+            "brillfy-technology", "cloud-counselage-pvt", "damcosoft",
+            "hawodtech-solutions", "krg-technology", "maven-workforce-private-limited",
+            "nexora-technology-services-private-limited", "nextmind-solutions-private-limited",
+            "r2-technologies", "scadea-solutions", "t-d-newton-associates",
+            "technogen", "touchtunes-interactive-networks", "marriott-hotels-resorts",
+            "moveo-srl", "spaggetti-limited", "hipster-private-limited",
+            "grant-thornton-bharat-llp", "deutsche-telekom-ag", "f-hoffmann-la-roche-ag",
+            "nova-solution-systems-s-de-c-v", "ccs", "inent",
+            "arohana-tech-solutions-private-limited",
+            // Tier 3: Mid-tier / niche companies (no direct interaction, delete)
+            "acquia", "acuitymd", "anduril-industries", "appmysite", "archer",
+            "atimi", "awear-ai", "banorte", "baxter", "celonis",
+            "cityflo", "elevance-health", "fever", "gong-io", "hdfc-bank",
+            "inpost", "iqronix", "irium", "ivanti", "nabors",
+            "neemtree", "playstudios", "procore", "renesas-electronics", "shift-robotics",
+            // Tier 4: Obscure / unknown names (no direct interaction, delete)
+            "ajaib", "allegro", "alpha-sense", "amura-health", "bees",
+            "bilt", "bluestone", "cadence", "cambridge-mobile-telematics", "candyspace",
+            "diconium", "digitalforms", "e-pro", "elevus", "emergesoft",
+            "etteplan", "exaze", "exotec", "fellows-team", "get-my-parking",
+            "imprint", "ion", "knot", "littlebird", "methods",
+            "out-blue", "panerabread", "parloa", "pax8inc", "photon",
+            "pointr", "purple-drive", "revyl", "rogo", "scout",
+            "scrabble-jigsaw", "servicetitan", "sicpa", "sinix", "skydio",
+            "solera", "spruceid", "stem-expert", "strive", "sysmind",
+            "taktile", "tectammina", "economist", "education-university-hong-kong", "trakd",
+            "transreach", "veepee", "verkada", "virtru", "yellowipe",
+            "yokogawa", "yora-sigma",
+            // Collapsed duplicates
+            "john-lewis", "john-lewis-partnership",
+            // Additional garbage not caught by explicit list
+            "archer56", "veepee-ad", "nabors-industries", "atimi-software",
+        )
+
+        // Deny-list for non-employer patterns
+        val nonEmployerKeywords = setOf(
+            "recruit", "recruitment", "staffing", "placements",
+            "career poster", "career guidant", "talent acquisition",
+            "human resources", "hr department", "hr team",
+        )
+
+        // Corporate suffixes that indicate garbage entries from email parsing
+        val corporateSuffixes = listOf("KG", "GmbH", "LTD", "LTD.", "AB", "Co.", "BV", "B.V.", "LLP", "PVT",
+            "AG", "S.A.", "S.A. DE C.V.", "INC.", "INC", "LLC", "PRIVATE LIMITED", "PRIVATE",
+            "UNLIMITED", "CORPORATION", "CORP")
+
+        val urlPattern = Regex(".*\\.(com|org|net).*", RegexOption.IGNORE_CASE)
+        val hashPattern = Regex("^[0-9a-f]{16,}$", RegexOption.IGNORE_CASE)
+        val numberSuffixPattern = Regex("^[a-z]+[0-9]$")
+        val anonymousPostingPattern = Regex("major.*operator", RegexOption.IGNORE_CASE)
+
+        data class MigrateEntry(
+            val docId: String,
+            val name: String,
+            val data: Map<String, Any?>,
+            val garbageReason: String?,
+        )
+
+        val toDelete = mutableListOf<MigrateEntry>()
+        val toMigrate = mutableListOf<MigrateEntry>()
+        val toKeep = mutableListOf<MigrateEntry>()
+
+        for (doc in snapshot.documents) {
+            val data = doc.data ?: continue
+            val docId = doc.id
+
+            // Check application count
+            val metrics = data["metrics"] as? Map<*, *>
+            val counts = metrics?.get("counts") as? Map<*, *>
+            val appsTotal = (counts?.get("total") as? Number)?.toInt() ?: 0
+
+            // Skip companies with applications
+            if (appsTotal > 0) continue
+
+            val name = (data["name"] as? String)?.takeIf { it.isNotBlank() } ?: docId
+
+            // Keep list exceptions
+            if (docId in keepList) {
+                toKeep.add(MigrateEntry(docId, name, data, null))
+                continue
+            }
+
+            val entry = MigrateEntry(docId, name, data, null)
+
+            // Check explicit delete list first (approved via interactive review)
+            if (docId in deleteList) {
+                toDelete.add(entry.copy(garbageReason = "Approved for deletion"))
+                continue
+            }
+
+            // Classify garbage patterns
+            val nameLower = name.lowercase()
+            val reason = when {
+                // URL-like names
+                urlPattern.matches(name) -> "URL"
+                // Hash-like IDs
+                hashPattern.matches(docId) -> "Hash ID"
+                // Number suffix dedup artifacts
+                numberSuffixPattern.containsMatchIn(name) && !Regex("[0-9]{4}").containsMatchIn(name) -> "Number suffix"
+                // Recruitment agencies
+                nonEmployerKeywords.any { keyword -> nameLower.contains(keyword) } -> "Recruitment agency"
+                // Anonymous job postings
+                anonymousPostingPattern.containsMatchIn(nameLower) -> "Anonymous posting"
+                // Job board artifacts
+                nameLower.contains("career poster") || nameLower.contains("career guidant") -> "Job board artifact"
+                // Corporate suffixes
+                corporateSuffixes.any { suffix -> name.contains(suffix) } -> "Corporate suffix"
+                // Consulting firms
+                nameLower.contains("consulting") || nameLower.contains("consultancy") -> "Consulting firm"
+                // Search firms
+                nameLower.contains("search") -> "Search firm"
+                // Agency
+                nameLower.contains("agency") -> "Agency"
+                // Creative agency
+                nameLower.contains("creative") -> "Creative agency"
+                // Professional services
+                nameLower.contains("professional") -> "Professional services"
+                // Generic industry suffixes
+                nameLower.endsWith(" group") || nameLower.endsWith("group") -> "Group suffix"
+                nameLower.endsWith(" technologies") || nameLower.endsWith("technologies") -> "Technologies suffix"
+                nameLower.endsWith(" services") || nameLower.endsWith("services") -> "Services suffix"
+                nameLower.endsWith(" solutions") || nameLower.endsWith("solutions") -> "Solutions suffix"
+                nameLower.endsWith(" systems") || nameLower.endsWith("systems") -> "Systems suffix"
+                nameLower.endsWith(" global") || nameLower.endsWith("global") -> "Global suffix"
+                nameLower.endsWith(" international") || nameLower.endsWith("international") -> "International suffix"
+                else -> null
+            }
+
+            if (reason != null) {
+                toDelete.add(entry.copy(garbageReason = reason))
+            } else {
+                toMigrate.add(entry)
+            }
+        }
+
+        // Collapse duplicates in migration list (e.g., john-lewis + john-lewis-partnership)
+        val collapsed = mutableMapOf<String, MigrateEntry>()
+        for (entry in toMigrate) {
+            val baseName = entry.name.lowercase().trim()
+            // Check if this is a variant of an existing entry
+            val existing = collapsed.values.find { e ->
+                e.name.lowercase().trim() == baseName ||
+                    e.name.lowercase().trim().startsWith(baseName) ||
+                    baseName.startsWith(e.name.lowercase().trim())
+            }
+            if (existing != null) {
+                // Skip the duplicate, keep the first one
+                continue
+            }
+            collapsed[entry.docId] = entry
+        }
+        val finalMigrate = collapsed.values.toMutableList()
+
+        // Execute migration if not dry-run
+        val deletedIds = mutableListOf<String>()
+        val migratedIds = mutableListOf<String>()
+
+        if (!dryRun) {
+            // Delete garbage companies
+            for (g in toDelete) {
+                db.collection("companies").document(g.docId).delete().get()
+                deletedIds.add(g.docId)
+            }
+
+            // Move to potentials collection
+            for (entry in finalMigrate) {
+                val potentialData = entry.data.toMutableMap()
+                potentialData["sourceCompanyId"] = entry.docId
+                potentialData["migratedAt"] = Timestamp.now()
+
+                db.collection("potentials").document(entry.docId).set(potentialData).get()
+                db.collection("companies").document(entry.docId).delete().get()
+                migratedIds.add(entry.docId)
+            }
+        }
+
+        val result = mutableMapOf<String, Any>(
+            "totalZeroApp" to (toDelete.size + finalMigrate.size + toKeep.size),
+            "deleted" to deletedIds.size,
+            "migrated" to migratedIds.size,
+            "kept" to toKeep.size,
+            "dryRun" to dryRun,
+        )
+
+        if (toDelete.isNotEmpty()) {
+            result["deleteList"] = toDelete.map { mapOf("id" to it.docId, "name" to it.name, "reason" to it.garbageReason) }
+        }
+        if (finalMigrate.isNotEmpty()) {
+            result["migrateList"] = finalMigrate.map { mapOf("id" to it.docId, "name" to it.name) }
+        }
+        if (toKeep.isNotEmpty()) {
+            result["keepList"] = toKeep.map { mapOf("id" to it.docId, "name" to it.name) }
+        }
+        if (!dryRun) {
+            result["deletedIds"] = deletedIds
+            result["migratedIds"] = migratedIds
+        }
+
+        return result
+    }
 }

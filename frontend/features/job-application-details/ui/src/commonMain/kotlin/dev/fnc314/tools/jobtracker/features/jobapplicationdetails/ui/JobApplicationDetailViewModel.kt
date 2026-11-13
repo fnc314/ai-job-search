@@ -8,7 +8,7 @@ import dev.fnc314.tools.jobtracker.core.data.model.Confidence
 import dev.fnc314.tools.jobtracker.core.data.model.DerivedFrom
 import dev.fnc314.tools.jobtracker.core.data.model.EventActor
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.artifacts.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus

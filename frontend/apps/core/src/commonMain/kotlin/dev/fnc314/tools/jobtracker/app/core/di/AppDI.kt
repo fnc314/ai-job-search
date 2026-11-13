@@ -1,9 +1,11 @@
 package dev.fnc314.tools.jobtracker.app.core.di
 
+import dev.fnc314.tools.jobtracker.core.artifacts.di.coreArtifactsModule
 import dev.fnc314.tools.jobtracker.core.data.di.coreDataModule
 import dev.fnc314.tools.jobtracker.core.network.di.coreNetworkModule
 import dev.fnc314.tools.jobtracker.core.widgets.di.coreWidgetsModule
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.di.addJobApplicationFeatureModule
+import dev.fnc314.tools.jobtracker.features.artifactpreviewer.ui.di.artifactPreviewerFeatureModule
 import dev.fnc314.tools.jobtracker.features.companieslist.ui.di.companiesListFeatureModule
 import dev.fnc314.tools.jobtracker.features.companydetails.ui.di.companyDetailsFeatureModule
 import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.di.jobApplicationDetailsFeatureModule
@@ -33,6 +35,7 @@ public class MainApplication
  */
 public val appModule: KoinModule = module {
   includes(
+    coreArtifactsModule,
     coreDataModule,
     coreNetworkModule,
     coreWidgetsModule,
@@ -44,5 +47,6 @@ public val appModule: KoinModule = module {
     jobApplicationDetailsFeatureModule,
     companiesListFeatureModule,
     companyDetailsFeatureModule,
+    artifactPreviewerFeatureModule,
   )
 }

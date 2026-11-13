@@ -2,7 +2,7 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.data.source
 
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.artifacts.model.TrackerArtifact
 
 internal interface LocalJobApplicationDetailsDataSource {
     suspend fun getJobApplication(id: String): JobApplication?

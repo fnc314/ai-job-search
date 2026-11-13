@@ -3,7 +3,9 @@ package dev.fnc314.tools.jobtracker.app.core
 import androidx.compose.foundation.isSystemInDarkTheme
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.platformLogWriter
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -40,6 +42,8 @@ import dev.fnc314.tools.jobtracker.core.navigation.TopLevelDestinationEnum
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.AddJobApplicationEntryRegistry
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddApplicationRoute
 import dev.fnc314.tools.jobtracker.features.addjobapplication.ui.JobApplicationAddLeadRoute
+import dev.fnc314.tools.jobtracker.features.artifactpreviewer.ui.ArtifactPreviewerEntryRegistry
+import dev.fnc314.tools.jobtracker.features.artifactpreviewer.ui.ArtifactPreviewRoute
 import dev.fnc314.tools.jobtracker.features.companieslist.ui.CompaniesEntryRegistry
 import dev.fnc314.tools.jobtracker.features.companieslist.ui.JobApplicationCompaniesRoute
 import dev.fnc314.tools.jobtracker.features.companydetails.ui.CompanyDetailsEntryRegistry
@@ -74,6 +78,7 @@ private val navigationSavedStateConfig = SavedStateConfiguration {
       subclass(JobApplicationAddLeadRoute::class, JobApplicationAddLeadRoute.serializer())
       subclass(JobApplicationSettingsRoute::class, JobApplicationSettingsRoute.serializer())
       subclass(JobApplicationEditsRoute::class, JobApplicationEditsRoute.serializer())
+      subclass(ArtifactPreviewRoute::class, ArtifactPreviewRoute.serializer())
     }
   }
 }
@@ -151,6 +156,7 @@ public fun App() {
       koinInject<SettingsEntryRegistry>(),
       koinInject<AddJobApplicationEntryRegistry>(),
       koinInject<TrackerEditsEntryRegistry>(),
+      koinInject<ArtifactPreviewerEntryRegistry>(),
     )
 
     // React to authentication changes
@@ -184,15 +190,21 @@ public fun App() {
                   navigator = navigator,
                   isAuthenticated = isAuthenticated,
                   snackbarHostState = snackbarHostState,
-                ) { _ ->
-                  NavDisplay(
-                    backStack = navigator.backStack,
-                    onBack = { appNavigator.popBackStack() },
-                    entryProvider = entryProvider {
-                      entryRegistries.forEach { it.register(this) }
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                  )
+                ) { innerPadding ->
+                  Box(
+                    modifier = Modifier
+                      .fillMaxSize()
+                      .padding(innerPadding)
+                  ) {
+                    NavDisplay(
+                      backStack = navigator.backStack,
+                      onBack = { appNavigator.popBackStack() },
+                      entryProvider = entryProvider {
+                        entryRegistries.forEach { it.register(this) }
+                      },
+                      modifier = Modifier.fillMaxSize(),
+                    )
+                  }
                 }
               }
             }

@@ -25,21 +25,19 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.artifacts.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
 import dev.fnc314.tools.jobtracker.core.data.settings.AppSettings
 import dev.fnc314.tools.jobtracker.core.designsystem.componentSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.iconSizes
 import dev.fnc314.tools.jobtracker.core.designsystem.spacing
-import dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.MarkdownPreviewDialog
+import dev.fnc314.tools.jobtracker.core.navigation.LocalAppNavigator
+import dev.fnc314.tools.jobtracker.features.artifactpreviewer.ui.ArtifactPreviewRoute
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.artifacts_action_open
 import fnc314jobsearchtracker.features_job_application_details_ui.generated.resources.artifacts_action_preview
@@ -63,17 +61,9 @@ internal fun ArtifactsList(
   modifier: Modifier = Modifier,
   settings: AppSettings = AppSettings(),
   fileOpener: PlatformFileOpener = remember { PlatformFileOpener() },
-  fetchContent: suspend (String) -> String? = { null },
+  applicationId: String = "",
 ) {
-  var previewMarkdownArtifact by remember { mutableStateOf<TrackerArtifact?>(null) }
-
-  if (previewMarkdownArtifact != null) {
-    MarkdownPreviewDialog(
-      artifact = previewMarkdownArtifact!!,
-      onDismiss = { previewMarkdownArtifact = null },
-      fetchContent = fetchContent,
-    )
-  }
+  val navigator = LocalAppNavigator.current
 
   if (artifacts.isEmpty()) {
     Box(
@@ -118,7 +108,7 @@ internal fun ArtifactsList(
 
             isMd -> {
               if (settings.renderMarkdownInternally) {
-                previewMarkdownArtifact = artifact
+                navigator.navigate(ArtifactPreviewRoute(applicationId, artifact.id))
               } else {
                 val target = artifact.localPath
                   ?: artifact.externalUrl
@@ -143,7 +133,7 @@ internal fun ArtifactsList(
         },
         settings = settings,
         onViewInternal = {
-          previewMarkdownArtifact = artifact
+          navigator.navigate(ArtifactPreviewRoute(applicationId, artifact.id))
         },
         onOpenExternal = {
           val target = artifact.localPath

@@ -5,6 +5,7 @@ import androidx.navigation3.runtime.NavKey as PlatformNavKey
 import dev.fnc314.tools.jobtracker.core.navigation.LocalAppNavigator
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
 import dev.fnc314.tools.jobtracker.core.navigation.JobApplicationsTrackerNavKey
+import dev.fnc314.tools.jobtracker.core.navigation.TopBarActions
 import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_app_route_title
 import fnc314jobsearchtracker.features_add_job_application_ui.generated.resources.add_lead_route_title
@@ -17,8 +18,11 @@ import org.jetbrains.compose.resources.StringResource
  */
 @Serializable
 public data object JobApplicationAddApplicationRoute : JobApplicationsTrackerNavKey {
-    @Transient
-    override val titleRes: StringResource = Res.string.add_app_route_title
+     @Transient
+     override val titleRes: StringResource = Res.string.add_app_route_title
+
+     @Transient
+     override val topBarActions: TopBarActions = TopBarActions.Detail
 }
 
 /**
@@ -28,6 +32,9 @@ public data object JobApplicationAddApplicationRoute : JobApplicationsTrackerNav
 public data object JobApplicationAddLeadRoute : JobApplicationsTrackerNavKey {
     @Transient
     override val titleRes: StringResource = Res.string.add_lead_route_title
+
+    @Transient
+    override val topBarActions: TopBarActions = TopBarActions.Detail
 }
 
 public class AddJobApplicationEntryRegistry : FeatureEntryRegistry {

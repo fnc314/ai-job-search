@@ -1,6 +1,6 @@
 package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.domain.usecase
 
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
+import dev.fnc314.tools.jobtracker.core.artifacts.model.TrackerArtifact
 import dev.fnc314.tools.jobtracker.core.data.repository.UseCase
 
 /**

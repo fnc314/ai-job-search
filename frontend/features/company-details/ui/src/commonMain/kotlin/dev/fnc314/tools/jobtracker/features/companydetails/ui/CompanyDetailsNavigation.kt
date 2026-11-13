@@ -7,6 +7,7 @@ import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
 import dev.fnc314.tools.jobtracker.core.navigation.ApplicationId
 import dev.fnc314.tools.jobtracker.core.navigation.FeatureEntryRegistry
 import dev.fnc314.tools.jobtracker.core.navigation.JobApplicationsTrackerNavKey
+import dev.fnc314.tools.jobtracker.core.navigation.TopBarActions
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_company_details_ui.generated.resources.company_details_title
 import kotlinx.serialization.Serializable
@@ -24,6 +25,9 @@ public data class JobApplicationCompanyDetailsRoute(
 ) : JobApplicationsTrackerNavKey {
     @Transient
     override val titleRes: StringResource = Res.string.company_details_title
+
+    @Transient
+    override val topBarActions: TopBarActions = TopBarActions.Detail
 }
 
 public class CompanyDetailsEntryRegistry : FeatureEntryRegistry {

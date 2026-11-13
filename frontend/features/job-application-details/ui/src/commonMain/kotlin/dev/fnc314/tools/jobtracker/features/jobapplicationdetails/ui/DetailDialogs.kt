@@ -21,21 +21,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.mikepenz.markdown.m3.Markdown
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
-import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileOpener
-import dev.fnc314.tools.jobtracker.core.data.platform.PlatformFileReader
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerEventType
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
@@ -257,153 +250,6 @@ internal fun RecordEventDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text(stringResource(Res.string.dialog_action_cancel))
-            }
-        },
-    )
-}
-
-@Composable
-internal fun MarkdownPreviewDialog(
-    artifact: TrackerArtifact,
-    onDismiss: () -> Unit,
-    fetchContent: suspend (String) -> String? = { null },
-): Unit {
-    var content by remember { mutableStateOf<String?>(null) }
-    var loadError by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(artifact) {
-        val storage = artifact.storage
-        val externalUrl = artifact.externalUrl
-        val localPath = artifact.localPath
-        val inlineContent = artifact.content
-        var fetched = false
-
-        // Try 1: Use inline content stored in Firestore (best for mobile)
-        if (!fetched && inlineContent != null) {
-            content = inlineContent
-            fetched = true
-        }
-
-        // Try 2: Fetch from external URL (signed URL or public link)
-        if (!fetched && externalUrl != null) {
-            val urlContent = fetchContent(externalUrl)
-            if (urlContent != null) {
-                content = urlContent
-                fetched = true
-            }
-        }
-
-        // Try 3: Fall back to GCS storage URL
-        if (!fetched && storage != null) {
-            val gcsUrl = "https://storage.googleapis.com/${storage.bucket}/${storage.path}"
-            val gcsContent = fetchContent(gcsUrl)
-            if (gcsContent != null) {
-                content = gcsContent
-                fetched = true
-            }
-        }
-
-        // Try 4: Read from local filesystem (desktop/JVM only)
-        if (!fetched && localPath != null) {
-            val localContent = PlatformFileReader.readText(localPath)
-            if (localContent != null) {
-                content = localContent
-                fetched = true
-            }
-        }
-
-        // All attempts failed
-        if (!fetched) {
-            if (localPath != null) {
-                loadError = "Failed to read this artifact from local storage.\n\nPath: $localPath"
-            } else if (storage != null) {
-                loadError = "Failed to fetch this artifact from cloud storage.\n\nStorage: ${storage.bucket}/${storage.path}"
-            } else if (externalUrl != null) {
-                loadError = "Failed to fetch this artifact.\n\nURL: $externalUrl"
-            } else {
-                loadError = "No storage location available for this artifact."
-            }
-        }
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = artifact.filename,
-                style = MaterialTheme.typography.titleLarge
-            )
-        },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.subMedium),
-            ) {
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(modifier = Modifier.padding(MaterialTheme.spacing.subMedium)) {
-                        Text(
-                            text = stringResource(Res.string.dialog_md_kind, artifact.kind.displayName()),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        artifact.localPath?.let {
-                            Text(
-                                text = stringResource(Res.string.dialog_md_path, it),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-
-                Text(
-                    text = stringResource(Res.string.dialog_md_content_title),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    tonalElevation = MaterialTheme.componentSizes.hairline,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    when {
-                        content != null -> {
-                            Markdown(
-                                content = content!!,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(MaterialTheme.spacing.subMedium),
-                            )
-                        }
-                        loadError != null -> {
-                            Text(
-                                text = loadError!!,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.padding(MaterialTheme.spacing.subMedium),
-                            )
-                        }
-                        else -> {
-                            Text(
-                                text = "Loading...",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(MaterialTheme.spacing.subMedium),
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(onClick = onDismiss) {
-                Text(stringResource(Res.string.dialog_action_close))
             }
         },
     )
