@@ -11,7 +11,7 @@ _roadmap_edit() {
 
     # Parse ROADMAP.md for RM-XXX IDs (skip Frozen section)
     local -a roadmap_ids
-    local roadmap_file="${HOME}/Work/Search/waleedtarbosh-ai-job-search/ROADMAP.md"
+    local roadmap_file="${HOME}/Work/Search/ai-job-search/ROADMAP.md"
     if [[ -f "$roadmap_file" ]]; then
         # Try to find ROADMAP.md relative to the current directory first
         local cwd="$PWD"
