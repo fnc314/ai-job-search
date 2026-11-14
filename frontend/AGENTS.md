@@ -94,6 +94,9 @@ All technical architecture, design, and migration plans for `frontend` must adhe
 - **Company Logos**: All company logo rendering must use `CompanyLogoImage` with `CompanyLogoSize` (`Small`, `Medium`, `Large`). Never construct ad-hoc `Box` + `JobApplicationTrackerImage` wrappers in feature screens.
 - **Canonical Company Slugs**: Always derive `companyId` via `DocumentIdGenerator.slug()` (or `canonicalCompanySlug` in KMP `commonMain`) so employer variants (`"Meta Platforms"` vs `"Meta"`, `"Ford Motor Company"` vs `"Ford"`) never create duplicate company cards.
 
+### Rule 9: Interface-First Naming (MANDATORY)
+Every `public` declaration (explicit API mode makes this exact) is named for its role, never its tool. Data sources are `Remote*` / `Network*` / `Local*` (Firestore → Remote, raw HTTP → Network, Room/filesystem → Local); enum persistence conversion is `toRemote()` / `fromRemote()`. Tool names (Firestore, Firebase, GCS, Gmail, Room, Ktor, Kermit, JPype) are allowed only in `internal`/`private` code or `impl/` packages, plus `KmpInspector` and direct `koin` calls. Existing violations are baselined in `docs/interface-naming-baseline.txt` (shrink only) and enforced by `KonsistArchitectureTest`, Detekt `ForbiddenClassName`, and `mise run dev:guards`. See the root `AGENTS.md` and `docs/interface-naming-exceptions.md`.
+
 ---
 
 ## 3. Key Gradle & Mise Execution Commands

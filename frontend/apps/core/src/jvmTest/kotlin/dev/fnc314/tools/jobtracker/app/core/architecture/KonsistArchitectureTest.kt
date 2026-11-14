@@ -110,6 +110,34 @@ class KonsistArchitectureTest {
     }
 
     @Test
+    fun `public declarations do not name a tool`() {
+        val root = generateSequence(File("").absoluteFile) { it.parentFile }
+            .first { File(it, "mise.toml").exists() }
+        val baseline = File(root, "docs/interface-naming-baseline.txt")
+            .readLines()
+            .filter { it.isNotBlank() && !it.startsWith("#") }
+            .toSet()
+        val substrings = listOf("firestore", "firebase", "gmail", "composio", "kermit", "jpype")
+        val tokens = setOf("gcs", "room", "ktor", "notion")
+        fun namesTool(name: String): Boolean {
+            if (substrings.any { name.lowercase().contains(it) }) return true
+            return Regex("[A-Z]+(?=[A-Z][a-z])|[A-Z]?[a-z]+|[A-Z]+|\\d+").findAll(name).any { it.value.lowercase() in tokens }
+        }
+        fun relPath(path: String): String = File(path).normalize().relativeTo(root).path
+        val declarations = kmpScope.classes() + kmpScope.interfaces() + kmpScope.objects() + kmpScope.functions() + kmpScope.properties()
+        val violations = declarations
+            .filter { it.hasPublicModifier }
+            .filterNot { it.containingFile.path.let { p -> p.contains("KmpInspector") || p.contains("/impl/") || p.contains("/build/") || p.contains("/bin/") || p.contains("Test/") } }
+            .filter { namesTool(it.name) }
+            .map { "${relPath(it.containingFile.path)}:${it.name}" }
+            .filterNot { it in baseline }
+        kotlinAssertTrue(
+            violations.isEmpty(),
+            "Public declarations must be named for the interface, not the tool (Remote/Local/Network): $violations",
+        )
+    }
+
+    @Test
     fun `all composeResources strings xml files use indexed format specifiers`() {
         val rootDir = File("..")
         val stringsFiles = rootDir.walkTopDown()

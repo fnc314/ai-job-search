@@ -27,3 +27,6 @@ All declarations in `records-parser` must enforce explicit visibility (`public`,
 
 ### Rule 3: Zero Fabrication & Factual Grounding
 Every change to parsing rules, status normalizers, or protobuf schemas must adhere strictly to verified data contracts in `tracker.schema.json` and Firestore schema v7 specifications.
+
+### Rule 4: Interface-First Naming (MANDATORY)
+`records-parser` is deployable, so its `public` API is named for the role, never the tool: `toRemote()` / `fromRemote()`, `PythonBridge`, never `toFirestore()` / `JPypeBridge`. Tool names are allowed only in `internal`/`private`/`impl/` code. Legacy violations are baselined in `docs/interface-naming-baseline.txt` (shrink only) and enforced by `mise run dev:guards`. See the root `AGENTS.md`.

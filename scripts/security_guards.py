@@ -26,7 +26,9 @@ Checks:
 Stdlib only. Exit 0 on success, 1 with a failure list otherwise.
 """
 
+import ast
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -177,16 +179,109 @@ def check_package_manifests() -> None:
             )
 
 
+# ── Interface-first naming (AGENTS.md "Interface-First Naming") ───────────────
+# Public names describe the role (Remote, Local, Network, Blob, Email), never the
+# tool. Anything that does work is deployable and therefore public. See
+# docs/interface-naming-exceptions.md. `sheet` is generic and intentionally allowed.
+NAMING_SUBSTRINGS = ("firestore", "firebase", "gmail", "composio", "kermit", "jpype")
+NAMING_TOKENS = {"gcs", "room", "ktor", "notion"}
+NAMING_BASELINE = ROOT / "docs" / "interface-naming-baseline.txt"
+NAMING_EXEMPT_PATH_PARTS = ("KmpInspector", "/impl/", "/build/", "/test/", "/tests/", "Test/", "/node_modules/")
+KOTLIN_PUBLIC_DECL = re.compile(
+    r"^\s*public\s+(?:(?:data|sealed|abstract|open|enum|annotation|value|inline|expect|actual|"
+    r"override|suspend|operator|const|lateinit|tailrec|infix|companion|fun)\s+)*"
+    r"(?:fun|class|interface|object|val|var)\s+(?:<[^>]+>\s*)?(?:[\w.]+\.)?(\w+)"
+)
+CAMEL_TOKEN = re.compile(r"[A-Z]+(?=[A-Z][a-z])|[A-Z]?[a-z]+|[A-Z]+|\d+")
+
+
+def names_a_tool(name: str) -> bool:
+    lowered = name.lower()
+    if any(s in lowered for s in NAMING_SUBSTRINGS):
+        return True
+    return any(t.lower() in NAMING_TOKENS for t in CAMEL_TOKEN.findall(name.replace("_", " ")))
+
+
+def _naming_exempt(rel: str) -> bool:
+    return any(part in f"/{rel}" for part in NAMING_EXEMPT_PATH_PARTS)
+
+
+def collect_naming_violations() -> set[str]:
+    found: set[str] = set()
+    for base in ("frontend", "records", "backend", "gradle/tools/project-plugins"):
+        for path in (ROOT / base).rglob("*.kt"):
+            rel = path.relative_to(ROOT).as_posix()
+            if _naming_exempt(rel):
+                continue
+            if names_a_tool(path.stem):
+                found.add(f"{rel}:<file>")
+            for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+                m = KOTLIN_PUBLIC_DECL.match(line)
+                if m and names_a_tool(m.group(1)):
+                    found.add(f"{rel}:{m.group(1)}")
+    for path in (ROOT / "scripts").glob("*.py"):
+        rel = path.relative_to(ROOT).as_posix()
+        if names_a_tool(path.stem):
+            found.add(f"{rel}:<file>")
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except (OSError, SyntaxError):
+            continue
+        stack: list[ast.AST] = [tree]
+        while stack:
+            node = stack.pop()
+            for child in getattr(node, "body", []):
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                    if not child.name.startswith("_") and names_a_tool(child.name):
+                        found.add(f"{rel}:{child.name}")
+                    if isinstance(child, ast.ClassDef):
+                        stack.append(child)
+    return found
+
+
+def check_interface_naming() -> None:
+    try:
+        baseline = {
+            line.strip()
+            for line in NAMING_BASELINE.read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.startswith("#")
+        }
+    except OSError:
+        baseline = set()
+    current = collect_naming_violations()
+    for entry in sorted(current - baseline):
+        errors.append(
+            f"interface-naming: public surface names a tool: {entry}. Name it for the role "
+            "(Remote/Local/Network/Blob/Email), or record a justified exception in "
+            "docs/interface-naming-exceptions.md."
+        )
+    for entry in sorted(baseline - current):
+        print(f"note: interface-naming baseline entry resolved, prune it: {entry}")
+
+
+def write_naming_baseline() -> None:
+    header = (
+        "# Known interface-first naming violations (path:name). Shrink only; see\n"
+        "# docs/interface-naming-exceptions.md. Regenerate: mise run dev:guards -- --write-naming-baseline\n"
+    )
+    NAMING_BASELINE.write_text(header + "\n".join(sorted(collect_naming_violations())) + "\n", encoding="utf-8")
+    print(f"wrote {NAMING_BASELINE}")
+
+
 def main() -> int:
+    if "--write-naming-baseline" in sys.argv:
+        write_naming_baseline()
+        return 0
     check_permissions()
     check_gitignore()
     check_package_manifests()
+    check_interface_naming()
     if errors:
         print(f"security_guards: {len(errors)} failure(s)")
         for err in errors:
             print(f"  - {err}")
         return 1
-    print("security_guards: OK (permissions allowlist, gitignore rules, package manifests)")
+    print("security_guards: OK (permissions allowlist, gitignore rules, package manifests, interface naming)")
     return 0
 
 

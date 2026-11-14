@@ -38,9 +38,12 @@ naming:
   # Type: List<String> (forbiddenNames)
   # Docs: https://detekt.dev/docs/rules/naming#forbiddenclassname
   # ─────────────────────────────────────────────────────────────────────────────
+  # Interface-first naming: public classes name the role (Remote/Local/Network), never the tool.
+  # Adapters live in `impl/`; known legacy violations are tracked in docs/interface-naming-baseline.txt.
   ForbiddenClassName:
-    active: false
-    forbiddenName: []
+    active: true
+    forbiddenName: ["Firestore", "Firebase", "Gcs", "Gmail", "Composio", "Ktor", "Kermit", "JPype"]
+    excludes: ["**/impl/**", "**/KmpInspector*", "**/FirestoreProvider.kt", "**/JPypeBridge.kt", "**/test/**", "**/*Test/**"]
   # ─────────────────────────────────────────────────────────────────────────────
   # Rule: FunctionMaxLength
   # ELI5: Flags function names that are excessively long and verbose.
