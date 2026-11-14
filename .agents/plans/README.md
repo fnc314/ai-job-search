@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`165500_public-declarations-kdoc-konsist-enforcement-plan.md`](./2026-11-14/165500_public-declarations-kdoc-konsist-enforcement-plan.md) | In Progress | Enforce KDocs on all public declarations across `backend`, `records`, `frontend`, and `gradle/tools` via Konsist architecture tests, and author missing KDocs |
 | [`061700_konsist-1-0-0-beta-1-migration-plan.md`](./2026-11-14/061700_konsist-1-0-0-beta-1-migration-plan.md) | Completed | Upgrade Konsist from 0.18.1 to 1.0.0-beta.1 across `records` and `frontend` test suites, review breaking changes, and verify architectural invariants |
 | [`150000_composio-triggers-email-pipeline-integration.md`](./2026-11-14/150000_composio-triggers-email-pipeline-integration.md) | Draft / Proposed | Real-time Composio email triggers (`GMAIL_EMAIL_SENT_TRIGGER`) and webhook ingestion on GCP Cloud Run within Free Tier limits, implemented in pure Kotlin & Ktor |
 | [`192800_extract-deterministic-ai-flow-processes.md`](./2026-11-12/192800_extract-deterministic-ai-flow-processes.md) | Completed | Extract deterministic AI-flow processes into standalone `backend/` modules: `tracker-conventions`, `email-classification`, `company-metadata-enrichment`, `event-chain` |
