@@ -263,6 +263,33 @@ Push-Location $SmokeDir; xelatex -interaction=nonstopmode -halt-on-error cover_s
 
 If `pdftotext` is missing, `/apply` skips the mechanical check with a warning and falls back to a visual keyword review — everything else works normally.
 
+### Optional: MCP Server Setup
+
+MCP (Model Context Protocol) servers give AI agents direct access to tools like task runners, IDE integration, email services, and more. This repository does **not** include a project-level MCP config to avoid committing personal credentials and to prevent conflicts between agents. Instead, configure MCP servers in your agent's global config file.
+
+**Where to find MCP server documentation:** `.agents/mcp/README.md` lists every server that may be useful for agents working in this repo, including configuration examples, auth requirements, and setup instructions.
+
+**How to configure MCP for your agent:**
+
+| Agent | Global MCP config location |
+|---|---|
+| Junie | `~/.junie/mcp/mcp.json` |
+| Shared agents | `~/.agents/mcp/mcp.json` |
+| Cursor | `~/.cursor/mcp.json` |
+| Claude Desktop | `~/.claude/claude_desktop_config.json` |
+
+Copy the configuration snippets from `.agents/mcp/README.md` into your agent's global config, replace any placeholder keys with your actual credentials, and restart your agent.
+
+**Recommended servers:**
+
+- **mise** (Required) — Task runner access for all `mise run` commands.
+- **JetBrains IDE** (Recommended) — Local IDE integration for file operations.
+- **Composio** (Recommended) — Email sync pipeline (`email:sync-labels`, `email:read-inbox`, `email:collect`).
+
+**Optional servers:** `hunter-remote-mcp` (email finding), `KOIN` (Kotlin DI tools).
+
+**Important:** Personal connections (Composio, Hunter.io) should always be configured in your global MCP config, never committed to the repository.
+
 ## 2. Fork and clone
 
 ```bash
