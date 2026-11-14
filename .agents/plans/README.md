@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`150000_composio-triggers-email-pipeline-integration.md`](./2026-11-14/150000_composio-triggers-email-pipeline-integration.md) | Draft / Proposed | Real-time Composio email triggers (`GMAIL_EMAIL_SENT_TRIGGER`) and webhook ingestion on GCP Cloud Run within Free Tier limits, implemented in pure Kotlin & Ktor |
 | [`192800_extract-deterministic-ai-flow-processes.md`](./2026-11-12/192800_extract-deterministic-ai-flow-processes.md) | Completed | Extract deterministic AI-flow processes into standalone `backend/` modules: `tracker-conventions`, `email-classification`, `company-metadata-enrichment`, `event-chain` |
 | [`185800_deterministic-fit-score-unification.md`](./2026-11-12/185800_deterministic-fit-score-unification.md) | Completed | Unify `RankScorer` and `FitEvaluator` into a single deterministic scorer, extract into `backend/job-post-ranking/`, eradicate manual fit editing, and rework `backend/` into multi-module Gradle |
 | [`183200_proposal-snippet-display.md`](./2026-11-12/183200_proposal-snippet-display.md) | Completed | Propagate email `snippet` through proposal pipeline (schema v13, proposals.py, Kotlin models, TUI) with snippet display, sender column, reason legend, and expanded action help text |

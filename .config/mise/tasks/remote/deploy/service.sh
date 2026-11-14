@@ -21,7 +21,7 @@ IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT}/job-tracker-backend/backend:lates
 
 echo "Building and deploying ${SERVICE_NAME} to ${REGION} in project ${PROJECT} (mode: ${MODE})..."
 
-"${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" installDist
+"${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" :service:installDist
 
 if [ "$MODE" = "local" ]; then
   docker build -t "${IMAGE_URI}" "${MISE_PROJECT_ROOT}/backend"
