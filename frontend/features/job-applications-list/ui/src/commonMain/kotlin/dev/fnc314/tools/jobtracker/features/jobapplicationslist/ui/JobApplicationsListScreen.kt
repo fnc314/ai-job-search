@@ -280,7 +280,7 @@ internal fun JobApplicationsListContent(
                     model = item.toCardUiModel(),
                     onApplicationClick = { onIntent(item.onClickIntent) },
                     modifier = Modifier,
-                    variant = TopLevelCardSurfaceVariant.Elevated,
+                    variant = TopLevelCardSurfaceVariant.FilledTonal,
                   )
                 }
               }
@@ -299,7 +299,7 @@ internal fun JobApplicationsListContent(
                     model = item.toCardUiModel(),
                     onApplicationClick = { onIntent(item.onClickIntent) },
                     modifier = Modifier,
-                    variant = TopLevelCardSurfaceVariant.Elevated,
+                    variant = TopLevelCardSurfaceVariant.FilledTonal,
                   )
                 }
               }
@@ -318,7 +318,7 @@ internal fun JobApplicationsListContent(
                     model = item.toCardUiModel(),
                     onApplicationClick = { onIntent(item.onClickIntent) },
                     modifier = Modifier,
-                    variant = TopLevelCardSurfaceVariant.Elevated,
+                    variant = TopLevelCardSurfaceVariant.FilledTonal,
                   )
                 }
               }

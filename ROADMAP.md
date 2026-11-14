@@ -53,6 +53,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-007   | Fix KMP Inspector                      | Fix Room and Ktor integrations       | PIVOTAL    | CRITICAL | 0 d    | DONE        |
 | RM-009   | Unify Top-Level Card Component         | Unify Card skeletal approach         | HIGH       | MEDIUM   | 0 d    | DONE        |
 | RM-011   | Break up /backend into proper Gradle Multi-Module | Rework backend into multi-module Gradle | MEDIUM     | MEDIUM   | 0 d    | IN_PROGRESS |
+| RM-012   | Eradicate Interface Naming Baseline Violations | Rename legacy tool-named symbols to interface roles | HIGH        | HIGH     | 0 d    | OPEN        |
 | RM-010   | Separate out RoadmapApp.kt             | Refactor RoadmapApp.kt location      | LOW        | LOW      | 0 d    | OPEN        |
 
 ---
@@ -342,7 +343,6 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | 2026-11-10 | Status update     | Started implementation per approved plan 164050 |
 | 2026-11-10 | Item created      | Initial entry                        |
 
-
 ---
 
 ### [RM-007] Fix KMP Inspector
@@ -359,15 +359,16 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Dependencies:** None
 
 **Linked Plans:**
+
 - None
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-10 | Item created      | Initial entry                        |
 
 ---
-
 
 ---
 
@@ -386,9 +387,11 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Dependencies:** None
 
 **Linked Plans:**
+
 - `frontend/.agents/plans/2026-11-11/010500_rm-008-materialkolor-integration.md`
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-11 | Completed         | Integrated MaterialKolor 6.0.0, replaced manual color derivation with DynamicMaterialExpressiveTheme, removed buildLightColorScheme and buildDarkColorScheme |
@@ -408,39 +411,102 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Objective:** Unify the base skeletal approach to the recycled `Card` treatment found in no less than 2 instances.
 
 ## Instances
+
 - [`JobApplicationCard`](frontend/core/widgets/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/core/widgets/JobApplicationCard.kt)
 - [`CompanyCard`](frontend/features/companies-list/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/companieslist/ui/component/CompanyCard.kt)
 - [`EditCard`](frontend/features/tracker-edits/ui/src/commonMain/kotlin/dev/fnc314/tools/jobtracker/features/trackeredits/ui/TrackerEditsScreen.kt)
 
 ## Objective
+
 1. Unify the responsive treatment to these "Top-Level" `Card`s
 2. Settle on a single `Grid` based layout, defining regions exposed to the caller as a variety of `@Composable` inputs
-	1. Annotate `@file:OptIn(ExperimentalGridApi::class)` instead of by function
-3. Expose the existing expand-collapse container treatment and act as a general navigation target when no content is hidden
-4. Equal treatment to action buttons displayed on the `Card`
-5. Elevation and surface color treatment variations
+3. Annotate `@file:OptIn(ExperimentalGridApi::class)` instead of by function
+4. Expose the existing expand-collapse container treatment and act as a general navigation target when no content is hidden
+5. Equal treatment to action buttons displayed on the `Card`
+6. Elevation and surface color treatment variations
 
 ### Side Quests
+
 1. Unify the presentation of a `CompanyLogo` size-wise and across all use-sites
-	1. Background of logo should be transparent when loaded and cropped/scaled to predefined sizes
-	2. Placeholder/Loading should be dynamic and/or indicative of loading (shimmer state or progress indicator)
-	3. Error states notify with a red banner across the top indicating the HTTP Code
-		1. Detailed logging handled by `Coil` setup
-2. Track instances that there are two instances of 1 company (Meta, Ford Motor Company, etc) in `companies` collection and
-	1. Trace the issue of the duplication (down to the data layer if necessary)
-	2. Outline a fix and migration to rectify the issue
-	3. Change architecture documentation to avoid the same fate in the future
+1. Background of logo should be transparent when loaded and cropped/scaled to predefined sizes
+1. Placeholder/Loading should be dynamic and/or indicative of loading (shimmer state or progress indicator)
+1. Error states notify with a red banner across the top indicating the HTTP Code
+1. Detailed logging handled by `Coil` setup
+1. Track instances that there are two instances of 1 company (Meta, Ford Motor Company, etc) in `companies` collection and
+1. Trace the issue of the duplication (down to the data layer if necessary)
+1. Outline a fix and migration to rectify the issue
+1. Change architecture documentation to avoid the same fate in the future
 
 **Dependencies:** None
 
 **Linked Plans:**
+
 - [`.agents/plans/2026-11-11/220303_rm-009-unify-top-level-card-and-company-dedup.md`](.agents/plans/2026-11-11/220303_rm-009-unify-top-level-card-and-company-dedup.md)
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-11 | Item created      | Initial entry                        |
 | 2026-11-11 | Implementation    | Created `TopLevelCard`, unified `CompanyLogoImage` sizes/loading/HTTP error banner, and added company slug deduplication across `records`, `backend`, `frontend`, and `scripts` |
+
+---
+
+### [RM-012] Eradicate Interface Naming Baseline Violations
+
+**Short Desc:** Rename legacy tool-named symbols and file paths across Kotlin and Python to interface roles
+
+**Criticality:** HIGH
+**Priority:** HIGH
+**Complexity:** 3 — Moderate
+**Status:** OPEN
+**Completion %:** 0
+**Creation Date:** 2026-11-14
+**Objective:** Eradicate all known public-surface tool-naming violations recorded in `docs/interface-naming-baseline.txt` by renaming them to role/capability-based terminology (`Remote`, `Local`, `Network`, `Blob`, `Email`) per `docs/interface-naming-exceptions.md` and the `AGENTS.md` rules, shrinking the baseline to zero.
+
+**Scope:**
+
+- In Scope:
+  - Rename public `toFirestore()` and `fromFirestore()` methods across all models in `frontend/core/data` and `frontend/core/artifacts` to `toRemote()` and `fromRemote()`.
+  - Rename `TimestampConverter` and `JPypeBridge` conversion methods in `records/parser` to `toRemote()` / `fromRemote()` and rename `JPypeBridge` class/file to `PythonBridge`.
+  - Rename `FirestoreProvider` in `frontend/apps/cli` to `RemoteDataSourceProvider` (and property `firestore` to `remote`).
+  - Rename `firestoreInstance` in `frontend/apps/terminal` to `remoteInstance`.
+  - Rename `createRoomDatabase` in `frontend/core/data` to `createLocalDatabase`.
+  - Rename `backend/service` public symbols (e.g. `ComposioWebhookRoute` / `firestore`).
+  - Rename Python deployable modules/functions in `scripts/`: `scripts/contract.py` (`to_remote`/`from_remote`), `gmail_fetch.py` -> `email_fetch.py`, GCS scripts (`migrate_gcs.py`, `purge_gcs_legacy.py`, `relocate_gcs_*.py`) -> `blob_*`, and Firestore scripts (`backup_firestore.py`, `restore_firestore.py`, etc.) -> `remote_*`.
+  - Update any skill/command documentation naming (`gmail-sync.md` -> `email-sync.md`).
+  - Prune resolved entries from `docs/interface-naming-baseline.txt` until empty.
+- Out of Scope:
+  - Generic terms (e.g., `sheet` / spreadsheet), which are explicitly allowed.
+  - Allowed exceptions documented in `docs/interface-naming-exceptions.md` (e.g., `KmpInspector`, direct `koin` calls, external-contract payload keys).
+
+**Dependencies:** None
+
+**Acceptance Criteria:**
+
+- [ ] All `toFirestore()` / `fromFirestore()` Kotlin enum methods are migrated to `toRemote()` / `fromRemote()`.
+- [ ] `JPypeBridge` is refactored to `PythonBridge` with `toRemote()` / `fromRemote()`.
+- [ ] CLI/Terminal/Backend classes no longer expose tool names (`FirestoreProvider` -> `RemoteDataSourceProvider`, etc.).
+- [ ] `scripts/` deployable modules no longer contain tool-named filenames or public functions.
+- [ ] `docs/interface-naming-baseline.txt` contains zero entries (or only permanent external contract exceptions).
+- [ ] `mise run dev:guards` passes with the reduced/empty baseline.
+- [ ] `mise run dev:konsist` and `mise run frontend:detekt` pass with zero violations.
+
+**Notes:**
+
+- Follow the target interface names cataloged in `docs/interface-naming-exceptions.md`.
+- Keep in mind that `sheet` is not forbidden.
+- All modifications should be incremental or planned with careful refactoring so tests continue to pass.
+
+**Linked Plans:**
+
+- `.agents/plans/2026-11-14/022100_interface-first-naming-policy.md`
+
+**Changelog:**
+
+| Date       | Change            | Details                              |
+|------------|-------------------|--------------------------------------|
+| 2026-11-14 | Item created      | Initial entry                        |
 
 ---
 
@@ -458,9 +524,11 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Dependencies:** None
 
 **Linked Plans:**
+
 - None
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-12 | Item created      | Initial entry                        |
@@ -481,13 +549,16 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Dependencies:** None
 
 **Linked Plans:**
+
 - `.agents/plans/2026-11-12/185800_deterministic-fit-score-unification.md`
 
 **Changelog:**
+
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
 | 2026-11-12 | Implementation    | Reworked `backend/` into multi-module Gradle: created `backend/job-post-ranking/` pure Kotlin library with unified RankScorer, moved existing code to `backend/service/`, added BackendServiceConventionPlugin, and added new `backend/settings.gradle.kts` |
 | 2026-11-12 | Item created      | Initial entry                        |
+
 ## Frozen Items
 
 Items in this section have been frozen via the nuclear clear roadmap option. They are archived and should not be considered active work items.

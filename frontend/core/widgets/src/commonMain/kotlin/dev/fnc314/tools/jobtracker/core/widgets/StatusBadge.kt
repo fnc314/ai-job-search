@@ -48,7 +48,7 @@ public fun StatusBadge(
     ) {
         Text(
             text = displayName,
-            style = MaterialTheme.typography.labelMediumEmphasized,
+            style = MaterialTheme.typography.labelMedium,
             textAlign = textAlign,
             maxLines = maxLines,
             modifier = Modifier.padding(

@@ -63,7 +63,7 @@ public fun FitBadge(
     ) {
         Text(
             text = "Fit $score",
-            style = MaterialTheme.typography.labelMediumEmphasized,
+            style = MaterialTheme.typography.labelMedium,
             textAlign = textAlign,
             maxLines = maxLines,
             modifier = Modifier.padding(

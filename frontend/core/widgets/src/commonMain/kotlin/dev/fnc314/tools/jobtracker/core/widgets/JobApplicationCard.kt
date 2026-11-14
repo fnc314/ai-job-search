@@ -39,7 +39,8 @@ import org.jetbrains.compose.resources.stringResource
 
 private const val GRID_COLUMNS = 3
 private const val GRID_ROWS = 2
-private const val JOB_TITLE_NUMBER_OF_LINES: Int = 2
+private const val JOB_TITLE_NUMBER_OF_LINES: Int = 3
+private const val JOB_TITLE_NUMBER_OF_LINES_COMPACT: Int = 2
 private const val JOB_UPDATED_AT_NUMBER_OF_LINES: Int = 2
 
 /**
@@ -57,220 +58,230 @@ private const val JOB_UPDATED_AT_NUMBER_OF_LINES: Int = 2
  */
 @Composable
 public fun JobApplicationCard(
-    model: JobApplicationCardUiModel,
-    onApplicationClick: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    onToggleExpand: (() -> Unit)? = null,
-    variant: TopLevelCardSurfaceVariant = TopLevelCardSurfaceVariant.Surface,
-): Unit {
-    val isCompact = LocalWindowSizeClass.current.isCompact
+  model: JobApplicationCardUiModel,
+  onApplicationClick: (String) -> Unit,
+  modifier: Modifier = Modifier,
+  onToggleExpand: (() -> Unit)? = null,
+  variant: TopLevelCardSurfaceVariant = TopLevelCardSurfaceVariant.Surface,
+) {
+  val isCompact = LocalWindowSizeClass.current.isCompact
 
-    val unknownCompanyText = stringResource(Res.string.card_unknown_company)
-    val displayCompany = model.companyName.trim().ifEmpty { unknownCompanyText }
-    val noRoleText = stringResource(Res.string.card_no_role)
-    val roleDesc = model.roleTitle.trim().ifEmpty { noRoleText }
-    val clickLabel = stringResource(Res.string.card_click_cd, roleDesc, displayCompany)
-    val rowContentDescription = stringResource(
-        Res.string.card_cd,
-        displayCompany,
-        roleDesc,
-        model.statusDisplayName,
-    )
-    val notAvailableText = stringResource(Res.string.card_not_available)
-    val notAppliedText = stringResource(Res.string.card_not_applied)
-    val createdDate = model.createdDateDisplay(backup = notAvailableText)
-    val appliedDate = model.appliedDateDisplay(backup = notAppliedText)
-    val updatedDate = model.updatedDateDisplay(backup = notAvailableText)
-    val viewDetailsLabel = stringResource(Res.string.card_action_view_details)
+  val unknownCompanyText = stringResource(Res.string.card_unknown_company)
+  val displayCompany = model.companyName.trim().ifEmpty { unknownCompanyText }
+  val noRoleText = stringResource(Res.string.card_no_role)
+  val roleDesc = model.roleTitle.trim().ifEmpty { noRoleText }
+  val clickLabel = stringResource(Res.string.card_click_cd, roleDesc, displayCompany)
+  val rowContentDescription = stringResource(
+    Res.string.card_cd,
+    displayCompany,
+    roleDesc,
+    model.statusDisplayName,
+  )
+  val notAvailableText = stringResource(Res.string.card_not_available)
+  val notAppliedText = stringResource(Res.string.card_not_applied)
+  val createdDate = model.createdDateDisplay(backup = notAvailableText)
+  val appliedDate = model.appliedDateDisplay(backup = notAppliedText)
+  val updatedDate = model.updatedDateDisplay(backup = notAvailableText)
+  val viewDetailsLabel = stringResource(Res.string.card_action_view_details)
 
-    val logoSize = if (isCompact) CompanyLogoSize.Medium else CompanyLogoSize.Large
+  val logoSize = if (isCompact) CompanyLogoSize.Medium else CompanyLogoSize.Large
 
-    TopLevelCard(
-        modifier = modifier,
-        onClick = { onApplicationClick(model.id) },
-        contentDescription = rowContentDescription,
-        onClickLabel = clickLabel,
-        variant = variant,
-        isExpanded = model.isExpanded,
-        onToggleExpand = onToggleExpand,
-        thumbnail = {
-            CompanyLogoImage(
-                companyName = displayCompany,
-                logoUrl = model.logoUrl,
-                companyInitial = model.companyInitial,
-                logoSize = logoSize,
+  TopLevelCard(
+    modifier = modifier,
+    onClick = { onApplicationClick(model.id) },
+    contentDescription = rowContentDescription,
+    onClickLabel = clickLabel,
+    variant = variant,
+    isExpanded = model.isExpanded,
+    onToggleExpand = onToggleExpand,
+    thumbnail = null,
+    title = {
+      Text(
+        modifier = Modifier
+          .fillMaxWidth(),
+        text = roleDesc,
+        style = if (isCompact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        maxLines = if (isCompact) JOB_TITLE_NUMBER_OF_LINES_COMPACT else JOB_TITLE_NUMBER_OF_LINES,
+        overflow = TextOverflow.Ellipsis,
+      )
+    },
+    subtitle = {
+      Column(
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+      ) {
+        Text(
+          text = displayCompany,
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+        )
+        if (!isCompact) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+          ) {
+            StatusBadge(
+              status = model.status,
+              textAlign = TextAlign.Start,
+              maxLines = 1,
             )
-        },
-        title = {
+            if (model.fitScore != null) {
+              FitBadge(score = model.fitScore)
+            }
+            if (model.isAutoSynced) {
+              Text(
+                text = stringResource(Res.string.card_auto_synced),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+              )
+            }
+          }
+        }
+      }
+    },
+    compactSummary = {
+      Column(
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+      ) {
+        Text(
+          text = stringResource(Res.string.card_created, createdDate),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+        )
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+        ) {
+          StatusBadge(
+            status = model.status,
+            textAlign = TextAlign.Start,
+            maxLines = 1,
+          )
+          if (model.isAutoSynced) {
             Text(
-                text = roleDesc,
-                style = if (isCompact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = if (isCompact) 1 else JOB_TITLE_NUMBER_OF_LINES,
-                overflow = TextOverflow.Ellipsis,
+              text = stringResource(Res.string.card_auto_synced),
+              style = MaterialTheme.typography.labelSmall,
+              color = MaterialTheme.colorScheme.primary,
             )
-        },
-        subtitle = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-            ) {
-                Text(
-                    text = displayCompany,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                if (!isCompact) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-                    ) {
-                        StatusBadge(
-                            status = model.status,
-                            textAlign = TextAlign.Start,
-                            maxLines = 1,
-                        )
-                        if (model.fitScore != null) {
-                            FitBadge(score = model.fitScore)
-                        }
-                        if (model.isAutoSynced) {
-                            Text(
-                                text = stringResource(Res.string.card_auto_synced),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        compactSummary = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-            ) {
-                Text(
-                    text = stringResource(Res.string.card_created, createdDate),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-                ) {
-                    StatusBadge(
-                        status = model.status,
-                        textAlign = TextAlign.Start,
-                        maxLines = 1,
-                    )
-                    if (model.isAutoSynced) {
-                        Text(
-                            text = stringResource(Res.string.card_auto_synced),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                }
-            }
-        },
-        wideTrailingHeader = {
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.micro),
-            ) {
-                Text(
-                    text = stringResource(Res.string.card_created, createdDate),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.End,
-                )
-                Text(
-                    text = stringResource(Res.string.card_applied, appliedDate),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = JOB_UPDATED_AT_NUMBER_OF_LINES,
-                    textAlign = TextAlign.End,
-                )
-                Text(
-                    text = stringResource(Res.string.card_updated, updatedDate),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = JOB_UPDATED_AT_NUMBER_OF_LINES,
-                    textAlign = TextAlign.End,
-                )
-            }
-        },
-        expandedContent = {
-            ExpandedApplicationMetadataGrid(model = model)
-        },
-        actions = persistentListOf(
-            TopLevelCardAction(
-                label = viewDetailsLabel,
-                onClick = { onApplicationClick(model.id) },
-            ),
-        ),
-    )
+          }
+        }
+      }
+    },
+    wideTrailingHeader = {
+      Column(
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.micro),
+      ) {
+        Text(
+          text = stringResource(Res.string.card_created, createdDate),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          textAlign = TextAlign.End,
+        )
+        Text(
+          text = stringResource(Res.string.card_applied, appliedDate),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          maxLines = JOB_UPDATED_AT_NUMBER_OF_LINES,
+          textAlign = TextAlign.End,
+        )
+        Text(
+          text = stringResource(Res.string.card_updated, updatedDate),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          maxLines = JOB_UPDATED_AT_NUMBER_OF_LINES,
+          textAlign = TextAlign.End,
+        )
+      }
+    },
+    expandedContent = {
+      ExpandedApplicationMetadataGrid(model = model)
+    },
+    actions = persistentListOf(
+      TopLevelCardAction(
+        label = viewDetailsLabel,
+        onClick = { onApplicationClick(model.id) },
+      ),
+    ),
+  )
 }
 
 @Composable
 private fun ExpandedApplicationMetadataGrid(
-    model: JobApplicationCardUiModel,
+  model: JobApplicationCardUiModel,
 ) {
-    val gridGap = MaterialTheme.spacing.small
-    val fitScoreValue = model.fitScoreOrNull()
-    val appliedDateValue = model.appliedDateOrNull()
-    val updatedDateValue = model.updatedDateOrNull()
+  val gridGap = MaterialTheme.spacing.small
+  val fitScoreValue = model.fitScoreOrNull()
+  val appliedDateValue = model.appliedDateOrNull()
+  val updatedDateValue = model.updatedDateOrNull()
 
-    val notEvaluatedText = stringResource(Res.string.card_not_evaluated)
-    val notAppliedText = stringResource(Res.string.card_not_applied)
-    val notAvailableText = stringResource(Res.string.card_not_available)
+  val notEvaluatedText = stringResource(Res.string.card_not_evaluated)
+  val notAppliedText = stringResource(Res.string.card_not_applied)
+  val notAvailableText = stringResource(Res.string.card_not_available)
 
-    Grid(
-        modifier = Modifier.fillMaxWidth(),
-        config = {
-            repeat(GRID_COLUMNS) { column(1.fr) }
-            repeat(GRID_ROWS) { row(GridTrackSize.Auto) }
-            gap(gridGap)
-        },
-    ) {
-        Text(
-            text = stringResource(Res.string.card_header_fit_score),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Text(
-            text = stringResource(Res.string.card_header_applied_on),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Text(
-            text = stringResource(Res.string.card_header_updated),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary,
-        )
+  Grid(
+    modifier = Modifier.fillMaxWidth(),
+    config = {
+      repeat(GRID_COLUMNS) { column(1.fr) }
+      repeat(GRID_ROWS) { row(GridTrackSize.Auto) }
+      gap(gridGap)
+    },
+  ) {
+    Text(
+      text = stringResource(Res.string.card_header_fit_score),
+      style = MaterialTheme.typography.labelSmall,
+      color = MaterialTheme.colorScheme.primary,
+    )
+    Text(
+      text = stringResource(Res.string.card_header_applied_on),
+      style = MaterialTheme.typography.labelSmall,
+      color = MaterialTheme.colorScheme.primary,
+    )
+    Text(
+      text = stringResource(Res.string.card_header_updated),
+      style = MaterialTheme.typography.labelSmall,
+      color = MaterialTheme.colorScheme.primary,
+    )
 
-        Text(
-            text = fitScoreValue ?: notEvaluatedText,
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (fitScoreValue == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Text(
-            text = appliedDateValue ?: notAppliedText,
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (appliedDateValue == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Text(
-            text = updatedDateValue ?: notAvailableText,
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (updatedDateValue == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
+    Text(
+      text = fitScoreValue
+        ?: notEvaluatedText,
+      style = MaterialTheme.typography.bodyMedium,
+      color = if (fitScoreValue == null) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+      } else {
+        MaterialTheme.colorScheme.onSurface
+      },
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis,
+    )
+    Text(
+      text = appliedDateValue
+        ?: notAppliedText,
+      style = MaterialTheme.typography.bodyMedium,
+      color = if (appliedDateValue == null) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+      } else {
+        MaterialTheme.colorScheme.onSurface
+      },
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis,
+    )
+    Text(
+      text = updatedDateValue
+        ?: notAvailableText,
+      style = MaterialTheme.typography.bodyMedium,
+      color = if (updatedDateValue == null) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+      } else {
+        MaterialTheme.colorScheme.onSurface
+      },
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis,
+    )
+  }
 }

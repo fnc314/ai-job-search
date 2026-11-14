@@ -3,6 +3,7 @@ package dev.fnc314.tools.jobtracker.features.jobapplicationslist.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import dev.fnc314.tools.jobtracker.core.data.model.TrackerStatus
+import dev.fnc314.tools.jobtracker.core.widgets.JobApplicationCardUiModel
 import dev.fnc314.tools.jobtracker.core.widgets.formatRelativeInstant
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.Res
 import fnc314jobsearchtracker.features_job_applications_list_ui.generated.resources.data_missing
@@ -103,20 +104,20 @@ public data class JobApplicationItemUiModel(
 /**
  * Maps this [JobApplicationItemUiModel] to the shared [JobApplicationCardUiModel] widget presentation model.
  */
-public fun JobApplicationItemUiModel.toCardUiModel(): dev.fnc314.tools.jobtracker.core.widgets.JobApplicationCardUiModel =
-    dev.fnc314.tools.jobtracker.core.widgets.JobApplicationCardUiModel(
-        id = id,
-        companyName = companyName,
-        roleTitle = roleTitle,
-        locationText = locationText,
-        status = status,
-        statusDisplayName = statusDisplayName,
-        fitScore = fitScore,
-        fitScoreText = fitScoreText,
-        createdAt = createdAt,
-        updatedAt = updatedAt,
-        firstActivityAt = firstActivityAt,
-        isExpanded = isExpanded,
-        isAutoSynced = isAutoSynced,
-        emailCount = emailCount,
-    )
+public fun JobApplicationItemUiModel.toCardUiModel(): JobApplicationCardUiModel =
+  JobApplicationCardUiModel(
+      id = id,
+      companyName = companyName,
+      roleTitle = roleTitle,
+      locationText = locationText,
+      status = status,
+      statusDisplayName = statusDisplayName,
+      fitScore = fitScore,
+      fitScoreText = fitScoreText,
+      createdAt = createdAt,
+      updatedAt = updatedAt,
+      firstActivityAt = firstActivityAt,
+      isExpanded = isExpanded,
+      isAutoSynced = isAutoSynced,
+      emailCount = emailCount,
+  )

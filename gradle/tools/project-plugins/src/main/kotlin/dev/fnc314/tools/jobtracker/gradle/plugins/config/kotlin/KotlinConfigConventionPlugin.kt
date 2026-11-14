@@ -66,7 +66,6 @@ internal sealed interface KotlinConfigConventionPlugin : Plugin<Project> {
             "androidx.compose.foundation.layout.ExperimentalLayoutApi",
 
             "androidx.compose.material3.ExperimentalMaterial3Api",
-            "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
             "androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi",
         )
     }

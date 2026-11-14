@@ -9,7 +9,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(libs.bundles.compose.ui)
-            api(libs.materialKolor.material3)
+            api(libs.materialKolor.core)
             api(libs.compose.icons.font.awesome.brands)
         }
         androidMain.dependencies {

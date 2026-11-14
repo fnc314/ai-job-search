@@ -22,7 +22,7 @@ Adding an exception requires a row here in the same change.
 | Symbol(s) | Where | Target interface name |
 |---|---|---|
 | `toFirestore()` / `fromFirestore()` | 11 model enums in `frontend/core/{data,artifacts}`; `records/parser` `TimestampConverter`, `JPypeBridge` | `toRemote()` / `fromRemote()` |
-| `FirestoreProvider`, `firestore` | `frontend/apps/cli` | `RemoteDatabaseProvider`, `remote` |
+| `FirestoreProvider`, `firestore` | `frontend/apps/cli` | `RemoteDataSourceProvider`, `remote` |
 | `firestoreInstance` | `frontend/apps/terminal` `TrackerApp` | `remoteInstance` |
 | `createRoomDatabase` | `frontend/core/data` `DatabaseBuilder` | `createLocalDatabase` |
 | `JPypeBridge` (file/class) | `records/parser` | `PythonBridge` |
