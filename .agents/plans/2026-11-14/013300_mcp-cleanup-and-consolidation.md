@@ -85,8 +85,14 @@ Add a brief note in the `## Repo Structure` section of `AGENTS.md` pointing to `
 Remove duplicate and broken entries from the global Junie MCP config:
 - Remove `idea`, `studio` (duplicates of JetBrains IDE)
 - Remove `Composio` (401 auth failure)
-- Remove `KOIN` (405, unverified)
-- Keep only `JetBrains IDE` and `mise`
+- Remove `KOIN` (405, unverified) — **later restored** for `frontend/apps/android` Koin DI work
+- Keep `JetBrains IDE`, `mise`, and `KOIN`
+
+### ✓ Step 6: Restore KOIN for Android frontend work
+
+The user confirmed KOIN MCP (Kotzilla) is set up for `frontend/apps/android` Koin dependency injection observability. Re-add KOIN to `~/.junie/mcp/mcp.json`:
+- Server: `KOIN` at `https://mcp.kotzilla.io/mcp` (HTTP SSE transport)
+- Provides Koin DI performance monitoring, issue diagnosis, and fix guidance for Android/KMP apps
 
 ## 4. Verification Plan & Testing Checklist
 
@@ -94,7 +100,7 @@ Remove duplicate and broken entries from the global Junie MCP config:
 - [ ] `.agents/mcp/README.md` exists and contains documentation for all 5 MCP servers
 - [ ] `SETUP.md` contains MCP onboarding section
 - [ ] `AGENTS.md` references `.agents/mcp/README.md`
-- [ ] `~/.junie/mcp/mcp.json` contains only `JetBrains IDE` and `mise` servers
+- [ ] `~/.junie/mcp/mcp.json` contains `JetBrains IDE`, `mise`, and `KOIN` servers
 - [ ] `~/.junie/mcp/mcp.json` is valid JSON
 - [ ] No agent complaints about missing MCP servers after cleanup
 
