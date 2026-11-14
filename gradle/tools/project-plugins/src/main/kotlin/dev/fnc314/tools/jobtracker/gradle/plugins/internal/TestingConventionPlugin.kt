@@ -1,10 +1,10 @@
-package dev.fnc314.tools.jobtracker.kmp.gradle.plugins.internal
+package dev.fnc314.tools.jobtracker.gradle.plugins.internal
 
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
-import dev.fnc314.tools.jobtracker.kmp.gradle.catalog.CatalogTypes
-import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.BaseConventionPlugin
-import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.commonTest
-import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.kotlinMultiplatform
+import dev.fnc314.tools.jobtracker.gradle.catalog.CatalogTypes
+import dev.fnc314.tools.jobtracker.gradle.plugins.BaseConventionPlugin
+import dev.fnc314.tools.jobtracker.gradle.plugins.commonTest
+import dev.fnc314.tools.jobtracker.gradle.plugins.kotlinMultiplatform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware

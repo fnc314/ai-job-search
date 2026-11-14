@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.kmp.gradle.plugins
+package dev.fnc314.tools.jobtracker.gradle.plugins
 
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
@@ -7,8 +7,8 @@ import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
-import dev.fnc314.tools.jobtracker.kmp.gradle.catalog.CatalogTypes
-import dev.fnc314.tools.jobtracker.kmp.gradle.catalog.fromCatalog
+import dev.fnc314.tools.jobtracker.gradle.catalog.CatalogTypes
+import dev.fnc314.tools.jobtracker.gradle.catalog.fromCatalog
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -21,9 +21,9 @@ internal interface BaseConventionPlugin {
 
 /** Typed internal contract for AGP-integrated plugins. */
 internal interface ProjectPlugins<
-    AndroidPlugin : Plugin<Project>,
-    Ext : AndroidComponentsExtension<*, *, *>
-> : BaseConventionPlugin {
+        AndroidPlugin : Plugin<Project>,
+        Ext : AndroidComponentsExtension<*, *, *>
+        > : BaseConventionPlugin {
 
     public val extensionClass: Class<Ext>
     public val pluginClass: Class<AndroidPlugin>

@@ -8,10 +8,10 @@ plugins {
 }
 
 kotlin {
-  jvmToolchain(libs.versions.java.toolchain.get().toInt())
+  jvmToolchain(libs.versions.jvm.toolchain.get().toInt())
   explicitApiWarning()
   compilerOptions {
-    jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.get())
+    jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.toolchain.get())
     val kotlinVer = libs.versions.kotlin.asProvider().get().substringBeforeLast(".")
     apiVersion = KotlinVersion.fromVersion(kotlinVer)
     languageVersion = KotlinVersion.fromVersion(kotlinVer)

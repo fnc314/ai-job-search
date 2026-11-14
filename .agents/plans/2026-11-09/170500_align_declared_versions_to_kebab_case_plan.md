@@ -1,10 +1,10 @@
 # Implementation Plan: Align Declared Versions into Kebab-Casing Format
 
-**Status:** Superseded  
-**Date:** 2026-11-09  
-**Target:** `gradle/libs.versions.toml` & version catalog consumers  
-**Evaluates:** Systematic kebab-case normalization for all catalog `[versions]` keys, `version.ref` synchronization, `CatalogTypes` key updates, and Kotlin build script type-safe accessor alignment  
-**Schema Authority:** [`tracker.schema.json`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/tracker.schema.json)  
+**Status:** Superseded
+**Date:** 2026-11-09
+**Target:** `gradle/libs.versions.toml` & version catalog consumers
+**Evaluates:** Systematic kebab-case normalization for all catalog `[versions]` keys, `version.ref` synchronization, `CatalogTypes` key updates, and Kotlin build script type-safe accessor alignment
+**Schema Authority:** [`tracker.schema.json`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/tracker.schema.json)
 
 ---
 
@@ -23,8 +23,8 @@ This change systematically normalizes **100% of declared version keys** in `[ver
 > When a catalog version key contains hyphens (`-`), Gradle's generated type-safe project accessors create nested properties for each hyphen:
 > - `android-compileSdk` was accessed as `libs.versions.android.compileSdk`
 > - `android-compile-sdk` will be accessed as `libs.versions.android.compile.sdk`
-> - `java-toolchain` will be accessed as `libs.versions.java.toolchain`
-> 
+> - `java-toolchain` will be accessed as `libs.versions.jvm.toolchain`
+>
 > Build files referencing `libs.versions.*` directly ([`apps/android/build.gradle.kts`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/apps/android/build.gradle.kts), [`records/parser/build.gradle.kts`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/records/parser/build.gradle.kts), [`records/proto/build.gradle.kts`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/records/proto/build.gradle.kts), and [`project-plugins/build.gradle.kts`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/frontend/gradle/tools/project-plugins/build.gradle.kts)) will be updated to match the new nested accessor paths.
 
 > [!NOTE]
@@ -152,7 +152,7 @@ Update accessor from `libs.versions.javaToolchain` to:
 kotlin {
   explicitApi()
   jvmToolchain(
-    libs.versions.java.toolchain.get().toInt()
+    libs.versions.jvm.toolchain.get().toInt()
   )
 }
 ```
@@ -181,7 +181,7 @@ android {
 Update toolchain accessor:
 ```kotlin
 kotlin {
-  jvmToolchain(libs.versions.java.toolchain.get().toInt())
+  jvmToolchain(libs.versions.jvm.toolchain.get().toInt())
   explicitApiWarning()
 ```
 
@@ -189,7 +189,7 @@ kotlin {
 Update toolchain accessor:
 ```kotlin
 kotlin {
-  jvmToolchain(libs.versions.java.toolchain.get().toInt())
+  jvmToolchain(libs.versions.jvm.toolchain.get().toInt())
 ```
 
 ---

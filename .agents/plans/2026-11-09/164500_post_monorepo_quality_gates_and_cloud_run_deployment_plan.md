@@ -1,10 +1,10 @@
 # Roadmap & Implementation Plan: Root Build Centralization, Quality Gates Hardening & Local Data Enrichment
 
-**Status:** Completed  
-**Date:** 2026-11-09  
-**Target:** repository-wide  
-**Supersedes:** [`.agents/plans/2026-11-09/170500_align_declared_versions_to_kebab_case_plan.md`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/.agents/plans/2026-11-09/170500_align_declared_versions_to_kebab_case_plan.md)  
-**Schema Authority:** [`tracker.schema.json`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/tracker.schema.json)  
+**Status:** Completed
+**Date:** 2026-11-09
+**Target:** repository-wide
+**Supersedes:** [`.agents/plans/2026-11-09/170500_align_declared_versions_to_kebab_case_plan.md`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/.agents/plans/2026-11-09/170500_align_declared_versions_to_kebab_case_plan.md)
+**Schema Authority:** [`tracker.schema.json`](file:///Users/fnc314/Work/Search/waleedtarbosh-ai-job-search/tracker.schema.json)
 
 ---
 
@@ -59,7 +59,7 @@ flowchart TD
     subgraph RootWorkspace ["Root Workspace Architecture"]
         RootSettings["settings.gradle.kts (Root Composite)"]
         RootCatalog["gradle/libs.versions.toml (Catalog Source of Truth: java-toolchain=17)"]
-        
+
         subgraph RootGradleTools ["${rootProjectDir}/gradle/tools/"]
             VersionCat["gradle/tools/version-catalogs/ (Included Build)"]
             ProjectPlugins["gradle/tools/project-plugins/ (Convention Plugins Included Build)"]
@@ -185,11 +185,11 @@ flowchart TD
      - `minSdk = libs.versions.android.min.sdk.get().toInt()`
      - `targetSdk = libs.versions.android.target.sdk.get().toInt()`
    - `records/parser/build.gradle.kts`:
-     - `jvmToolchain(libs.versions.java.toolchain.get().toInt())`
+     - `jvmToolchain(libs.versions.jvm.toolchain.get().toInt())`
    - `records/proto/build.gradle.kts`:
-     - `jvmToolchain(libs.versions.java.toolchain.get().toInt())`
+     - `jvmToolchain(libs.versions.jvm.toolchain.get().toInt())`
    - `project-plugins/build.gradle.kts`:
-     - `libs.versions.java.toolchain.get().toInt()`
+     - `libs.versions.jvm.toolchain.get().toInt()`
 4. **Migrate Mise Tasks (`ui/kmp` -> `frontend`) & Native Root Invocation**:
    - Relocate `.config/mise/tasks/ui/kmp/` to `.config/mise/tasks/frontend/`.
    - Update Mise tasks to run native root Gradle commands:

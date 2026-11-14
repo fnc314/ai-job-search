@@ -1,10 +1,11 @@
-package dev.fnc314.tools.jobtracker.kmp.gradle.plugins.functional
+package dev.fnc314.tools.jobtracker.gradle.plugins.functional
 
-import dev.fnc314.tools.jobtracker.kmp.gradle.catalog.CatalogTypes
-import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.BaseConventionPlugin
-import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DetektConventionPlugin
-import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.config.DokkaConventionPlugin
-import dev.fnc314.tools.jobtracker.kmp.gradle.plugins.internal.TestingConventionPlugin
+import dev.fnc314.tools.jobtracker.gradle.catalog.CatalogTypes
+import dev.fnc314.tools.jobtracker.gradle.plugins.BaseConventionPlugin
+import dev.fnc314.tools.jobtracker.gradle.plugins.config.DetektConventionPlugin
+import dev.fnc314.tools.jobtracker.gradle.plugins.config.DokkaConventionPlugin
+import dev.fnc314.tools.jobtracker.gradle.plugins.configureKotlinMultiplatformExtension
+import dev.fnc314.tools.jobtracker.gradle.plugins.internal.TestingConventionPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -19,20 +20,16 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
  * documentation ([DokkaConventionPlugin]), and testing conventions.
  */
 public class KotlinMultiplatformConventionPlugin : Plugin<Project>, BaseConventionPlugin {
-    override fun apply(target: Project): Unit {
+
+    override fun apply(target: Project) {
         target.configurePlugin()
     }
 
-    override fun Project.configurePlugin(): Unit {
+    override fun Project.configurePlugin() {
         plugins.apply(CatalogTypes.Plugins.KOTLIN_MULTIPLATFORM(this).get().pluginId)
 
+        configureKotlinMultiplatformExtension()
         val kotlin = extensions.getByType(KotlinMultiplatformExtension::class.java)
-
-        // Strict explicit API checking with warning severity
-        kotlin.explicitApiWarning()
-
-        // 1. Toolchain parity across all projects
-        kotlin.jvmToolchain(CatalogTypes.Versions.JVM.asInt(this))
 
         // 2. Standard multiplatform targets
         with(kotlin) {
@@ -40,8 +37,8 @@ public class KotlinMultiplatformConventionPlugin : Plugin<Project>, BaseConventi
                 compilerOptions {
                     jvmTarget.set(
                         JvmTarget.fromTarget(
-                            CatalogTypes.Versions.JVM.asString(this@configurePlugin)
-                        )
+                            CatalogTypes.Versions.JVM_TOOLCHAIN.asString(this@configurePlugin),
+                        ),
                     )
                 }
             }
@@ -60,7 +57,7 @@ public class KotlinMultiplatformConventionPlugin : Plugin<Project>, BaseConventi
             sourceSets.apply {
                 commonMain.dependencies {
                     implementation(
-                        CatalogTypes.Libraries.KOTLINX_DATETIME(project)
+                        CatalogTypes.Libraries.KOTLINX_DATETIME(project),
                     )
                 }
             }

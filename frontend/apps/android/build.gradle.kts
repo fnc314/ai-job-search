@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
   alias(libs.plugins.local.android.application)
   alias(libs.plugins.local.dependencies.firebase)
@@ -7,14 +5,7 @@ plugins {
   alias(libs.plugins.google.play.services)
 }
 
-kotlin {
-  compilerOptions {
-    jvmTarget = JvmTarget.JVM_17
-  }
-}
-
 dependencies {
-  coreLibraryDesugaring(libs.desugaring)
   implementation(projects.appsCore)
   implementation(projects.coreData)
 
@@ -27,7 +18,7 @@ dependencies {
 
 android {
   namespace = "dev.fnc314.tools.jobtracker.app.android"
-  compileSdk = libs.versions.android.compile.sdk.get().toInt()
+  compileSdk = libs.versions.android.compile.sdk.asProvider().get().toInt()
 
   defaultConfig {
     applicationId = "dev.fnc314.tools.jobtracker"
@@ -56,11 +47,6 @@ android {
         "proguard-rules.pro",
       )
     }
-  }
-  compileOptions {
-    isCoreLibraryDesugaringEnabled = true
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
   }
   buildFeatures {
     compose = true

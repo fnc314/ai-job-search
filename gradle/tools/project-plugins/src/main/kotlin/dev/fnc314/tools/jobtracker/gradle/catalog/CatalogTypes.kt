@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.kmp.gradle.catalog
+package dev.fnc314.tools.jobtracker.gradle.catalog
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ExternalModuleDependencyBundle
@@ -20,15 +20,16 @@ internal sealed interface CatalogTypes<out T> {
     public enum class Versions(
         override val catalogKey: String,
     ) : CatalogTypes<VersionConstraint> {
-        JVM("jvm"),
-        JAVA_TOOLCHAIN("java-toolchain"),
-        ANDROID_COMPILE_SDK("android-compile-sdk"),
-        ANDROID_MIN_SDK("android-min-sdk"),
-        ANDROID_TARGET_SDK("android-target-sdk"),
-        KOTLIN("kotlin"),
-        AGP("agp"),
-        NODE("node"),
-        DETEKT("detekt"),
+        JVM_TOOLCHAIN(catalogKey = "jvm-toolchain"),
+        ANDROID_BUILD_TOOLS(catalogKey = "android-build-tools"),
+        ANDROID_COMPILE_SDK(catalogKey = "android-compile-sdk"),
+        ANDROID_COMPILE_SDK_MINOR(catalogKey = "android-compile-sdk-minor"),
+        ANDROID_MIN_SDK(catalogKey = "android-min-sdk"),
+        ANDROID_TARGET_SDK(catalogKey = "android-target-sdk"),
+        KOTLIN(catalogKey = "kotlin"),
+        AGP(catalogKey = "agp"),
+        NODE(catalogKey = "node"),
+        DETEKT(catalogKey = "detekt"),
         ;
 
         override fun fromCatalog(project: Project): VersionConstraint =
@@ -47,32 +48,33 @@ internal sealed interface CatalogTypes<out T> {
     public enum class Libraries(
         override val catalogKey: String,
     ) : CatalogTypes<Provider<MinimalExternalModuleDependency>> {
-        KOTLINX_COROUTINES_CORE("kotlinx-coroutines-core"),
-        KOTLINX_DATETIME("kotlinx-datetime"),
-        KOTLINX_SERIALIZATION_JSON("kotlinx-serialization-json"),
-        KOTLIN_TEST("kotlin-test"),
-        KOTLIN_TEST_JUNIT("kotlin-testJunit"),
-        KOTLINX_COROUTINES_TEST("kotlinx-coroutines-test"),
-        JUNIT("junit"),
-        MOCKK("mockk"),
-        KTOR_CLIENT_OKHTTP("ktor-client-okhttp"),
-        KTOR_CLIENT_CIO("ktor-client-cio"),
-        KTOR_CLIENT_DARWIN("ktor-client-darwin"),
-        KTOR_CLIENT_JS("ktor-client-js"),
-        KTOR_SERVER_CORE("ktor-server-core"),
-        KTOR_SERVER_NETTY("ktor-server-netty"),
-        FIREBASE_ADMIN("firebase-admin"),
-        COMPOSE_UI_TOOLING("compose-uiTooling"),
-        NAVIGATION_COMPOSE("navigation-compose"),
-        ANDROIDX_ROOM3_COMPILER("androidx-room3-compiler"),
-        KSP_GRADLE_PLUGIN("ksp-gradle-plugin"),
-        DOKKA_GRADLE_PLUGIN("dokka-gradle-plugin"),
-        DETEKT_FORMATTING("detekt-formatting"),
-        COMPOSE_RULES_DETEKT("compose-rules-detekt"),
-        COMPOSE_CONSTRAINT_LAYOUT("compose-constraint"),
-        KONSIST("konsist"),
-        FIREBASE_BOM("firebase-bom"),
-        KMP_INSPECTOR_NOOP("kmp-inspector-noop"),
+        KOTLINX_COROUTINES_CORE(catalogKey = "kotlinx-coroutines-core"),
+        KOTLINX_DATETIME(catalogKey = "kotlinx-datetime"),
+        KOTLINX_SERIALIZATION_JSON(catalogKey = "kotlinx-serialization-json"),
+        KOTLIN_TEST(catalogKey = "kotlin-test"),
+        KOTLIN_TEST_JUNIT(catalogKey = "kotlin-testJunit"),
+        KOTLINX_COROUTINES_TEST(catalogKey = "kotlinx-coroutines-test"),
+        JUNIT(catalogKey = "junit"),
+        MOCKK(catalogKey = "mockk"),
+        KTOR_CLIENT_OKHTTP(catalogKey = "ktor-client-okhttp"),
+        KTOR_CLIENT_CIO(catalogKey = "ktor-client-cio"),
+        KTOR_CLIENT_DARWIN(catalogKey = "ktor-client-darwin"),
+        KTOR_CLIENT_JS(catalogKey = "ktor-client-js"),
+        KTOR_SERVER_CORE(catalogKey = "ktor-server-core"),
+        KTOR_SERVER_NETTY(catalogKey = "ktor-server-netty"),
+        FIREBASE_ADMIN(catalogKey = "firebase-admin"),
+        COMPOSE_UI_TOOLING(catalogKey = "compose-uiTooling"),
+        NAVIGATION_COMPOSE(catalogKey = "navigation-compose"),
+        ANDROIDX_ROOM3_COMPILER(catalogKey = "androidx-room3-compiler"),
+        KSP_GRADLE_PLUGIN(catalogKey = "ksp-gradle-plugin"),
+        DOKKA_GRADLE_PLUGIN(catalogKey = "dokka-gradle-plugin"),
+        DETEKT_FORMATTING(catalogKey = "detekt-formatting"),
+        COMPOSE_RULES_DETEKT(catalogKey = "compose-rules-detekt"),
+        COMPOSE_CONSTRAINT_LAYOUT(catalogKey = "compose-constraint"),
+        KONSIST(catalogKey = "konsist"),
+        FIREBASE_BOM(catalogKey = "firebase-bom"),
+        KMP_INSPECTOR_NOOP(catalogKey = "kmp-inspector-noop"),
+        DESUGARING(catalogKey = "desugaring"),
         ;
 
         override fun fromCatalog(project: Project): Provider<MinimalExternalModuleDependency> =
@@ -102,6 +104,7 @@ internal sealed interface CatalogTypes<out T> {
         SQLITE_BUNDLED("sqlite-bundled"),
         SQLITE_WEB("sqlite-web"),
         KMP_INSPECTOR("kmp-inspector"),
+        MATERIAL3_ADAPTIVE("material3-adaptive"),
         ;
 
         override fun fromCatalog(project: Project): Provider<ExternalModuleDependencyBundle> =
