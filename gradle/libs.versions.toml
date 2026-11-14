@@ -140,8 +140,9 @@
   ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
   ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
   ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+  ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
   markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown-renderer" }
-  materialKolor-material3 = { module = "com.materialkolor:material-kolor-material3", version.ref = "materialKolor" }
+  materialKolor-core = { module = "com.materialkolor:material-kolor-core", version.ref = "materialKolor" }
   mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
   mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
   mordant-jna = { module = "com.github.ajalt.mordant:mordant-jvm-jna", version.ref = "mordant" }
