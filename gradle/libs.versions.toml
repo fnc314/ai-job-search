@@ -38,7 +38,7 @@
   kmp-inspector = "1.0.2"
   koin = "4.2.2"
   koin-compiler = "1.2.3"
-  konsist = "0.18.1"
+  konsist = "1.0.0-beta.1"
   kotlin = "2.4.21"
   kotlin-wrappers = "2026.11.1"
   kotlinx-collections-immutable = "0.5.2"
