@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`181134_public_documentation_pages_and_release_plan.md`](./2026-11-15/181134_public_documentation_pages_and_release_plan.md) | Proposed | Public GitHub Pages documentation deployment at ai-job-tracker.fnc314.dev, version/1.0.0 git tag, automated mise release task, and 2.0.0 naming consistency audit |
 | [`165000_rm-010-separate-roadmapapp.md`](./2026-11-15/165000_rm-010-separate-roadmapapp.md) | Completed | Complete RM-010: extract RoadmapApp from frontend/apps/terminal to internal/apps/terminal/roadmap standalone application module |
 | [`162500_rm-012-eradicate-interface-naming-baseline.md`](./2026-11-15/162500_rm-012-eradicate-interface-naming-baseline.md) | Completed | Complete RM-012: eradicate all 51 baseline tool-naming violations across Kotlin and Python codebases, shrinking `docs/interface-naming-baseline.txt` to zero |
 | [`161500_rm-011-backend-multimodule-completion.md`](./2026-11-15/161500_rm-011-backend-multimodule-completion.md) | Completed | Complete RM-011 by relocating `BackendServiceTest.kt` to `:service`, purging obsolete `backend/src`, adding Gradle delegation tasks in `backend/build.gradle.kts`, and synchronizing `ROADMAP.md` |

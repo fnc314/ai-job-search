@@ -1,4 +1,23 @@
+plugins {
+    alias(libs.plugins.dokka)
+}
+
 // Root build file for ai-job-search composite monorepo
+
+dependencies {
+    dokka(libs.records.parser)
+    dokka(libs.records.proto)
+    dokka(libs.project.plugins)
+}
+
+dokka {
+    dokkaPublications.html {
+        moduleName.set("AI Job Search & Application OS Documentation")
+        outputDirectory.set(layout.projectDirectory.dir("dokka"))
+    }
+}
+
+
 
 tasks.register("buildAll") {
     group = "build"

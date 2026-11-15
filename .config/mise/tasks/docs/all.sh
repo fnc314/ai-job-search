@@ -3,7 +3,6 @@
 #MISE alias="docs:all"
 set -eu
 
-mise run frontend:docs:generate
-mise run records:docs:generate
+mise run docs:generate
 mise run frontend:docs:readmes
 mise run docs:tasks

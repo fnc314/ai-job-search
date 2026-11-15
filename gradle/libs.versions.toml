@@ -149,7 +149,7 @@
   navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
   navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
   navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
-  project-plugins = { module = "dev.fnc314.tools.jobtracker.tools:project-plugins", version = "1.0.0" }
+  project-plugins = { module = "dev.fnc314.tools.jobtracker.tools:ai-job-search_gradle-tools_project-plugins", version = "1.0.0" }
   protobuf-bom = { module = "com.google.protobuf:protobuf-bom", version.ref = "protobuf" }
   protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
   records-parser = { group = "dev.fnc314.tools.jobsearch.records", name = "records-parser", version.ref = "records" }

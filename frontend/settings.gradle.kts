@@ -2,7 +2,7 @@ import dev.fnc314.gradle.plugins.settings.projectcollectionsgradlesettingsplugin
 
 apply(from = "../gradle/tools/settings-plugins/subsystem.settings.gradle.kts")
 
-rootProject.name = "ai-job-search_frontend"
+rootProject.name = "FNC314JobSearchTracker"
 
 pluginManagement {
     plugins {
