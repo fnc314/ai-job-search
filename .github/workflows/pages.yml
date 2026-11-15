@@ -1,0 +1,55 @@
+name: Deploy Documentation to GitHub Pages
+
+on:
+  push:
+    tags:
+      - 'version/*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up mise
+        uses: jdx/mise-action@v2
+
+      - name: Generate Dokka API Documentation
+        run: mise run docs:generate
+
+      - name: Generate Mise Task Documentation
+        run: mise run docs:tasks
+
+      - name: Assemble Public Documentation Site
+        run: python3 scripts/build_docs_site.py --output build/gh-pages --domain ai-job-tracker.fnc314.dev
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/gh-pages
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

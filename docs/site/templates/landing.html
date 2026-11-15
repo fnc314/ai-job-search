@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Job Search & Application OS</title>
+  <link rel="stylesheet" href="css/material3-tokens.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--md-sys-font-body);
+      background-color: var(--md-sys-color-background);
+      color: var(--md-sys-color-on-background);
+      line-height: 1.6;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    header.app-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: var(--md-sys-color-surface-container);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--md-sys-font-heading);
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--md-sys-color-primary);
+      text-decoration: none;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: var(--md-sys-font-code);
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+    nav.app-nav {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    nav.app-nav a {
+      color: var(--md-sys-color-on-surface);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s ease;
+    }
+    nav.app-nav a:hover {
+      color: var(--md-sys-color-primary);
+    }
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface);
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--md-sys-shape-corner-small);
+      cursor: pointer;
+      font-family: var(--md-sys-font-code);
+      font-size: 0.85rem;
+    }
+    .theme-toggle:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+    }
+    main.container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    .hero {
+      text-align: center;
+      padding: 3.5rem 1rem 4rem;
+      background: linear-gradient(180deg, var(--md-sys-color-surface-container-low) 0%, transparent 100%);
+      border-radius: var(--md-sys-shape-corner-large);
+      margin-bottom: 3.5rem;
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+    .hero h1 {
+      font-family: var(--md-sys-font-heading);
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--md-sys-color-primary);
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+    .hero p.tagline {
+      font-size: 1.25rem;
+      color: var(--md-sys-color-on-surface-variant);
+      max-width: 800px;
+      margin: 0 auto 2rem;
+    }
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.75rem;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+    .btn-primary:hover {
+      opacity: 0.92;
+      box-shadow: var(--md-sys-elevation-2);
+    }
+    .btn-secondary {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+    .btn-secondary:hover {
+      opacity: 0.92;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.75rem;
+      margin-bottom: 3.5rem;
+    }
+    .card {
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-medium);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--md-sys-elevation-2);
+      border-color: var(--md-sys-color-primary);
+    }
+    .card h3 {
+      font-family: var(--md-sys-font-heading);
+      font-size: 1.4rem;
+      color: var(--md-sys-color-primary);
+      margin-bottom: 0.75rem;
+    }
+    .card p {
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+    .card a.card-link {
+      color: var(--md-sys-color-primary);
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .card a.card-link:hover {
+      text-decoration: underline;
+    }
+    footer.app-footer {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      background-color: var(--md-sys-color-surface-container-low);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      font-size: 0.9rem;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    footer.app-footer a {
+      color: var(--md-sys-color-primary);
+      text-decoration: none;
+    }
+    footer.app-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header class="app-bar">
+    <a href="index.html" class="brand">
+      <span>AI Job Search & Application OS</span>
+      <span class="badge">{{VERSION}}</span>
+    </a>
+    <nav class="app-nav">
+      <a href="readme/index.html">Overview</a>
+      <a href="dokka/index.html">API Docs (Dokka)</a>
+      <a href="tasks/index.html">Task Catalog</a>
+      <a href="https://github.com/fnc314/ai-job-search" target="_blank" rel="noopener">GitHub</a>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <span class="badge" style="margin-bottom: 1rem;">Flagship Portfolio · Multiplatform Architecture</span>
+      <h1>Autonomous Job Application OS</h1>
+      <p class="tagline">
+        A production-grade, enterprise Kotlin Multiplatform system and AI orchestrator powering targeted job discovery,
+        deterministic fit scoring, LaTeX generation, and full-lifecycle application tracking across Android, Desktop, Web, and Terminal.
+      </p>
+      <div class="cta-buttons">
+        <a href="dokka/index.html" class="btn btn-primary">Browse Dokka API Documentation →</a>
+        <a href="readme/index.html" class="btn btn-secondary">Read System Architecture</a>
+      </div>
+    </section>
+
+    <div class="grid">
+      <div class="card">
+        <div>
+          <h3>Multiplatform Dokka API</h3>
+          <p>Complete multi-module KDoc reference aggregating documentation across all Clean Architecture layers: Core, Features, Records contracts, and Gradle convention plugins.</p>
+        </div>
+        <a href="dokka/index.html" class="card-link">Explore Dokka Docs →</a>
+      </div>
+
+      <div class="card">
+        <div>
+          <h3>Multi-Modal UI Experience</h3>
+          <p>Adaptive Compose Multiplatform frontends running natively on Android, Desktop (macOS/Linux/Windows), Web (Wasm/JS), and an interactive full-screen curses terminal (TUI).</p>
+        </div>
+        <a href="readme/index.html#frontend-architecture" class="card-link">Learn About Clients →</a>
+      </div>
+
+      <div class="card">
+        <div>
+          <h3>Headless Backend & Cloud Run</h3>
+          <p>Decoupled pure Kotlin Ktor services handling webhook ingestion, Hunter.io enrichment, deterministic score ranking, and cryptographic event chains with Firestore system of record.</p>
+        </div>
+        <a href="readme/index.html#headless-backend-architecture" class="card-link">Backend Architecture →</a>
+      </div>
+
+      <div class="card">
+        <div>
+          <h3>Unified Task Automation</h3>
+          <p>Over 60 self-documenting Mise tasks orchestrating end-to-end development, testing, linting, code generation, scraping, syncing, and remote deployments.</p>
+        </div>
+        <a href="tasks/index.html" class="card-link">View Task Reference →</a>
+      </div>
+
+      <div class="card">
+        <div>
+          <h3>AI Engineering & DevEx</h3>
+          <p>Autonomous AI workflows and custom subagents managing LaTeX CV and cover letter tailoring, mock interview STAR coaching, and verified zero-fabrication grounding.</p>
+        </div>
+        <a href="readme/index.html#ai-orchestration" class="card-link">AI System Design →</a>
+      </div>
+
+      <div class="card">
+        <div>
+          <h3>Engineering Publications</h3>
+          <p>Authored by Franco N. Colaizzi. Dive into "Taming the Elephant Herd" and comprehensive Gradle build optimization, modularization, and developer productivity series.</p>
+        </div>
+        <a href="https://blog.fnc314.dev" target="_blank" rel="noopener" class="card-link">Visit Technical Blog →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p>
+      Designed and engineered by <a href="https://www.fnc314.dev" target="_blank" rel="noopener">Franco N. Colaizzi</a> ·
+      <a href="https://github.com/fnc314/ai-job-search" target="_blank" rel="noopener">ai-job-search</a> ·
+      Published on <a href="https://ai-job-tracker.fnc314.dev">ai-job-tracker.fnc314.dev</a>
+    </p>
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    }
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+  </script>
+</body>
+</html>
