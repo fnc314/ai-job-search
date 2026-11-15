@@ -25,4 +25,3 @@ ktlint = "1.8.0"
   TUI_LOG_COOLDOWN_HOURS = "24" # Hours between cleanup prompts
   ANDROID_USER_HOME = { value = "/Users/fnc314/.android", os = ["macos"] }
   ANDROID_HOME = { value = "/Users/fnc314/.android/sdk", os = ["macos"] }
-  JAVA_HOME = { value = "/Users/fnc314/.local/share/mise/installs/java/26.0.2+101/Contents/Home", os = ["macos"] }
