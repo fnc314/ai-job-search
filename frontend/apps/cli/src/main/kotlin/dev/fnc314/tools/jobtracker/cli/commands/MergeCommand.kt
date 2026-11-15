@@ -12,7 +12,7 @@ import com.google.cloud.Timestamp
 import com.google.cloud.firestore.FieldValue
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
 
-public class MergeCommand : CliktCommand(name = "merge") {
+internal class MergeCommand : CliktCommand(name = "merge") {
     private val canonicalId: String by argument("canonical", help = "Canonical application slug ID (the record to keep)")
     private val duplicateId: String by argument("duplicate", help = "Duplicate application slug ID (the record to merge and delete)")
     private val dryRun: Boolean by option("--dry-run", help = "Show what would be merged without making changes").flag()

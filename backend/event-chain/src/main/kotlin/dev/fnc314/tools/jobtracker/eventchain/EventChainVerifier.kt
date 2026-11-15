@@ -10,6 +10,9 @@ import java.security.MessageDigest
  */
 public object EventChainVerifier {
 
+    /**
+     * Canonical 64-character zero-padded genesis hash string representing the initial timeline boundary.
+     */
     public const val GENESIS_PREV_HASH: String =
         "0000000000000000000000000000000000000000000000000000000000000000"
 

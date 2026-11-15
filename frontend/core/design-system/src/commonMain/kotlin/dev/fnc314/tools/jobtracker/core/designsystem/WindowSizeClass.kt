@@ -22,6 +22,7 @@ public enum class WindowWidthSizeClass {
     /** Expanded width (> 840dp), typical for large tablets, desktop monitors, and web. */
     Expanded;
 
+    /** Factory helpers for resolving [WindowWidthSizeClass]. */
     public companion object {
         /**
          * Resolves the [WindowWidthSizeClass] given a viewport [width].
@@ -50,6 +51,7 @@ public enum class WindowHeightSizeClass {
     /** Expanded height (> 900dp), typical for large desktop windows. */
     Expanded;
 
+    /** Factory helpers for resolving [WindowWidthSizeClass]. */
     public companion object {
         /**
          * Resolves the [WindowHeightSizeClass] given a viewport [height].
@@ -84,6 +86,7 @@ public data class WindowSizeClass(
     /** Convenience flag indicating whether width is [WindowWidthSizeClass.Expanded]. */
     public val isExpanded: Boolean get() = widthSizeClass == WindowWidthSizeClass.Expanded
 
+    /** Factory helpers for resolving [WindowWidthSizeClass]. */
     public companion object {
         /**
          * Computes a [WindowSizeClass] from viewport width and height dimensions.

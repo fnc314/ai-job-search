@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
+/** Actual platform implementation of [PlatformFileSaver] for JVM / Desktop. */
 public actual object PlatformFileSaver {
     public actual suspend fun saveText(content: String, filename: String): Result<Unit> =
         withContext(Dispatchers.IO) {

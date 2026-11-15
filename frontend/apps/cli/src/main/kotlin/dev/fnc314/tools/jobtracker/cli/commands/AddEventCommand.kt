@@ -16,7 +16,7 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
 import java.time.Instant
 
-public class AddEventCommand : CliktCommand(name = "event") {
+internal class AddEventCommand : CliktCommand(name = "event") {
     private val applicationId: String by argument("id", help = "Application slug ID")
     private val eventType: String by argument("event_type", help = "Event type name (e.g. SEND_FOLLOW_UP, INTERVIEW)")
     private val note: String? by option("--note", help = "Optional context note")

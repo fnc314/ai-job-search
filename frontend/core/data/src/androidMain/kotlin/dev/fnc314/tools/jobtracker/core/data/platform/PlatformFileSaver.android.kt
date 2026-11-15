@@ -6,6 +6,7 @@ import android.provider.MediaStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/** Actual platform implementation of [PlatformFileSaver] for Android. */
 public actual object PlatformFileSaver {
     public actual suspend fun saveText(content: String, filename: String): Result<Unit> =
         withContext(Dispatchers.IO) {
@@ -28,15 +29,15 @@ public actual object PlatformFileSaver {
                         val uri = resolver.insert(
                             MediaStore.Downloads.EXTERNAL_CONTENT_URI,
                             values,
-                        ) ?: throw IllegalStateException("Failed to create download URI")
+                        ) ?: error("Failed to create download URI")
                         resolver.openOutputStream(uri)?.use {
                             it.write(content.toByteArray())
                         }
                     } else {
-                        throw IllegalStateException("No application context available")
+                        error("No application context available")
                     }
                 } else {
-                    throw IllegalStateException("SAF requires Android Q+")
+                    error("SAF requires Android Q+")
                 }
             }.map { }
         }

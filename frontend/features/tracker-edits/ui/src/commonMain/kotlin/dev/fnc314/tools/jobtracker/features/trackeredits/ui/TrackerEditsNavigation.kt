@@ -28,6 +28,9 @@ public data object JobApplicationEditsRoute : JobApplicationsTrackerNavKey {
   override val topBarActions: TopBarActions = TopBarActions.TopLevel
 }
 
+/**
+ * Navigation entry registry providing routes for the tracker edits feature.
+ */
 public class TrackerEditsEntryRegistry : FeatureEntryRegistry {
   override fun register(scope: EntryProviderScope<PlatformNavKey>) {
     scope.entry<JobApplicationEditsRoute> {

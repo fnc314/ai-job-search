@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalGridApi::class)
+@file:Suppress("LongMethod")
 
 package dev.fnc314.tools.jobtracker.features.jobapplicationdetails.ui.component
 
@@ -185,6 +186,8 @@ internal fun EventsTimeline(
   }
 }
 
+
+@Suppress("LongMethod")
 @Composable
 context(gridScope: GridScope)
 private fun EventsTimelineDescription(
@@ -267,6 +270,7 @@ private fun EventsTimelineDescription(
     }
   }
 }
+
 
 @Composable
 context(gridScope: GridScope)

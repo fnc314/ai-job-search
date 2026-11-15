@@ -1,18 +1,12 @@
 package dev.fnc314.tools.jobtracker.core.widgets.di
 
-import coil3.EventListener
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.network.HttpException
-import coil3.network.ktor3.KtorNetworkFetcherFactory
-import coil3.request.ErrorResult
-import coil3.request.ImageRequest
-import coil3.request.SuccessResult
 import dev.fnc314.tools.jobtracker.core.logging.AppLogger
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-private const val NANOS_PER_MILLISECOND = 1_000_000L
 private val HTTP_CODE_REGEX = Regex("""\b([45]\d{2})\b""")
 
 /**
@@ -150,52 +144,13 @@ public class DefaultImageLoadEventListener(
 }
 
 /**
- * Bridges [ImageLoadEventListener] to Coil's [EventListener] so the Koin-injected listener
- * can be attached to the [ImageLoader] and emit detailed HTTP error diagnostics via [AppLogger].
- */
-internal class CoilEventListenerBridge(
-    private val delegate: ImageLoadEventListener,
-) : EventListener() {
-    private var startTimeMs: Long = 0
-
-    override fun onStart(request: ImageRequest) {
-        startTimeMs = kotlin.time.Clock.System.now().toEpochMilliseconds()
-        val url = request.data.toString()
-        delegate.onLoadStart(url)
-    }
-
-    override fun onSuccess(request: ImageRequest, result: SuccessResult) {
-        val url = request.data.toString()
-        val durationMs = kotlin.time.Clock.System.now().toEpochMilliseconds() - startTimeMs
-        delegate.onLoadSuccess(url, durationMs)
-    }
-
-    override fun onError(request: ImageRequest, result: ErrorResult) {
-        val url = request.data.toString()
-        delegate.onLoadError(url, result.throwable)
-    }
-
-    override fun onCancel(request: ImageRequest) {
-        val url = request.data.toString()
-        delegate.onLoadCancel(url)
-    }
-}
-
-/**
  * Creates a configured [ImageLoader] with Ktor3 network fetcher,
  * wired to the given [eventListener] for observability.
  */
-internal fun createImageLoader(
+internal expect fun createImageLoader(
     context: PlatformContext,
     eventListener: ImageLoadEventListener,
-): ImageLoader {
-    return ImageLoader.Builder(context)
-        .eventListenerFactory { CoilEventListenerBridge(eventListener) }
-        .components {
-            add(KtorNetworkFetcherFactory())
-        }
-        .build()
-}
+): ImageLoader
 
 /**
  * Koin DI module for core widgets.

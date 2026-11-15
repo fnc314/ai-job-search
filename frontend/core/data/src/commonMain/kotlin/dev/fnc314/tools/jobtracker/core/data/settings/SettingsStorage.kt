@@ -78,6 +78,7 @@ public class AppSettingsRepository(
         } catch (_: Exception) {}
     }
 
+    /** Storage keys for [AppSettingsRepository]. */
     public companion object {
         private const val KEY_SETTINGS: String = "job_tracker_app_settings"
     }

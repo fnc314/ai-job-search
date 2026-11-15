@@ -19,6 +19,9 @@ import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
 import org.koin.compose.koinInject
 
+/**
+ * Navigation destination route for the job applications list directory.
+ */
 @Serializable
 public data object JobApplicationListRoute : JobApplicationsTrackerNavKey {
     @Transient
@@ -28,6 +31,9 @@ public data object JobApplicationListRoute : JobApplicationsTrackerNavKey {
     override val topBarActions: TopBarActions = TopBarActions.TopLevel
 }
 
+/**
+ * Navigation entry registry providing routes for the job applications list feature.
+ */
 public class JobApplicationsEntryRegistry : FeatureEntryRegistry {
     override fun register(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationListRoute> {

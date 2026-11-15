@@ -100,6 +100,7 @@ public data class JobApplicationDetailUiModel(
       ?: backup
   }
 
+  /** Formats the application submission date for UI presentation. */
   @Composable
   public fun submittedAt(): String = when (submittedAt) {
     Instant.DISTANT_FUTURE -> stringResource(resource = Res.string.detail_not_applied)

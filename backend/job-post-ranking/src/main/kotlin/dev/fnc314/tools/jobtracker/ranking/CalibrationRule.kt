@@ -10,8 +10,13 @@ package dev.fnc314.tools.jobtracker.ranking
  *   Takes precedence over [maxScore] if both are set.
  */
 public data class CalibrationRule(
-    val maxScore: Int? = null,
-    val overrideScore: Int? = null,
+    /** Maximum score cap (e.g., Reddit capped at 75). */
+    public val maxScore: Int? = null,
+    /**
+     * Fixed score override (e.g., Capital One Mobile Engineer 4 → 95).
+     * Takes precedence over [maxScore] if both are set.
+     */
+    public val overrideScore: Int? = null,
 )
 
 /**

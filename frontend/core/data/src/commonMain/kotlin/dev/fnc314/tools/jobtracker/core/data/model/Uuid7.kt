@@ -35,6 +35,7 @@ public value class Uuid7(
      */
     override fun compareTo(other: Uuid7): Int = value.compareTo(other.value)
 
+    /** Factory and parsing utilities for [Uuid7] identifiers. */
     public companion object {
         /**
          * Generates a new cryptographically secure, time-ordered monotonic UUIDv7.

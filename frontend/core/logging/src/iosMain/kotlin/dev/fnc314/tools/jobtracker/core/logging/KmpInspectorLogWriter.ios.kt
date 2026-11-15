@@ -4,8 +4,9 @@ import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
 import com.waqas028.kmpinspector.InspectorLog
 
+/** Actual platform implementation of [KmpInspectorLogWriter]. */
 public actual class KmpInspectorLogWriter : LogWriter() {
-    override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
+    actual override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
         when (severity) {
             Severity.Verbose -> InspectorLog.v(tag, message)
             Severity.Debug -> InspectorLog.d(tag, message)

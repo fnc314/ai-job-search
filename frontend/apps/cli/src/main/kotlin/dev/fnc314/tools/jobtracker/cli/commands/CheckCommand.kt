@@ -6,7 +6,7 @@ import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.terminal.Terminal
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
 
-public class CheckCommand : CliktCommand(name = "check") {
+internal class CheckCommand : CliktCommand(name = "check") {
     override fun run() {
         val t = Terminal()
         try {

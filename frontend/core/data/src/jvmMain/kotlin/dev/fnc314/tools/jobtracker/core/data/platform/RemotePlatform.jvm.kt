@@ -17,6 +17,7 @@ import java.io.FileInputStream
 public object RemotePlatform {
     private var initialized: Boolean = false
 
+    /** Initializes the remote FirebaseApp instance on JVM desktop platform. */
     public fun initialize(): Unit {
         if (initialized) return
         try {

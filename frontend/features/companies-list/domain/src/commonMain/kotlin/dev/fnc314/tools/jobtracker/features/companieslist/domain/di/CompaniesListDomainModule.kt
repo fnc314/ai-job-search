@@ -7,6 +7,7 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
+/** Koin dependency injection module providing companies list domain use cases. */
 public val companiesListDomainModule: Module = module {
     factoryOf(::LoadAllCompaniesUseCase)
     factoryOf(::FilterCompaniesUseCase)

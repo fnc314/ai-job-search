@@ -3,14 +3,30 @@ package dev.fnc314.tools.jobtracker.core.navigation
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.StringResource
 
+/**
+ * Root navigation bar or rail destination displayed in top-level scaffolding.
+ */
 public interface TopLevelDestination {
+    /** Target navigation route key for this destination. */
     public val route: JobApplicationsTrackerNavKey
+
+    /** Localized title string resource. */
     public val labelRes: StringResource
+
+    /** Visual icon vector when this destination is active. */
     public val selectedIcon: ImageVector
+
+    /** Visual icon vector when this destination is inactive. */
     public val unselectedIcon: ImageVector
+
+    /** Localized content description string resource for accessibility. */
     public val contentDescriptionRes: StringResource
 
+    /** Companion factory providing constructor-like instantiation for [TopLevelDestination]. */
     public companion object {
+        /**
+         * Factory function creating a [TopLevelDestination] instance.
+         */
         public fun from(
             route: JobApplicationsTrackerNavKey,
             labelRes: StringResource,

@@ -19,7 +19,7 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
 import java.time.Instant
 
-public class AlignCommand : CliktCommand(name = "align") {
+internal class AlignCommand : CliktCommand(name = "align") {
     private val applicationId: String? by argument("id", help = "Optional target application ID to align a single record").optional()
     private val dryRun: Boolean by option("--dry-run", help = "Report only without writing changes").flag(default = false)
 

@@ -19,7 +19,7 @@ import kotlinx.coroutines.tasks.await
 
 private const val TAG = "PlatformSignInHandler"
 
-public actual class PlatformSignInHandler(
+internal actual class PlatformSignInHandler(
     private val context: Context?,
     private val serverClientId: String? = null
 ) {
@@ -28,7 +28,7 @@ public actual class PlatformSignInHandler(
         context?.let { CredentialManager.create(it) }
     }
 
-    public actual suspend fun signIn(): Result<UserAccount> = runCatching {
+    actual suspend fun signIn(): Result<UserAccount> = runCatching {
         val ctx = context ?: throw IllegalStateException("Android application context must be initialized before using PlatformSignInHandler")
         val cm = credentialManager ?: throw IllegalStateException("CredentialManager not initialized")
         Log.d(TAG, "signIn: Starting sign-in flow")
@@ -117,7 +117,7 @@ public actual class PlatformSignInHandler(
         }
     }
 
-    public actual suspend fun getCurrentUser(): UserAccount? {
+    actual suspend fun getCurrentUser(): UserAccount? {
         val user = auth.currentUser
         return if (user != null) {
             Log.d(TAG, "getCurrentUser: Found authenticated user: ${user.uid}")
@@ -133,7 +133,7 @@ public actual class PlatformSignInHandler(
         }
     }
 
-    public actual suspend fun signOut(): Result<Unit> = runCatching {
+    actual suspend fun signOut(): Result<Unit> = runCatching {
         Log.d(TAG, "signOut: Signing out from Firebase")
         auth.signOut()
         val cm = credentialManager
@@ -145,7 +145,7 @@ public actual class PlatformSignInHandler(
     }
 }
 
-public actual fun createPlatformSignInHandler(): PlatformSignInHandler {
+internal actual fun createPlatformSignInHandler(): PlatformSignInHandler {
     val context = ApplicationContextHolder.application
     return PlatformSignInHandler(context)
 }

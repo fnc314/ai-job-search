@@ -37,6 +37,9 @@ public data object JobApplicationAddLeadRoute : JobApplicationsTrackerNavKey {
     override val topBarActions: TopBarActions = TopBarActions.Detail
 }
 
+/**
+ * Navigation entry registry providing routes for adding job applications and leads.
+ */
 public class AddJobApplicationEntryRegistry : FeatureEntryRegistry {
     override fun register(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationAddApplicationRoute> {

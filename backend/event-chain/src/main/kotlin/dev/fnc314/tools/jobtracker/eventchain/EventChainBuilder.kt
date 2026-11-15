@@ -10,6 +10,9 @@ import java.time.Instant
  */
 public object EventChainBuilder {
 
+    /**
+     * Canonical genesis predecessor hash representing the unchained origin boundary.
+     */
     public const val GENESIS_PREV_HASH: String = EventChainVerifier.GENESIS_PREV_HASH
 
     /**

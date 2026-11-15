@@ -30,6 +30,9 @@ public data class JobApplicationCompanyDetailsRoute(
     override val topBarActions: TopBarActions = TopBarActions.Detail
 }
 
+/**
+ * Navigation entry registry providing routes for the company details feature.
+ */
 public class CompanyDetailsEntryRegistry : FeatureEntryRegistry {
     override fun register(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationCompanyDetailsRoute> { key ->

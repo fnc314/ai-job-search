@@ -30,15 +30,24 @@ public sealed interface SyncState : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
     }
 
+    /** Companion object providing lookup and shortcut accessors for [SyncState]. */
     public companion object {
+        /** Default fallback value for [SyncState]. */
         public val DEFAULT: SyncState = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
             listOf("sync:" + entry.name.lowercase(), entry.name.lowercase())
         }
 
+        /** All canonical [SyncState] entries. */
         public val entries: List<SyncState> = Known.entries
 
+        /**
+         * Resolves a [SyncState] instance from its raw wire key string.
+         *
+         * @param raw Raw wire key string from external storage or serialized payload.
+         * @return Matching canonical entry, or an unrecognized fallback instance.
+         */
         public fun fromWireKey(raw: String?): SyncState {
             if (raw.isNullOrBlank()) return DEFAULT
             return lookup[raw.trim().lowercase()] ?: Unrecognized(raw)

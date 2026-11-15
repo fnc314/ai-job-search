@@ -11,7 +11,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 
-public class SeedCommand : CliktCommand(name = "seed") {
+internal class SeedCommand : CliktCommand(name = "seed") {
     override fun run() {
         val t = Terminal()
         FirestoreProvider.assertWritesAllowed("seeding schema metadata")

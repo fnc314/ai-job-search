@@ -33,6 +33,7 @@ public interface SortJobApplicationsUseCase : UseCase<SortJobApplicationsUseCase
         /** Alphabetical sort by position role title. */
         ROLE("Role");
 
+        /** Default column sort options. */
         public companion object {
             /** Default date sort column alias. */
             public val DATE: SortColumn = DATE_CREATED

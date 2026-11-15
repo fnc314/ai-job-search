@@ -8,16 +8,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-public class CompanyDetailsViewModel(
+internal class CompanyDetailsViewModel(
     private val loadCompanyDetailsUseCase: LoadCompanyDetailsUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CompanyDetailsUiState>(CompanyDetailsUiState.Loading)
-    public val uiState: StateFlow<CompanyDetailsUiState> = _uiState.asStateFlow()
+    internal val uiState: StateFlow<CompanyDetailsUiState> = _uiState.asStateFlow()
 
     private var currentCompanyId: String? = null
 
-    public fun loadCompany(companyId: String, forceRefresh: Boolean = false) {
+    internal fun loadCompany(companyId: String, forceRefresh: Boolean = false) {
         currentCompanyId = companyId
         viewModelScope.launch {
             if (forceRefresh) {
@@ -52,7 +52,7 @@ public class CompanyDetailsViewModel(
         }
     }
 
-    public fun onIntent(intent: CompanyDetailsUiIntent) {
+    internal fun onIntent(intent: CompanyDetailsUiIntent) {
         when (intent) {
             is CompanyDetailsUiIntent.Refresh -> {
                 currentCompanyId?.let { loadCompany(it, forceRefresh = true) }

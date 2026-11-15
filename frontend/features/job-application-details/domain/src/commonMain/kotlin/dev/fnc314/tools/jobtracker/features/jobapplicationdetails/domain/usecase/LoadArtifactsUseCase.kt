@@ -7,5 +7,10 @@ import dev.fnc314.tools.jobtracker.core.data.repository.UseCase
  * Domain use case fetching all documents and artifacts attached to a specific job application.
  */
 public interface LoadArtifactsUseCase : UseCase<LoadArtifactsUseCase.Params, List<TrackerArtifact>> {
+    /**
+     * Parameters for loading artifacts.
+     *
+     * @property applicationId Unique application identifier.
+     */
     public data class Params(public val applicationId: String)
 }

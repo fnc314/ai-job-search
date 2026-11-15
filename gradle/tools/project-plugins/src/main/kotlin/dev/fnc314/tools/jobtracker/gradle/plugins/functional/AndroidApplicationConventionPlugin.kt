@@ -9,6 +9,9 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/**
+ * Convention plugin configuring Android application SDK targets, toolchains, desugaring, and inspector tooling.
+ */
 public class AndroidApplicationConventionPlugin : Plugin<Project>, BaseConventionPlugin {
 
     private fun Project.configureDefaultConfig(androidExt: ApplicationExtension) {
@@ -42,7 +45,12 @@ public class AndroidApplicationConventionPlugin : Plugin<Project>, BaseConventio
         }
     }
 
-    override fun apply(target: Project) {
+    /**
+     * Applies Android application conventions to the target Gradle [Project].
+     *
+     * @param target The Gradle [Project] being configured.
+     */
+    public override fun apply(target: Project): Unit {
         target.configurePlugin()
     }
 

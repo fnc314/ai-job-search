@@ -18,15 +18,28 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 public data class ScoringWeights(
-    val technical: Double = 0.30,
-    val experience: Double = 0.25,
-    val behavioral: Double = 0.15,
-    val career: Double = 0.30,
-    val roleLevelMultiplier: Double = 1.0,
-    val sectorMultiplier: Double = 1.0,
-    val locationMultiplier: Double = 1.0,
+    /** Weight for technical keyword matching (default 0.30). */
+    public val technical: Double = 0.30,
+    /** Weight for experience keyword matching (default 0.25). */
+    public val experience: Double = 0.25,
+    /** Weight for behavioral/cultural keyword matching (default 0.15). */
+    public val behavioral: Double = 0.15,
+    /** Weight for career alignment keyword matching (default 0.30). */
+    public val career: Double = 0.30,
+    /** Multiplier for role-level detection bonuses (default 1.0). */
+    public val roleLevelMultiplier: Double = 1.0,
+    /** Multiplier for sector alignment bonuses (default 1.0). */
+    public val sectorMultiplier: Double = 1.0,
+    /** Multiplier for location alignment bonuses (default 1.0). */
+    public val locationMultiplier: Double = 1.0,
 ) {
+    /**
+     * Predefined presets for scoring weight configurations.
+     */
     public companion object {
+        /**
+         * Default baseline scoring weights reflecting standard candidate profile calibration.
+         */
         public val DEFAULT: ScoringWeights = ScoringWeights()
     }
 
@@ -34,7 +47,7 @@ public data class ScoringWeights(
      * Validate that dimension weights sum to 1.0 and all values are non-negative.
      * @throws IllegalArgumentException if weights are invalid.
      */
-    public fun validate() {
+    public fun validate(): Unit {
         val sum = technical + experience + behavioral + career
         if (sum < 0.99 || sum > 1.01) {
             throw IllegalArgumentException(

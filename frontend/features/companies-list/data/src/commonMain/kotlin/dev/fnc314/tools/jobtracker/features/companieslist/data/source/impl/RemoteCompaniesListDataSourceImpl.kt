@@ -78,6 +78,7 @@ internal class RemoteCompaniesListDataSourceImpl(
             }
     }
 
+    @Suppress("CyclomaticComplexMethod")
     private fun mergeCompanyGroup(canonicalKey: String, group: List<Company>): Company {
         // Prefer the record whose ID matches the canonical slug or has higher total applications
         val primary = group.maxWithOrNull(
@@ -134,6 +135,7 @@ internal class RemoteCompaniesListDataSourceImpl(
         )
     }
 
+    @Suppress("CyclomaticComplexMethod")
     private fun mapRecordToCompany(record: RemoteRecord): Company {
         val aliases = (record.fields["aliases"] as? List<*>)
             ?.mapNotNull { it?.toString()?.trim() }

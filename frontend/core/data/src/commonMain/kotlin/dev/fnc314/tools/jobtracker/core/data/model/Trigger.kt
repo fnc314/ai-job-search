@@ -43,26 +43,41 @@ public sealed interface Trigger : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
     }
 
+    /** Companion object providing lookup and shortcut accessors for [Trigger]. */
     public companion object {
+        /** Default fallback value for [Trigger]. */
         public val DEFAULT: Trigger = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
             listOf("trigger:" + entry.name.lowercase().replace("_", "-"), entry.name.lowercase().replace("_", "-"))
         }
 
+        /** Fallback when trigger source is unknown. */
         public val UNSPECIFIED: Trigger = Known.UNSPECIFIED
+        /** Scheduled cron or timer job. */
         public val CRON: Trigger = Known.CRON
+        /** Fired when an application record is created. */
         public val APPLICATION_CREATED: Trigger = Known.APPLICATION_CREATED
+        /** Fired when an application record is updated. */
         public val APPLICATION_UPDATED: Trigger = Known.APPLICATION_UPDATED
+        /** Explicit human action via UI or CLI. */
         public val MANUAL: Trigger = Known.MANUAL
 
+        /** All canonical [Trigger] entries. */
         public val entries: List<Trigger> = Known.entries
 
+        /**
+         * Resolves a [Trigger] instance from its raw wire key string.
+         *
+         * @param raw Raw wire key string from external storage or serialized payload.
+         * @return Matching canonical entry, or an unrecognized fallback instance.
+         */
         public fun fromWireKey(raw: String?): Trigger {
             if (raw.isNullOrBlank()) return DEFAULT
             return lookup[raw.trim().lowercase()] ?: Unrecognized(raw)
         }
 
+        /** Parses a wire representation into [Trigger]. */
         public fun fromFirestore(raw: String?): Trigger = fromWireKey(raw)
     }
 }

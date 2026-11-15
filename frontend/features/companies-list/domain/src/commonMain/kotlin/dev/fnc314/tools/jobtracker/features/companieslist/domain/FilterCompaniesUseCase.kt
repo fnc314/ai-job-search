@@ -11,10 +11,22 @@ public enum class CompanyStatusFilter {
     ONGOING_INTERVIEW,
     OPEN_OFFER;
 
+    /** Whether an active filter other than [ALL] is selected. */
     public val isFiltered: Boolean get() = this != ALL
 }
 
+/**
+ * Use case that filters a list of companies by keyword search and status criteria.
+ */
 public class FilterCompaniesUseCase {
+    /**
+     * Filters [companies] using [query] and [statusFilter].
+     *
+     * @param companies List of employers to filter.
+     * @param query Search query matching company name, industry, aliases, or locations.
+     * @param statusFilter Funnel status category filter.
+     * @return Filtered list of employers.
+     */
     public operator fun invoke(
         companies: List<Company>,
         query: String = "",

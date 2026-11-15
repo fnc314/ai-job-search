@@ -21,6 +21,7 @@ public data class TopBarActions(
     val showBackButton: Boolean = true,
     val hasCustomActions: Boolean = false,
 ) {
+    /** Standard preset toolbar configurations for common destination patterns. */
     public companion object {
         /** No toolbar actions — clears any that existed for the previous destination. */
         public val None: TopBarActions = TopBarActions()
@@ -45,6 +46,7 @@ public data class TopBarActions(
  * with the `provides` infix operator on CompositionLocal.
  */
 public class TopBarActionsSlot {
+    /** State-backed composable content rendering dynamic action buttons. */
     public val render: MutableState<@Composable () -> Unit> = mutableStateOf({})
 }
 

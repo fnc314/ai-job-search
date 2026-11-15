@@ -14,7 +14,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * Navigation destination route for the authentication screen.
+ * Navigation destination route for authentication and sign in.
  */
 @Serializable
 public data object SignInRoute : JobApplicationsTrackerNavKey {
@@ -25,6 +25,9 @@ public data object SignInRoute : JobApplicationsTrackerNavKey {
   override val topBarActions: TopBarActions = TopBarActions.None
 }
 
+/**
+ * Navigation entry registry providing routes for the sign-in feature.
+ */
 public class SignInEntryRegistry : FeatureEntryRegistry {
   override fun register(scope: EntryProviderScope<PlatformNavKey>) {
     scope.entry<SignInRoute> {

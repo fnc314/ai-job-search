@@ -36,7 +36,9 @@ public sealed interface Region : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
     }
 
+    /** Companion object providing lookup and shortcut accessors for [Region]. */
     public companion object {
+        /** Default fallback value for [Region]. */
         public val DEFAULT: Region = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
@@ -50,15 +52,28 @@ public sealed interface Region : WireContract {
         }
 
         // Aliases for backward compatibility
+        /** Shortcut accessor for [Known.PIT]. */
         public val PIT: Region = Known.US_PIT
+        /** Shortcut accessor for [Known.NYC]. */
         public val NYC: Region = Known.US_NYC
+        /** Shortcut accessor for [Known.SF]. */
         public val SF: Region = Known.US_SF
+        /** Shortcut accessor for [Known.LA]. */
         public val LA: Region = Known.US_LA
+        /** Shortcut accessor for [Known.DC]. */
         public val DC: Region = Known.US_DC
+        /** Shortcut accessor for [Known.REMOTE_US]. */
         public val REMOTE_US: Region = Known.US_REMOTE
 
+        /** All canonical [Region] entries. */
         public val entries: List<Region> = Known.entries
 
+        /**
+         * Resolves a [Region] instance from its raw wire key string.
+         *
+         * @param raw Raw wire key string from external storage or serialized payload.
+         * @return Matching canonical entry, or an unrecognized fallback instance.
+         */
         public fun fromWireKey(raw: String?): Region {
             if (raw.isNullOrBlank()) return DEFAULT
             val cleaned = raw.trim().lowercase()

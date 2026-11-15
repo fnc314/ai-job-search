@@ -16,7 +16,7 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
 import java.time.Instant
 
-public class EditCommand : CliktCommand(name = "edit") {
+internal class EditCommand : CliktCommand(name = "edit") {
     private val applicationId: String by argument("id", help = "Application slug ID")
     private val company: String? by option("--company", help = "New company name")
     private val role: String? by option("--role", help = "New role title")

@@ -34,7 +34,7 @@ import java.io.File
 import java.net.URI
 import java.util.Scanner
 
-public data class ApplicationRecord(
+internal data class ApplicationRecord(
     val id: String,
     val company: String,
     val role: String,
@@ -53,7 +53,7 @@ public data class ApplicationRecord(
     val interviewProgress: InterviewProgress? = null
 )
 
-public data class TimelineEventRecord(
+internal data class TimelineEventRecord(
     val ts: String,
     val type: String,
     val actor: String,
@@ -61,7 +61,7 @@ public data class TimelineEventRecord(
     val note: String
 )
 
-public data class ProposalRecord(
+internal data class ProposalRecord(
     val proposalId: String,
     val createdAt: String,
     val state: String,
@@ -72,7 +72,7 @@ public data class ProposalRecord(
     val unmatched: List<Map<String, Any?>> = emptyList()
 )
 
-public data class EmailRecord(
+internal data class EmailRecord(
     val id: String,
     val from: String,
     val subject: String,
@@ -87,7 +87,7 @@ public data class EmailRecord(
 // Email Rectification Interactive TUI
 // ─────────────────────────────────────────────────────────────────────────────
 
-public object EmailsApp {
+internal object EmailsApp {
     private val t: Terminal = Terminal()
     private val scanner = Scanner(System.`in`)
     private val repoRoot: File by lazy {
@@ -146,7 +146,7 @@ public object EmailsApp {
         }
     }
 
-    public fun run() {
+    internal fun run() {
         var includeNoise = false
         var filterQuery: String? = null
         var statusFilter: String? = null
@@ -436,10 +436,10 @@ public object EmailsApp {
 // Job Tracker Terminal App
 // ─────────────────────────────────────────────────────────────────────────────
 
-public object TerminalApp {
+internal object TerminalApp {
     private val t: Terminal = Terminal()
     private val jsonParser: Json = Json { ignoreUnknownKeys = true; isLenient = true }
-    public var isOffline: Boolean = false
+    internal var isOffline: Boolean = false
         private set
 
     private val repoRoot: File by lazy { findRepoRoot() }
@@ -460,7 +460,7 @@ public object TerminalApp {
         }
     }
 
-    public val firestoreInstance: Firestore? get() = firestore
+    internal val firestoreInstance: Firestore? get() = firestore
 
     private fun findRepoRoot(): File {
         var cur: File? = File(".").canonicalFile
@@ -484,7 +484,7 @@ public object TerminalApp {
         return candidates.firstOrNull { it.exists() }
     }
 
-    public fun run(args: Array<String>) {
+    internal fun run(args: Array<String>) {
         val argsList = args.toList()
 
         // 1. Check for roadmap mode
@@ -584,7 +584,7 @@ public object TerminalApp {
     // Cache & Data Loading
     // ─────────────────────────────────────────────────────────────────────────────
 
-    public fun fetchApplications(
+    internal fun fetchApplications(
         openOnly: Boolean = false,
         statusFilter: String? = null,
         tagFilter: String? = null,
@@ -641,7 +641,7 @@ public object TerminalApp {
         return loadApplicationsFromCache(openOnly, statusFilter, tagFilter)
     }
 
-    public fun loadApplicationsFromCache(
+    internal fun loadApplicationsFromCache(
         openOnly: Boolean = false,
         statusFilter: String? = null,
         tagFilter: String? = null
@@ -705,7 +705,7 @@ public object TerminalApp {
         }
     }
 
-    public fun loadTimelineEvents(applicationId: String): List<TimelineEventRecord> {
+    internal fun loadTimelineEvents(applicationId: String): List<TimelineEventRecord> {
         if (!isOffline && firestore != null) {
             try {
                 val docRef = firestore!!.collection("applications").document(applicationId)
@@ -766,7 +766,7 @@ public object TerminalApp {
         }
     }
 
-    public fun loadPendingProposals(): List<ProposalRecord> {
+    internal fun loadPendingProposals(): List<ProposalRecord> {
         // Query proposals from Firestore if online
         if (!isOffline && firestore != null) {
             try {
@@ -857,7 +857,7 @@ public object TerminalApp {
     // Interactive Proposals Review Mode (--proposals)
     // ─────────────────────────────────────────────────────────────────────────────
 
-    public fun runProposalsMode(autoYes: Boolean = false) {
+    internal fun runProposalsMode(autoYes: Boolean = false) {
         val proposals = loadPendingProposals().toMutableList()
 
         if (proposals.isEmpty()) {
@@ -1386,7 +1386,7 @@ public object TerminalApp {
         t.println(banner)
     }
 
-    public fun listApplications(
+    internal fun listApplications(
         openOnly: Boolean = false,
         filterQuery: String? = null,
         statusFilter: String? = null,
@@ -1490,7 +1490,7 @@ public object TerminalApp {
         t.println(tbl)
     }
 
-    public fun inspectApplication(applicationId: String) {
+    internal fun inspectApplication(applicationId: String) {
         val app = fetchApplications().find { it.id.equals(applicationId, ignoreCase = true) }
         if (app == null) {
             t.println(red("Application not found: $applicationId"))
@@ -1557,7 +1557,7 @@ public object TerminalApp {
         }
     }
 
-    public fun openBrowserUrl(applicationId: String): Boolean {
+    internal fun openBrowserUrl(applicationId: String): Boolean {
         val app = fetchApplications().find { it.id.equals(applicationId, ignoreCase = true) }
         if (app == null) {
             t.println(red("Application not found: $applicationId"))
@@ -1586,7 +1586,7 @@ public object TerminalApp {
         }
     }
 
-    public fun queueRecalculation(applicationId: String): Boolean {
+    internal fun queueRecalculation(applicationId: String): Boolean {
         val app = fetchApplications().find { it.id.equals(applicationId, ignoreCase = true) }
         if (app == null) {
             t.println(red("Application not found: $applicationId"))
@@ -1741,10 +1741,10 @@ public object TerminalApp {
     // String Normalization Helpers
     // ─────────────────────────────────────────────────────────────────────────────
 
-    public fun cleanStatus(raw: String): String = raw.removePrefix("status:").uppercase()
-    public fun cleanChannel(raw: String): String = raw.removePrefix("channel:")
-    public fun cleanActor(raw: String): String = raw.removePrefix("actor:")
-    public fun cleanType(raw: String): String = raw.removePrefix("event:")
+    internal fun cleanStatus(raw: String): String = raw.removePrefix("status:").uppercase()
+    internal fun cleanChannel(raw: String): String = raw.removePrefix("channel:")
+    internal fun cleanActor(raw: String): String = raw.removePrefix("actor:")
+    internal fun cleanType(raw: String): String = raw.removePrefix("event:")
 
     private fun normalizeStatusKey(status: String): String {
         val s = status.lowercase()

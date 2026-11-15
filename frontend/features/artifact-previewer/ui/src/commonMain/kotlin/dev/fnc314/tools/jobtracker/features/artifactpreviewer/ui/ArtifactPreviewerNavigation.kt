@@ -26,6 +26,9 @@ public data class ArtifactPreviewRoute(
     override val topBarActions: TopBarActions = TopBarActions.DetailWithCustomActions
 }
 
+/**
+ * Navigation entry registry providing routes for the artifact previewer feature.
+ */
 public class ArtifactPreviewerEntryRegistry : FeatureEntryRegistry {
     override fun register(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<ArtifactPreviewRoute> { route ->

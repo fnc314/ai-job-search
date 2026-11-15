@@ -34,9 +34,19 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
+/**
+ * Core backend service facade managing server-side transaction workflows, event chaining,
+ * metrics aggregation, email classification, and Firestore maintenance routines.
+ */
 public object BackendService {
     private var initialized = false
 
+    /**
+     * Lazily initialized direct Firestore client handle.
+     *
+     * Note: Direct symbol name `firestore` is tracked under ROADMAP.md [RM-012] for interface naming
+     * abstraction migration (transitioning towards `remoteStore` / `remoteDatabase`).
+     */
     public val firestore: Firestore by lazy {
         initFirebase()
         FirestoreClient.getFirestore(FirebaseApp.getInstance())
@@ -82,6 +92,17 @@ public object BackendService {
         }
     }
 
+    /**
+     * Appends an event to an application's event subcollection within a transactional boundary.
+     *
+     * Validates cryptographic hash linkage against the previous event, updates timeline aggregates,
+     * updates company metrics, and guarantees idempotent replay handling.
+     *
+     * @param applicationId Identifier of target job application.
+     * @param eventPayload Raw map containing event details and metadata.
+     * @param idempotencyKey Optional key for deduplicating repeated webhook or batch submissions.
+     * @return Result map describing transaction outcome and created event metadata.
+     */
     public fun appendEventTransactional(
         applicationId: String,
         eventPayload: Map<String, Any?>,
@@ -323,6 +344,12 @@ public object BackendService {
         return builder.build()
     }
 
+    /**
+     * Identifies and marks stale proposals as expired if older than the retention threshold.
+     *
+     * @param expirationDays Maximum age in days before a pending proposal is considered expired (default 14).
+     * @return Count of expired proposals updated.
+     */
     public fun expireStaleProposals(expirationDays: Long = 14): Int {
         val db = firestore
         val cutoff = Timestamp.ofTimeSecondsAndNanos(
@@ -349,6 +376,13 @@ public object BackendService {
         return count
     }
 
+    /**
+     * Processes pending sync requests that have reached or passed their due timestamp.
+     *
+     * Transitions matching documents in `sync-requests` collection from PENDING to DONE.
+     *
+     * @return Count of processed sync requests.
+     */
     public fun processDueSyncs(): Int {
         val db = firestore
         val now = Timestamp.now()
@@ -601,6 +635,13 @@ public object BackendService {
         )
     }
 
+    /**
+     * Executes periodic maintenance routines across the backend database.
+     *
+     * Sweeps and expires stale proposals, processes due sync requests, and recalculates company metrics.
+     *
+     * @return Summary map of routine sweep execution statistics.
+     */
     public fun performRoutineSweep(): Map<String, Any> {
         val expiredCount = try {
             expireStaleProposals()
@@ -937,6 +978,12 @@ public object BackendService {
         )
     }
 
+    private data class CompanyEntry(
+        internal val docId: String,
+        internal val data: Map<String, Any?>,
+        internal val canonicalId: String,
+    )
+
     /**
      * Deduplicates records in the Firestore `companies` collection and aligns `applications.companyId`
      * to canonical slugs derived via [DocumentIdGenerator.slug].
@@ -958,12 +1005,6 @@ public object BackendService {
         val db = firestore
         val companiesSnapshot = db.collection("companies").get().get()
         val appsSnapshot = db.collection("applications").get().get()
-
-        data class CompanyEntry(
-            val docId: String,
-            val data: Map<String, Any?>,
-            val canonicalId: String,
-        )
 
         val entries = companiesSnapshot.documents.map { doc ->
             val data: Map<String, Any?> = doc.data
@@ -1524,19 +1565,42 @@ public object BackendService {
 
     /**
      * A candidate discovered application inferred from email evidence.
+     *
+     * @property company Discovered employer name.
+     * @property companyId Canonical normalized company slug identifier.
+     * @property role Discovered position title.
+     * @property status Inferred application funnel status.
+     * @property messageId Unique source email message identifier.
+     * @property subject Email subject line.
+     * @property sender Email sender address or header.
+     * @property receivedAt ISO-8601 timestamp string when email was received.
+     * @property confidence Classification confidence level (e.g. HIGH, MEDIUM, LOW).
+     * @property relatedMessageIds Thread or conversation message IDs associated with candidate.
+     * @property sourceLabel Email provider label or folder tag.
      */
     public data class DiscoveryCandidate(
-        val company: String,
-        val companyId: String,
-        val role: String,
-        val status: String,
-        val messageId: String,
-        val subject: String,
-        val sender: String,
-        val receivedAt: String?,
-        val confidence: String,
-        val relatedMessageIds: List<String>,
-        val sourceLabel: String?
+        /** Discovered employer name. */
+        public val company: String,
+        /** Canonical normalized company slug identifier. */
+        public val companyId: String,
+        /** Discovered position title. */
+        public val role: String,
+        /** Inferred application funnel status. */
+        public val status: String,
+        /** Unique source email message identifier. */
+        public val messageId: String,
+        /** Email subject line. */
+        public val subject: String,
+        /** Email sender address or header. */
+        public val sender: String,
+        /** ISO-8601 timestamp string when email was received. */
+        public val receivedAt: String?,
+        /** Classification confidence level (e.g. HIGH, MEDIUM, LOW). */
+        public val confidence: String,
+        /** Thread or conversation message IDs associated with candidate. */
+        public val relatedMessageIds: List<String>,
+        /** Email provider label or folder tag. */
+        public val sourceLabel: String?
     )
 
     /**
@@ -2167,6 +2231,21 @@ public object BackendService {
         )
     }
 
+    private data class AuditEntry(
+        internal val docId: String,
+        internal val name: String,
+        internal val enriched: Boolean,
+        internal val appsTotal: Int,
+        internal val garbageReason: String?,
+    )
+
+    private data class MigrateEntry(
+        internal val docId: String,
+        internal val name: String,
+        internal val data: Map<String, Any?>,
+        internal val garbageReason: String?,
+    )
+
     /**
      * Audits the Firestore `companies` collection to identify ALL records with zero applications.
      * The companies database should only hold entities with direct interaction (via /scrape, /apply,
@@ -2202,14 +2281,6 @@ public object BackendService {
         // Only match the dedup artifact pattern: lowercase letters followed by a single digit
         val numberSuffixPattern = Regex("^[a-z]+[0-9]$")
         val anonymousPostingPattern = Regex("major.*operator", RegexOption.IGNORE_CASE)
-
-        data class AuditEntry(
-            val docId: String,
-            val name: String,
-            val enriched: Boolean,
-            val appsTotal: Int,
-            val garbageReason: String?,
-        )
 
         val allCompanies = mutableListOf<AuditEntry>()
         val orphans = mutableListOf<AuditEntry>()
@@ -2438,13 +2509,6 @@ public object BackendService {
         val hashPattern = Regex("^[0-9a-f]{16,}$", RegexOption.IGNORE_CASE)
         val numberSuffixPattern = Regex("^[a-z]+[0-9]$")
         val anonymousPostingPattern = Regex("major.*operator", RegexOption.IGNORE_CASE)
-
-        data class MigrateEntry(
-            val docId: String,
-            val name: String,
-            val data: Map<String, Any?>,
-            val garbageReason: String?,
-        )
 
         val toDelete = mutableListOf<MigrateEntry>()
         val toMigrate = mutableListOf<MigrateEntry>()

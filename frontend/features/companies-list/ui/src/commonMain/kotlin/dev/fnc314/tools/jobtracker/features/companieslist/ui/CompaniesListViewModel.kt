@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-public class CompaniesListViewModel(
+internal class CompaniesListViewModel(
     private val loadAllCompanies: LoadAllCompaniesUseCase,
     private val filterCompanies: FilterCompaniesUseCase,
     private val sortCompanies: SortCompaniesUseCase,
@@ -21,7 +21,7 @@ public class CompaniesListViewModel(
 
     private val _uiState: MutableStateFlow<CompaniesListUiState> =
         MutableStateFlow(CompaniesListUiState.Loading)
-    public val uiState: StateFlow<CompaniesListUiState> = _uiState.asStateFlow()
+    internal val uiState: StateFlow<CompaniesListUiState> = _uiState.asStateFlow()
 
     private var rawCompanies: List<Company> = emptyList()
     private var currentSearchQuery: String = ""
@@ -33,7 +33,7 @@ public class CompaniesListViewModel(
         loadCompanies(forceRefresh = false)
     }
 
-    public fun onIntent(intent: CompaniesListUiIntent) {
+    internal fun onIntent(intent: CompaniesListUiIntent) {
         when (intent) {
             is CompaniesListUiIntent.Refresh -> {
                 loadCompanies(forceRefresh = true)

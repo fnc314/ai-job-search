@@ -48,7 +48,9 @@ public sealed interface DerivedFrom : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
     }
 
+    /** Companion object providing lookup and shortcut accessors for [DerivedFrom]. */
     public companion object {
+        /** Default fallback value for [DerivedFrom]. */
         public val DEFAULT: DerivedFrom = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
@@ -58,20 +60,33 @@ public sealed interface DerivedFrom : WireContract {
             aliases
         }
 
+        /** Fallback when source provenance is unknown. */
         public val UNSPECIFIED: DerivedFrom = Known.UNSPECIFIED
+        /** Explicitly entered by the user via UI or CLI command. */
         public val MANUAL: DerivedFrom = Known.MANUAL
+        /** Inferred from freeform markdown notes via regular expressions. */
         public val NOTES_REGEX: DerivedFrom = Known.NOTES_REGEX
+        /** Derived from automated Gmail message synchronization. */
         public val EMAIL: DerivedFrom = Known.EMAIL
+        /** Imported from historical CSV dataset archives. */
         public val CSV_IMPORT: DerivedFrom = Known.CSV_IMPORT
 
+        /** All canonical [DerivedFrom] entries. */
         public val entries: List<DerivedFrom> = Known.entries
 
+        /**
+         * Resolves a [DerivedFrom] instance from its raw wire key string.
+         *
+         * @param raw Raw wire key string from external storage or serialized payload.
+         * @return Matching canonical entry, or an unrecognized fallback instance.
+         */
         public fun fromWireKey(raw: String?): DerivedFrom {
             if (raw.isNullOrBlank()) return DEFAULT
             val cleaned = raw.trim().lowercase()
             return lookup[cleaned] ?: Unrecognized(raw)
         }
 
+        /** Parses a wire representation into [DerivedFrom]. */
         public fun fromFirestore(raw: String?): DerivedFrom = fromWireKey(raw)
     }
 }

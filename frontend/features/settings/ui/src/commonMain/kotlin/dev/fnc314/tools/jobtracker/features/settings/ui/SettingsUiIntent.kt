@@ -20,7 +20,8 @@ public sealed interface SettingsUiIntent {
     /** Requests back navigation to the preceding screen. */
     public data object ClickBack : SettingsUiIntent
 
-  public data class ToggleKmpInspector(public val enabled: Boolean) : SettingsUiIntent
+    /** Toggles the multiplatform diagnostic inspector overlay. */
+    public data class ToggleKmpInspector(public val enabled: Boolean) : SettingsUiIntent
 
     /** Toggles the in-app Markdown/text viewer (mobile only). */
     public data class ToggleInAppTextViewer(public val enabled: Boolean) : SettingsUiIntent

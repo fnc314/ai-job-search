@@ -3,6 +3,10 @@ plugins {
     application
 }
 
+kotlin {
+    explicitApi()
+}
+
 application {
     mainClass.set("dev.fnc314.tools.jobtracker.terminal.MainKt")
 }

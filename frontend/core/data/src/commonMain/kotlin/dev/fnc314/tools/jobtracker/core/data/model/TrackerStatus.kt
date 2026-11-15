@@ -132,7 +132,9 @@ public sealed interface TrackerStatus : WireContract {
         override fun contentColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
     }
 
+    /** Companion object providing lookup and shortcut accessors for [TrackerStatus]. */
     public companion object {
+        /** Default fallback value for [TrackerStatus]. */
         public val DEFAULT: TrackerStatus = Known.UNSPECIFIED
 
         // Static O(1) multi-key lookup map built using stdlib extension with legacy aliases
@@ -155,17 +157,29 @@ public sealed interface TrackerStatus : WireContract {
         }
 
         // Backward-compatible shortcut properties matching standard enum names
+        /** Sentinel value representing an unfiltered filter state matching all applications. */
         public val NONE: TrackerStatus = Known.NONE
+        /** Fallback status when the Firestore status string is missing or unspecified. */
         public val UNSPECIFIED: TrackerStatus = Known.UNSPECIFIED
+        /** Pre-funnel opportunity lead captured prior to active drafting. */
         public val LEAD: TrackerStatus = Known.LEAD
+        /** Initial opportunity drafting state prior to formal submission. */
         public val DRAFTING: TrackerStatus = Known.DRAFTING
+        /** Formal application submitted to company or hiring platform. */
         public val APPLIED: TrackerStatus = Known.APPLIED
+        /** Active interview process underway (screens, technical rounds, onsites). */
         public val INTERVIEW: TrackerStatus = Known.INTERVIEW
+        /** Candidate expecting or negotiating a formal compensation offer. */
         public val OFFER_EXPECTED: TrackerStatus = Known.OFFER_EXPECTED
+        /** Candidate accepted offer and successfully completed hiring. */
         public val HIRED: TrackerStatus = Known.HIRED
+        /** Application was rejected by employer. */
         public val REJECTED: TrackerStatus = Known.REJECTED
+        /** Employer did not respond within standard follow-up horizon (>30 days). */
         public val NO_RESPONSE: TrackerStatus = Known.NO_RESPONSE
+        /** Candidate declined an offer extended by the company. */
         public val OFFER_DECLINED: TrackerStatus = Known.OFFER_DECLINED
+        /** Candidate voluntarily withdrew application from consideration. */
         public val APPLICATION_WITHDRAWN: TrackerStatus = Known.APPLICATION_WITHDRAWN
 
         /** All known canonical entries for pickers, dropdowns, and filters. */

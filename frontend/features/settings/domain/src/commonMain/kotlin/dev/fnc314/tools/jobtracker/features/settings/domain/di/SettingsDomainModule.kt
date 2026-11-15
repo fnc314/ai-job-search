@@ -7,6 +7,7 @@ import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.impl.UpdateS
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
+/** Koin dependency injection module providing settings domain use cases. */
 public val settingsDomainModule: Module = module {
     factory<ObserveSettingsUseCase> { ObserveSettingsUseCaseImpl(get()) }
     factory<UpdateSettingsUseCase> { UpdateSettingsUseCaseImpl(get()) }

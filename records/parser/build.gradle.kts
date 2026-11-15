@@ -9,7 +9,7 @@ plugins {
 
 kotlin {
   jvmToolchain(libs.versions.jvm.toolchain.get().toInt())
-  explicitApiWarning()
+  explicitApi()
   compilerOptions {
     jvmTarget = JvmTarget.fromTarget(libs.versions.jvm.toolchain.get())
     val kotlinVer = libs.versions.kotlin.asProvider().get().substringBeforeLast(".")
@@ -24,6 +24,5 @@ dependencies {
   implementation(libs.kotlinx.serialization.json)
 
   testImplementation(kotlin("test"))
-  testImplementation(libs.konsist)
 }
 

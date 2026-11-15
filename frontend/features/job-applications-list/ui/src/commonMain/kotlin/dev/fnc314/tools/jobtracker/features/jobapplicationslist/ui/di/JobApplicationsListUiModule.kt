@@ -9,11 +9,14 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-public val jobApplicationsListUiModule: Module = module {
+internal val jobApplicationsListUiModule: Module = module {
     viewModelOf(::JobApplicationsListViewModel)
     singleOf(::JobApplicationsEntryRegistry)
 }
 
+/**
+ * Composite Koin feature module bundling job applications list data, domain, and UI dependencies.
+ */
 public val jobApplicationsListFeatureModule: Module = module {
     includes(jobApplicationsListDataModule, jobApplicationsListDomainModule, jobApplicationsListUiModule)
 }

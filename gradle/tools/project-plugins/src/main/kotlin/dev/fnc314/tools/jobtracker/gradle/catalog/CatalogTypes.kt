@@ -11,13 +11,13 @@ import org.gradle.plugin.use.PluginDependency
 
 /** Base typed contract for catalog entry lookups. Kept internal to prevent leaking to consuming buildscripts. */
 internal sealed interface CatalogTypes<out T> {
-    public val catalogKey: String
-    public fun fromCatalog(project: Project): T
+    val catalogKey: String
+    fun fromCatalog(project: Project): T
 
-    public operator fun invoke(project: Project): T = fromCatalog(project)
+    operator fun invoke(project: Project): T = fromCatalog(project)
 
     /** Strongly-typed version constraints from libs.versions.toml */
-    public enum class Versions(
+    enum class Versions(
         override val catalogKey: String,
     ) : CatalogTypes<VersionConstraint> {
         JVM_TOOLCHAIN(catalogKey = "jvm-toolchain"),
@@ -38,14 +38,14 @@ internal sealed interface CatalogTypes<out T> {
             }
 
         /** Returns the version string defined in the catalog. */
-        public fun asString(project: Project): String = fromCatalog(project).requiredVersion
+        internal fun asString(project: Project): String = fromCatalog(project).requiredVersion
 
         /** Returns the version parsed as an integer (e.g. for compileSdk, JVM target). */
-        public fun asInt(project: Project): Int = asString(project).toInt()
+        internal fun asInt(project: Project): Int = asString(project).toInt()
     }
 
     /** Strongly-typed library coordinates from libs.versions.toml */
-    public enum class Libraries(
+    enum class Libraries(
         override val catalogKey: String,
     ) : CatalogTypes<Provider<MinimalExternalModuleDependency>> {
         KOTLINX_COROUTINES_CORE(catalogKey = "kotlinx-coroutines-core"),
@@ -84,7 +84,7 @@ internal sealed interface CatalogTypes<out T> {
     }
 
     /** Strongly-typed dependency bundles from libs.versions.toml */
-    public enum class Bundles(
+    enum class Bundles(
         override val catalogKey: String,
     ) : CatalogTypes<Provider<ExternalModuleDependencyBundle>> {
         COMPOSE_UI("compose-ui"),
@@ -114,7 +114,7 @@ internal sealed interface CatalogTypes<out T> {
     }
 
     /** Strongly-typed plugin dependencies from libs.versions.toml */
-    public enum class Plugins(
+    enum class Plugins(
         override val catalogKey: String,
     ) : CatalogTypes<Provider<PluginDependency>> {
         KOTLIN_MULTIPLATFORM("kotlinMultiplatform"),

@@ -10,6 +10,7 @@
   gradle = "9.9.1"
   java = "26.0.2+101"
   node = "26.13.1"
+ktlint = "1.8.0"
 
 [env]
   GOOGLE_CLOUD_LOCATION = "global"

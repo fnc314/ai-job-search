@@ -73,7 +73,9 @@ public sealed interface ApplicationChannel : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
     }
 
+    /** Companion object providing lookup and shortcut accessors for [ApplicationChannel]. */
     public companion object {
+        /** Default fallback value for [ApplicationChannel]. */
         public val DEFAULT: ApplicationChannel = Known.UNSPECIFIED
 
         // Static O(1) multi-key lookup map indexing wireKey, name, and bare channel suffix
@@ -89,18 +91,31 @@ public sealed interface ApplicationChannel : WireContract {
         }
 
         // Backward-compatible shortcut properties matching standard enum names
+        /** Fallback when the sourcing vector is not documented. */
         public val UNSPECIFIED: ApplicationChannel = Known.UNSPECIFIED
+        /** Submitted through Greenhouse ATS. */
         public val GREENHOUSE: ApplicationChannel = Known.GREENHOUSE
+        /** Submitted through Workday enterprise portal. */
         public val WORKDAY: ApplicationChannel = Known.WORKDAY
+        /** Submitted through Lever ATS. */
         public val LEVER: ApplicationChannel = Known.LEVER
+        /** Submitted through Ashby ATS. */
         public val ASHBY: ApplicationChannel = Known.ASHBY
+        /** Submitted through SmartRecruiters. */
         public val SMARTRECRUITERS: ApplicationChannel = Known.SMARTRECRUITERS
+        /** Sourced or applied through LinkedIn Jobs / InMail. */
         public val LINKEDIN: ApplicationChannel = Known.LINKEDIN
+        /** Personal or employee referral. */
         public val REFERRAL: ApplicationChannel = Known.REFERRAL
+        /** Direct outreach to founder, hiring manager, or company career portal. */
         public val DIRECT: ApplicationChannel = Known.DIRECT
+        /** Direct recruiter outreach via LinkedIn. */
         public val OUTREACH_LINKEDIN: ApplicationChannel = Known.OUTREACH_LINKEDIN
+        /** Direct recruiter outreach via Email. */
         public val OUTREACH_EMAIL: ApplicationChannel = Known.OUTREACH_EMAIL
+        /** Direct outreach via Referral. */
         public val OUTREACH_REFERRAL: ApplicationChannel = Known.OUTREACH_REFERRAL
+        /** Sourced through other portals or agency partners. */
         public val OTHER: ApplicationChannel = Known.OTHER
 
         /** All known canonical entries for pickers, dropdowns, and filters. */
@@ -120,7 +135,9 @@ public sealed interface ApplicationChannel : WireContract {
             return lookup[cleaned] ?: Unrecognized(raw)
         }
 
+        /** Parses a wire representation into [ApplicationChannel]. */
         public fun fromFirestore(raw: String?): ApplicationChannel = fromWireKey(raw)
+        /** Parses a wire representation into [ApplicationChannel]. */
         public fun fromRaw(raw: String?): ApplicationChannel = fromWireKey(raw)
     }
 }

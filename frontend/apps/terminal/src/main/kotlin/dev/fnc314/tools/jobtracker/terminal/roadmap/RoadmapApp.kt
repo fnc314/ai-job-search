@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Scanner
 import java.util.concurrent.TimeUnit
 
-public data class RoadmapItem(
+internal data class RoadmapItem(
     val id: String,
     val title: String,
     val shortDesc: String,
@@ -42,7 +42,7 @@ public data class RoadmapItem(
     val changelog: List<RoadmapChangelogEntry>
 )
 
-public data class RoadmapChangelogEntry(
+internal data class RoadmapChangelogEntry(
     val date: String,
     val change: String,
     val details: String
@@ -52,12 +52,12 @@ public data class RoadmapChangelogEntry(
 // Roadmap Parser & Writer
 // ─────────────────────────────────────────────────────────────────────────────
 
-public object RoadmapParser {
+internal object RoadmapParser {
     private val idPattern = Regex("### \\[(RM-\\d+)\\]\\s+(.+)")
     private val fieldPattern = Regex("^\\*\\*(.+?):\\*\\*\\s+(.+)$")
     private val frozenSection = Regex("^## Frozen Items", RegexOption.MULTILINE)
 
-    public fun parse(roadmapFile: File, plansReadme: File? = null): List<RoadmapItem> {
+    internal fun parse(roadmapFile: File, plansReadme: File? = null): List<RoadmapItem> {
         if (!roadmapFile.exists()) return emptyList()
         val content = roadmapFile.readText()
 
@@ -179,7 +179,7 @@ public object RoadmapParser {
         return entries
     }
 
-    public fun findLinkedPlansForItem(itemId: String, plansReadme: File): List<String> {
+    internal fun findLinkedPlansForItem(itemId: String, plansReadme: File): List<String> {
         if (!plansReadme.exists()) return emptyList()
         val content = plansReadme.readText()
         val plans = mutableListOf<String>()
@@ -197,10 +197,10 @@ public object RoadmapParser {
     }
 }
 
-public object RoadmapWriter {
+internal object RoadmapWriter {
     private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-    public fun addItem(roadmapFile: File, item: RoadmapItem): Boolean {
+    internal fun addItem(roadmapFile: File, item: RoadmapItem): Boolean {
         val content = if (roadmapFile.exists()) roadmapFile.readText() else ""
         val frozenMatch = Regex("^## Frozen Items", RegexOption.MULTILINE).find(content)
         val insertPoint = frozenMatch?.range?.first ?: content.length
@@ -258,7 +258,7 @@ public object RoadmapWriter {
         return true
     }
 
-    public fun updateField(roadmapFile: File, itemId: String, field: String, value: String): Boolean {
+    internal fun updateField(roadmapFile: File, itemId: String, field: String, value: String): Boolean {
         val content = roadmapFile.readText()
         val itemStart = content.indexOf("### [$itemId]")
         if (itemStart == -1) return false
@@ -355,7 +355,7 @@ public object RoadmapWriter {
         return true
     }
 
-    public fun appendChangelog(roadmapFile: File, itemId: String, change: String, details: String) {
+    internal fun appendChangelog(roadmapFile: File, itemId: String, change: String, details: String) {
         val content = roadmapFile.readText()
         val itemStart = content.indexOf("### [$itemId]")
         if (itemStart == -1) return
@@ -394,7 +394,7 @@ public object RoadmapWriter {
         }
     }
 
-    public fun freezeAllItems(roadmapFile: File, reason: String): Boolean {
+    internal fun freezeAllItems(roadmapFile: File, reason: String): Boolean {
         val content = roadmapFile.readText()
         val frozenMatch = Regex("^## Frozen Items", RegexOption.MULTILINE).find(content)
         if (frozenMatch == null) return false
@@ -470,7 +470,7 @@ public object RoadmapWriter {
 // Roadmap Interactive TUI
 // ─────────────────────────────────────────────────────────────────────────────
 
-public object RoadmapApp {
+internal object RoadmapApp {
     private val t: Terminal = Terminal()
     private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     private val scanner = Scanner(System.`in`)
@@ -498,7 +498,7 @@ public object RoadmapApp {
     private val roadmapFile: File by lazy { File(repoRoot, "ROADMAP.md") }
     private val plansReadme: File by lazy { File(repoRoot, ".agents/plans/README.md") }
 
-    public fun run(args: Array<String>) {
+    internal fun run(args: Array<String>) {
         if (!roadmapFile.exists()) {
             t.println(red("ROADMAP.md not found. Nothing to manage."))
             return

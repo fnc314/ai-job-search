@@ -17,7 +17,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 
-public class AddApplicationCommand : CliktCommand(name = "add") {
+internal class AddApplicationCommand : CliktCommand(name = "add") {
     private val jsonInput: String by option("--json", help = "JSON string or path to JSON file containing application data").required()
 
     override fun run() {

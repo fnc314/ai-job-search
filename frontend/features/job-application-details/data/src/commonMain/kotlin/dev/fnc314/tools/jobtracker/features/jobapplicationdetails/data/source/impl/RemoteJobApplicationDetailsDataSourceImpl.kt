@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.time.Instant
 
+@Suppress("TooManyFunctions")
 internal class RemoteJobApplicationDetailsDataSourceImpl(
   private val remoteDataSource: RemoteDataSource,
 ) : RemoteJobApplicationDetailsDataSource {

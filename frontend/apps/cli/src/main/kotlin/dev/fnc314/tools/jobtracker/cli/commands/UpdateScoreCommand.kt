@@ -9,7 +9,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
 
-public class UpdateScoreCommand : CliktCommand(name = "score") {
+internal class UpdateScoreCommand : CliktCommand(name = "score") {
     private val applicationId: String by argument("id", help = "Application slug ID")
     private val score: Int by argument("score", help = "Recalculated fit score (0-100)").int()
 

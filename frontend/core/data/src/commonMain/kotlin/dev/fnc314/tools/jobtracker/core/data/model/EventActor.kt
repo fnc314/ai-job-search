@@ -50,7 +50,9 @@ public sealed interface EventActor : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
     }
 
+    /** Companion object providing lookup and shortcut accessors for [EventActor]. */
     public companion object {
+        /** Default fallback value for [EventActor]. */
         public val DEFAULT: EventActor = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
@@ -67,21 +69,35 @@ public sealed interface EventActor : WireContract {
             aliases
         }
 
+        /** Fallback when initiator identity is not recorded. */
         public val UNSPECIFIED: EventActor = Known.UNSPECIFIED
+        /** The human candidate interacting via the TUI, Web Dashboard, or CLI. */
         public val USER: EventActor = Known.USER
+        /** Autonomous AI agent acting on behalf of the candidate. */
         public val AGENT: EventActor = Known.AGENT
+        /** Automated background email synchronization job. */
         public val EMAIL_SYNC: EventActor = Known.EMAIL_SYNC
+        /** Batch data import or migration process. */
         public val IMPORT: EventActor = Known.IMPORT
+        /** Recurring cron scheduler triggering time-based transitions. */
         public val SCHEDULER: EventActor = Known.SCHEDULER
 
+        /** All canonical [EventActor] entries. */
         public val entries: List<EventActor> = Known.entries
 
+        /**
+         * Resolves a [EventActor] instance from its raw wire key string.
+         *
+         * @param raw Raw wire key string from external storage or serialized payload.
+         * @return Matching canonical entry, or an unrecognized fallback instance.
+         */
         public fun fromWireKey(raw: String?): EventActor {
             if (raw.isNullOrBlank()) return DEFAULT
             val cleaned = raw.trim().lowercase()
             return lookup[cleaned] ?: Unrecognized(raw)
         }
 
+        /** Parses a wire representation into [EventActor]. */
         public fun fromFirestore(raw: String?): EventActor = fromWireKey(raw)
     }
 }

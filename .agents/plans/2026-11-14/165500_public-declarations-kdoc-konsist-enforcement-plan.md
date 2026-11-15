@@ -1,6 +1,6 @@
 # Implementation Plan: Enforce Explicit API & KDocs via Top-Level Konsist Architecture Suite
 
-**Status:** In Progress  
+**Status:** Completed  
 **Date:** 2026-11-14  
 **Target:** `records`, `backend`, `frontend`, `gradle/tools`, and `tests` (repository-wide)  
 **Harness:** Antigravity  
@@ -188,5 +188,4 @@ flowchart TD
 ## 5. Bookkeeping
 - [x] Implementation plan updated and persisted at `.agents/plans/2026-11-14/165500_public-declarations-kdoc-konsist-enforcement-plan.md`
 - [x] Registry `.agents/plans/README.md` updated with plan row
-- [ ] Craft commit of all changed files
-- [ ] Push to origin/main
+- [x] Craft commit of all changed files

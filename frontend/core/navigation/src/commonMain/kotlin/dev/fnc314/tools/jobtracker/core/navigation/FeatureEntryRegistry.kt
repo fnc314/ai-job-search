@@ -9,5 +9,10 @@ import androidx.navigation3.runtime.NavKey as PlatformNavKey
  * an [AppNavigator] for navigation actions.
  */
 public interface FeatureEntryRegistry {
+    /**
+     * Registers feature navigation entries into the provided [scope].
+     *
+     * @param scope Navigation entry provider scope.
+     */
     public fun register(scope: EntryProviderScope<PlatformNavKey>)
 }

@@ -14,6 +14,9 @@ import org.jetbrains.compose.resources.StringResource
  * @property topBarActions Toolbar icon treatments requested by this destination.
  */
 public interface JobApplicationsTrackerNavKey : AndroidxNavKey {
+    /** Localized title string resource displayed in the top bar. */
     public val titleRes: StringResource
+
+    /** Top bar icon and action button configuration requested by this destination. */
     public val topBarActions: TopBarActions get() = TopBarActions.None
 }

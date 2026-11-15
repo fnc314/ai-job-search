@@ -65,7 +65,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * @param viewModel [CompanyDetailsViewModel] managing UI state.
  */
 @Composable
-public fun CompanyDetailsScreen(
+internal fun CompanyDetailsScreen(
   companyId: String,
   onNavigateBack: () -> Unit,
   onNavigateToApplication: (applicationId: String) -> Unit,
@@ -106,6 +106,7 @@ public fun CompanyDetailsScreen(
   }
 }
 
+@Suppress("UnusedParameter")
 @Composable
 internal fun CompanyDetailsContent(
   details: CompanyDetailsUiModel,

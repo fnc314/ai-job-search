@@ -8,6 +8,15 @@ import kotlin.time.Instant
  *
  * Stored in Firestore document `companies/{companyId}.metrics` to guarantee O(1) reads
  * and zero cross-collection joining at UI render time.
+ *
+ * @property counts Application count breakdowns across funnel states.
+ * @property percentages Application percentage breakdowns across funnel states.
+ * @property salaryRange Aggregated compensation range offered by employer.
+ * @property averageFitScore Average candidate fit score across applications.
+ * @property primaryChannel Most frequently used submission channel.
+ * @property locations Unique geographic locations where roles were posted.
+ * @property lastCalculatedAt Timestamp when metrics were last aggregated.
+ * @property lastApplicationSubmittedAt Timestamp of most recent application submission.
  */
 public data class CompanyMetrics(
     public val counts: ApplicationCounts = ApplicationCounts(),
@@ -19,6 +28,16 @@ public data class CompanyMetrics(
     public val lastCalculatedAt: Instant = Instant.DISTANT_PAST,
     public val lastApplicationSubmittedAt: Instant? = null,
 ) {
+    /**
+     * Application counts broken down by funnel lifecycle stages.
+     *
+     * @property total Total applications tracked for employer.
+     * @property draft Applications in draft state.
+     * @property submitted Applications submitted and awaiting response.
+     * @property interview Applications actively interviewing.
+     * @property offer Applications with formal offers extended.
+     * @property rejected Applications rejected or closed.
+     */
     public data class ApplicationCounts(
         public val total: Int = 0,
         public val draft: Int = 0,
@@ -28,6 +47,15 @@ public data class CompanyMetrics(
         public val rejected: Int = 0,
     )
 
+    /**
+     * Funnel stage percentage breakdown for employer.
+     *
+     * @property draft Percentage of applications in drafting.
+     * @property submitted Percentage of applications submitted.
+     * @property interview Percentage of applications interviewing.
+     * @property offer Percentage of applications resulting in offers.
+     * @property rejected Percentage of applications rejected.
+     */
     public data class ApplicationPercentages(
         public val draft: Float = 0f,
         public val submitted: Float = 0f,
@@ -36,6 +64,14 @@ public data class CompanyMetrics(
         public val rejected: Float = 0f,
     )
 
+    /**
+     * Aggregated salary range spanning all roles tracked for an employer.
+     *
+     * @property min Minimum salary offered.
+     * @property max Maximum salary offered.
+     * @property currency ISO currency symbol or code.
+     * @property display Human-readable formatted compensation range.
+     */
     public data class CompanySalaryRange(
         public val min: Double = 0.0,
         public val max: Double = 0.0,
@@ -43,10 +79,14 @@ public data class CompanyMetrics(
         public val display: String = "",
     )
 
+    /**
+     * Serialization and parsing utilities for [CompanyMetrics].
+     */
     public companion object {
         /**
          * Safely parses a [CompanyMetrics] instance from a Firestore document map representation.
          */
+        @Suppress("CyclomaticComplexMethod")
         public fun fromMap(map: Map<*, *>?): CompanyMetrics? {
             if (map == null) return null
             val countsMap = map["counts"] as? Map<*, *>

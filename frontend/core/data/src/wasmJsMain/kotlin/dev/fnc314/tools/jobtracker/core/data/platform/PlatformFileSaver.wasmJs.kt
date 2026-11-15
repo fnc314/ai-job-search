@@ -3,6 +3,7 @@ package dev.fnc314.tools.jobtracker.core.data.platform
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/** Actual platform implementation of [PlatformFileSaver] for WebAssembly (wasmJs). */
 public actual object PlatformFileSaver {
     public actual suspend fun saveText(content: String, filename: String): Result<Unit> =
         withContext(Dispatchers.Default) {

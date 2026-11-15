@@ -86,7 +86,7 @@ internal inline fun Project.configureKotlinMultiplatformExtension(
         dependencies {
 
         }
-        explicitApiWarning()
+        explicitApi()
         abiValidation {
             it.referenceDumpDir.set(
                 this@configureKotlinMultiplatformExtension.layout.projectDirectory.dir("api")

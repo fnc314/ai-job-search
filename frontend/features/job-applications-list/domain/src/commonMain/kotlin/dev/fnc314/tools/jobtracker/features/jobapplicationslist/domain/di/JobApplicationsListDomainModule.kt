@@ -9,6 +9,7 @@ import dev.fnc314.tools.jobtracker.features.jobapplicationslist.domain.usecase.i
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
+/** Koin dependency injection module providing job applications list domain use cases. */
 public val jobApplicationsListDomainModule: Module = module {
   factory<LoadAllJobApplicationsUseCase> { LoadAllJobApplicationsUseCaseImpl(get()) }
   factory<FilterJobApplicationsUseCase> { FilterJobApplicationsUseCaseImpl() }

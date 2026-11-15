@@ -21,7 +21,7 @@ import kotlinx.serialization.json.contentOrNull
  * or inbound push notifications) from Composio/PubSub and triggers
  * the corresponding logic in BackendService.
  */
-public fun Route.composioWebhookRoute() {
+public fun Route.composioWebhookRoute(): Route =
     post("/webhook/composio") {
         try {
             val bodyText = call.receiveText()
@@ -73,7 +73,6 @@ public fun Route.composioWebhookRoute() {
             )
         }
     }
-}
 
 private suspend fun handleEmailSentTrigger(call: ApplicationCall, payload: kotlinx.serialization.json.JsonObject) {
     // Extract metadata from the GMAIL_EMAIL_SENT_TRIGGER payload

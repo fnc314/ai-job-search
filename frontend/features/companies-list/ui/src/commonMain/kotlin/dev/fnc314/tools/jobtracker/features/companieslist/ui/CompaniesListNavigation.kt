@@ -13,6 +13,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
 
+/**
+ * Navigation destination route for the companies list directory.
+ */
 @Serializable
 public data object JobApplicationCompaniesRoute : JobApplicationsTrackerNavKey {
     @Transient
@@ -22,6 +25,9 @@ public data object JobApplicationCompaniesRoute : JobApplicationsTrackerNavKey {
     override val topBarActions: TopBarActions = TopBarActions.TopLevel
 }
 
+/**
+ * Navigation entry registry providing routes for the companies list feature.
+ */
 public class CompaniesEntryRegistry : FeatureEntryRegistry {
     override fun register(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationCompaniesRoute> {

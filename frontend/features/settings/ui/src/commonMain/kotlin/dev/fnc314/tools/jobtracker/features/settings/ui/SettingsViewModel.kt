@@ -97,6 +97,7 @@ public class SettingsViewModel(
     updateSettingsUseCase(currentSettings.copy(uiMode = uiMode))
   }
 
+  @Suppress("MagicNumber")
   private fun handleChangeSeedColor(hex: String): Unit {
     // Defense-in-depth: accept both #RRGGBB and RRGGBB, normalize to #RRGGBB
     val normalized = hex.removePrefix("#")

@@ -20,12 +20,15 @@ private val KOTLIN_OPT_INS = setOf(
 )
 
 internal sealed interface KotlinConfigConventionPlugin : Plugin<Project> {
-    val optIns: Set<String> get() = KOTLIN_OPT_INS
+    /** Set of compiler opt-in annotations configured across Kotlin source sets. */
+    public val optIns: Set<String> get() = KOTLIN_OPT_INS
 
-    val furtherConfig: context(Project) KotlinMultiplatformExtension.() -> Unit
+    /** Additional configuration lambda applied to KotlinMultiplatformExtension. */
+    public val furtherConfig: context(Project) KotlinMultiplatformExtension.() -> Unit
         get() = {}
 
-    abstract class Base constructor() : KotlinConfigConventionPlugin {
+    /** Base convention plugin applying Kotlin Multiplatform conventions. */
+    public abstract class Base constructor() : KotlinConfigConventionPlugin {
         final override fun apply(target: Project) {
             if (target.hasKotlinPlugin) {
                 context(target) {
@@ -38,7 +41,8 @@ internal sealed interface KotlinConfigConventionPlugin : Plugin<Project> {
         }
     }
 
-    abstract class ComposeUI constructor() : Base() {
+    /** Convention plugin applying Compose Multiplatform dependencies and compiler configuration. */
+    public abstract class ComposeUI constructor() : Base() {
 
         override val furtherConfig: context(Project) KotlinMultiplatformExtension.() -> Unit
             get() = {

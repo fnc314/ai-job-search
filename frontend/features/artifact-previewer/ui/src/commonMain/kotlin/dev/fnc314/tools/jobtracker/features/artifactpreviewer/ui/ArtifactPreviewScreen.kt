@@ -64,6 +64,7 @@ import org.koin.compose.koinInject
  * @param artifactId Artifact identifier for loading the content.
  * @param modifier Composable layout modifier.
  */
+@Suppress("TooGenericExceptionCaught")
 @Composable
 public fun ArtifactPreviewScreen(
     applicationId: String,

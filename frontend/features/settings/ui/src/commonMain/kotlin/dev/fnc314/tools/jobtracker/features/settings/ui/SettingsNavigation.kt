@@ -24,6 +24,9 @@ public data object JobApplicationSettingsRoute : JobApplicationsTrackerNavKey {
     override val topBarActions: TopBarActions = TopBarActions.Detail
 }
 
+/**
+ * Navigation entry registry providing routes for the settings feature.
+ */
 public class SettingsEntryRegistry : FeatureEntryRegistry {
     override fun register(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationSettingsRoute> {

@@ -63,7 +63,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * Top-level screen presenting the catalog of employers.
  */
 @Composable
-public fun CompaniesListScreen(
+internal fun CompaniesListScreen(
     onCompanyClick: (companyId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CompaniesListViewModel = koinViewModel(),

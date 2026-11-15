@@ -18,9 +18,13 @@ public enum class EmailStatus {
     CORRESPONDENCE,
     NOISE;
 
+    /** Whether this email represents background noise or irrelevant correspondence. */
     public val isNoise: Boolean get() = this == NOISE
+
+    /** Whether this email requires immediate candidate attention or response. */
     public val isActionable: Boolean get() = this == INTERVIEW_REQUEST || this == OFFER || this == ASSESSMENT
 
+    /** Resolves the container surface color for this status in Material 3 UI. */
     @Composable
     public fun containerColor(): Color = when (this) {
         UNCLASSIFIED -> MaterialTheme.colorScheme.surfaceVariant
@@ -34,6 +38,7 @@ public enum class EmailStatus {
         NOISE -> MaterialTheme.colorScheme.surfaceDim
     }
 
+    /** Resolves the content text/icon color for this status in Material 3 UI. */
     @Composable
     public fun contentColor(): Color = when (this) {
         UNCLASSIFIED -> MaterialTheme.colorScheme.onSurfaceVariant
@@ -47,7 +52,14 @@ public enum class EmailStatus {
         NOISE -> MaterialTheme.colorScheme.outline
     }
 
+    /** Factory helpers for [EmailStatus]. */
     public companion object {
+        /**
+         * Resolves a raw string name to an [EmailStatus].
+         *
+         * @param raw Raw status string.
+         * @return Matched [EmailStatus] or [UNCLASSIFIED].
+         */
         public fun fromString(raw: String?): EmailStatus {
             if (raw.isNullOrBlank()) return UNCLASSIFIED
             val normalized = raw.trim().uppercase().replace("-", "_")

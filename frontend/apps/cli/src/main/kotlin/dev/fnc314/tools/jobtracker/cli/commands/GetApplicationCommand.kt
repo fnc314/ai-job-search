@@ -11,7 +11,7 @@ import com.github.ajalt.mordant.table.table
 import com.github.ajalt.mordant.terminal.Terminal
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
 
-public class GetApplicationCommand : CliktCommand(name = "get") {
+internal class GetApplicationCommand : CliktCommand(name = "get") {
     private val applicationId: String by argument("id", help = "Application slug ID")
 
     override fun run() {

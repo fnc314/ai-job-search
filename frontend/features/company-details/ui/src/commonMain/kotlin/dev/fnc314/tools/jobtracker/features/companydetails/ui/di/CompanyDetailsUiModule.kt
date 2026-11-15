@@ -9,11 +9,14 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-public val companyDetailsUiModule: Module = module {
+internal val companyDetailsUiModule: Module = module {
     viewModelOf(::CompanyDetailsViewModel)
     singleOf(::CompanyDetailsEntryRegistry)
 }
 
+/**
+ * Composite Koin feature module bundling company details data, domain, and UI dependencies.
+ */
 public val companyDetailsFeatureModule: Module = module {
     includes(companyDetailsDataModule, companyDetailsDomainModule, companyDetailsUiModule)
 }

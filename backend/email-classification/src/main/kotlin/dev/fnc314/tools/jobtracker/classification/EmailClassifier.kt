@@ -5,62 +5,117 @@ import kotlinx.serialization.Serializable
 
 /**
  * Result of classifying an email message.
+ *
+ * @property eventType Classified event type (e.g. RECEIVED, REJECT, SCREEN).
+ * @property statusTo Target application status transition, or null if status is unaffected.
+ * @property confidence Classification confidence level (e.g. HIGH_CONFIDENCE, MEDIUM_CONFIDENCE).
  */
 @Serializable
 public data class EmailClassificationResult(
-    val eventType: String,
-    val statusTo: String?,
-    val confidence: String,
+    /** Classified event type (e.g. RECEIVED, REJECT, SCREEN). */
+    public val eventType: String,
+    /** Target application status transition, or null if status is unaffected. */
+    public val statusTo: String?,
+    /** Classification confidence level (e.g. HIGH_CONFIDENCE, MEDIUM_CONFIDENCE). */
+    public val confidence: String,
 )
 
 /**
  * A staged change from email classification, ready for proposal review.
+ *
+ * @property applicationId Target application ID if matched, or null for candidate leads.
+ * @property eventType Target event type string.
+ * @property statusFrom Current application status prior to change, or null.
+ * @property statusTo Target application status after change, or null.
+ * @property confidence Classification confidence rating.
+ * @property sourceEmail Extracted metadata for originating email.
+ * @property leadCompany Company name if staged as a new application lead.
+ * @property leadChannel Channel name if staged as a lead.
  */
 @Serializable
 public data class StagedEmailChange(
-    val applicationId: String?,
-    val eventType: String,
-    val statusFrom: String?,
-    val statusTo: String?,
-    val confidence: String,
-    val sourceEmail: SourceEmail,
-    val leadCompany: String? = null,
-    val leadChannel: String? = null,
+    /** Target application ID if matched, or null for candidate leads. */
+    public val applicationId: String?,
+    /** Target event type string. */
+    public val eventType: String,
+    /** Current application status prior to change, or null. */
+    public val statusFrom: String?,
+    /** Target application status after change, or null. */
+    public val statusTo: String?,
+    /** Classification confidence rating. */
+    public val confidence: String,
+    /** Extracted metadata for originating email. */
+    public val sourceEmail: SourceEmail,
+    /** Company name if staged as a new application lead. */
+    public val leadCompany: String? = null,
+    /** Channel name if staged as a lead. */
+    public val leadChannel: String? = null,
 )
 
 /**
  * Email metadata extracted from a fetched message.
+ *
+ * @property messageId Unique email provider message ID.
+ * @property subject Email subject line.
+ * @property sender Sender email address string.
+ * @property receivedAt ISO-8601 timestamp string when email was delivered.
+ * @property snippet Text preview snippet from email body.
  */
 @Serializable
 public data class SourceEmail(
-    val messageId: String,
-    val subject: String?,
-    val sender: String?,
-    val receivedAt: String?,
-    val snippet: String? = null,
+    /** Unique email provider message ID. */
+    public val messageId: String,
+    /** Email subject line. */
+    public val subject: String?,
+    /** Sender email address string. */
+    public val sender: String?,
+    /** ISO-8601 timestamp string when email was delivered. */
+    public val receivedAt: String?,
+    /** Text preview snippet from email body. */
+    public val snippet: String? = null,
 )
 
 /**
  * An unmatched email message with a reason.
+ *
+ * @property sender Sender email address string.
+ * @property subject Email subject line.
+ * @property receivedAt ISO-8601 timestamp string when email was delivered.
+ * @property reason Diagnostic reason why email could not be matched.
+ * @property snippet Text preview snippet from email body.
  */
 @Serializable
 public data class UnmatchedEmail(
-    val sender: String?,
-    val subject: String?,
-    val receivedAt: String?,
-    val reason: String,
-    val snippet: String? = null,
+    /** Sender email address string. */
+    public val sender: String?,
+    /** Email subject line. */
+    public val subject: String?,
+    /** ISO-8601 timestamp string when email was delivered. */
+    public val receivedAt: String?,
+    /** Diagnostic reason why email could not be matched. */
+    public val reason: String,
+    /** Text preview snippet from email body. */
+    public val snippet: String? = null,
 )
 
 /**
  * A single classifier rule: event type, optional status transition, confidence,
  * and a list of regex patterns. First match wins.
+ *
+ * @property eventType Target event type identifier.
+ * @property statusTo Target status transition, or null.
+ * @property confidence Match confidence rating.
+ * @property patterns List of regular expression pattern strings.
  */
 public data class EmailClassifierRule(
-    val eventType: String,
-    val statusTo: String?,
-    val confidence: String,
-    val patterns: List<String>,
+    /** Target event type identifier. */
+    public val eventType: String,
+    /** Target status transition, or null. */
+    public val statusTo: String?,
+    /** Match confidence rating. */
+    public val confidence: String,
+    /** List of regular expression pattern strings. */
+    public val patterns: List<String>,
 )
 
 /**
@@ -71,6 +126,9 @@ public data class EmailClassifierRule(
  */
 public object EmailClassifier {
 
+    /**
+     * Ordered cascade of email classification rules evaluated against email subject and body content.
+     */
     public val CLASSIFIERS: List<EmailClassifierRule> = listOf(
         EmailClassifierRule(
             eventType = "REJECT",
@@ -239,10 +297,15 @@ public object EmailClassifier {
 
     /**
      * Result of matching a message to an application.
+     *
+     * @property applicationId Matched application ID if successful, or null on failure.
+     * @property reason Failure explanation if match could not be determined, or null on success.
      */
     public data class MatchResult(
-        val applicationId: String? = null,
-        val reason: String? = null,
+        /** Matched application ID if successful, or null on failure. */
+        public val applicationId: String? = null,
+        /** Failure explanation if match could not be determined, or null on success. */
+        public val reason: String? = null,
     ) {
         init {
             require((applicationId != null) xor (reason != null)) {

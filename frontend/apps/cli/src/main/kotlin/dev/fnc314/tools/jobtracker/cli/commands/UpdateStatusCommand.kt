@@ -15,7 +15,7 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
 import java.time.Instant
 
-public class UpdateStatusCommand : CliktCommand(name = "status") {
+internal class UpdateStatusCommand : CliktCommand(name = "status") {
     private val applicationId: String by argument("id", help = "Application slug ID")
     private val newStatus: String by argument("status", help = "New funnel status value")
     private val note: String? by option("--note", help = "Optional context note")

@@ -47,27 +47,42 @@ public sealed interface TrackerEditState : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
     }
 
+    /** Companion object providing lookup and shortcut accessors for [TrackerEditState]. */
     public companion object {
+        /** Default fallback value for [TrackerEditState]. */
         public val DEFAULT: TrackerEditState = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
             listOf("proposal:" + entry.name.lowercase(), entry.name.lowercase())
         }
 
+        /** Fallback when proposal state is unrecorded. */
         public val UNSPECIFIED: TrackerEditState = Known.UNSPECIFIED
+        /** Staged and awaiting explicit candidate review and approval. */
         public val PENDING: TrackerEditState = Known.PENDING
+        /** Confirmed by candidate; mutations applied to the target application record. */
         public val APPROVED: TrackerEditState = Known.APPROVED
+        /** Dismissed by candidate; proposal rejected with no underlying mutations made. */
         public val REJECTED: TrackerEditState = Known.REJECTED
+        /** Unreviewed proposal expired after its time-to-live deadline passed. */
         public val EXPIRED: TrackerEditState = Known.EXPIRED
 
+        /** All canonical [TrackerEditState] entries. */
         public val entries: List<TrackerEditState> = Known.entries
 
+        /**
+         * Resolves a [TrackerEditState] instance from its raw wire key string.
+         *
+         * @param raw Raw wire key string from external storage or serialized payload.
+         * @return Matching canonical entry, or an unrecognized fallback instance.
+         */
         public fun fromWireKey(raw: String?): TrackerEditState {
             if (raw.isNullOrBlank()) return DEFAULT
             val cleaned = raw.trim().lowercase()
             return lookup[cleaned] ?: Unrecognized(raw)
         }
 
+        /** Parses a wire representation into [TrackerEditState]. */
         public fun fromFirestore(raw: String?): TrackerEditState = fromWireKey(raw)
     }
 }

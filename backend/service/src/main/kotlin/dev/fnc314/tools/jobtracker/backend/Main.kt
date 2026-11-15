@@ -21,7 +21,15 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
 import kotlin.system.exitProcess
 
-public fun main(args: Array<String>) {
+/**
+ * Main application entry point for the backend service.
+ *
+ * Hosts HTTP routing for Cloud Functions/Cloud Run, webhook ingestors, and supports
+ * direct CLI invocation flags for metrics recalculation, routine sweeps, and company enrichment.
+ *
+ * @param args Command-line execution arguments and flag directives.
+ */
+public fun main(args: Array<String>): Unit {
     if (args.contains("--recalculate")) {
         val targetIndex = args.indexOf("--recalculate") + 1
         val targetCompanyId = args.getOrNull(targetIndex)?.takeIf { !it.startsWith("--") && it.isNotBlank() }

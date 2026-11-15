@@ -11,6 +11,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
+/** Koin dependency injection module providing companies list data repositories and sources. */
 public val companiesListDataModule: Module = module {
     singleOf(::RemoteCompaniesListDataSourceImpl) bind RemoteCompaniesListDataSource::class
     singleOf(::LocalCompaniesListDataSourceImpl) bind LocalCompaniesListDataSource::class

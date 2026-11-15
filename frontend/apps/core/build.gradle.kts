@@ -48,9 +48,6 @@ kotlin {
     commonTest.dependencies {
       implementation(libs.kotlin.test)
     }
-    jvmTest.dependencies {
-      implementation(libs.konsist)
-    }
     androidMain.dependencies {
       implementation(libs.kmp.inspector)
     }

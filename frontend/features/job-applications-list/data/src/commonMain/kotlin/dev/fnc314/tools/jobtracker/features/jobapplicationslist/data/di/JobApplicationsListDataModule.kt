@@ -11,6 +11,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
+/** Koin dependency injection module providing job applications list data repositories and sources. */
 public val jobApplicationsListDataModule: Module = module {
     singleOf(::RemoteJobApplicationsListDataSourceImpl) bind RemoteJobApplicationsListDataSource::class
     singleOf(::LocalJobApplicationsListDataSourceImpl) bind LocalJobApplicationsListDataSource::class

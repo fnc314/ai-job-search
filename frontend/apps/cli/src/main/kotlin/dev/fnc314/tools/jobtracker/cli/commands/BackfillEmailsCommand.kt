@@ -19,7 +19,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 
-public class BackfillEmailsCommand : CliktCommand(name = "emails") {
+internal class BackfillEmailsCommand : CliktCommand(name = "emails") {
     private val applyWrites: Boolean by option("--apply", help = "Apply updates to Firestore (default: dry-run)").flag(default = false)
     private val stateFilePath: String? by option("--state-file", help = "Path to gmail-sync/state.json")
     private val inboxFilePath: String? by option("--inbox-file", help = "Path to generated/gmail-inbox.json")

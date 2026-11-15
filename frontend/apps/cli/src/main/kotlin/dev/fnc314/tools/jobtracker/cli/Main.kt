@@ -18,11 +18,11 @@ import dev.fnc314.tools.jobtracker.cli.commands.SeedCommand
 import dev.fnc314.tools.jobtracker.cli.commands.UpdateScoreCommand
 import dev.fnc314.tools.jobtracker.cli.commands.UpdateStatusCommand
 
-public class JobSearchCli : CliktCommand(name = "jobsearch") {
+internal class JobSearchCli : CliktCommand(name = "jobsearch") {
     override fun run(): Unit = Unit
 }
 
-public class TrackerCommand : CliktCommand(name = "tracker") {
+internal class TrackerCommand : CliktCommand(name = "tracker") {
     init {
         subcommands(
             CheckCommand(),
@@ -45,6 +45,9 @@ public class TrackerCommand : CliktCommand(name = "tracker") {
     override fun run(): Unit = Unit
 }
 
+/**
+ * Entry point for the job search command-line interface.
+ */
 public fun main(args: Array<String>) {
     JobSearchCli()
         .subcommands(TrackerCommand())

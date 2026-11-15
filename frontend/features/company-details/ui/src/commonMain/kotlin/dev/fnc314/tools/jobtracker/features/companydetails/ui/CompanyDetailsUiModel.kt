@@ -6,33 +6,34 @@ import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.widgets.JobApplicationCardUiModel
 
 @Immutable
-public data class CompanyDetailsUiModel(
-    public val companyId: String,
-    public val companyName: String,
-    public val website: String? = null,
-    public val industry: String? = null,
-    public val logoUrl: String? = null,
-    public val linkedinUrl: String? = null,
-    public val companyInitial: String = companyName.trim().firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "?",
-    public val averageFitScore: Double = 0.0,
-    public val averageFitScoreText: String = if (averageFitScore > 0.0) "${averageFitScore.toInt()}" else "—",
-    public val salaryRangeDisplay: String = "",
-    public val primaryChannelDisplay: String = "",
-    public val locationsText: String = "",
-    public val draftCount: Int = 0,
-    public val draftPercentage: Float = 0f,
-    public val submittedCount: Int = 0,
-    public val submittedPercentage: Float = 0f,
-    public val interviewingCount: Int = 0,
-    public val interviewingPercentage: Float = 0f,
-    public val offerCount: Int = 0,
-    public val offerPercentage: Float = 0f,
-    public val rejectedCount: Int = 0,
-    public val rejectedPercentage: Float = 0f,
-    public val applications: List<JobApplicationCardUiModel> = emptyList(),
+internal data class CompanyDetailsUiModel(
+    val companyId: String,
+    val companyName: String,
+    val website: String? = null,
+    val industry: String? = null,
+    val logoUrl: String? = null,
+    val linkedinUrl: String? = null,
+    val companyInitial: String = companyName.trim().firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "?",
+    val averageFitScore: Double = 0.0,
+    val averageFitScoreText: String = if (averageFitScore > 0.0) "${averageFitScore.toInt()}" else "—",
+    val salaryRangeDisplay: String = "",
+    val primaryChannelDisplay: String = "",
+    val locationsText: String = "",
+    val draftCount: Int = 0,
+    val draftPercentage: Float = 0f,
+    val submittedCount: Int = 0,
+    val submittedPercentage: Float = 0f,
+    val interviewingCount: Int = 0,
+    val interviewingPercentage: Float = 0f,
+    val offerCount: Int = 0,
+    val offerPercentage: Float = 0f,
+    val rejectedCount: Int = 0,
+    val rejectedPercentage: Float = 0f,
+    val applications: List<JobApplicationCardUiModel> = emptyList(),
 )
 
-public fun toCompanyDetailsUiModel(
+@Suppress("CyclomaticComplexMethod")
+internal fun toCompanyDetailsUiModel(
     company: Company,
     applications: List<JobApplication>,
 ): CompanyDetailsUiModel {

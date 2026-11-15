@@ -8,7 +8,10 @@ package dev.fnc314.tools.jobtracker.ranking
  * @property location Location string extracted from the posting.
  */
 public data class JobInfo(
-    val company: String = "",
-    val role: String = "",
-    val location: String = "",
+    /** Company name extracted from the posting. */
+    public val company: String = "",
+    /** Role title extracted from the posting. */
+    public val role: String = "",
+    /** Location string extracted from the posting. */
+    public val location: String = "",
 )

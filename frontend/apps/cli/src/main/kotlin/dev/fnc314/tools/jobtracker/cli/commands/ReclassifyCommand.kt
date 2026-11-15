@@ -14,7 +14,7 @@ import java.util.regex.Pattern
  * Scans emails classified as CORRESPONDENCE and re-classifies them using improved patterns.
  * Updates both the email status and the application status when a better classification is found.
  */
-public class ReclassifyCommand : CliktCommand(name = "reclassify") {
+internal class ReclassifyCommand : CliktCommand(name = "reclassify") {
     private val dryRun: Boolean by option("--dry-run", help = "Show what would be changed without making changes").flag()
 
     // Rejection patterns that were previously missed

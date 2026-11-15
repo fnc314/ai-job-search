@@ -31,6 +31,9 @@ public data class JobApplicationDetailRoute(
     override val topBarActions: TopBarActions = TopBarActions.Detail
 }
 
+/**
+ * Navigation entry registry providing routes for the job application details feature.
+ */
 public class JobApplicationDetailsEntryRegistry : FeatureEntryRegistry {
     override fun register(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationDetailRoute> { key ->

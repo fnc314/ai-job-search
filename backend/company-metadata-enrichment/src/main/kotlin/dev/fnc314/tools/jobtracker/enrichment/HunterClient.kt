@@ -15,7 +15,7 @@ public interface HunterClient {
      * @param domain The company domain (e.g., "pnc.com").
      * @return Company metadata, or `null` if the API returns no data.
      */
-    public fun lookup(domain: String): HunterCompanyInfo?
+    public operator fun invoke(domain: String): HunterCompanyInfo?
 }
 
 /**
@@ -27,7 +27,7 @@ public class HunterHttpClient(private val apiKey: String) : HunterClient {
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    override fun lookup(domain: String): HunterCompanyInfo? {
+    override operator fun invoke(domain: String): HunterCompanyInfo? {
         if (apiKey.isBlank()) return null
 
         val cleanDomain = domain.removePrefix("https://").removePrefix("http://")
@@ -51,11 +51,11 @@ public class HunterHttpClient(private val apiKey: String) : HunterClient {
         }
     }
 
+    private fun String.orNull(): String? = if (isNullOrEmpty()) null else this
+
     private fun parseHunterResponse(response: String): HunterCompanyInfo? {
         val jsonElement = json.parseToJsonElement(response)
         val data = jsonElement.jsonObject["data"]?.jsonObject ?: return null
-
-        fun String.orNull(): String? = if (isNullOrEmpty()) null else this
 
         val category = data["category"]?.jsonObject
         val sector = category?.get("sector")?.jsonPrimitive?.content?.orNull()

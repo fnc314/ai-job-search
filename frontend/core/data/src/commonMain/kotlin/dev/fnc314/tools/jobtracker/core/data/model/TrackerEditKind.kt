@@ -59,7 +59,9 @@ public sealed interface TrackerEditKind : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
     }
 
+    /** Companion object providing lookup and shortcut accessors for [TrackerEditKind]. */
     public companion object {
+        /** Default fallback value for [TrackerEditKind]. */
         public val DEFAULT: TrackerEditKind = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
@@ -76,24 +78,41 @@ public sealed interface TrackerEditKind : WireContract {
             aliases
         }
 
+        /** Fallback when edit target is unspecified. */
         public val UNSPECIFIED: TrackerEditKind = Known.UNSPECIFIED
+        /** Proposal originating from Gmail synchronization. */
         public val EMAIL_SYNC: TrackerEditKind = Known.EMAIL_SYNC
+        /** Proposal originating from Google Sheets synchronization. */
         public val SHEET_SYNC: TrackerEditKind = Known.SHEET_SYNC
+        /** Proposal originating from automated lead ingestion. */
         public val LEAD: TrackerEditKind = Known.LEAD
+        /** Status transition update (e.g. from Applied to Interview). */
         public val STATUS: TrackerEditKind = Known.STATUS
+        /** Addition of an audit event to the application timeline. */
         public val EVENT: TrackerEditKind = Known.EVENT
+        /** Recalculation or update of the candidate-to-job fit score. */
         public val SCORE: TrackerEditKind = Known.SCORE
+        /** Attachment or update of a document artifact reference. */
         public val ARTIFACT: TrackerEditKind = Known.ARTIFACT
+        /** Addition or amendment of application strategy notes. */
         public val NOTE: TrackerEditKind = Known.NOTE
 
+        /** All canonical [TrackerEditKind] entries. */
         public val entries: List<TrackerEditKind> = Known.entries
 
+        /**
+         * Resolves a [TrackerEditKind] instance from its raw wire key string.
+         *
+         * @param raw Raw wire key string from external storage or serialized payload.
+         * @return Matching canonical entry, or an unrecognized fallback instance.
+         */
         public fun fromWireKey(raw: String?): TrackerEditKind {
             if (raw.isNullOrBlank()) return DEFAULT
             val cleaned = raw.trim().lowercase()
             return lookup[cleaned] ?: Unrecognized(raw)
         }
 
+        /** Parses a wire representation into [TrackerEditKind]. */
         public fun fromFirestore(raw: String?): TrackerEditKind = fromWireKey(raw)
     }
 }

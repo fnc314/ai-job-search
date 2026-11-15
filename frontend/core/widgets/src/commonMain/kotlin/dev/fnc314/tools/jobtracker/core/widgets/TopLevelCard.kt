@@ -86,6 +86,9 @@ public fun TopLevelCardSurfaceVariant.containerColor(): Color = when (this) {
   TopLevelCardSurfaceVariant.Highlighted -> MaterialTheme.colorScheme.surfaceContainerHigh
 }
 
+/**
+ * Resolves the [CardColors] configuration for this [TopLevelCardSurfaceVariant].
+ */
 @Composable
 public fun TopLevelCardSurfaceVariant.cardColors(): CardColors =
   CardDefaults.cardColors()

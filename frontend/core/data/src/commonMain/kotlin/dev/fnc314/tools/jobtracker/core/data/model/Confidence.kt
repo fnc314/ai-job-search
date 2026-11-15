@@ -44,7 +44,9 @@ public sealed interface Confidence : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
     }
 
+    /** Companion object providing lookup and shortcut accessors for [Confidence]. */
     public companion object {
+        /** Default fallback value for [Confidence]. */
         public val DEFAULT: Confidence = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
@@ -55,24 +57,39 @@ public sealed interface Confidence : WireContract {
             )
         }
 
+        /** Fallback when no confidence calculation was performed. */
         public val UNSPECIFIED: Confidence = Known.UNSPECIFIED
+        /** High confidence in extraction accuracy (>90%). */
         public val HIGH_CONFIDENCE: Confidence = Known.HIGH_CONFIDENCE
+        /** Medium confidence in extraction accuracy (60% to 90%). */
         public val MEDIUM_CONFIDENCE: Confidence = Known.MEDIUM_CONFIDENCE
+        /** Low confidence requiring manual human verification (<60%). */
         public val LOW_CONFIDENCE: Confidence = Known.LOW_CONFIDENCE
 
         // Aliases for backward compatibility
+        /** Shortcut accessor for [Known.HIGH]. */
         public val HIGH: Confidence = Known.HIGH_CONFIDENCE
+        /** Shortcut accessor for [Known.MEDIUM]. */
         public val MEDIUM: Confidence = Known.MEDIUM_CONFIDENCE
+        /** Shortcut accessor for [Known.LOW]. */
         public val LOW: Confidence = Known.LOW_CONFIDENCE
 
+        /** All canonical [Confidence] entries. */
         public val entries: List<Confidence> = Known.entries
 
+        /**
+         * Resolves a [Confidence] instance from its raw wire key string.
+         *
+         * @param raw Raw wire key string from external storage or serialized payload.
+         * @return Matching canonical entry, or an unrecognized fallback instance.
+         */
         public fun fromWireKey(raw: String?): Confidence {
             if (raw.isNullOrBlank()) return DEFAULT
             val cleaned = raw.trim().lowercase()
             return lookup[cleaned] ?: Unrecognized(raw)
         }
 
+        /** Parses a wire representation into [Confidence]. */
         public fun fromFirestore(raw: String?): Confidence = fromWireKey(raw)
     }
 }

@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
-public class ListApplicationsCommand : CliktCommand(name = "list") {
+internal class ListApplicationsCommand : CliktCommand(name = "list") {
     private val status: String? by option("--status", help = "Filter by status")
     private val openOnly: Boolean by option("--open", help = "Only open applications").flag(default = false)
     private val limit: Int? by option("--limit", help = "Max results to return").int()

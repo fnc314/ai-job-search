@@ -84,8 +84,6 @@ public fun JobApplicationCard(
   val updatedDate = model.updatedDateDisplay(backup = notAvailableText)
   val viewDetailsLabel = stringResource(Res.string.card_action_view_details)
 
-  val logoSize = if (isCompact) CompanyLogoSize.Medium else CompanyLogoSize.Large
-
   TopLevelCard(
     modifier = modifier,
     onClick = { onApplicationClick(model.id) },

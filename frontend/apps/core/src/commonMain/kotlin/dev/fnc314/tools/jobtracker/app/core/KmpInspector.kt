@@ -2,6 +2,12 @@ package dev.fnc314.tools.jobtracker.app.core
 
 import androidx.compose.runtime.Composable
 
+/**
+ * Diagnostic inspector overlay composable wrapping [content].
+ *
+ * @param enabled Whether inspection tools and overlays are active.
+ * @param content Target UI hierarchy to inspect.
+ */
 @Composable
 public expect fun KmpInspector(enabled: Boolean, content: @Composable () -> Unit)
 

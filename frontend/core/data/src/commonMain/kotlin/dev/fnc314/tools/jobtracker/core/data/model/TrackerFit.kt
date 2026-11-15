@@ -23,7 +23,9 @@ public data class ScoringWeights(
     public val sectorMultiplier: Double = 1.0,
     public val locationMultiplier: Double = 1.0,
 ) {
+    /** Default standard weights configuration. */
     public companion object {
+        /** Default scoring weights instance. */
         public val DEFAULT: ScoringWeights = ScoringWeights()
     }
 }

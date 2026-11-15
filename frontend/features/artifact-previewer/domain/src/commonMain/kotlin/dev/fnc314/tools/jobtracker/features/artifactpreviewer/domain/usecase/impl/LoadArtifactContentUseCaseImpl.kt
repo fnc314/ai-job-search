@@ -12,7 +12,7 @@ internal class LoadArtifactContentUseCaseImpl(
 
     override suspend fun invoke(params: LoadArtifactContentUseCase.Params): String {
         val artifact = artifactsRepository.getArtifact(params.applicationId, params.artifactId)
-            ?: throw IllegalStateException("Artifact not found: ${params.artifactId}")
+            ?: error("Artifact not found: ${params.artifactId}")
 
         val storage = artifact.storage
         val externalUrl = artifact.externalUrl
@@ -56,7 +56,7 @@ internal class LoadArtifactContentUseCaseImpl(
         }
 
         if (!fetched) {
-            throw IllegalStateException("No content available for artifact: ${artifact.filename}")
+            error("No content available for artifact: ${artifact.filename}")
         }
 
         return content!!

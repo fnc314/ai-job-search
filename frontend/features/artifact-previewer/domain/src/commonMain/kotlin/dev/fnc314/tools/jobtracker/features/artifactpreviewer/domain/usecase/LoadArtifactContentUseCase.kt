@@ -7,6 +7,12 @@ import dev.fnc314.tools.jobtracker.core.data.repository.UseCase
  * using a 4-tier pipeline: inline → external URL → GCS → local filesystem.
  */
 public interface LoadArtifactContentUseCase : UseCase<LoadArtifactContentUseCase.Params, String> {
+    /**
+     * Parameters specifying the target artifact to retrieve.
+     *
+     * @property applicationId Unique application identifier.
+     * @property artifactId Unique artifact document identifier.
+     */
     public data class Params(
         public val applicationId: String,
         public val artifactId: String,

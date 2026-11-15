@@ -40,7 +40,9 @@ public sealed interface RoleLocation : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
     }
 
+    /** Companion object providing lookup and shortcut accessors for [RoleLocation]. */
     public companion object {
+        /** Default fallback value for [RoleLocation]. */
         public val DEFAULT: RoleLocation = Known.UNSPECIFIED
 
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
@@ -52,19 +54,31 @@ public sealed interface RoleLocation : WireContract {
             )
         }
 
+        /** Fallback when work arrangement is unstated. */
         public val UNSPECIFIED: RoleLocation = Known.UNSPECIFIED
+        /** Full-time physical office attendance required. */
         public val ONSITE: RoleLocation = Known.ONSITE
+        /** Blended schedule with required in-office days and remote flexibility. */
         public val HYBRID: RoleLocation = Known.HYBRID
+        /** 100% remote position with no mandatory office presence. */
         public val REMOTE: RoleLocation = Known.REMOTE
 
+        /** All canonical [RoleLocation] entries. */
         public val entries: List<RoleLocation> = Known.entries
 
+        /**
+         * Resolves a [RoleLocation] instance from its raw wire key string.
+         *
+         * @param raw Raw wire key string from external storage or serialized payload.
+         * @return Matching canonical entry, or an unrecognized fallback instance.
+         */
         public fun fromWireKey(raw: String?): RoleLocation {
             if (raw.isNullOrBlank()) return DEFAULT
             val cleaned = raw.trim().lowercase()
             return lookup[cleaned] ?: Unrecognized(raw)
         }
 
+        /** Parses a wire representation into [RoleLocation]. */
         public fun fromFirestore(raw: String?): RoleLocation = fromWireKey(raw)
     }
 }

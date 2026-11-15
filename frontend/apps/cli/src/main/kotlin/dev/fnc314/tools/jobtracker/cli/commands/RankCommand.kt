@@ -18,7 +18,7 @@ import java.io.File
  * role-level detection, sector alignment, location scoring, calibration rules, and deal-breaker penalties.
  * Accepts a job description via argument, file path, or stdin, and outputs a markdown or JSON fit evaluation summary.
  */
-public class RankCommand : CliktCommand(name = "rank") {
+internal class RankCommand : CliktCommand(name = "rank") {
     private val urlOrJd: String by argument(
         "url-or-jd",
         help = "Job URL, local file path, or job description text",

@@ -7,6 +7,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
+/** Koin dependency injection module providing company details data repositories. */
 public val companyDetailsDataModule: Module = module {
     singleOf(::CompanyDetailsRepositoryImpl) bind CompanyDetailsRepository::class
 }

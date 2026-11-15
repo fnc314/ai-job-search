@@ -10,8 +10,16 @@ import dev.fnc314.tools.jobtracker.gradle.plugins.kotlinMultiplatform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/**
+ * Convention plugin configuring Firebase dependencies, Google Play Services, and platform-specific BOMs.
+ */
 public class FirebaseDependenciesConventionPlugin : BaseConventionPlugin, Plugin<Project> {
-    override fun apply(target: Project) {
+    /**
+     * Applies Firebase dependencies to the target Gradle [Project].
+     *
+     * @param target The Gradle project being configured.
+     */
+    public override fun apply(target: Project): Unit {
         target.configurePlugin()
     }
 

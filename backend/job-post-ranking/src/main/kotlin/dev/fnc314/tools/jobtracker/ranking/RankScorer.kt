@@ -22,6 +22,9 @@ public object RankScorer {
 
     // === Keyword Lists ===
 
+    /**
+     * Primary technical keywords with highest scoring affinity for mobile architecture and Kotlin roles.
+     */
     public val STRONG_TECH_KEYWORDS: List<String> = listOf(
         "kotlin", "android", "jetpack compose", "kmp", "kotlin multiplatform",
         "gradle", "mobile architecture", "mobile architect", "devex",
@@ -31,17 +34,26 @@ public object RankScorer {
         "clean architecture", "mvi", "coroutines", "flow",
     )
 
+    /**
+     * Secondary technical keywords providing moderate positive scoring weight.
+     */
     public val MODERATE_TECH_KEYWORDS: List<String> = listOf(
         "react native", "firebase", "gcp", "google cloud",
         "javascript", "typescript", "web development",
         "security", "authentication",
     )
 
+    /**
+     * Peripheral technical keywords with lower positive scoring weight.
+     */
     public val WEAK_TECH_KEYWORDS: List<String> = listOf(
         "swift", "objective-c", "ios", "embedded", "data engineering",
         "flutter", "dart",
     )
 
+    /**
+     * Experience and enterprise leadership keywords representing senior and staff-level scale.
+     */
     public val EXPERIENCE_KEYWORDS: List<String> = listOf(
         "enterprise", "financial services", "fintech", "finserv",
         "banking", "payments", "mobile banking",
@@ -52,6 +64,9 @@ public object RankScorer {
         "cross-functional", "stakeholder",
     )
 
+    /**
+     * Behavioral and culture traits representing ownership, best-practice default, and engineering discipline.
+     */
     public val BEHAVIORAL_KEYWORDS: List<String> = listOf(
         "best practice", "standard", "process", "governance",
         "documentation", "knowledge sharing",
@@ -60,6 +75,9 @@ public object RankScorer {
         "developer experience", "devex", "tooling",
     )
 
+    /**
+     * Career aspirations and domain targeting keywords matching the candidate profile.
+     */
     public val CAREER_KEYWORDS: List<String> = listOf(
         "staff", "principal", "lead architect", "mobile architect",
         "technical strategy", "technical direction",
