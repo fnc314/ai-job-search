@@ -5,6 +5,11 @@ apply(from = "../gradle/tools/settings-plugins/subsystem.settings.gradle.kts")
 rootProject.name = "FNC314JobSearchTracker"
 
 pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
     plugins {
         id("dev.fnc314.gradle.plugins.settings.project-collections-gradle-settings-plugin") version("5.1.1")
     }
