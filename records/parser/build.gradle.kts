@@ -19,7 +19,7 @@ kotlin {
 }
 
 dependencies {
-  implementation(projects.recordsProto)
+  implementation(project(":records-proto"))
   implementation(libs.protobuf.kotlin)
   implementation(libs.kotlinx.serialization.json)
 
