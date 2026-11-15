@@ -35,6 +35,14 @@ jobs:
 
       - name: Set up mise
         uses: jdx/mise-action@v2
+        with:
+          install: false
+          cache: false
+
+      - name: Install required mise tools
+        run: |
+          mise install python
+          mise install gradle
 
       - name: Generate Dokka API Documentation
         run: mise run docs:generate
