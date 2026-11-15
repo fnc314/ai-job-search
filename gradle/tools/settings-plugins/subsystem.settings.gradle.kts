@@ -1,4 +1,9 @@
 pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
     val rootRepoDir = System.getenv("WORKSPACE_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
         ?: System.getenv("MISE_PROJECT_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
         ?: if (settings.layout.settingsDirectory.file("gradle/libs.versions.toml").asFile.exists()) {
@@ -10,6 +15,10 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
     val rootRepoDir = System.getenv("WORKSPACE_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
         ?: System.getenv("MISE_PROJECT_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
         ?: if (settings.layout.settingsDirectory.file("gradle/libs.versions.toml").asFile.exists()) {
