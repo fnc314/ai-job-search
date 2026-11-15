@@ -1,6 +1,6 @@
 # Architecture & Implementation Plan: Public Documentation & Version Release Automation
 
-**Status:** Proposed  
+**Status:** Completed  
 **Date:** 2026-11-15  
 **Target:** `.github/workflows/pages.yml`, `.config/mise/tasks/admin/release.py`, `docs/site/`, `docs/naming-inconsistencies.md`  
 
