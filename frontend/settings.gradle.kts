@@ -1,5 +1,3 @@
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
 import dev.fnc314.gradle.plugins.settings.projectcollectionsgradlesettingsplugin.ProjectNameMapper
 
 apply(from = "../gradle/tools/settings-plugins/subsystem.settings.gradle.kts")
