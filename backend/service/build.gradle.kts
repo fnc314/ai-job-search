@@ -13,7 +13,7 @@ application {
 }
 
 dependencies {
-    implementation(projects.jobPostRanking)
+    implementation(project(":job-post-ranking"))
     implementation(libs.records.proto)
     implementation(libs.records.parser)
     implementation(libs.ktor.server.core)
