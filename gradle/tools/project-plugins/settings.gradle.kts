@@ -1,4 +1,4 @@
-rootProject.name = "project-plugins"
+rootProject.name = "ai-job-search_gradle-tools_project-plugins"
 
 dependencyResolutionManagement {
     versionCatalogs {

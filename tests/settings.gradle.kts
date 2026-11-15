@@ -1,3 +1,3 @@
 apply(from = "../gradle/tools/settings-plugins/subsystem.settings.gradle.kts")
 
-rootProject.name = "tests"
+rootProject.name = "ai-job-search_tests"
