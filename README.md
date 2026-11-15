@@ -1,289 +1,220 @@
 <p align="center">
-  <img src="assets/mascot/pip_flight_loop.gif" alt="Pip, the courier bird" width="200">
+  <img src="assets/mascot/pip_flight_loop.gif" alt="Pip, the courier bird" width="180">
 </p>
 
-# AI Job Search
+# AI Job Search & Personal Application OS
 
-*The job search that runs on your machine.*
+*The job search platform that runs entirely on your machine.*
 
-<p align="center">
-  <a href="https://trendshift.io/repositories/43622?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-43622" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/43622/daily" alt="MadsLorentzen%2Fai-job-search | Trendshift" width="250" height="55"/></a>
-</p>
-
-[![CI](https://github.com/MadsLorentzen/ai-job-search/actions/workflows/ci.yml/badge.svg)](https://github.com/MadsLorentzen/ai-job-search/actions/workflows/ci.yml)
-
-An AI-powered job application and tracking framework built for **all major AI CLIs** (Claude Code, Google Gemini / Antigravity, OpenCode, Codex). Fork it, fill in your profile, and let your AI agent evaluate job postings, tailor your CV, write cover letters, prepare you for interviews, and manage your full application pipeline across terminal, web, and native mobile/desktop apps.
-
-> **Note**: This is an independent open-source project and is not affiliated with, endorsed by, sponsored by, or maintained by Anthropic or Google. Product names are referenced only to describe supported toolchains.
->
-> This project has **no affiliated cryptocurrency, token, or paid sponsorship program**. Anything claiming otherwise is unauthorized and should be treated as a scam. The only ways to support the project are the Ko-fi link below and contributing on GitHub.
-
-## Does it actually work?
-
-*From the original author (Mads Lorentzen):*
-
-I'm a geophysicist by training. When my position was cut in late 2025, I built this framework to run my own job search — the same `/scrape`, `/apply`, and `/interview` workflow in this repo, used weekly, on my own career. I was upfront about it with every employer I spoke to, and instead of counting against me, it usually sparked a genuine technical conversation.
-
-Sixty-nine tailored applications, twenty first interviews, and one signed contract later, I started as an AI engineer in June 2026. People kept asking whether this actually works. It got me hired. Now it's yours.
-
-*The longer version, including the full application funnel, is on [LinkedIn](https://www.linkedin.com/in/mads-lorentzen/).*
-
-<p align="center">
-  <i>Did this save you a Sunday of cover-letter writing? Consider a coffee.<br>
-  Did it land you the job? Maybe two.</i> ☕
-</p>
-
-<p align="center">
-  <a href="https://ko-fi.com/madslorentzen">
-    <img src="https://storage.ko-fi.com/cdn/kofi3.png?v=6" alt="Buy me a coffee at ko-fi.com" height="40">
-  </a>
-</p>
+[![CI](https://github.com/fnc314/ai-job-search/actions/workflows/ci.yml/badge.svg)](https://github.com/fnc314/ai-job-search/actions/workflows/ci.yml)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.21-purple.svg?logo=kotlin)](https://kotlinlang.org)
+[![Compose Multiplatform](https://img.shields.io/badge/Compose_Multiplatform-1.7.3-blue.svg?logo=jetpackcompose)](https://www.jetbrains.com/lp/compose-multiplatform/)
+[![Mise](https://img.shields.io/badge/Task_Runner-mise-green.svg?logo=mise)](https://mise.jdx.dev)
+[![Architecture: Event Sourced](https://img.shields.io/badge/Architecture-Event--Sourced-orange.svg)](#event-sourced-system-of-record)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## What this is
+## A Lifeline in an Exhausting Job Market
 
-A structured, agentic workflow that turns your AI CLI into a full-stack job application assistant and pipeline tracker. The core workflow (self-profiling, fit evaluation, drafter-reviewer generation, and interview preparation) is **language- and country-agnostic**.
+Navigating today's tech job search can feel disheartening, opaque, and dehumanizing: hundreds of customized cover letters sent into ATS black holes, ghosting, uncoordinated follow-ups, and cognitive overload from juggling tracking sheets.
 
-```
-/setup          /scrape              /apply <url>            /interview
-  |                |                     |                       |
-  v                v                     v                       v
-Fill in        Search job           Evaluate fit            Prepare STAR
-your profile   portals              Score & recommend       talking points,
-  |                |                     |                  company intel,
-  v                v                     v                  mock interviews
-Profile        Present matches      Draft CV + Letter            |
-files ready    with fit ratings     (Tailored LaTeX)             v
-                   |                     |                  Track funnel
-                   v                     v                  in Firestore
-               Pick match           Reviewer agent          & Dashboards
-               -> /apply            -> PDF inspect -> Done
+**This framework was forged to take back control.**
+
+It is an autonomous career cockpit that transforms your personal AI CLI into an empathetic, tireless, and hyper-competent Chief of Staff. It eliminates repetitive friction: discovering listings across aggregators and direct portals, computing deterministic match scores against your verified profile, drafting tailored LaTeX CVs and cover letters, running multi-agent critique audits, generating STAR interview cheat-sheets, and automatically capturing application milestones with zero manual bookkeeping.
+
+Simultaneously, this repository doubles as an **enterprise flagship portfolio** — demonstrating modern architecture, Kotlin Multiplatform mastery, event-sourced domain design, deterministic scoring pipelines, and rigorous engineering quality gates across CLI, terminal, web, desktop, and mobile surfaces.
+
+---
+
+## System Overview & Unified Agent Flow
+
+Whether you drive your search via **Claude Code**, **Google Gemini / Antigravity**, **OpenCode**, or **Codex**, the system standardizes agent capabilities through the **Universal Agent Pattern** (`.agents/`).
+
+```mermaid
+flowchart TD
+    subgraph AgenticWorkflow["Autonomous AI Workflows (.agents/)"]
+        direction TB
+        Setup["/setup\nProfile Grounding"] --> Scrape["/scrape\nAggregator & Portal Ingestion"]
+        Scrape --> Rank["/rank\nDeterministic Scoring"]
+        Rank --> Apply["/apply &lt;url&gt;\nTailored LaTeX CV + Cover Letter"]
+        Apply --> Review["Reviewer Agent Audit\nPDF text & ATS inspection"]
+        Review --> Track["Append-Only Event Emission\n(EventChainBuilder)"]
+        Track --> Interview["/interview\nSTAR Coaching & Company Intel"]
+    end
+
+    subgraph CoreEngine["Enterprise Domain & Storage Engine"]
+        Track --> RemoteStore[("Cloud Firestore\nSystem of Record")]
+        RemoteStore <--> Backend["Backend Logical Services\n(backend/:service, :job-post-ranking, :tracker-conventions)"]
+        RemoteStore <--> Records["Domain Invariants\n(records/:proto, :parser)"]
+    end
+
+    subgraph MultiModalUI["Multi-Modal Interactive UI Experience"]
+        RemoteStore <--> KMPDesktop["Desktop Compose (JVM)"]
+        RemoteStore <--> KMPAndroid["Android App (M3)"]
+        RemoteStore <--> KMPWeb["Compose Web (Wasm / JS)"]
+        RemoteStore <--> MordantTUI["Mordant Terminal TUI (apps-terminal)"]
+        RemoteStore <--> HeadlessCLI["Clikt CLI (apps-cli)"]
+        RemoteStore <--> WebDash["Live Web Dashboard (:8000)"]
+    end
 ```
 
 ---
 
-## Current Project Layout
+## Architectural Principles & Monorepo Structure
+
+The repository adheres to strict modern engineering standards: isolated modular boundaries, composite builds, interface-first naming, strict `explicitApi()`, and unified dependency catalogs.
+
+### 1. Isolated Gradle Composite Build Architecture
+Instead of an unwieldy mega-project with coupled build logic, the repository is partitioned into isolated, self-contained Gradle included builds united by a shared Version Catalog ([`gradle/libs.versions.toml`](gradle/libs.versions.toml)):
 
 ```
 ai-job-search/
-├── .agents/                           # Universal Agent Index & Portable Skills
-│   ├── README.md                      # Canonical index of all skills and CLI entry points
-│   ├── commands/                      # Slash command definitions (/apply, /outcome, /setup, etc.)
-│   └── skills/                        # Portable Agent Skills (CLIs and workflows)
-│       ├── job-application-assistant/ # Methodology guides and candidate profile
-│       ├── job-tracker/               # System-of-record invariants, commands, & schemas
-│       ├── job-search/                # Orchestration skill for setup, apply, and interview prep
-│       ├── freehire-search/           # Tech job aggregator search CLI
-│       ├── linkedin-search/           # Country-agnostic LinkedIn job query CLI
-│       ├── composio/                  # Composio tooling integration
-│       └── jobindex-search/ ...       # Regional job search portals (Jobnet, Jobbank, etc.)
-├── templates/                         # Master Application Templates
-│   ├── cv/main_example.tex            # Master LaTeX CV (Inconsolata headings, Sans-serif body)
-│   └── cover-letters/                 # Custom LaTeX cover letter class (cover.cls) & fonts
-├── frontend/                          # Kotlin Multiplatform Suite — PRIMARY implementation
-│   ├── apps/cli/                      # Kotlin CLI commands (Clikt-based, primary tracker interface)
-│   ├── apps/                          # Platform targets: android, desktop, web (Wasm/JS), ios
-│   ├── core/                          # core-design-system (Material 3), core-widgets, core-data, core-network
-│   └── features/                      # Modular features (sign-in, job-applications-list, etc.)
-├── backend/                           # Ktor HTTP service (Firestore endpoints, email reconciliation)
-├── records/                           # Kotlin domain logic — PRIMARY implementation
-│   ├── proto/                         # tracker/v1/application.proto definitions
-│   └── parser/                        # Kotlin domain logic (EventChainBuilder, FitEvaluator, RankScorer, etc.)
-├── .config/mise/tasks/                # Mise task definitions (shell wrappers invoking Kotlin JARs)
-├── scripts/                           # Python scripts (being migrated to Kotlin via RM-001; invoke via `mise`)
-├── ui/                                # Multi-Interface Application Tracking Suite
-│   ├── terminal/                      # Interactive Terminal UI (TUI)
-│   │   ├── tracker_tui.py             # Keyboard-driven curses tracker — use `mise run tui`
-│   │   └── tui_config.json            # Layout and theme configurations
-│   └── web/                           # Standalone Web Dashboard
-│       ├── application-dashboard.html # Interactive HTML/SVG pipeline report
-│       └── application-dashboard-server.py # Dashboard server — use `mise run dashboard`
-├── documents/                         # Candidate career materials (CVs, LinkedIn exports, diplomas)
-├── job-applications/                  # Generated per-job application archives (LaTeX + compiled PDFs)
-├── tracker.schema.json                # Single typed contract for all Firestore records (Schema v7)
-├── archive/                           # Frozen pre-migration CSV snapshot (read-only historical audit)
-├── generated/                         # Disposable caches and Gmail fetch payloads (gitignored)
-├── docs/mise/                         # Auto-generated documentation for all mise tasks
-├── mise.toml                          # Task runner configuration and tool version management
-├── AGENTS.md                          # Universal Agent instructions (Single Source of Truth)
-├── GEMINI.md                          # Google Gemini / Antigravity CLI entry point
-└── CLAUDE.md                          # Claude Code CLI entry point
+├── backend/                  # Pure headless backend services & deterministic business engines
+│   ├── service/              # Core Ktor microservice & Firestore sync operations
+│   ├── job-post-ranking/     # Standalone deterministic match scoring engine
+│   ├── tracker-conventions/  # Canonical slugification, URL sanitization & ID generation
+│   ├── email-classification/ # Email intent & proposal categorization engine
+│   ├── company-metadata-enrichment/ # Company enrichment & sector resolution
+│   └── event-chain/          # Cryptographic event hashing & chain verification
+│
+├── frontend/                 # Kotlin Multiplatform Compose client applications & UI suite
+│   ├── apps/
+│   │   ├── cli/              # Headless developer & automation Clikt CLI (`mise run tracker`)
+│   │   ├── terminal/         # Rich terminal interactive dashboard (Mordant TUI, `mise run tui`)
+│   │   ├── desktop/          # Native Desktop GUI application (JVM)
+│   │   ├── android/          # Native Android Material 3 application
+│   │   └── web/              # Compose for Web (Wasm & JavaScript)
+│   ├── core/                 # Shared design system, UI widgets, network, & offline data layers
+│   └── features/             # Modular, MVI feature packages (applications, companies, settings, edits)
+│
+├── records/                  # System-wide domain types and wire protocols
+│   ├── proto/                # Protocol Buffer definitions (`tracker/v1/application.proto`)
+│   └── parser/               # Timeline projectors, cache engines & proto converters
+│
+├── internal/                 # Internal developer and maintainer applications
+│   └── apps/terminal/roadmap/# Interactive Roadmap management TUI (`mise run roadmap:edit`)
+│
+├── tests/                    # Monorepo-wide Konsist architectural enforcement test suites
+│   └── src/test/kotlin/...   # Zero tool leakage, KDoc enforcement, explicit visibility
+│
+├── gradle/tools/             # Custom convention plugins and shared Gradle settings
+└── .agents/                  # Universal AI agent instructions, portable skills & slash commands
 ```
 
----
+### 2. "Backend" as Headless Logic & Distributed Services
+In this architecture, **"Backend" carries zero user interface**. It represents pure headless logical services, scheduled background tasks, deterministic evaluation rules, and third-party webhooks (e.g., email ingestion, company data enrichment, Hunter.io resolvers). UI code is strictly sequestered inside `frontend/`.
 
-## Universal Functionality Colocation via `.agents`
-
-This workspace implements the **Universal Agent Architecture**. All autonomous behaviors, search skills, and database invariants are colocated inside the [`.agents/`](.agents/) directory:
-
-- **Single Source of Truth:** Core skills live in [`.agents/skills/`](.agents/skills/) using the standardized Agent Skills format. Every CLI pointer (`AGENTS.md`, `GEMINI.md`, `CLAUDE.md`, `OPENCODE.md`) references these canonical definitions.
-- **Portability Across AI Tools:** Whether executing via **Claude Code**, **Google Gemini / Antigravity**, **OpenCode**, or **Codex**, the AI uses the exact same operational rules, verification checklists, and CLI toolchains.
-- **Self-Contained CLIs:** Scraper and search skills (e.g. `linkedin-search`, `freehire-search`) live directly with their runtime dependencies, enabling instant execution without modifying global packages.
-
----
-
-## Database Architecture & Interaction Interfaces
-
-Cloud Firestore is the **single authoritative system of record** (`job-search-fnc314-dev`). The historical CSV in `archive/` is retired and never read as a mutable data source.
-
-### Invariants & Schema Contract
-1. **Typed Boundary:** Every document adheres strictly to [`tracker.schema.json`](tracker.schema.json) (Schema Version 7).
-2. **Append-Only History:** Funnel movements, status changes, and notes are never destructively overwritten; they are logged as immutable events in the `applications/{id}/events` subcollection. Derived fields (`notesRendered`, `isOpen`, `counters`, `timeline`) are reprojected from the event log.
-3. **Write Safety:** Mutations to Firestore are opt-in and require `TRACKER_ALLOW_WRITES=1`.
-
-### Interaction Interfaces
-
-The workspace provides multiple specialized interfaces to interact with the database depending on your workflow:
-
-```
-                                  ┌──────────────────────────────┐
-                                  │   Cloud Firestore (nam5)     │
-                                  │   System of Record (Schema 7)│
-                                  └──────────────▲───────────────┘
-                                                 │
-            ┌────────────────────────────────────┼────────────────────────────────────┐
-            │                                    │                                    │
-            ▼                                    ▼                                    ▼
-┌───────────────────────┐            ┌───────────────────────┐            ┌───────────────────────┐
-│   Kotlin CLI (Clikt)  │            │   Terminal UI (TUI)   │            │ Kotlin Multiplatform  │
-│  `mise run tracker`   │            │    `mise run tui`     │            │ `mise run frontend:*` │
-│ Kotlin CLI (Clikt),   │            │ Keyboard-driven       │            │ Android, Desktop JVM, │
-│ automation, auditing  │            │ real-time curses view │            │ Web Wasm/JS, and iOS  │
-└───────────────────────┘            └───────────────────────┘            └───────────────────────┘
-            │                                    │                                    │
-            ▼                                    ▼                                    ▼
-┌───────────────────────┐            ┌───────────────────────┐            ┌───────────────────────┐
-│     Web Dashboard     │            │   Google Sheet Sync   │            │   Notion Live View    │
-│  `mise run dashboard` │            │ `mise run tracker     │            │     `/notion-sync`    │
-│ Local SVG/HTML report │            │  sheet --sync`        │            │ Mobile-friendly live  │
-│ served on :8000       │            │ Regenerated sheet     │            │ dashboard view        │
-└───────────────────────┘            └───────────────────────┘            └───────────────────────┘
-┌───────────────────────┐
-│  Ktor HTTP Service    │
-│  `backend/` module    │
-│ REST endpoints for    │
-│ email fetch, Sheets   │
-│ sync, artifact mgmt   │
-└───────────────────────┘
-
-Note: The Kotlin CLI (`frontend/apps/cli/`) and domain logic (`records/parser/`) are the
-primary implementation. Python scripts in `scripts/` are being migrated via RM-001 and
-remain available during transition.
-```
-
-1. **The CLI (`mise run tracker <command>`)**:
-   Full programmatic control for listing, inspecting, updating, status changes, manual event appending, and scoring.
-   ```bash
-   mise run tracker list --open
-   mise run tracker get capital-one
-   mise run tracker edit capital-one --interactive
-   mise run tracker status capital-one interview --note "Technical screen scheduled"
-   ```
-2. **Interactive Terminal UI (`mise run tui`)**:
-   Fast, keyboard-driven curses tracker. Supports sorting, interactive filtering, viewing notes history, and jumping to local CV/cover letter PDFs.
-3. **Web Dashboard Server (`mise run dashboard`)**:
-   Lightweight server serving [`ui/web/application-dashboard.html`](ui/web/application-dashboard.html) at `http://127.0.0.1:8000` with interactive pipeline metrics, sector distributions, and status charts.
-4. **Native Multiplatform Apps (`frontend`)**:
-   Native applications built with Compose Multiplatform:
-   - **Desktop (JVM):** Full native desktop experience (`mise run frontend:desktop:run`).
-   - **Android:** Mobile tracker with Material 3 design and offline-first Firestore sync (`mise run frontend:android:install`).
-   - **Web:** Browser clients compiled to WebAssembly and JavaScript (`mise run frontend:web:wasm:dev`).
-5. **Synchronized Views (Google Sheets & Notion)**:
-   - Synchronize an external Google Sheet mirror: `mise run tracker sheet --sync`.
-   - Publish a read-only live briefing to Notion: `/notion-sync`.
+### 3. Event-Sourced System of Record
+Cloud Firestore is the single authoritative system of record (`applications`, `companies`, `emails`). 
+- **Append-Only History:** Application status changes, recruiter interactions, notes, and salary negotiations are logged as immutable events in `applications/{id}/events`.
+- **Zero Fabrication (Grounding):** No AI tool is permitted to fabricate achievements or metrics. All generated materials are audited against [`01-candidate-profile.md`](.agents/skills/job-application-assistant/01-candidate-profile.md).
+- **Interface-First Naming:** Public APIs, data models, and services name their role and capability (`Remote`, `Local`, `Network`, `Email`, `Blob`), never vendor or third-party tool implementations.
 
 ---
 
-## The `mise` Toolkit
+## Multi-Modal User Experience
 
-Task execution across the entire repository is standardized using [`mise`](https://mise.jdx.dev/). Each task's arguments and usage are documented under [`docs/mise/`](docs/mise/).
+Manage and inspect your search across whatever medium suits your flow:
 
-### Application & Search Tasks
-- **`mise run tracker <command>`** — Execute tracker CLI operations (e.g., `check`, `list`, `get`, `add`, `edit`, `status`, `score`, `event`, `artifact`, `proposals`).
-- **`mise run align`** — Align Firebase records to canonical IDs, recalculate fit ratings, and refresh `outcome.md`.
-- **`mise run scrape`** — Search portals and collect new job listings deduplicated against the tracker.
-- **`mise run salary [company]`** — Benchmark role compensation using local salary data.
-- **`mise run tui`** — Launch the interactive curses Terminal UI.
-- **`mise run dashboard`** — Serve the HTML dashboard locally on port 8000.
-- **`mise run report`** — Regenerate static HTML application report.
-- **`mise run setup`** — Run first-time setup, validate environment, and seed schema.
-
-### Gmail Ingestion & Automation Tasks
-- **`mise run gmail:sync:labels`** — Discover and cache user Gmail labels via Composio CLI.
-- **`mise run gmail:read:inbox`** — Fetch job-related emails and write inbox payload.
-- **`mise run gmail:collect`** — Stage proposals from fetched emails to Firestore for human review.
-
-### Kotlin Multiplatform (`frontend`) Tasks
-- **`mise run frontend:build`** — Build all KMP targets and modules.
-- **`mise run frontend:clean`** — Clean Gradle build cache and build directories.
-- **`mise run frontend:test`** — Run KMP unit tests across shared modules.
-- **`mise run frontend:desktop:run`** — Launch the Compose Desktop application.
-- **`mise run frontend:desktop:package`** — Package native desktop distribution (DMG/MSI/DEB).
-- **`mise run frontend:android:assemble`** — Build Android debug APK.
-- **`mise run frontend:android:bundle`** — Build Android release App Bundle.
-- **`mise run frontend:android:install`** — Install debug APK to connected device/emulator.
-- **`mise run frontend:web:wasm:dev`** — Run Compose Web dev server (Wasm target).
-- **`mise run frontend:web:wasm:dist`** — Build production Web Wasm bundle.
-- **`mise run frontend:web:js:dev`** — Run Compose Web dev server (JS target).
-- **`mise run frontend:web:js:dist`** — Build production Web JS bundle.
-
-### Documentation & Shell Completions
-- **`mise run mise:docs:tasks`** — Lint Usage specs, sync Protobuf, and regenerate Markdown documentation in `docs/mise/`.
-- **`mise run completions:generate`** — Generate fast Zsh autocompletions for all CLI specs.
+| Surface | Interface | How to Launch | Highlights |
+| :--- | :--- | :--- | :--- |
+| **Desktop GUI** | Compose Multiplatform (JVM) | `mise run frontend:desktop:run` | Full responsive windowed desktop application, split-pane detail views, offline caching. |
+| **Mobile App** | Android (Compose M3) | `mise run frontend:android:install` | Native Material 3 app, offline-first Room-backed database, dynamic theming. |
+| **Web App** | Compose Web (Wasm / JS) | `mise run frontend:web:wasm:dev` | Modern browser-based dashboard running Kotlin compiled directly to WebAssembly. |
+| **Interactive TUI**| Mordant Terminal UI | `mise run tui` | Fast, keyboard-driven console experience; live filtering, review queue, and quick PDF launcher. |
+| **Headless CLI** | Clikt Kotlin CLI | `mise run tracker <command>` | Scriptable terminal operations for listing, inspecting, updating, and scoring. |
+| **Roadmap TUI** | Internal Manager | `mise run roadmap:edit` | Developer TUI to review milestones, inspect complexity, and update development items. |
+| **Web Dashboard** | Lightweight HTML/SVG Server | `mise run dashboard` | Zero-dependency local visualizer (`http://127.0.0.1:8000`) for pipeline statistics. |
 
 ---
 
-## Prerequisites & Installation
+## Autonomous Agent Skills & Workflows
 
-1. **AI CLI**: OpenCode, Claude Code, Gemini CLI, Antigravity, or Codex.
-2. **Task Runner**: [mise](https://mise.jdx.dev/) (`curl https://mise.run | sh` or `brew install mise`).
-3. **Runtimes**: Python 3.10+ (required for remaining scripts during RM-001 migration; Kotlin CLI is the primary interface), [Bun](https://bun.sh) (for portal search CLIs), JDK 17+ (for KMP and Protobuf builds).
-4. **LaTeX Distribution**: MacTeX, TeX Live, or MiKTeX with `lualatex` (for CV) and `xelatex` (for cover letter).
-5. **Optional ATS Tooling**: `pdftotext` from `poppler` (`brew install poppler` on macOS).
+All agent workflows are self-contained and portable across Claude Code, Gemini, OpenCode, and Codex via `.agents/commands/`:
 
-### Quick Setup
+- **/setup** — Interactive interview initializing your verified candidate profile, target roles, salary floors, and deal-breakers.
+- **/scrape** — Multi-source discovery across LinkedIn, FreeHire, and regional portals with automatic deduplication.
+- **/rank** — Pure deterministic scoring evaluating job postings against skills, domain match, and compensation.
+- **/apply `<url>`** — End-to-end drafter-reviewer pipeline generating tailored LaTeX documents with strict verification.
+- **/interview** — Stage-specific coaching (technical deep dives, company research, and STAR behavioral prep).
+- **/outcome** — Funnel milestone recorder that safely writes append-only lifecycle events into Firestore.
 
+---
+
+## Task Automation Reference (`mise`)
+
+The repository uses [`mise`](https://mise.jdx.dev/) for unified command orchestration across toolchains:
+
+### Search & Pipeline Management
 ```bash
-# 1. Install toolchains and dependencies
+mise run scrape                     # Scrape active postings across configured search portals
+mise run search:rank                # Compute deterministic match scores across new postings
+mise run tracker list --open        # List all currently active applications
+mise run tracker get <id>           # Inspect detailed history and events for an application
+mise run tracker score <id>         # Recalculate deterministic fit score for an application
+mise run align                      # Realign IDs, reproject notes, and refresh outcome summaries
+```
+
+### Email Integration & Proposals
+```bash
+mise run email:sync-labels          # Synchronize provider email labels and folder mappings
+mise run email:read-inbox           # Ingest job-related correspondence into local payloads
+mise run email:collect              # Stage discovered application updates as reviewable proposals
+```
+
+### Multiplatform Builds & Quality Gates
+```bash
+mise run frontend:build             # Build all Kotlin Multiplatform targets
+mise run frontend:desktop:run       # Launch Compose desktop client
+mise run dev:test                   # Execute unit tests across parser, CLI, and services
+mise run dev:konsist                # Run Konsist architectural rules and KDoc audit
+mise run dev:detekt                 # Run Detekt static analysis
+mise run dev:guards                 # Verify supply-chain permissions and naming constraints
+```
+
+---
+
+## Prerequisites & Quickstart
+
+### Prerequisites
+1. **AI Assistant CLI**: [Claude Code](https://claude.ai/code), [Gemini CLI / Antigravity](https://github.com/google-gemini), [OpenCode](https://opencode.dev), or Codex.
+2. **Task Runner**: [mise](https://mise.jdx.dev/) (`brew install mise` or `curl https://mise.run | sh`).
+3. **Runtimes**: JDK 17+ (JDK 21 recommended), Python 3.10+, [Bun](https://bun.sh).
+4. **Document Compilers**: `lualatex` (for CV) and `xelatex` (for Cover Letter) via MacTeX, TeX Live, or MiKTeX; `pdftotext` (`brew install poppler`).
+
+### Setup
+```bash
+# 1. Clone repository and install toolchains
+git clone https://github.com/fnc314/ai-job-search.git
+cd ai-job-search
 mise install
 
-# 2. Run initial environment validation
+# 2. Run environment validation & dependency check
 mise run setup --check
 
-# 3. Launch your AI assistant
-antigravity # or claude, opencode, gemini
+# 3. Launch your AI environment
+antigravity # or claude, opencode
 ```
 
-Inside your AI chat, run:
-```bash
+Inside your AI CLI session, initialize your background:
+```text
 /setup
 ```
 
 ---
 
-## How `/apply` Works
+## Attribution & Origins
 
-The `/apply` command executes a rigorous **drafter-reviewer workflow** with automated PDF layout verification:
+This project originated as a fork of [**ai-job-search**](https://github.com/MadsLorentzen/ai-job-search) created by [**Mads Lorentzen**](https://www.linkedin.com/in/mads-lorentzen/). When Mads faced sudden unemployment in late 2025, he built the original agentic pipeline to run his search — landing 20 first-round interviews and an AI engineering role in June 2026. 
 
-1. **Parse & Evaluate:** Extracts posting requirements and scores fit against your verified candidate profile.
-2. **Draft LaTeX:** Generates tailored CV (`cv/main_example.tex`) and Cover Letter (`cover_letters/cover.cls`).
-3. **Reviewer Audit:** An independent reviewer agent critiques the drafts for keyword alignment, tone, and ATS scanability.
-4. **Compile & Inspect:** Compiles with `lualatex` (CV) and `xelatex` (Cover Letter). Enforces strict layout rules (CV strictly 2 pages; Cover Letter strictly 1 page).
-5. **ATS Verification:** Extracts embedded text using `pdftotext` to ensure zero symbol corruption, valid reading order, and genuine keyword grounding (zero fabrication).
+We honor that original spark: a developer using code to turn an overwhelming process into an empowering, structured journey. This fork expands upon that vision with an enterprise Kotlin Multiplatform architecture, deterministic ranking algorithms, multi-module distributed Gradle engineering, and an expansive multi-modal UI suite.
+
+- **Original Creator:** [Mads Lorentzen](https://github.com/MadsLorentzen) ([ai-job-search](https://github.com/MadsLorentzen/ai-job-search))
+- **Portal Search Integrations:** [Mikkel Kroghsholm](https://github.com/mikkelkrogsholm)
 
 ---
 
-## Contributing & Upstream Synchronization
-
-- Upstream releases are tagged in GitHub releases. Use `mise run dev:check-upstream` to preview upstream updates against your personalized files.
-- Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for PR guidelines and [SECURITY.md](SECURITY.md) for untrusted data handling rules.
-
-## Acknowledgements
-
-- **Original Creator:** [Mads Lorentzen](https://github.com/MadsLorentzen) ([ai-job-search](https://github.com/MadsLorentzen/ai-job-search))
-- **Portal Search CLIs:** [Mikkel Krogholm](https://github.com/mikkelkrogsholm)
-
 ## License
 
-MIT
+Distributed under the [MIT License](LICENSE).
