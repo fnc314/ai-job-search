@@ -26,6 +26,3 @@ ktlint = "1.8.0"
   ANDROID_USER_HOME = "/Users/fnc314/.android"
   ANDROID_HOME = "/Users/fnc314/.android/sdk"
   JAVA_HOME = "/Users/fnc314/.local/share/mise/installs/java/26.0.2+101/Contents/Home"
-  COMPOSIO_API_KEY = { 
-    age = "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBreXVEMCt6SnV2c1JkNTBVWHU3dU5JN2F5VDVCNXRpdzA0U042QTNwVTJRCmxlOFRValhiRGRoNm9abElnNVFMc3ZIVzRYMHorVnVSSUpsNDRkNlJIMWMKLS0tIEc1QnA5akNIRXZ4YndzY1BVLzJINnJESHVGWEhVUGxONDZvSnJWQ0hmNG8K6riiw3IbTW+Y8S1oL/Zvg/1znmLU62Z/56ytcu+jZ2xrIYRzUVwA49fAt4INWK6sJ8auQrCcXg"
-  }
