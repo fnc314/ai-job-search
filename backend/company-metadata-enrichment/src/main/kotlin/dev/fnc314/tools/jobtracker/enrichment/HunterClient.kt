@@ -4,6 +4,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.net.HttpURLConnection
+import java.net.URL
 
 /**
  * Interface for Hunter.io API access.
@@ -34,7 +36,7 @@ public class HunterHttpClient(private val apiKey: String) : HunterClient {
             .removePrefix("www.").split("/").first()
 
         val apiUrl = "https://api.hunter.io/v2/companies/find?domain=$cleanDomain&api_key=$apiKey"
-        val connection = java.net.URL(apiUrl).openConnection() as java.net.HttpURLConnection
+        val connection = URL(apiUrl).openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
         connection.connectTimeout = 5000
         connection.readTimeout = 10000

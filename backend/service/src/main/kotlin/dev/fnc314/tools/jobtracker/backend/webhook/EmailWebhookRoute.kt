@@ -13,6 +13,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.contentOrNull
+import java.util.Base64
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Registers the Composio trigger webhook endpoint.
@@ -34,7 +36,7 @@ public fun Route.emailWebhookRoute(): Route =
                 
                 if (dataBase64 != null) {
                     // Decode base64 Pub/Sub data payload
-                    val decodedData = java.util.Base64.getDecoder().decode(dataBase64).toString(Charsets.UTF_8)
+                    val decodedData = Base64.getDecoder().decode(dataBase64).toString(Charsets.UTF_8)
                     Json.parseToJsonElement(decodedData).jsonObject
                 } else {
                     jsonElement
@@ -74,7 +76,7 @@ public fun Route.emailWebhookRoute(): Route =
         }
     }
 
-private suspend fun handleEmailSentTrigger(call: ApplicationCall, payload: kotlinx.serialization.json.JsonObject) {
+private suspend fun handleEmailSentTrigger(call: ApplicationCall, payload: JsonObject) {
     // Extract metadata from the GMAIL_EMAIL_SENT_TRIGGER payload
     val payloadData = payload["payload"]?.jsonObject ?: payload
     

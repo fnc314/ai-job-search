@@ -4,6 +4,8 @@ import com.lemonappdev.konsist.api.verify.assertTrue
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertTrue as kotlinAssertTrue
+import com.lemonappdev.konsist.api.provider.modifier.KoActualModifierProvider
+import com.lemonappdev.konsist.api.provider.modifier.KoOverrideModifierProvider
 
 /**
  * Global architecture test suite for `frontend` multiplatform workspace.
@@ -171,8 +173,8 @@ class FrontendArchitectureTest : BaseArchitectureTest() {
                     it.containingFile.path.contains("/build/") ||
                     it.containingFile.path.contains("/bin/")
             }
-            .filterNot { (it as? com.lemonappdev.konsist.api.provider.modifier.KoActualModifierProvider)?.hasActualModifier == true }
-            .filterNot { (it as? com.lemonappdev.konsist.api.provider.modifier.KoOverrideModifierProvider)?.hasOverrideModifier == true }
+            .filterNot { (it as? KoActualModifierProvider)?.hasActualModifier == true }
+            .filterNot { (it as? KoOverrideModifierProvider)?.hasOverrideModifier == true }
             .assertTrue { it.hasKDoc }
     }
 }

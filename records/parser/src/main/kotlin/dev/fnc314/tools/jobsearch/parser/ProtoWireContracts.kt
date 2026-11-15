@@ -15,6 +15,7 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEditState
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobsearch.tracker.v1.Trigger
+import dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfidence
 
 /**
  * Canonical Firestore wire key for [TrackerStatus] proto enum entries.
@@ -185,13 +186,13 @@ public val Tag.wireKey: String
     }
 
 /**
- * Canonical Firestore wire key for [dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfidence] proto enum entries.
+ * Canonical Firestore wire key for [SubmissionConfidence] proto enum entries.
  */
-public val dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfidence.wireKey: String
+public val SubmissionConfidence.wireKey: String
   get() =
     when (this) {
-      dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfidence.SUBMISSION_CONFIDENCE_UNSPECIFIED,
-      dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfidence.UNRECOGNIZED,
+      SubmissionConfidence.SUBMISSION_CONFIDENCE_UNSPECIFIED,
+      SubmissionConfidence.UNRECOGNIZED,
       -> ""
 
       else -> name

@@ -66,10 +66,11 @@ import kotlinx.serialization.modules.subclass
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.plugin.module.dsl.koinConfiguration
+import androidx.navigation3.runtime.NavKey
 
 private val navigationSavedStateConfig = SavedStateConfiguration {
   serializersModule = SerializersModule {
-    polymorphic(androidx.navigation3.runtime.NavKey::class) {
+    polymorphic(NavKey::class) {
       subclass(SignInRoute::class, SignInRoute.serializer())
       subclass(JobApplicationListRoute::class, JobApplicationListRoute.serializer())
       subclass(JobApplicationCompaniesRoute::class, JobApplicationCompaniesRoute.serializer())

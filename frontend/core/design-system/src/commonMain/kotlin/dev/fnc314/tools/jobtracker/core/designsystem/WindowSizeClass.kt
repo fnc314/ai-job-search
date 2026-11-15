@@ -8,6 +8,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.ProvidableCompositionLocal
 
 /**
  * Responsive window width classifications following Material 3 breakpoints.
@@ -105,7 +106,7 @@ public data class WindowSizeClass(
 /**
  * CompositionLocal providing active [WindowSizeClass] information down the composable hierarchy.
  */
-public val LocalWindowSizeClass: androidx.compose.runtime.ProvidableCompositionLocal<WindowSizeClass> = compositionLocalOf {
+public val LocalWindowSizeClass: ProvidableCompositionLocal<WindowSizeClass> = compositionLocalOf {
     WindowSizeClass(WindowWidthSizeClass.Compact, WindowHeightSizeClass.Medium)
 }
 

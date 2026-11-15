@@ -31,6 +31,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class JobApplicationDetailViewModelTest {
@@ -116,7 +117,7 @@ internal class JobApplicationDetailViewModelTest {
     }
 
     private class FakeGetEventsUseCase : GetEventsUseCase {
-        override suspend fun invoke(params: GetEventsUseCase.Params): List<dev.fnc314.tools.jobtracker.core.data.model.TrackerEvent> = emptyList()
+        override suspend fun invoke(params: GetEventsUseCase.Params): List<TrackerEvent> = emptyList()
     }
 
     private class FakeLoadArtifactsUseCase(

@@ -6,6 +6,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.ProvidableCompositionLocal
 
 /**
  * Material 3 4dp/8dp consistent layout grid spacing and padding tokens.
@@ -45,7 +46,7 @@ public data class Spacing(
 /**
  * CompositionLocal providing active [Spacing] values down the hierarchy.
  */
-public val LocalSpacing: androidx.compose.runtime.ProvidableCompositionLocal<Spacing> = staticCompositionLocalOf { Spacing() }
+public val LocalSpacing: ProvidableCompositionLocal<Spacing> = staticCompositionLocalOf { Spacing() }
 
 /**
  * Accessor resolving the ambient [Spacing] from [MaterialTheme].

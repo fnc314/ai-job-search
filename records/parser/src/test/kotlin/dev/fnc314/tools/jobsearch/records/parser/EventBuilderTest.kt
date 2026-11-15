@@ -18,6 +18,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import java.time.Instant
 
 class EventBuilderTest {
   // === Implied Status ===
@@ -321,7 +322,7 @@ class EventBuilderTest {
     val ts = EventBuilder.normalizeDate(null)
     assertTrue(ts.seconds > 0)
     val now =
-      java.time.Instant
+      Instant
         .now()
         .epochSecond
     assertTrue(kotlin.math.abs(ts.seconds - now) < 5)

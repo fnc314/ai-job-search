@@ -6,4 +6,4 @@
 set -euo pipefail
 
 cd "${MISE_PROJECT_ROOT}"
-"${MISE_PROJECT_ROOT}/gradlew" :records:records-parser:test :frontend:apps-cli:jvmTest "$@"
+"${MISE_PROJECT_ROOT}/gradlew" :records:records-parser:test :frontend:apps-cli:test "$@"

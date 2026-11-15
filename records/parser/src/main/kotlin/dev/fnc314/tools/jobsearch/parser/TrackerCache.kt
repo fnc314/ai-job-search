@@ -2,6 +2,7 @@ package dev.fnc314.tools.jobsearch.parser
 
 import java.io.File
 import java.time.Instant
+import java.time.Duration
 
 /**
  * Exception thrown when cache operations fail.
@@ -62,7 +63,7 @@ public object CacheUtils {
     val reference = now ?: Instant.now()
     return maxOf(
       0.0,
-      java.time.Duration
+      Duration
         .between(moment, reference)
         .toSeconds()
         .toDouble(),

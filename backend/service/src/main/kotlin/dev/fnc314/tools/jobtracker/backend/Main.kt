@@ -12,7 +12,7 @@ import io.ktor.server.routing.routing
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
+import JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
@@ -20,6 +20,11 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
 import kotlin.system.exitProcess
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonPrimitive
 
 /**
  * Main application entry point for the backend service.
@@ -121,7 +126,7 @@ public fun main(args: Array<String>): Unit {
             get("/health") {
                 call.respondText(
                     """{"status":"UP","service":"jobtracker-backend","port":$port}""",
-                    io.ktor.http.ContentType.Application.Json
+                    ContentType.Application.Json
                 )
             }
             post("/applications/{id}/events") {
@@ -129,8 +134,8 @@ public fun main(args: Array<String>): Unit {
                 if (applicationId.isNullOrBlank()) {
                     call.respondText(
                         """{"status":"ERROR","message":"Missing applicationId parameter"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.BadRequest
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.BadRequest
                     )
                     return@post
                 }
@@ -155,14 +160,14 @@ public fun main(args: Array<String>): Unit {
                     val responseJson = Json.encodeToString(JsonObject(result.mapValues { (_, v) -> JsonPrimitive(v?.toString() ?: "") }))
                     call.respondText(
                         responseJson,
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.OK
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.OK
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
@@ -171,8 +176,8 @@ public fun main(args: Array<String>): Unit {
                 if (applicationId.isNullOrBlank()) {
                     call.respondText(
                         """{"status":"ERROR","message":"Missing applicationId parameter"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.BadRequest
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.BadRequest
                     )
                     return@post
                 }
@@ -183,14 +188,14 @@ public fun main(args: Array<String>): Unit {
                     val responseJson = Json.encodeToString(JsonObject(result.mapValues { (_, v) -> JsonPrimitive(v?.toString() ?: "") }))
                     call.respondText(
                         responseJson,
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.OK
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.OK
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
@@ -200,13 +205,13 @@ public fun main(args: Array<String>): Unit {
                     val jsonMap = result.mapValues { (_, v) -> JsonPrimitive(v.toString()) }
                     call.respondText(
                         Json.encodeToString(JsonObject(jsonMap)),
-                        io.ktor.http.ContentType.Application.Json
+                        ContentType.Application.Json
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
@@ -223,8 +228,8 @@ public fun main(args: Array<String>): Unit {
                     if (companyId.isNullOrBlank()) {
                         call.respondText(
                             """{"status":"ERROR","message":"Missing companyId parameter"}""",
-                            io.ktor.http.ContentType.Application.Json,
-                            status = io.ktor.http.HttpStatusCode.BadRequest
+                            ContentType.Application.Json,
+                            status = HttpStatusCode.BadRequest
                         )
                         return@post
                     }
@@ -240,14 +245,14 @@ public fun main(args: Array<String>): Unit {
                     val responseJson = Json.encodeToString(JsonObject(result.mapValues { (_, v) -> JsonPrimitive(v?.toString() ?: "") }))
                     call.respondText(
                         responseJson,
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.OK
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.OK
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
@@ -257,20 +262,20 @@ public fun main(args: Array<String>): Unit {
                     val jsonMap = result.mapValues { (_, v) ->
                         when (v) {
                             is List<*> -> {
-                                kotlinx.serialization.json.JsonArray(v.map { kotlinx.serialization.json.JsonPrimitive(it?.toString() ?: "") })
+                                JsonArray(v.map { JsonPrimitive(it?.toString() ?: "") })
                             }
-                            else -> kotlinx.serialization.json.JsonPrimitive(v?.toString() ?: "")
+                            else -> JsonPrimitive(v?.toString() ?: "")
                         }
                     }
                     call.respondText(
                         Json.encodeToString(JsonObject(jsonMap)),
-                        io.ktor.http.ContentType.Application.Json
+                        ContentType.Application.Json
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
@@ -281,22 +286,22 @@ public fun main(args: Array<String>): Unit {
                     val jsonMap = result.mapValues { (_, v) ->
                         when (v) {
                             is List<*> -> {
-                                kotlinx.serialization.json.JsonArray(v.map { kotlinx.serialization.json.JsonPrimitive(it?.toString() ?: "") })
+                                JsonArray(v.map { JsonPrimitive(it?.toString() ?: "") })
                             }
-                            is Number -> kotlinx.serialization.json.JsonPrimitive(v)
-                            is Boolean -> kotlinx.serialization.json.JsonPrimitive(v)
-                            else -> kotlinx.serialization.json.JsonPrimitive(v.toString())
+                            is Number -> JsonPrimitive(v)
+                            is Boolean -> JsonPrimitive(v)
+                            else -> JsonPrimitive(v.toString())
                         }
                     }
                     call.respondText(
                         Json.encodeToString(JsonObject(jsonMap)),
-                        io.ktor.http.ContentType.Application.Json
+                        ContentType.Application.Json
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
@@ -310,8 +315,8 @@ public fun main(args: Array<String>): Unit {
                     if (name.isNullOrBlank()) {
                         call.respondText(
                             """{"status":"ERROR","message":"Missing name parameter"}""",
-                            io.ktor.http.ContentType.Application.Json,
-                            status = io.ktor.http.HttpStatusCode.BadRequest
+                            ContentType.Application.Json,
+                            status = HttpStatusCode.BadRequest
                         )
                         return@post
                     }
@@ -321,14 +326,14 @@ public fun main(args: Array<String>): Unit {
                     val responseJson = Json.encodeToString(JsonObject(result.mapValues { (_, v) -> JsonPrimitive(v?.toString() ?: "") }))
                     call.respondText(
                         responseJson,
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.OK
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.OK
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
@@ -339,26 +344,26 @@ public fun main(args: Array<String>): Unit {
                     val jsonMap = result.mapValues { (_, v) -> JsonPrimitive(v.toString()) }
                     call.respondText(
                         Json.encodeToString(JsonObject(jsonMap)),
-                        io.ktor.http.ContentType.Application.Json
+                        ContentType.Application.Json
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message?.replace("\"", "\\\"")}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
             post("/tasks/email-read-inbox") {
                 call.respondText(
                     """{"status":"SUCCESS","message":"Inbox scan executed"}""",
-                    io.ktor.http.ContentType.Application.Json
+                    ContentType.Application.Json
                 )
             }
             post("/tasks/email-collect") {
                 call.respondText(
                     """{"status":"SUCCESS","message":"Proposals collected"}""",
-                    io.ktor.http.ContentType.Application.Json
+                    ContentType.Application.Json
                 )
             }
             post("/tasks/proposals-expire") {
@@ -366,13 +371,13 @@ public fun main(args: Array<String>): Unit {
                     val expired = BackendService.expireStaleProposals()
                     call.respondText(
                         """{"status":"SUCCESS","expired":$expired}""",
-                        io.ktor.http.ContentType.Application.Json
+                        ContentType.Application.Json
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
@@ -381,13 +386,13 @@ public fun main(args: Array<String>): Unit {
                     val processed = BackendService.processDueSyncs()
                     call.respondText(
                         """{"status":"SUCCESS","processed":$processed}""",
-                        io.ktor.http.ContentType.Application.Json
+                        ContentType.Application.Json
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
@@ -398,18 +403,18 @@ public fun main(args: Array<String>): Unit {
                     call.respondText(
                         Json.encodeToString(JsonObject(res.mapValues {
                             when (val v = it.value) {
-                                is Number -> kotlinx.serialization.json.JsonPrimitive(v)
-                                is Boolean -> kotlinx.serialization.json.JsonPrimitive(v)
-                                else -> kotlinx.serialization.json.JsonPrimitive(v.toString())
+                                is Number -> JsonPrimitive(v)
+                                is Boolean -> JsonPrimitive(v)
+                                else -> JsonPrimitive(v.toString())
                             }
                         })),
-                        io.ktor.http.ContentType.Application.Json
+                        ContentType.Application.Json
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }
@@ -420,8 +425,8 @@ public fun main(args: Array<String>): Unit {
                     val messageId = payload["messageId"]?.jsonPrimitive?.contentOrNull
                         ?: return@post call.respondText(
                             """{"status":"ERROR","message":"messageId is required"}""",
-                            io.ktor.http.ContentType.Application.Json,
-                            status = io.ktor.http.HttpStatusCode.BadRequest
+                            ContentType.Application.Json,
+                            status = HttpStatusCode.BadRequest
                         )
                     val targetAppId = payload["applicationId"]?.jsonPrimitive?.contentOrNull
                     val status = payload["status"]?.jsonPrimitive?.contentOrNull ?: "UNCLASSIFIED"
@@ -438,19 +443,19 @@ public fun main(args: Array<String>): Unit {
                     call.respondText(
                         Json.encodeToString(JsonObject(res.mapValues {
                             when (val v = it.value) {
-                                null -> kotlinx.serialization.json.JsonNull
-                                is Number -> kotlinx.serialization.json.JsonPrimitive(v)
-                                is Boolean -> kotlinx.serialization.json.JsonPrimitive(v)
-                                else -> kotlinx.serialization.json.JsonPrimitive(v.toString())
+                                null -> JsonNull
+                                is Number -> JsonPrimitive(v)
+                                is Boolean -> JsonPrimitive(v)
+                                else -> JsonPrimitive(v.toString())
                             }
                         })),
-                        io.ktor.http.ContentType.Application.Json
+                        ContentType.Application.Json
                     )
                 } catch (e: Exception) {
                     call.respondText(
                         """{"status":"ERROR","message":"${e.message}"}""",
-                        io.ktor.http.ContentType.Application.Json,
-                        status = io.ktor.http.HttpStatusCode.InternalServerError
+                        ContentType.Application.Json,
+                        status = HttpStatusCode.InternalServerError
                     )
                 }
             }

@@ -3,6 +3,7 @@ package dev.fnc314.tools.jobtracker.core.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.ProvidableCompositionLocal
 
 /**
  * CompositionLocal providing [AppNavigator] to all descendant composables.
@@ -10,7 +11,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * Feature screens read this value via [LocalAppNavigator.current] instead of receiving
  * navigation callbacks through composable parameters.
  */
-public val LocalAppNavigator: androidx.compose.runtime.ProvidableCompositionLocal<AppNavigator> =
+public val LocalAppNavigator: ProvidableCompositionLocal<AppNavigator> =
     staticCompositionLocalOf { throw IllegalStateException("No AppNavigator provided in composition") }
 
 /**

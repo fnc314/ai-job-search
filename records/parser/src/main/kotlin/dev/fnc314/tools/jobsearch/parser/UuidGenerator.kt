@@ -1,6 +1,7 @@
 package dev.fnc314.tools.jobsearch.parser
 
 import java.util.UUID
+import java.security.SecureRandom
 
 /**
  * UUIDv7 generation and validation utilities.
@@ -31,7 +32,7 @@ public object UuidGenerator {
     // MSB (64 bits):  timestamp[0..47] (48 bits) | ver[48..51] (4 bits = 7) | rand[52..63] (12 bits)
     // LSB (64 bits):  var[0..1] (2 bits = 10)   | rand[2..63] (62 bits)
     val millis = System.currentTimeMillis()
-    val rand = java.security.SecureRandom()
+    val rand = SecureRandom()
 
     // Build MSB from components:
     // - timestamp (48 bits) at the top

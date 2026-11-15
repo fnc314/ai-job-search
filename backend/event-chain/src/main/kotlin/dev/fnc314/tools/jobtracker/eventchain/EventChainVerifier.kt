@@ -3,6 +3,7 @@ package dev.fnc314.tools.jobtracker.eventchain
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import java.security.MessageDigest
+import java.time.Instant
 
 /**
  * Cryptographic event hash chain verifier implementing a blockchain pattern
@@ -51,7 +52,7 @@ public object EventChainVerifier {
             if (event.prevEventHash != expectedPrevHash) return false
 
             val tsIso = if (event.hasCreatedAt()) {
-                java.time.Instant.ofEpochSecond(
+                Instant.ofEpochSecond(
                     event.createdAt.seconds,
                     event.createdAt.nanos.toLong(),
                 ).toString()

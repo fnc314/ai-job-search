@@ -10,6 +10,8 @@ import dev.fnc314.tools.jobtracker.features.settings.domain.usecase.UpdateSettin
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository
+import dev.fnc314.tools.jobtracker.core.data.settings.SettingsStorage
 
 class SettingsRepositoryTest {
 
@@ -30,8 +32,8 @@ class SettingsRepositoryTest {
     }
 
     private fun createRepository(storage: FakeLocalDataSource): SettingsRepositoryImpl {
-        val appSettingsRepo = dev.fnc314.tools.jobtracker.core.data.settings.AppSettingsRepository(
-            object : dev.fnc314.tools.jobtracker.core.data.settings.SettingsStorage {
+        val appSettingsRepo = AppSettingsRepository(
+            object : SettingsStorage {
                 override fun getString(key: String): String? = storage.getString(key)
                 override fun putString(key: String, value: String) {
                     storage.putString(key, value)

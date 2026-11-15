@@ -2,6 +2,9 @@ package dev.fnc314.tools.jobtracker.architecture
 
 import com.lemonappdev.konsist.api.verify.assertTrue
 import kotlin.test.Test
+import com.lemonappdev.konsist.api.declaration.KoInterfaceDeclaration
+import com.lemonappdev.konsist.api.provider.KoContainingDeclarationProvider
+import com.lemonappdev.konsist.api.provider.modifier.KoOverrideModifierProvider
 
 /**
  * Repository-wide architectural tests enforcing explicit visibility modifiers (aligning with `explicitApi`)
@@ -26,8 +29,8 @@ class VisibilityAndKDocRulesTest : BaseArchitectureTest() {
             }
             .assertTrue {
                 it.hasPublicModifier || it.hasInternalModifier || it.hasPrivateModifier || it.hasProtectedModifier ||
-                    (it as? com.lemonappdev.konsist.api.provider.modifier.KoOverrideModifierProvider)?.hasOverrideModifier == true ||
-                    (it as? com.lemonappdev.konsist.api.provider.KoContainingDeclarationProvider)?.containingDeclaration is com.lemonappdev.konsist.api.declaration.KoInterfaceDeclaration
+                    (it as? KoOverrideModifierProvider)?.hasOverrideModifier == true ||
+                    (it as? KoContainingDeclarationProvider)?.containingDeclaration is KoInterfaceDeclaration
             }
     }
 
@@ -48,8 +51,8 @@ class VisibilityAndKDocRulesTest : BaseArchitectureTest() {
             }
             .assertTrue {
                 it.hasPublicModifier || it.hasInternalModifier || it.hasPrivateModifier || it.hasProtectedModifier ||
-                    (it as? com.lemonappdev.konsist.api.provider.modifier.KoOverrideModifierProvider)?.hasOverrideModifier == true ||
-                    (it as? com.lemonappdev.konsist.api.provider.KoContainingDeclarationProvider)?.containingDeclaration is com.lemonappdev.konsist.api.declaration.KoInterfaceDeclaration
+                    (it as? KoOverrideModifierProvider)?.hasOverrideModifier == true ||
+                    (it as? KoContainingDeclarationProvider)?.containingDeclaration is KoInterfaceDeclaration
             }
     }
 
@@ -70,8 +73,8 @@ class VisibilityAndKDocRulesTest : BaseArchitectureTest() {
             }
             .assertTrue {
                 it.hasPublicModifier || it.hasInternalModifier || it.hasPrivateModifier || it.hasProtectedModifier ||
-                    (it as? com.lemonappdev.konsist.api.provider.modifier.KoOverrideModifierProvider)?.hasOverrideModifier == true ||
-                    (it as? com.lemonappdev.konsist.api.provider.KoContainingDeclarationProvider)?.containingDeclaration is com.lemonappdev.konsist.api.declaration.KoInterfaceDeclaration
+                    (it as? KoOverrideModifierProvider)?.hasOverrideModifier == true ||
+                    (it as? KoContainingDeclarationProvider)?.containingDeclaration is KoInterfaceDeclaration
             }
     }
 

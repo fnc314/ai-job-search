@@ -7,7 +7,6 @@ import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.rendering.TextColors.yellow
 import com.github.ajalt.mordant.terminal.Terminal
-import com.google.cloud.Timestamp
 import dev.fnc314.tools.jobsearch.parser.EventChainBuilder
 import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
@@ -15,6 +14,10 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import java.time.Instant
+import com.google.cloud.Timestamp
+import com.google.cloud.firestore.SetOptions
+import com.google.protobuf.Timestamp as ProtoTimestamp
+import java.util.UUID
 
 internal class EditCommand : CliktCommand(name = "edit") {
     private val applicationId: String by argument("id", help = "Application slug ID")
@@ -94,17 +97,17 @@ internal class EditCommand : CliktCommand(name = "edit") {
             // Handle ts/date as either String or Firestore Timestamp
             val tsStr = when (val ts = data["ts"]) {
                 is String -> ts.takeIf { it.isNotBlank() }
-                is com.google.cloud.Timestamp -> Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()).toString()
+                is Timestamp -> Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()).toString()
                 else -> null
             } ?: when (val d2 = data["date"]) {
                 is String -> d2.takeIf { it.isNotBlank() }
-                is com.google.cloud.Timestamp -> Instant.ofEpochSecond(d2.seconds, d2.nanos.toLong()).toString()
+                is Timestamp -> Instant.ofEpochSecond(d2.seconds, d2.nanos.toLong()).toString()
                 else -> null
             }
             if (!tsStr.isNullOrBlank()) {
                 try {
                     val inst = Instant.parse(tsStr)
-                    b.setCreatedAt(com.google.protobuf.Timestamp.newBuilder().setSeconds(inst.epochSecond).setNanos(inst.nano).build())
+                    b.setCreatedAt(ProtoTimestamp.newBuilder().setSeconds(inst.epochSecond).setNanos(inst.nano).build())
                 } catch (ignored: Exception) {}
             }
             // Preserve statusFrom/statusTo for CORRECT_STATUS events
@@ -122,7 +125,7 @@ internal class EditCommand : CliktCommand(name = "edit") {
         // Build the new event with proper hash chain
         val now = Timestamp.now()
         val nowInstant = Instant.ofEpochSecond(now.seconds, now.nanos.toLong())
-        val targetEventId = java.util.UUID.randomUUID().toString()
+        val targetEventId = UUID.randomUUID().toString()
 
         val eventType = if (s != null) TrackerEventType.CORRECT_STATUS else TrackerEventType.ADD_NOTE
         val incomingBuilder = TrackerEvent.newBuilder()
@@ -130,7 +133,7 @@ internal class EditCommand : CliktCommand(name = "edit") {
             .setApplicationId(applicationId)
             .setActor(EventActor.ACTOR_USER)
             .setType(eventType)
-            .setCreatedAt(com.google.protobuf.Timestamp.newBuilder().setSeconds(nowInstant.epochSecond).setNanos(nowInstant.nano).build())
+            .setCreatedAt(ProtoTimestamp.newBuilder().setSeconds(nowInstant.epochSecond).setNanos(nowInstant.nano).build())
         note?.let { incomingBuilder.setNote(it) }
         if (s != null) {
             val previousStatus = snap.getString("status") ?: "UNKNOWN"
@@ -165,7 +168,7 @@ internal class EditCommand : CliktCommand(name = "edit") {
         eventsColl.document(chained.id).set(eventData).get()
 
         // Update the application document
-        docRef.set(updates, com.google.cloud.firestore.SetOptions.merge()).get()
+        docRef.set(updates, SetOptions.merge()).get()
 
         t.println(green("✓ Successfully updated $applicationId: ${updates.keys.filter { it != "updatedAt" }.joinToString(", ")}"))
     }

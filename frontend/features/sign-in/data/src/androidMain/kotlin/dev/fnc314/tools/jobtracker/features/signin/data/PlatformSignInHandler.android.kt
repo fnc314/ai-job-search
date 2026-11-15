@@ -16,6 +16,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import dev.fnc314.tools.jobtracker.core.data.ApplicationContextHolder
 import dev.fnc314.tools.jobtracker.core.data.model.UserAccount
 import kotlinx.coroutines.tasks.await
+import androidx.credentials.Credential
 
 private const val TAG = "PlatformSignInHandler"
 
@@ -87,7 +88,7 @@ internal actual class PlatformSignInHandler(
         exchangeCredentialForAccount(credential)
     }
 
-    private suspend fun exchangeCredentialForAccount(credential: androidx.credentials.Credential): UserAccount {
+    private suspend fun exchangeCredentialForAccount(credential: Credential): UserAccount {
         if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
             Log.d(TAG, "signIn: Received Google ID token credential")
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)

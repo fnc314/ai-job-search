@@ -5,6 +5,7 @@ import android.os.Build
 import android.provider.MediaStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import android.content.Context
 
 /** Actual platform implementation of [PlatformFileSaver] for Android. */
 public actual object PlatformFileSaver {
@@ -15,7 +16,7 @@ public actual object PlatformFileSaver {
                     val context = try {
                         val cl = Class.forName("dev.fnc314.tools.jobtracker.app.core.di.MainApplicationKt")
                         val field = cl.getDeclaredField("applicationContext")
-                        field.get(null) as? android.content.Context
+                        field.get(null) as? Context
                     } catch (_: Exception) {
                         null
                     }

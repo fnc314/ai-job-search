@@ -6,6 +6,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.ProvidableCompositionLocal
 
 /**
  * Standardized icon dimensions across navigation bars, list rows, badges, and avatars.
@@ -82,11 +83,11 @@ public data class ComponentSizes(
 )
 
 /** CompositionLocal providing active [IconSizes] values down the hierarchy. */
-public val LocalIconSizes: androidx.compose.runtime.ProvidableCompositionLocal<IconSizes> =
+public val LocalIconSizes: ProvidableCompositionLocal<IconSizes> =
     staticCompositionLocalOf { IconSizes() }
 
 /** CompositionLocal providing active [ComponentSizes] values down the hierarchy. */
-public val LocalComponentSizes: androidx.compose.runtime.ProvidableCompositionLocal<ComponentSizes> =
+public val LocalComponentSizes: ProvidableCompositionLocal<ComponentSizes> =
     staticCompositionLocalOf { ComponentSizes() }
 
 /** Resolves active [IconSizes] from ambient [MaterialTheme]. */

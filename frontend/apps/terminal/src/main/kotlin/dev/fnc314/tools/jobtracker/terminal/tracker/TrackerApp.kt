@@ -33,6 +33,9 @@ import java.awt.Desktop
 import java.io.File
 import java.net.URI
 import java.util.Scanner
+import com.google.cloud.Timestamp
+import com.google.cloud.firestore.Query
+import java.time.Instant
 
 internal data class ApplicationRecord(
     val id: String,
@@ -391,7 +394,7 @@ internal object EmailsApp {
                             .filter { it != messageId }
                         tx.update(prevRef, mapOf(
                             "emailMessageIds" to ids,
-                            "updatedAt" to com.google.cloud.Timestamp.now()
+                            "updatedAt" to Timestamp.now()
                         ))
                     }
                 }
@@ -407,7 +410,7 @@ internal object EmailsApp {
                         ids.add(messageId)
                         tx.update(targetRef, mapOf(
                             "emailMessageIds" to ids.toList(),
-                            "updatedAt" to com.google.cloud.Timestamp.now()
+                            "updatedAt" to Timestamp.now()
                         ))
                     }
                 }
@@ -418,8 +421,8 @@ internal object EmailsApp {
                     "status" to status,
                     "applicationId" to targetAppId,
                     "companyId" to resolvedCompanyId,
-                    "rectifiedAt" to java.time.Instant.now().toString(),
-                    "updatedAt" to java.time.Instant.now().toString()
+                    "rectifiedAt" to Instant.now().toString(),
+                    "updatedAt" to Instant.now().toString()
                 )
                 tx.set(emailRef, updates, SetOptions.merge())
                 null
@@ -611,7 +614,7 @@ internal object TerminalApp {
     ): List<ApplicationRecord> {
         if (!forceCache && !isOffline && firestore != null) {
             try {
-                var query = firestore!!.collection("applications") as com.google.cloud.firestore.Query
+                var query = firestore!!.collection("applications") as Query
                 if (openOnly) {
                     query = query.whereEqualTo("isOpen", true)
                 }
@@ -1613,7 +1616,7 @@ internal object TerminalApp {
         }
 
         val queueFile = File(repoRoot, ".recalc_queue")
-        val nowIso = java.time.Instant.now().toString()
+        val nowIso = Instant.now().toString()
         val requestJson = """
         {
           "schemaVersion": 4,

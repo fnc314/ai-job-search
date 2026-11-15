@@ -2,6 +2,8 @@ package dev.fnc314.tools.jobsearch.parser
 
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
 import java.security.MessageDigest
+import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
+import java.time.Instant
 
 /**
  * Cryptographic event hash chain verifier and builder implementing a blockchain pattern
@@ -50,7 +52,7 @@ public object EventChainVerifier {
 
       val tsIso =
         if (event.hasCreatedAt()) {
-          java.time.Instant
+          Instant
             .ofEpochSecond(
               event.createdAt.seconds,
               event.createdAt.nanos.toLong(),
@@ -69,7 +71,7 @@ public object EventChainVerifier {
           timestampIso = tsIso,
           statusTo =
             if (event.statusTo !=
-              dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus.TRACKER_STATUS_UNSPECIFIED
+              TrackerStatus.TRACKER_STATUS_UNSPECIFIED
             ) {
               event.statusTo.name
             } else {

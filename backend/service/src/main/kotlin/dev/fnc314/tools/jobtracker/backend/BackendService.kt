@@ -24,15 +24,25 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import java.io.File
 import java.io.FileInputStream
-import java.time.Instant
+import Instant
 import java.time.temporal.ChronoUnit
 import java.util.Locale
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
+import Json
+import JsonArray
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import com.google.cloud.firestore.DocumentSnapshot
+import com.google.cloud.firestore.Query
+import com.google.protobuf.Timestamp as ProtoTimestamp
+import java.net.HttpURLConnection
+import java.net.URL
+import java.time.Duration
+import java.time.Instant
+import java.util.UUID
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 
 /**
  * Core backend service facade managing server-side transaction workflows, event chaining,
@@ -111,7 +121,7 @@ public object BackendService {
 
         val targetEventId = (idempotencyKey?.takeIf { it.isNotBlank() }
             ?: eventPayload["eventId"] as? String
-            ?: java.util.UUID.randomUUID().toString())
+            ?: UUID.randomUUID().toString())
 
         val incomingMessageId = eventPayload["emailMessageId"] as? String
 
@@ -198,7 +208,7 @@ public object BackendService {
             }
 
             newProtoBuilder.setCreatedAt(
-                com.google.protobuf.Timestamp.newBuilder()
+                ProtoTimestamp.newBuilder()
                     .setSeconds(instant.epochSecond)
                     .setNanos(instant.nano)
                     .build()
@@ -331,7 +341,7 @@ public object BackendService {
             try {
                 val inst = Instant.parse(ts)
                 builder.setCreatedAt(
-                    com.google.protobuf.Timestamp.newBuilder()
+                    ProtoTimestamp.newBuilder()
                         .setSeconds(inst.epochSecond)
                         .setNanos(inst.nano)
                         .build()
@@ -537,7 +547,7 @@ public object BackendService {
             )
             .addAllLocations(locations)
             .setLastCalculatedAt(
-                com.google.protobuf.Timestamp.newBuilder()
+                ProtoTimestamp.newBuilder()
                     .setSeconds(Instant.now().epochSecond)
                     .setNanos(0)
                     .build()
@@ -588,7 +598,7 @@ public object BackendService {
      */
     public fun recalculateCompanyMetrics(targetCompanyId: String? = null): Map<String, Any> {
         val db = remoteDatabase
-        var query = db.collection("applications") as com.google.cloud.firestore.Query
+        var query = db.collection("applications") as Query
         if (!targetCompanyId.isNullOrBlank()) {
             query = query.whereEqualTo("companyId", targetCompanyId)
         }
@@ -694,7 +704,7 @@ public object BackendService {
         val errorDetails = mutableListOf<String>()
 
         // Calculate 6 months ago for skip logic
-        val sixMonthsAgo = java.time.Instant.now().minus(java.time.Duration.ofDays(183))
+        val sixMonthsAgo = Instant.now().minus(Duration.ofDays(183))
 
         for (doc in snapshot.documents) {
             // Check credit budget
@@ -844,14 +854,14 @@ public object BackendService {
 
         // Normalize website to domain
         val domain = try {
-            val url = java.net.URL(website)
+            val url = URL(website)
             url.host.removePrefix("www.")
         } catch (_: Exception) {
             website.removePrefix("https://").removePrefix("http://").removePrefix("www.").split("/").first()
         }
 
         val apiUrl = "https://api.hunter.io/v2/companies/find?domain=$domain&api_key=$apiKey"
-        val connection = java.net.URL(apiUrl).openConnection() as java.net.HttpURLConnection
+        val connection = URL(apiUrl).openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
         connection.connectTimeout = 5000
         connection.readTimeout = 10000
@@ -859,7 +869,7 @@ public object BackendService {
         try {
             if (connection.responseCode == 200) {
                 val response = connection.inputStream.bufferedReader().readText()
-                val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }.parseToJsonElement(response)
+                val json = Json { ignoreUnknownKeys = true }.parseToJsonElement(response)
                 val data = json.jsonObject["data"]?.jsonObject ?: return emptyMap()
 
                 // Extract category fields
@@ -1169,7 +1179,7 @@ public object BackendService {
      */
     private fun renameApplicationDocument(
         db: Firestore,
-        sourceDoc: com.google.cloud.firestore.DocumentSnapshot,
+        sourceDoc: DocumentSnapshot,
         targetDocId: String,
         canonicalCompanyId: String,
         companyName: String,
@@ -1191,7 +1201,7 @@ public object BackendService {
         for (collName in knownSubcollections) {
             val collRef = sourceRef.collection(collName)
             val subdocsSnap = collRef.get().get()
-            val subdocs = subdocsSnap.documents.map { doc: com.google.cloud.firestore.DocumentSnapshot ->
+            val subdocs = subdocsSnap.documents.map { doc: DocumentSnapshot ->
                 doc.id to (doc.data ?: emptyMap<String, Any?>())
             }
             if (subdocs.isNotEmpty()) {
@@ -2011,7 +2021,7 @@ public object BackendService {
             )
         }
 
-        val proposalId = java.util.UUID.randomUUID().toString()
+        val proposalId = UUID.randomUUID().toString()
         val proposal = mapOf(
             "proposalId" to proposalId,
             "createdAt" to timestamp,
@@ -2069,8 +2079,8 @@ public object BackendService {
 
         val db = remoteDatabase
         val content = file.readText()
-        val parsed = kotlinx.serialization.json.Json.parseToJsonElement(content).jsonObject
-        val messages = parsed["messages"]?.jsonArray ?: kotlinx.serialization.json.JsonArray(emptyList())
+        val parsed = Json.parseToJsonElement(content).jsonObject
+        val messages = parsed["messages"]?.jsonArray ?: JsonArray(emptyList())
 
         // Build application messageId index and company name index
         val appsSnap = db.collection("applications").get().get()

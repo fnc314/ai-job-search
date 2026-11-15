@@ -21,6 +21,8 @@ import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Scanner
+import TimeUnit
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
 internal data class RoadmapItem(
@@ -546,7 +548,7 @@ internal object RoadmapApp {
                     .redirectOutput(ProcessBuilder.Redirect.DISCARD)
                     .redirectError(ProcessBuilder.Redirect.DISCARD)
                     .start()
-                val completed = sttyProcess.waitFor(2, java.util.concurrent.TimeUnit.SECONDS)
+                val completed = sttyProcess.waitFor(2, TimeUnit.SECONDS)
                 if (completed && sttyProcess.exitValue() == 0) {
                     // stty succeeded — use byte-level fallback reader
                     useFallbackRawMode = true
@@ -626,7 +628,7 @@ internal object RoadmapApp {
             // Restore terminal if we used stty fallback
             if (useFallbackRawMode) {
                 try {
-                    fallbackSttyRestore?.start()?.waitFor(2, java.util.concurrent.TimeUnit.SECONDS)
+                    fallbackSttyRestore?.start()?.waitFor(2, TimeUnit.SECONDS)
                 } catch (_: Exception) {
                     // ignore restore errors
                 }
@@ -2072,7 +2074,7 @@ internal object RoadmapApp {
         if (creationDate.isBlank()) return "Unknown"
         return try {
             val created = LocalDate.parse(creationDate, dateFormat)
-            val days = java.time.temporal.ChronoUnit.DAYS.between(created, LocalDate.now())
+            val days = ChronoUnit.DAYS.between(created, LocalDate.now())
             "${days} d"
         } catch (e: Exception) {
             "Unknown"

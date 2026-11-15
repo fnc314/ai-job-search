@@ -6,7 +6,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.terminal.Terminal
-import com.google.cloud.Timestamp
 import dev.fnc314.tools.jobsearch.parser.ApplicationTimelineProjector
 import dev.fnc314.tools.jobsearch.parser.EventChainBuilder
 import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
@@ -15,6 +14,10 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import java.time.Instant
+import com.google.cloud.Timestamp
+import com.google.cloud.firestore.SetOptions
+import com.google.protobuf.Timestamp as ProtoTimestamp
+import java.util.UUID
 
 internal class AddEventCommand : CliktCommand(name = "event") {
     private val applicationId: String by argument("id", help = "Application slug ID")
@@ -60,29 +63,29 @@ internal class AddEventCommand : CliktCommand(name = "event") {
             // Handle ts/date as either String or Firestore Timestamp
             val tsStr = when (val ts = data["ts"]) {
                 is String -> ts.takeIf { it.isNotBlank() }
-                is com.google.cloud.Timestamp -> Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()).toString()
+                is Timestamp -> Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()).toString()
                 else -> null
             } ?: when (val d = data["date"]) {
                 is String -> d.takeIf { it.isNotBlank() }
-                is com.google.cloud.Timestamp -> Instant.ofEpochSecond(d.seconds, d.nanos.toLong()).toString()
+                is Timestamp -> Instant.ofEpochSecond(d.seconds, d.nanos.toLong()).toString()
                 else -> null
             }
             if (!tsStr.isNullOrBlank()) {
                 try {
                     val inst = Instant.parse(tsStr)
-                    b.setCreatedAt(com.google.protobuf.Timestamp.newBuilder().setSeconds(inst.epochSecond).setNanos(inst.nano).build())
+                    b.setCreatedAt(ProtoTimestamp.newBuilder().setSeconds(inst.epochSecond).setNanos(inst.nano).build())
                 } catch (ignored: Exception) {}
             }
             existingEvents.add(b.build())
         }
 
-        val targetEventId = java.util.UUID.randomUUID().toString()
+        val targetEventId = UUID.randomUUID().toString()
         val nowInstant = Instant.now()
         val incomingBuilder = TrackerEvent.newBuilder()
             .setId(targetEventId)
             .setApplicationId(applicationId)
             .setActor(EventActor.ACTOR_USER)
-            .setCreatedAt(com.google.protobuf.Timestamp.newBuilder().setSeconds(nowInstant.epochSecond).setNanos(nowInstant.nano).build())
+            .setCreatedAt(ProtoTimestamp.newBuilder().setSeconds(nowInstant.epochSecond).setNanos(nowInstant.nano).build())
 
         try {
             incomingBuilder.setType(TrackerEventType.valueOf(eventType.uppercase()))
@@ -149,7 +152,7 @@ internal class AddEventCommand : CliktCommand(name = "event") {
             "counters" to counters
         )
 
-        docRef.set(parentUpdate, com.google.cloud.firestore.SetOptions.merge()).get()
+        docRef.set(parentUpdate, SetOptions.merge()).get()
 
         t.println(green("✓ Successfully appended cryptographic event ${chained.type.name} (#${chained.sequenceNumber}) to $applicationId${if (emailMessageId != null) " (linked email: $emailMessageId)" else ""}"))
     }

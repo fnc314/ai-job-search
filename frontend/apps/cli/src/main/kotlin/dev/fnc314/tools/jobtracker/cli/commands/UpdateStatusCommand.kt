@@ -6,7 +6,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.terminal.Terminal
-import com.google.cloud.Timestamp
 import dev.fnc314.tools.jobsearch.parser.EventChainBuilder
 import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
@@ -14,6 +13,9 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import java.time.Instant
+import com.google.cloud.Timestamp
+import com.google.protobuf.Timestamp as ProtoTimestamp
+import java.util.UUID
 
 internal class UpdateStatusCommand : CliktCommand(name = "status") {
     private val applicationId: String by argument("id", help = "Application slug ID")
@@ -62,17 +64,17 @@ internal class UpdateStatusCommand : CliktCommand(name = "status") {
             // Handle ts/date as either String or Firestore Timestamp
             val tsStr = when (val ts = data["ts"]) {
                 is String -> ts.takeIf { it.isNotBlank() }
-                is com.google.cloud.Timestamp -> Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()).toString()
+                is Timestamp -> Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()).toString()
                 else -> null
             } ?: when (val d2 = data["date"]) {
                 is String -> d2.takeIf { it.isNotBlank() }
-                is com.google.cloud.Timestamp -> Instant.ofEpochSecond(d2.seconds, d2.nanos.toLong()).toString()
+                is Timestamp -> Instant.ofEpochSecond(d2.seconds, d2.nanos.toLong()).toString()
                 else -> null
             }
             if (!tsStr.isNullOrBlank()) {
                 try {
                     val inst = Instant.parse(tsStr)
-                    b.setCreatedAt(com.google.protobuf.Timestamp.newBuilder().setSeconds(inst.epochSecond).setNanos(inst.nano).build())
+                    b.setCreatedAt(ProtoTimestamp.newBuilder().setSeconds(inst.epochSecond).setNanos(inst.nano).build())
                 } catch (ignored: Exception) {}
             }
             // Preserve statusFrom/statusTo for CORRECT_STATUS events
@@ -88,13 +90,13 @@ internal class UpdateStatusCommand : CliktCommand(name = "status") {
         }
 
         // Build the new CORRECT_STATUS event with proper hash chain
-        val targetEventId = java.util.UUID.randomUUID().toString()
+        val targetEventId = UUID.randomUUID().toString()
         val incomingBuilder = TrackerEvent.newBuilder()
             .setId(targetEventId)
             .setApplicationId(applicationId)
             .setActor(EventActor.ACTOR_USER)
             .setType(TrackerEventType.CORRECT_STATUS)
-            .setCreatedAt(com.google.protobuf.Timestamp.newBuilder().setSeconds(nowInstant.epochSecond).setNanos(nowInstant.nano).build())
+            .setCreatedAt(ProtoTimestamp.newBuilder().setSeconds(nowInstant.epochSecond).setNanos(nowInstant.nano).build())
         note?.let { incomingBuilder.setNote(it) }
 
         // Parse status enums gracefully — handle legacy/invalid status values

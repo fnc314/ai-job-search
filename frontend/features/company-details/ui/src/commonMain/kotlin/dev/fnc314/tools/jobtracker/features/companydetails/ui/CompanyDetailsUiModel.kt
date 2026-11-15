@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import dev.fnc314.tools.jobtracker.core.data.model.Company
 import dev.fnc314.tools.jobtracker.core.data.model.JobApplication
 import dev.fnc314.tools.jobtracker.core.widgets.JobApplicationCardUiModel
+import kotlin.time.Instant
 
 @Immutable
 internal data class CompanyDetailsUiModel(
@@ -53,7 +54,7 @@ internal fun toCompanyDetailsUiModel(
             fitScoreText = app.fitRating?.let { "Fit $it" },
             createdAt = app.createdAt,
             updatedAt = app.updatedAt,
-            firstActivityAt = app.timeline?.firstActivityAt ?: kotlin.time.Instant.DISTANT_PAST,
+            firstActivityAt = app.timeline?.firstActivityAt ?: Instant.DISTANT_PAST,
             logoUrl = company.logoUrl,
         )
     }

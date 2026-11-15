@@ -2,6 +2,7 @@ package dev.fnc314.tools.jobsearch.parser
 
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
 import java.time.Instant
+import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 
 /**
  * Pure domain logic for constructing, chaining, and verifying cryptographic
@@ -55,7 +56,7 @@ public object EventChainBuilder {
     val tsIso = resolveTimestampIso(newEvent)
     val statusToStr =
       if (newEvent.statusTo !=
-        dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus.TRACKER_STATUS_UNSPECIFIED
+        TrackerStatus.TRACKER_STATUS_UNSPECIFIED
       ) {
         newEvent.statusTo.name
       } else {
@@ -106,7 +107,7 @@ public object EventChainBuilder {
       val tsIso = resolveTimestampIso(event)
       val statusToStr =
         if (event.statusTo !=
-          dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus.TRACKER_STATUS_UNSPECIFIED
+          TrackerStatus.TRACKER_STATUS_UNSPECIFIED
         ) {
           event.statusTo.name
         } else {

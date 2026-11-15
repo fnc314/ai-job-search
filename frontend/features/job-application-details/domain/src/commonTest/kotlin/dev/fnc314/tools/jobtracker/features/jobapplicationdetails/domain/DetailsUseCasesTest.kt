@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact
 
 class DetailsUseCasesTest {
 
@@ -37,7 +38,7 @@ class DetailsUseCasesTest {
         override suspend fun getJobApplication(id: String): JobApplication? = null
         override suspend fun getCompanies(): List<Company> = emptyList()
         override suspend fun getArtifactSignedUrl(path: String): String = "https://example.com/$path"
-        override suspend fun getArtifacts(applicationId: String): List<dev.fnc314.tools.jobtracker.core.data.model.TrackerArtifact> = emptyList()
+        override suspend fun getArtifacts(applicationId: String): List<TrackerArtifact> = emptyList()
         override suspend fun getEvents(applicationId: String): List<TrackerEvent> = emptyList()
 
         override suspend fun updateStatus(

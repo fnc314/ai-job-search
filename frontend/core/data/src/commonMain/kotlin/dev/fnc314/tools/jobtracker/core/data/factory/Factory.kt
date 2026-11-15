@@ -28,6 +28,9 @@ import dev.fnc314.tools.jobtracker.core.data.model.WorkMode
 import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Clock
 import kotlin.time.Instant
+import dev.fnc314.tools.jobtracker.core.data.model.CompanyMetrics
+import dev.fnc314.tools.jobtracker.core.data.model.LogoFormat
+import dev.fnc314.tools.jobtracker.core.data.model.LogoShape
 
 /**
  * Central domain object factory synthesizing default-initialized, validated, and immutable domain models.
@@ -258,12 +261,12 @@ public object Factory {
     createdAt: Instant? = Clock.System.now(),
     updatedAt: Instant? = Clock.System.now(),
     logoUrl: String? = null,
-    logoFormat: dev.fnc314.tools.jobtracker.core.data.model.LogoFormat = dev.fnc314.tools.jobtracker.core.data.model.LogoFormat.UNKNOWN,
+    logoFormat: LogoFormat = LogoFormat.UNKNOWN,
     logoWidth: Int = 0,
     logoHeight: Int = 0,
-    logoShape: dev.fnc314.tools.jobtracker.core.data.model.LogoShape = dev.fnc314.tools.jobtracker.core.data.model.LogoShape.UNKNOWN,
+    logoShape: LogoShape = LogoShape.UNKNOWN,
     logoFetchedAt: Instant = Instant.DISTANT_PAST,
-    metrics: dev.fnc314.tools.jobtracker.core.data.model.CompanyMetrics? = null,
+    metrics: CompanyMetrics? = null,
     linkedinUrl: String? = null,
     hunterIoId: String? = null,
     description: String? = null,

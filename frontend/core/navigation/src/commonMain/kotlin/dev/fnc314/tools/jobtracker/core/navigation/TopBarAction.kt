@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.ProvidableCompositionLocal
 
 /**
  * Describes the toolbar icon treatments a [JobApplicationsTrackerNavKey] destination
@@ -57,5 +58,5 @@ public class TopBarActionsSlot {
  * to `LocalTopBarActionsSlot.current.render` to contribute buttons to the shared TopAppBar,
  * eliminating the need for individual screens to embed their own Scaffold.
  */
-public val LocalTopBarActionsSlot: androidx.compose.runtime.ProvidableCompositionLocal<TopBarActionsSlot> =
+public val LocalTopBarActionsSlot: ProvidableCompositionLocal<TopBarActionsSlot> =
     staticCompositionLocalOf { TopBarActionsSlot() }

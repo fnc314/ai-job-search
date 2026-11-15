@@ -16,6 +16,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import com.google.cloud.firestore.Query
 
 internal class ListApplicationsCommand : CliktCommand(name = "list") {
     private val status: String? by option("--status", help = "Filter by status")
@@ -26,7 +27,7 @@ internal class ListApplicationsCommand : CliktCommand(name = "list") {
     override fun run() {
         val t = Terminal(nonInteractiveWidth = 200)
         val db = RemoteDataSourceProvider.remote
-        var query = db.collection("applications") as com.google.cloud.firestore.Query
+        var query = db.collection("applications") as Query
 
         if (status != null) {
             query = query.whereEqualTo("status", status)

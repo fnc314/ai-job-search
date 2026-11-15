@@ -9,7 +9,6 @@ import com.github.ajalt.mordant.rendering.TextColors.cyan
 import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.yellow
 import com.github.ajalt.mordant.terminal.Terminal
-import com.google.cloud.Timestamp
 import dev.fnc314.tools.jobsearch.parser.ApplicationTimelineProjector
 import dev.fnc314.tools.jobsearch.parser.EventChainBuilder
 import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
@@ -18,6 +17,9 @@ import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
 import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import java.time.Instant
+import com.google.cloud.Timestamp
+import com.google.cloud.firestore.SetOptions
+import com.google.protobuf.Timestamp as ProtoTimestamp
 
 internal class AlignCommand : CliktCommand(name = "align") {
     private val applicationId: String? by argument("id", help = "Optional target application ID to align a single record").optional()
@@ -82,7 +84,7 @@ internal class AlignCommand : CliktCommand(name = "align") {
                         "prevEventHash" to repaired.prevEventHash,
                         "eventHash" to repaired.eventHash
                     )
-                    eventsColl.document(repaired.id).set(updateData, com.google.cloud.firestore.SetOptions.merge()).get()
+                    eventsColl.document(repaired.id).set(updateData, SetOptions.merge()).get()
                 }
             }
 
@@ -126,7 +128,7 @@ internal class AlignCommand : CliktCommand(name = "align") {
             alignedCount++
             if (!dryRun) {
                 updates["updatedAt"] = Timestamp.now()
-                appDoc.reference.set(updates, com.google.cloud.firestore.SetOptions.merge()).get()
+                appDoc.reference.set(updates, SetOptions.merge()).get()
             }
         }
 
@@ -159,17 +161,17 @@ internal class AlignCommand : CliktCommand(name = "align") {
         // Handle ts/date as either String or Firestore Timestamp
         val tsStr = when (val ts = data["ts"]) {
             is String -> ts.takeIf { it.isNotBlank() }
-            is com.google.cloud.Timestamp -> Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()).toString()
+            is Timestamp -> Instant.ofEpochSecond(ts.seconds, ts.nanos.toLong()).toString()
             else -> null
         } ?: when (val d = data["date"]) {
             is String -> d.takeIf { it.isNotBlank() }
-            is com.google.cloud.Timestamp -> Instant.ofEpochSecond(d.seconds, d.nanos.toLong()).toString()
+            is Timestamp -> Instant.ofEpochSecond(d.seconds, d.nanos.toLong()).toString()
             else -> null
         }
         if (!tsStr.isNullOrBlank()) {
             try {
                 val inst = Instant.parse(tsStr)
-                b.setCreatedAt(com.google.protobuf.Timestamp.newBuilder().setSeconds(inst.epochSecond).setNanos(inst.nano).build())
+                b.setCreatedAt(ProtoTimestamp.newBuilder().setSeconds(inst.epochSecond).setNanos(inst.nano).build())
             } catch (_: Exception) {}
         }
         return b.build()
