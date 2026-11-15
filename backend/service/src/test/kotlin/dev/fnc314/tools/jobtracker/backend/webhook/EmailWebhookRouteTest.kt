@@ -14,13 +14,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class ComposioWebhookRouteTest {
+class EmailWebhookRouteTest {
 
     @Test
     fun `test generic trigger returns OK`() = testApplication {
         application {
             routing {
-                composioWebhookRoute()
+                emailWebhookRoute()
             }
         }
         val response = client.post("/webhook/composio") {
@@ -38,7 +38,7 @@ class ComposioWebhookRouteTest {
     fun `test invalid json returns InternalServerError`() = testApplication {
         application {
             routing {
-                composioWebhookRoute()
+                emailWebhookRoute()
             }
         }
         val response = client.post("/webhook/composio") {

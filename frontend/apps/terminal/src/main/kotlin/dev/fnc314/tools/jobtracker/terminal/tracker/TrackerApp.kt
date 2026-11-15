@@ -102,7 +102,7 @@ internal object EmailsApp {
     }
 
     private fun loadEmails(includeNoise: Boolean = false): List<EmailRecord> {
-        val firestore = TerminalApp.firestoreInstance
+        val firestore = TerminalApp.remoteInstance
         if (firestore == null) {
             // Fallback to inbox file
             val candidates = listOf(
@@ -358,7 +358,7 @@ internal object EmailsApp {
     }
 
     private fun executeRectify(messageId: String, targetAppId: String?, status: String, isNoise: Boolean) {
-        val firestore = TerminalApp.firestoreInstance
+        val firestore = TerminalApp.remoteInstance
         if (firestore == null) {
             t.println(red("Cannot write rectification in offline/cache mode."))
             return
@@ -460,7 +460,7 @@ internal object TerminalApp {
         }
     }
 
-    internal val firestoreInstance: Firestore? get() = firestore
+    internal val remoteInstance: Firestore? get() = firestore
 
     private fun findRepoRoot(): File {
         var cur: File? = File(".").canonicalFile
@@ -487,10 +487,29 @@ internal object TerminalApp {
     internal fun run(args: Array<String>) {
         val argsList = args.toList()
 
-        // 1. Check for roadmap mode
+        // 1. Check for roadmap mode (delegates to internal:apps-terminal-roadmap)
         if (argsList.contains("--roadmap") || argsList.firstOrNull() == "roadmap") {
-            val roadmapArgs = argsList.filter { it != "--roadmap" && it != "roadmap" }.toTypedArray()
-            dev.fnc314.tools.jobtracker.terminal.roadmap.RoadmapApp.run(roadmapArgs)
+            val roadmapArgs = argsList.filter { it != "--roadmap" && it != "roadmap" }
+            val repoRoot = generateSequence(File("").absoluteFile) { it.parentFile }
+                .firstOrNull { File(it, "ROADMAP.md").exists() } ?: File(".")
+            val roadmapBin = File(repoRoot, "internal/apps/terminal/roadmap/build/install/apps-terminal-roadmap/bin/apps-terminal-roadmap")
+            if (!roadmapBin.exists()) {
+                val gradlew = File(repoRoot, "gradlew")
+                ProcessBuilder(gradlew.absolutePath, ":internal:apps-terminal-roadmap:installDist")
+                    .directory(repoRoot)
+                    .inheritIO()
+                    .start()
+                    .waitFor()
+            }
+            if (roadmapBin.exists()) {
+                ProcessBuilder(listOf(roadmapBin.absolutePath) + roadmapArgs)
+                    .directory(repoRoot)
+                    .inheritIO()
+                    .start()
+                    .waitFor()
+            } else {
+                System.err.println("Error: Roadmap binary not found at ${roadmapBin.absolutePath}")
+            }
             return
         }
 
@@ -1270,8 +1289,8 @@ internal object TerminalApp {
                     appendLine()
                     appendLine(bold(dim("=== Reason Legend ===")))
                     matchedReasons.forEach { reason ->
-                        val explanation = explanations.entries.firstNotNullOfOrNull { (key, _) ->
-                            if (key.startsWith(reason) || reason.startsWith(key)) explanation else null
+                        val explanation = explanations.entries.firstNotNullOfOrNull { (key, expl) ->
+                            if (key.startsWith(reason) || reason.startsWith(key)) expl else null
                         }
                         if (explanation != null) {
                             appendLine(dim("  • $reason"))

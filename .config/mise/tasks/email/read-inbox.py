@@ -19,7 +19,9 @@ def main():
     root = Path(__file__).resolve()
     while root != root.parent and not (root / "mise.toml").exists():
         root = root.parent
-    fetch_script = root / "scripts" / "gmail_fetch.py"
+    fetch_script = root / "scripts" / "email_fetch.py"
+    if not fetch_script.exists():
+        fetch_script = root / "scripts" / "gmail_fetch.py"
     import runpy
     sys.argv[0] = str(fetch_script)
     runpy.run_path(str(fetch_script), run_name="__main__")

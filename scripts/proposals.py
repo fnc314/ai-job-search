@@ -315,7 +315,7 @@ def buildProposal(
 def stage(db, proposal: dict, *, dryRun: bool = False) -> dict:
     if not dryRun:
         db.collection(client.PENDING_PROPOSALS).document(proposal["proposalId"]).set(
-            contract.toFirestore(proposal)
+            contract.to_remote(proposal)
         )
     return {
         "proposalId": proposal["proposalId"],
@@ -332,7 +332,7 @@ def listing(db, state: str | None = None) -> list[dict]:
     query = db.collection(client.PENDING_PROPOSALS)
     if state:
         query = query.where(filter=FieldFilter("state", "==", state))
-    documents = [contract.fromFirestore(snapshot.to_dict()) for snapshot in query.stream()]
+    documents = [contract.from_remote(snapshot.to_dict()) for snapshot in query.stream()]
     documents.sort(key=lambda item: item.get("createdAt") or "", reverse=True)
     return documents
 
@@ -341,7 +341,7 @@ def load(db, proposalId: str) -> dict:
     snapshot = db.collection(client.PENDING_PROPOSALS).document(proposalId).get()
     if not snapshot.exists:
         raise contract.ContractError(f"no such proposal: {proposalId}")
-    return contract.fromFirestore(snapshot.to_dict())
+    return contract.from_remote(snapshot.to_dict())
 
 
 def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | None = None,
@@ -382,7 +382,7 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
             # Check if a lead for this company already exists
             snapshot = db.collection(client.APPLICATIONS).document(applicationId).get()
             if snapshot.exists:
-                existing = contract.fromFirestore(snapshot.to_dict())
+                existing = contract.from_remote(snapshot.to_dict())
                 if existing.get("status") == "LEAD":
                     skipped.append(
                         {
@@ -487,7 +487,7 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
             if not snapshot.exists:
                 skipped.append({"applicationId": applicationId, "reason": "application no longer exists"})
                 continue
-            applications[applicationId] = contract.fromFirestore(snapshot.to_dict())
+            applications[applicationId] = contract.from_remote(snapshot.to_dict())
             storedEvents[applicationId] = eventsModule.readEvents(db, applicationId)
 
         application = applications[applicationId]
@@ -526,11 +526,11 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
     for leadDoc, leadEvents in leadRecords:
         applicationId = leadDoc["id"]
         reference = db.collection(client.APPLICATIONS).document(applicationId)
-        batch.set(reference, contract.toFirestore(leadDoc), merge=True)
+        batch.set(reference, contract.to_remote(leadDoc), merge=True)
         for event in leadEvents:
             batch.set(
                 reference.collection(client.EVENTS).document(event["eventId"]),
-                contract.toFirestore(event),
+                contract.to_remote(event),
             )
         operations += 1 + len(leadEvents)
         written.append(
@@ -566,10 +566,10 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
         storedEvents[applicationId].append(event)
         projected = render.project(applications[applicationId], storedEvents[applicationId])
         projected["updatedAt"] = nowIso()
-        batch.set(reference, contract.toFirestore(projected), merge=True)
+        batch.set(reference, contract.to_remote(projected), merge=True)
         batch.set(
             reference.collection(client.EVENTS).document(event["eventId"]),
-            contract.toFirestore(event),
+            contract.to_remote(event),
         )
         operations += 2
         written.append(
@@ -588,7 +588,7 @@ def approve(db, proposalId: str, *, reviewedBy: str = "actor:user", note: str | 
     }
     batch.update(
         db.collection(client.PENDING_PROPOSALS).document(proposalId),
-        contract.toFirestore(resolved),
+        contract.to_remote(resolved),
     )
     batch.commit()
     return {"proposalId": proposalId, "approved": written, "skipped": skipped, **resolved}
@@ -607,7 +607,7 @@ def reject(db, proposalId: str, *, reviewedBy: str = "actor:user", reason: str |
         "resolution": reason or "rejected without changes",
     }
     db.collection(client.PENDING_PROPOSALS).document(proposalId).update(
-        contract.toFirestore(resolved)
+        contract.to_remote(resolved)
     )
     return {"proposalId": proposalId, **resolved}
 

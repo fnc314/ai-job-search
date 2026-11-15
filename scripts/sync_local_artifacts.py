@@ -35,7 +35,7 @@ def find_repo_root() -> Path:
 
 # ── Firestore client (uses shared client.py) ────────────────────────────
 
-def get_firestore():
+def get_remote():
     """Return a Firestore client using the shared client module."""
     # Add scripts dir to path so we can import client
     scripts_dir = Path(__file__).resolve().parent
@@ -266,7 +266,7 @@ def main() -> int:
 
     # Load Firestore applications
     print("Loading applications from Firestore...")
-    db = get_firestore()
+    db = get_remote()
     applications = find_applications(db)
     print(f"Found {len(applications)} applications in Firestore")
 

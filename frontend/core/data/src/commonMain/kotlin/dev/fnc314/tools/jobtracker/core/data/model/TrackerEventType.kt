@@ -30,8 +30,8 @@ public sealed interface TrackerEventType : WireContract {
     /** Returns the display name. */
     public fun displayName(): String = displayName
 
-    /** Returns the canonical Firestore document string representation. */
-    public fun toFirestore(): String = wireKey
+    /** Returns the canonical remote document string representation. */
+    public fun toRemote(): String = wireKey
 
     /**
      * Closed vocabulary of known timeline milestone events.
@@ -213,6 +213,6 @@ public sealed interface TrackerEventType : WireContract {
         }
 
         /** Parses a wire representation into [TrackerEventType]. */
-        public fun fromFirestore(raw: String?): TrackerEventType = fromWireKey(raw)
+        public fun fromRemote(raw: String?): TrackerEventType = fromWireKey(raw)
     }
 }

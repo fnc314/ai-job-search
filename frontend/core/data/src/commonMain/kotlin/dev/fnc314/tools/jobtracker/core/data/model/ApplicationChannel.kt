@@ -12,8 +12,8 @@ public sealed interface ApplicationChannel : WireContract {
     /** Returns the human-facing display label. */
     public fun displayName(): String = displayName
 
-    /** Returns the canonical Firestore document string representation. */
-    public fun toFirestore(): String = wireKey
+    /** Returns the canonical remote document string representation. */
+    public fun toRemote(): String = wireKey
 
     /**
      * Closed vocabulary of known application channels.
@@ -136,7 +136,7 @@ public sealed interface ApplicationChannel : WireContract {
         }
 
         /** Parses a wire representation into [ApplicationChannel]. */
-        public fun fromFirestore(raw: String?): ApplicationChannel = fromWireKey(raw)
+        public fun fromRemote(raw: String?): ApplicationChannel = fromWireKey(raw)
         /** Parses a wire representation into [ApplicationChannel]. */
         public fun fromRaw(raw: String?): ApplicationChannel = fromWireKey(raw)
     }

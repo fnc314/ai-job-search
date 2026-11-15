@@ -201,7 +201,7 @@ def reconcile(dry_run: bool = False):
                 app_data["jobUrl"] = m["jobUrl"]
 
             if not dry_run:
-                doc_ref.set(contract.toFirestore(app_data))
+                doc_ref.set(contract.to_remote(app_data))
                 for ev in m.get("events", []):
                     built = eventsModule.buildEvent(
                         ev["type"],
@@ -211,7 +211,7 @@ def reconcile(dry_run: bool = False):
                         statusTo=ev.get("statusTo"),
                     )
                     ev_ref = doc_ref.collection("events").document(built["eventId"])
-                    ev_ref.set(contract.toFirestore(built))
+                    ev_ref.set(contract.to_remote(built))
             print(f"  -> Created {m['id']} with {len(m.get('events', []))} events")
 
     # Step 2: Handle Capital One statuses
@@ -238,7 +238,7 @@ def reconcile(dry_run: bool = False):
                         statusTo="REJECTED",
                         note="Rejection based on assessment results",
                     )
-                    ev_col.document(built["eventId"]).set(contract.toFirestore(built))
+                    ev_col.document(built["eventId"]).set(contract.to_remote(built))
 
     c1_nov = db.collection("applications").document("capital-one--mobile-engineer-4-android").get()
     if c1_nov.exists:
@@ -276,7 +276,7 @@ def reconcile(dry_run: bool = False):
             batch = db.batch()
             for ev in chained:
                 ev_ref = ev_col.document(ev["eventId"])
-                batch.set(ev_ref, contract.toFirestore(ev))
+                batch.set(ev_ref, contract.to_remote(ev))
             batch.commit()
 
         # Check chain validity
@@ -301,7 +301,7 @@ def reconcile(dry_run: bool = False):
                 proj["timeline"]["submissionConfirmedAt"] = "2026-11-04T03:31:47+00:00"
 
             if not dry_run:
-                db.collection("applications").document(app_id).update(contract.toFirestore(proj))
+                db.collection("applications").document(app_id).update(contract.to_remote(proj))
             apps_reprojected += 1
 
     print(f"\nReconciliation finished!")

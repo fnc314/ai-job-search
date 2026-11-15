@@ -16,8 +16,8 @@ public sealed interface TrackerStatus : WireContract {
     /** Returns the human-readable display label. */
     public fun displayName(): String = displayName
 
-    /** Returns the canonical Firestore document string representation. */
-    public fun toFirestore(): String = wireKey
+    /** Returns the canonical remote document string representation. */
+    public fun toRemote(): String = wireKey
 
     /** Indicates whether this status represents a final terminal state where the pipeline has closed. */
     public val isTerminal: Boolean
@@ -44,7 +44,7 @@ public sealed interface TrackerStatus : WireContract {
         /** Sentinel value representing an unfiltered filter state matching all applications. */
         NONE(displayName = "All", wireKey = "NONE"),
 
-        /** Fallback status when the Firestore status string is missing or unspecified. */
+        /** Fallback status when the remote status string is missing or unspecified. */
         UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", wireTag = 0),
 
         /** Pre-funnel opportunity lead captured prior to active drafting. */
@@ -159,7 +159,7 @@ public sealed interface TrackerStatus : WireContract {
         // Backward-compatible shortcut properties matching standard enum names
         /** Sentinel value representing an unfiltered filter state matching all applications. */
         public val NONE: TrackerStatus = Known.NONE
-        /** Fallback status when the Firestore status string is missing or unspecified. */
+        /** Fallback status when the remote status string is missing or unspecified. */
         public val UNSPECIFIED: TrackerStatus = Known.UNSPECIFIED
         /** Pre-funnel opportunity lead captured prior to active drafting. */
         public val LEAD: TrackerStatus = Known.LEAD
@@ -200,9 +200,9 @@ public sealed interface TrackerStatus : WireContract {
         /**
          * Resolves a raw Firestore document status string into its matching [TrackerStatus] constant.
          *
-         * @param raw The raw string from Firestore or local storage.
+         * @param raw The raw string from remote or local storage.
          * @return The resolved [TrackerStatus], or [UNSPECIFIED] if null/blank, or [Unrecognized] if unmapped.
          */
-        public fun fromFirestore(raw: String?): TrackerStatus = fromWireKey(raw)
+        public fun fromRemote(raw: String?): TrackerStatus = fromWireKey(raw)
     }
 }

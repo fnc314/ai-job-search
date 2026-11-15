@@ -42,12 +42,9 @@ public object BackendService {
     private var initialized = false
 
     /**
-     * Lazily initialized direct Firestore client handle.
-     *
-     * Note: Direct symbol name `firestore` is tracked under ROADMAP.md [RM-012] for interface naming
-     * abstraction migration (transitioning towards `remoteStore` / `remoteDatabase`).
+     * Lazily initialized direct remote database client handle.
      */
-    public val firestore: Firestore by lazy {
+    public val remoteDatabase: Firestore by lazy {
         initFirebase()
         FirestoreClient.getFirestore(FirebaseApp.getInstance())
     }
@@ -108,7 +105,7 @@ public object BackendService {
         eventPayload: Map<String, Any?>,
         idempotencyKey: String? = null,
     ): Map<String, Any?> {
-        val db = firestore
+        val db = remoteDatabase
         val appRef = db.collection("applications").document(applicationId)
         val eventsColl = appRef.collection("events")
 
@@ -351,7 +348,7 @@ public object BackendService {
      * @return Count of expired proposals updated.
      */
     public fun expireStaleProposals(expirationDays: Long = 14): Int {
-        val db = firestore
+        val db = remoteDatabase
         val cutoff = Timestamp.ofTimeSecondsAndNanos(
             Instant.now().minus(expirationDays, ChronoUnit.DAYS).epochSecond,
             0
@@ -384,7 +381,7 @@ public object BackendService {
      * @return Count of processed sync requests.
      */
     public fun processDueSyncs(): Int {
-        val db = firestore
+        val db = remoteDatabase
         val now = Timestamp.now()
         val syncs = db.collection("sync-requests")
             .whereEqualTo("state", "PENDING")
@@ -590,7 +587,7 @@ public object BackendService {
      * and atomically writes them to Firestore `companies/{companyId}.metrics`.
      */
     public fun recalculateCompanyMetrics(targetCompanyId: String? = null): Map<String, Any> {
-        val db = firestore
+        val db = remoteDatabase
         var query = db.collection("applications") as com.google.cloud.firestore.Query
         if (!targetCompanyId.isNullOrBlank()) {
             query = query.whereEqualTo("companyId", targetCompanyId)
@@ -657,7 +654,7 @@ public object BackendService {
         }
         val metricsResult = recalculateCompanyMetrics()
 
-        val db = firestore
+        val db = remoteDatabase
         val sweepTimestamp = Timestamp.now()
         db.collection("meta").document("sync").set(
             mapOf(
@@ -687,7 +684,7 @@ public object BackendService {
      * A company is "fully enriched" if it has `sector`, `linkedinUrl`, and `hunterIoId`.
      */
     public fun batchEnrichCompanies(): Map<String, Any> {
-        val db = firestore
+        val db = remoteDatabase
         val snapshot = db.collection("companies").get().get()
         var enriched = 0
         var skipped = 0
@@ -930,7 +927,7 @@ public object BackendService {
      * @return Result map containing status (`EXISTS` or `CREATED`), `companyId`, and `company` fields.
      */
     public fun addCompany(name: String, website: String? = null): Map<String, Any?> {
-        val db = firestore
+        val db = remoteDatabase
         val slug = DocumentIdGenerator.slug(name, fallback = "unknown-company")
 
         val companyDoc = db.collection("companies").document(slug)
@@ -1002,7 +999,7 @@ public object BackendService {
      * @return Summary map detailing merged groups, updated applications, renamed documents, and deleted duplicate IDs.
      */
     public fun deduplicateCompanies(dryRun: Boolean = false): Map<String, Any> {
-        val db = firestore
+        val db = remoteDatabase
         val companiesSnapshot = db.collection("companies").get().get()
         val appsSnapshot = db.collection("applications").get().get()
 
@@ -1266,7 +1263,7 @@ public object BackendService {
         tags: List<String>? = null,
         raised: Long? = null,
     ): Map<String, Any?> {
-        val db = firestore
+        val db = remoteDatabase
         val compRef = db.collection("companies").document(companyId)
         val snap = compRef.get().get()
 
@@ -1409,7 +1406,7 @@ public object BackendService {
         applicationId: String,
         dryRun: Boolean = false,
     ): Map<String, Any?> {
-        val db = firestore
+        val db = remoteDatabase
         val appRef = db.collection("applications").document(applicationId)
         val snap = appRef.get().get()
         if (!snap.exists()) {
@@ -1482,7 +1479,7 @@ public object BackendService {
         isNoise: Boolean = false,
         dryRun: Boolean = false,
     ): Map<String, Any?> {
-        val db = firestore
+        val db = remoteDatabase
         val emailRef = db.collection("emails").document(messageId)
         val emailSnap = emailRef.get().get()
 
@@ -1611,7 +1608,7 @@ public object BackendService {
         inboxFile: File? = null,
         since: String? = null,
     ): List<DiscoveryCandidate> {
-        val db = firestore
+        val db = remoteDatabase
 
         // Build index of tracked company IDs
         val appsSnap = db.collection("applications").get().get()
@@ -1946,7 +1943,7 @@ public object BackendService {
         excludeMessageId: String,
         allEmails: Map<String, Map<String, Any?>>? = null
     ): List<String> {
-        val db = firestore
+        val db = remoteDatabase
         val related = mutableListOf<String>()
 
         // Search emails collection for messages from the same company
@@ -1987,7 +1984,7 @@ public object BackendService {
             )
         }
 
-        val db = firestore
+        val db = remoteDatabase
         val timestamp = Instant.now().toString()
         val changes = mutableListOf<Map<String, Any?>>()
 
@@ -2070,7 +2067,7 @@ public object BackendService {
             )
         }
 
-        val db = firestore
+        val db = remoteDatabase
         val content = file.readText()
         val parsed = kotlinx.serialization.json.Json.parseToJsonElement(content).jsonObject
         val messages = parsed["messages"]?.jsonArray ?: kotlinx.serialization.json.JsonArray(emptyList())
@@ -2260,7 +2257,7 @@ public object BackendService {
      * @return Summary map with breakdowns by category and detailed lists for interactive review.
      */
     public fun auditOrphanCompanies(dryRun: Boolean = true): Map<String, Any> {
-        val db = firestore
+        val db = remoteDatabase
         val snapshot = db.collection("companies").get().get()
 
         // Companies to explicitly keep even if they match garbage patterns
@@ -2436,7 +2433,7 @@ public object BackendService {
      * @return Summary map with deleted, migrated, and kept counts.
      */
     public fun migrateZeroAppToPotentials(dryRun: Boolean = true): Map<String, Any> {
-        val db = firestore
+        val db = remoteDatabase
         val snapshot = db.collection("companies").get().get()
 
         // Companies to explicitly keep in the companies collection

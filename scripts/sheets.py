@@ -200,16 +200,16 @@ def tabs(db, *, artifacts: dict[str, list[dict]] | None = None) -> dict[str, lis
     eventsByApplication: dict[str, list[dict]] = {}
     artifactMap: dict[str, list[dict]] = dict(artifacts or {})
     for snapshot in db.collection(client.APPLICATIONS).stream():
-        application = contract.fromFirestore(snapshot.to_dict())
+        application = contract.from_remote(snapshot.to_dict())
         applications.append(application)
         reference = db.collection(client.APPLICATIONS).document(application["id"])
         eventsByApplication[application["id"]] = [
-            contract.fromFirestore(document.to_dict())
+            contract.from_remote(document.to_dict())
             for document in reference.collection(client.EVENTS).stream()
         ]
         if application["id"] not in artifactMap:
             artifactMap[application["id"]] = [
-                contract.fromFirestore(document.to_dict())
+                contract.from_remote(document.to_dict())
                 for document in reference.collection(client.ARTIFACTS).stream()
             ]
     return {

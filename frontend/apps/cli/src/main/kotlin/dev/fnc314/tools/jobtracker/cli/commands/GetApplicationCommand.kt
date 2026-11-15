@@ -9,14 +9,14 @@ import com.github.ajalt.mordant.rendering.TextColors.yellow
 import com.github.ajalt.mordant.table.ColumnWidth
 import com.github.ajalt.mordant.table.table
 import com.github.ajalt.mordant.terminal.Terminal
-import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 
 internal class GetApplicationCommand : CliktCommand(name = "get") {
     private val applicationId: String by argument("id", help = "Application slug ID")
 
     override fun run() {
         val t = Terminal(nonInteractiveWidth = 200)
-        val db = FirestoreProvider.firestore
+        val db = RemoteDataSourceProvider.remote
         val docRef = db.collection("applications").document(applicationId)
         val snap = docRef.get().get()
 

@@ -59,14 +59,14 @@ def find_local_artifacts(documents_dir: pathlib.Path) -> list[dict]:
     return artifacts
 
 
-def build_gcs_path(company: str, role: str, date_str: str, filename: str) -> str:
+def build_blob_path(company: str, role: str, date_str: str, filename: str) -> str:
     """Build the GCS object path: applications/{company}/{role}/{date}/{filename}."""
     norm_company = contract.normalize_dir_name(company)
     norm_role = contract.normalize_dir_name(role)
     return f"applications/{norm_company}/{norm_role}/{date_str}/{filename}"
 
 
-def build_firestore_index(db) -> dict[str, dict]:
+def build_remote_index(db) -> dict[str, dict]:
     """Pre-build an index of all artifact documents for O(1) lookup.
 
     Returns a dict keyed by (company_lower, role_lower, filename_lower) -> artifact_doc.
@@ -126,7 +126,7 @@ def _draw_tree(node: dict, prefix: str = "", is_last: bool = True) -> list[str]:
     return lines
 
 
-def print_gcs_tree(artifacts: list[dict], firestore_index: dict | None) -> None:
+def print_blob_tree(artifacts: list[dict], firestore_index: dict | None) -> None:
     """Print a tree view of the GCS structure that will be created."""
     tree = {}
     for art in artifacts:
@@ -188,11 +188,11 @@ def main() -> int:
 
     # Build Firestore index for matching
     db = client.getDb()
-    firestore_index = build_firestore_index(db)
+    firestore_index = build_remote_index(db)
     print(f"Firestore index: {len(firestore_index)} artifact documents")
 
     if args.dry_run:
-        print_gcs_tree(artifacts, firestore_index)
+        print_blob_tree(artifacts, firestore_index)
         return 0
 
     # Check write permission
@@ -206,7 +206,7 @@ def main() -> int:
     errors = 0
 
     for i, art in enumerate(artifacts, 1):
-        gcs_path = build_gcs_path(art["company"], art["role"], art["date"], art["filename"])
+        gcs_path = build_blob_path(art["company"], art["role"], art["date"], art["filename"])
         print(f"[{i}/{len(artifacts)}] {art['filename']} → {gcs_path}", flush=True)
 
         try:

@@ -511,7 +511,7 @@ class TestEmulatorModules(unittest.TestCase):
     def test_collect_does_not_re_propose_an_already_processed_message(self):
         applicationId = "acme--processed-engineer"
         self.db.collection(client.APPLICATIONS).document(applicationId).set(
-            contract.toFirestore(
+            contract.to_remote(
                 {
                     "id": applicationId,
                     "date": "2026-10-01",
@@ -584,7 +584,7 @@ class TestEmulatorModules(unittest.TestCase):
     def test_proposal_stage_approve_emits_events(self):
         applicationId = "acme--proposal-engineer"
         self.db.collection(client.APPLICATIONS).document(applicationId).set(
-            contract.toFirestore(
+            contract.to_remote(
                 {
                     "id": applicationId,
                     "date": "2026-10-01",
@@ -598,7 +598,7 @@ class TestEmulatorModules(unittest.TestCase):
                 }
             )
         )
-        applications = {applicationId: contract.fromFirestore(self.db.collection(client.APPLICATIONS).document(applicationId).get().to_dict())}
+        applications = {applicationId: contract.from_remote(self.db.collection(client.APPLICATIONS).document(applicationId).get().to_dict())}
         proposal = proposals.buildProposal(
             [
                 {
@@ -633,7 +633,7 @@ class TestEmulatorModules(unittest.TestCase):
             applicationId = f"acme--selective-{suffix}"
             ids.append(applicationId)
             self.db.collection(client.APPLICATIONS).document(applicationId).set(
-                contract.toFirestore(
+                contract.to_remote(
                     {
                         "id": applicationId,
                         "date": "2026-10-01",
@@ -648,7 +648,7 @@ class TestEmulatorModules(unittest.TestCase):
                 )
             )
         applications = {
-            applicationId: contract.fromFirestore(
+            applicationId: contract.from_remote(
                 self.db.collection(client.APPLICATIONS).document(applicationId).get().to_dict()
             )
             for applicationId in ids
@@ -682,7 +682,7 @@ class TestEmulatorModules(unittest.TestCase):
     def test_approving_twice_is_refused(self):
         proposalId = contract.newUuid()
         self.db.collection(client.PENDING_PROPOSALS).document(proposalId).set(
-            contract.toFirestore(
+            contract.to_remote(
                 {
                     "proposalId": proposalId,
                     "createdAt": "2026-10-31T00:00:00+00:00",
@@ -701,7 +701,7 @@ class TestEmulatorModules(unittest.TestCase):
     def test_artifact_no_upload_writes_the_document(self):
         applicationId = "acme--artifact-engineer"
         self.db.collection(client.APPLICATIONS).document(applicationId).set(
-            contract.toFirestore(
+            contract.to_remote(
                 {
                     "id": applicationId,
                     "date": "2026-10-01",

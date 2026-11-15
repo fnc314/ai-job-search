@@ -34,15 +34,15 @@ def readAll(db) -> dict:
     artifactsByApplication = {}
     company_ids = set()
     for snapshot in db.collection(client.APPLICATIONS).stream():
-        application = contract.fromFirestore(snapshot.to_dict())
+        application = contract.from_remote(snapshot.to_dict())
         applications.append(application)
         reference = db.collection(client.APPLICATIONS).document(application["id"])
         eventsByApplication[application["id"]] = [
-            contract.fromFirestore(document.to_dict())
+            contract.from_remote(document.to_dict())
             for document in reference.collection(client.EVENTS).stream()
         ]
         artifactsByApplication[application["id"]] = [
-            contract.fromFirestore(document.to_dict())
+            contract.from_remote(document.to_dict())
             for document in reference.collection(client.ARTIFACTS).stream()
         ]
         cid = application.get("companyId")
@@ -55,13 +55,13 @@ def readAll(db) -> dict:
     for company_id in company_ids:
         snapshot = db.collection(client.COMPANIES).document(company_id).get()
         if snapshot.exists:
-            companies[company_id] = contract.fromFirestore(snapshot.to_dict())
+            companies[company_id] = contract.from_remote(snapshot.to_dict())
 
     # The TUI shows a review badge; the cache must carry it too, or an offline
     # reader would claim there is nothing waiting when there is.
     pendingProposals = []
     for snapshot in db.collection(client.PENDING_PROPOSALS).stream():
-        doc_dict = contract.fromFirestore(snapshot.to_dict())
+        doc_dict = contract.from_remote(snapshot.to_dict())
         if doc_dict.get("state") == "proposal:pending":
             pendingProposals.append({
                 "proposalId": doc_dict.get("proposalId"),

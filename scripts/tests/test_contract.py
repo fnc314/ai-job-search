@@ -241,7 +241,7 @@ class TestValidation(unittest.TestCase):
 
 class TestFirestoreRoundTrip(unittest.TestCase):
     def test_date_only_becomes_a_datetime_at_midnight(self):
-        converted = contract.toFirestore({"date": "2026-10-30"})
+        converted = contract.to_remote({"date": "2026-10-30"})
         self.assertIsInstance(converted["date"], datetime.datetime)
         self.assertEqual(converted["date"].year, 2026)
         self.assertEqual(converted["date"].month, 10)
@@ -249,20 +249,20 @@ class TestFirestoreRoundTrip(unittest.TestCase):
         self.assertEqual(converted["date"].hour, 0)
 
     def test_offset_timestamp_keeps_its_instant(self):
-        converted = contract.toFirestore({"ts": "2026-10-30T14:22:00-04:00"})
+        converted = contract.to_remote({"ts": "2026-10-30T14:22:00-04:00"})
         self.assertEqual(
             converted["ts"], datetime.datetime(2026, 10, 30, 18, 22, tzinfo=datetime.timezone.utc)
         )
 
     def test_conversion_is_recursive_over_dicts_and_lists(self):
-        converted = contract.toFirestore(
+        converted = contract.to_remote(
             {"timeline": {"lastActivityAt": "2026-10-30"}, "dates": ["2026-10-31"]}
         )
         self.assertIsInstance(converted["timeline"]["lastActivityAt"], datetime.datetime)
         self.assertIsInstance(converted["dates"][0], datetime.datetime)
 
     def test_non_date_strings_are_left_alone(self):
-        converted = contract.toFirestore(
+        converted = contract.to_remote(
             {"status": "status:applied", "note": "a 2026-10-30 mention", "n": 3}
         )
         self.assertEqual(converted["status"], "status:applied")
@@ -271,18 +271,18 @@ class TestFirestoreRoundTrip(unittest.TestCase):
 
     def test_from_firestore_returns_iso_strings(self):
         moment = datetime.datetime(2026, 10, 30, 0, 0)
-        self.assertEqual(contract.fromFirestore({"d": moment})["d"], "2026-10-30T00:00:00")
+        self.assertEqual(contract.from_remote({"d": moment})["d"], "2026-10-30T00:00:00")
 
     def test_round_trip_is_stable(self):
         original = {"date": "2026-10-30", "nested": {"ts": "2026-10-30T14:22:00-04:00"}}
-        once = contract.fromFirestore(contract.toFirestore(original))
-        twice = contract.fromFirestore(contract.toFirestore(once))
+        once = contract.from_remote(contract.to_remote(original))
+        twice = contract.from_remote(contract.to_remote(once))
         self.assertEqual(once, twice)
 
     def test_round_trip_preserves_the_original_offset(self):
         """A local-time timestamp comes back local, not silently re-signed as UTC."""
-        once = contract.fromFirestore(
-            contract.toFirestore({"ts": "2026-10-30T14:22:00-04:00"})
+        once = contract.from_remote(
+            contract.to_remote({"ts": "2026-10-30T14:22:00-04:00"})
         )
         self.assertEqual(once["ts"], "2026-10-30T14:22:00-04:00")
         parsed = datetime.datetime.fromisoformat(once["ts"])
@@ -292,7 +292,7 @@ class TestFirestoreRoundTrip(unittest.TestCase):
         )
 
     def test_round_trip_preserves_a_date_only_calendar_day(self):
-        once = contract.fromFirestore(contract.toFirestore({"date": "2026-10-30"}))
+        once = contract.from_remote(contract.to_remote({"date": "2026-10-30"}))
         self.assertEqual(once["date"], "2026-10-30T00:00:00")
         # Naive midnight means no reader west of UTC sees the previous day.
         self.assertTrue(once["date"].startswith("2026-10-30"))

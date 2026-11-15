@@ -1,6 +1,6 @@
 package dev.fnc314.tools.jobtracker.backend
 
-import dev.fnc314.tools.jobtracker.backend.webhook.composioWebhookRoute
+import dev.fnc314.tools.jobtracker.backend.webhook.emailWebhookRoute
 import io.ktor.server.application.call
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -117,7 +117,7 @@ public fun main(args: Array<String>): Unit {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
     embeddedServer(Netty, port = port) {
         routing {
-            composioWebhookRoute()
+            emailWebhookRoute()
             get("/health") {
                 call.respondText(
                     """{"status":"UP","service":"jobtracker-backend","port":$port}""",

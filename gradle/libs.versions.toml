@@ -40,7 +40,7 @@
   koin-compiler = "1.2.3"
   konsist = "1.0.0-beta.1"
   kotlin = "2.4.21"
-  kotlin-wrappers = "2026.11.1"
+  kotlin-wrappers = "2026.11.2"
   kotlinx-collections-immutable = "0.5.2"
   kotlinx-coroutines = "1.11.0"
   kotlinx-datetime = "0.8.0"

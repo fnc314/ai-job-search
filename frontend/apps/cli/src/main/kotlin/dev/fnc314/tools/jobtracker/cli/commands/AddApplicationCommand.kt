@@ -9,7 +9,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
 import com.google.cloud.firestore.SetOptions
 import dev.fnc314.tools.jobsearch.parser.DocumentIdGenerator
-import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import dev.fnc314.tools.jobtracker.core.data.model.Uuid7
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
@@ -22,7 +22,7 @@ internal class AddApplicationCommand : CliktCommand(name = "add") {
 
     override fun run() {
         val t = Terminal()
-        FirestoreProvider.assertWritesAllowed("application creation")
+        RemoteDataSourceProvider.assertWritesAllowed("application creation")
 
         val rawContent = if (File(jsonInput).exists()) {
             File(jsonInput).readText()
@@ -39,7 +39,7 @@ internal class AddApplicationCommand : CliktCommand(name = "add") {
             val role = json["role"]?.jsonPrimitive?.contentOrNull ?: ""
             val status = json["status"]?.jsonPrimitive?.contentOrNull ?: "APPLIED"
 
-            val db = FirestoreProvider.firestore
+            val db = RemoteDataSourceProvider.remote
             val docRef = db.collection("applications").document(id)
             val snap = docRef.get().get()
 

@@ -5,7 +5,10 @@
 
 set -eu
 
-BACKEND_BIN="${MISE_PROJECT_ROOT}/backend/build/install/backend/bin/backend"
+BACKEND_BIN="${MISE_PROJECT_ROOT}/backend/service/build/install/service/bin/service"
+if [ ! -f "${BACKEND_BIN}" ] && [ -f "${MISE_PROJECT_ROOT}/backend/build/install/backend/bin/backend" ]; then
+  BACKEND_BIN="${MISE_PROJECT_ROOT}/backend/build/install/backend/bin/backend"
+fi
 
 if [ "${1:-}" = "--local" ] || [ -n "${TRACKER_LOCAL_BACKEND:-}" ]; then
   shift || true

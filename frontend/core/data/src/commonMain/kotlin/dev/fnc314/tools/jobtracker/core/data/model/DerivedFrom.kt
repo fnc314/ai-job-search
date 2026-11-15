@@ -12,7 +12,7 @@ public sealed interface DerivedFrom : WireContract {
     public fun displayName(): String = displayName
 
     /** Returns the raw Firestore storage string. */
-    public fun toFirestore(): String = wireKey
+    public fun toRemote(): String = wireKey
 
     /**
      * Closed vocabulary of known provenance mechanisms.
@@ -87,6 +87,6 @@ public sealed interface DerivedFrom : WireContract {
         }
 
         /** Parses a wire representation into [DerivedFrom]. */
-        public fun fromFirestore(raw: String?): DerivedFrom = fromWireKey(raw)
+        public fun fromRemote(raw: String?): DerivedFrom = fromWireKey(raw)
     }
 }

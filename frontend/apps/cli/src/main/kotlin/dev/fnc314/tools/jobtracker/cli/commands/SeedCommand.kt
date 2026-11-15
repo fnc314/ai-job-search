@@ -5,7 +5,7 @@ import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
-import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -14,7 +14,7 @@ import java.io.File
 internal class SeedCommand : CliktCommand(name = "seed") {
     override fun run() {
         val t = Terminal()
-        FirestoreProvider.assertWritesAllowed("seeding schema metadata")
+        RemoteDataSourceProvider.assertWritesAllowed("seeding schema metadata")
 
         val schemaFile = File("tracker.schema.json")
         if (!schemaFile.exists()) {
@@ -25,7 +25,7 @@ internal class SeedCommand : CliktCommand(name = "seed") {
         val parsed = Json.parseToJsonElement(schemaFile.readText()).jsonObject
         val version = parsed["schemaVersion"]?.jsonPrimitive?.content?.toIntOrNull() ?: 9
 
-        val db = FirestoreProvider.firestore
+        val db = RemoteDataSourceProvider.remote
         val metaSchema = db.collection("meta").document("schema")
         val data = mapOf(
             "schemaVersion" to version,

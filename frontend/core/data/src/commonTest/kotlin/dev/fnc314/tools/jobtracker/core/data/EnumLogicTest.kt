@@ -30,24 +30,24 @@ class EnumLogicTest {
 
     @Test
     fun testTrackerStatus_fromFirestoreVariations() {
-        assertEquals(TrackerStatus.LEAD, TrackerStatus.fromFirestore("status:lead"))
-        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromFirestore("status:applied"))
-        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromFirestore("APPLIED"))
-        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromFirestore("applied"))
-        assertEquals(TrackerStatus.INTERVIEW, TrackerStatus.fromFirestore("status:interview"))
-        assertEquals(TrackerStatus.OFFER_EXPECTED, TrackerStatus.fromFirestore("status:offer"))
+        assertEquals(TrackerStatus.LEAD, TrackerStatus.fromRemote("status:lead"))
+        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("status:applied"))
+        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("APPLIED"))
+        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("applied"))
+        assertEquals(TrackerStatus.INTERVIEW, TrackerStatus.fromRemote("status:interview"))
+        assertEquals(TrackerStatus.OFFER_EXPECTED, TrackerStatus.fromRemote("status:offer"))
     }
 
     @Test
     fun testTrackerStatus_fromFirestoreBlankAndUnrecognized() {
-        assertEquals(TrackerStatus.UNSPECIFIED, TrackerStatus.fromFirestore(null))
-        assertEquals(TrackerStatus.UNSPECIFIED, TrackerStatus.fromFirestore(""))
-        assertEquals(TrackerStatus.UNSPECIFIED, TrackerStatus.fromFirestore("   "))
+        assertEquals(TrackerStatus.UNSPECIFIED, TrackerStatus.fromRemote(null))
+        assertEquals(TrackerStatus.UNSPECIFIED, TrackerStatus.fromRemote(""))
+        assertEquals(TrackerStatus.UNSPECIFIED, TrackerStatus.fromRemote("   "))
 
-        val unrecognized = TrackerStatus.fromFirestore("  status:unknown-gibberish\t ")
+        val unrecognized = TrackerStatus.fromRemote("  status:unknown-gibberish\t ")
         assertIs<TrackerStatus.Unrecognized>(unrecognized)
         assertEquals("  status:unknown-gibberish\t ", unrecognized.wireKey)
-        assertEquals("  status:unknown-gibberish\t ", unrecognized.toFirestore())
+        assertEquals("  status:unknown-gibberish\t ", unrecognized.toRemote())
     }
 
     @Test
@@ -85,7 +85,7 @@ class EnumLogicTest {
         TrackerStatus.entries.forEach { status ->
             assertTrue(status.displayName().isNotBlank(), "DisplayName must not be blank for ${status.wireKey}")
             assertEquals(status.displayName, status.displayName())
-            assertEquals(status.wireKey, status.toFirestore())
+            assertEquals(status.wireKey, status.toRemote())
         }
     }
 
@@ -93,37 +93,37 @@ class EnumLogicTest {
 
     @Test
     fun testApplicationChannel_fromFirestoreAliases() {
-        assertEquals(ApplicationChannel.LINKEDIN, ApplicationChannel.fromFirestore("channel:linkedin"))
-        assertEquals(ApplicationChannel.LINKEDIN, ApplicationChannel.fromFirestore("linkedin"))
-        assertEquals(ApplicationChannel.LINKEDIN, ApplicationChannel.fromFirestore("LINKEDIN"))
-        assertEquals(ApplicationChannel.REFERRAL, ApplicationChannel.fromFirestore("referral"))
-        assertEquals(ApplicationChannel.GREENHOUSE, ApplicationChannel.fromFirestore("channel:greenhouse"))
-        assertEquals(ApplicationChannel.OUTREACH_LINKEDIN, ApplicationChannel.fromFirestore("channel:outreach:linkedin"))
+        assertEquals(ApplicationChannel.LINKEDIN, ApplicationChannel.fromRemote("channel:linkedin"))
+        assertEquals(ApplicationChannel.LINKEDIN, ApplicationChannel.fromRemote("linkedin"))
+        assertEquals(ApplicationChannel.LINKEDIN, ApplicationChannel.fromRemote("LINKEDIN"))
+        assertEquals(ApplicationChannel.REFERRAL, ApplicationChannel.fromRemote("referral"))
+        assertEquals(ApplicationChannel.GREENHOUSE, ApplicationChannel.fromRemote("channel:greenhouse"))
+        assertEquals(ApplicationChannel.OUTREACH_LINKEDIN, ApplicationChannel.fromRemote("channel:outreach:linkedin"))
     }
 
     @Test
     fun testApplicationChannel_fromFirestoreBlankAndUnrecognized() {
-        assertEquals(ApplicationChannel.UNSPECIFIED, ApplicationChannel.fromFirestore(null))
-        assertEquals(ApplicationChannel.UNSPECIFIED, ApplicationChannel.fromFirestore(""))
-        val unknown = ApplicationChannel.fromFirestore(" random_unsupported_portal ")
+        assertEquals(ApplicationChannel.UNSPECIFIED, ApplicationChannel.fromRemote(null))
+        assertEquals(ApplicationChannel.UNSPECIFIED, ApplicationChannel.fromRemote(""))
+        val unknown = ApplicationChannel.fromRemote(" random_unsupported_portal ")
         assertIs<ApplicationChannel.Unrecognized>(unknown)
         assertEquals(" random_unsupported_portal ", unknown.wireKey)
     }
 
     @Test
     fun testWorkMode_fromFirestoreVariations() {
-        assertEquals(WorkMode.REMOTE, WorkMode.fromFirestore("work-mode:remote"))
-        assertEquals(WorkMode.REMOTE, WorkMode.fromFirestore("remote"))
-        assertEquals(WorkMode.REMOTE, WorkMode.fromFirestore("REMOTE"))
-        assertEquals(WorkMode.HYBRID, WorkMode.fromFirestore("work-mode:hybrid"))
-        assertEquals(WorkMode.ONSITE, WorkMode.fromFirestore("work-mode:onsite"))
+        assertEquals(WorkMode.REMOTE, WorkMode.fromRemote("work-mode:remote"))
+        assertEquals(WorkMode.REMOTE, WorkMode.fromRemote("remote"))
+        assertEquals(WorkMode.REMOTE, WorkMode.fromRemote("REMOTE"))
+        assertEquals(WorkMode.HYBRID, WorkMode.fromRemote("work-mode:hybrid"))
+        assertEquals(WorkMode.ONSITE, WorkMode.fromRemote("work-mode:onsite"))
     }
 
     @Test
     fun testWorkMode_fromFirestoreBlankAndUnrecognized() {
-        assertEquals(WorkMode.UNSPECIFIED, WorkMode.fromFirestore(null))
-        assertEquals(WorkMode.UNSPECIFIED, WorkMode.fromFirestore("   "))
-        val unknown = WorkMode.fromFirestore("telepathic\n")
+        assertEquals(WorkMode.UNSPECIFIED, WorkMode.fromRemote(null))
+        assertEquals(WorkMode.UNSPECIFIED, WorkMode.fromRemote("   "))
+        val unknown = WorkMode.fromRemote("telepathic\n")
         assertIs<RoleLocation.Unrecognized>(unknown)
         assertEquals("telepathic\n", unknown.wireKey)
     }
@@ -132,7 +132,7 @@ class EnumLogicTest {
     fun testWorkMode_DisplayNameCoverage() {
         WorkMode.entries.forEach { mode ->
             assertTrue(mode.displayName().isNotBlank(), "DisplayName must not be blank for ${mode.wireKey}")
-            assertEquals(mode.wireKey, mode.toFirestore())
+            assertEquals(mode.wireKey, mode.toRemote())
         }
     }
 

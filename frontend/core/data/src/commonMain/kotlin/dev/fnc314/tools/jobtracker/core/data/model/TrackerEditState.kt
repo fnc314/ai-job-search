@@ -11,8 +11,8 @@ public sealed interface TrackerEditState : WireContract {
     /** Returns the display name. */
     public fun displayName(): String = displayName
 
-    /** Returns the canonical Firestore document string representation. */
-    public fun toFirestore(): String = wireKey
+    /** Returns the canonical remote document string representation. */
+    public fun toRemote(): String = wireKey
 
     /**
      * Closed vocabulary of known proposal review states.
@@ -83,6 +83,6 @@ public sealed interface TrackerEditState : WireContract {
         }
 
         /** Parses a wire representation into [TrackerEditState]. */
-        public fun fromFirestore(raw: String?): TrackerEditState = fromWireKey(raw)
+        public fun fromRemote(raw: String?): TrackerEditState = fromWireKey(raw)
     }
 }

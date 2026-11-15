@@ -12,7 +12,9 @@ def main():
     root = Path(__file__).resolve()
     while root != root.parent and not (root / "mise.toml").exists():
         root = root.parent
-    backup_script = root / "scripts" / "backup_firestore.py"
+    backup_script = root / "scripts" / "remote_backup.py"
+    if not backup_script.exists():
+        backup_script = root / "scripts" / "backup_firestore.py"
     import runpy
     sys.argv[0] = str(backup_script)
     runpy.run_path(str(backup_script), run_name="__main__")

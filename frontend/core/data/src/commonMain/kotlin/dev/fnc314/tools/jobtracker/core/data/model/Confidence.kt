@@ -11,8 +11,8 @@ public sealed interface Confidence : WireContract {
     /** Returns the display name. */
     public fun displayName(): String = displayName
 
-    /** Returns the canonical Firestore document string representation. */
-    public fun toFirestore(): String = wireKey
+    /** Returns the canonical remote document string representation. */
+    public fun toRemote(): String = wireKey
 
     /**
      * Closed vocabulary of known confidence levels.
@@ -90,6 +90,6 @@ public sealed interface Confidence : WireContract {
         }
 
         /** Parses a wire representation into [Confidence]. */
-        public fun fromFirestore(raw: String?): Confidence = fromWireKey(raw)
+        public fun fromRemote(raw: String?): Confidence = fromWireKey(raw)
     }
 }

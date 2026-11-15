@@ -11,8 +11,8 @@ public sealed interface RoleLocation : WireContract {
     /** Returns the display name. */
     public fun displayName(): String = displayName
 
-    /** Returns the canonical Firestore document string representation. */
-    public fun toFirestore(): String = wireKey
+    /** Returns the canonical remote document string representation. */
+    public fun toRemote(): String = wireKey
 
     /** Closed vocabulary of known role location modalities. */
     public enum class Known(
@@ -79,7 +79,7 @@ public sealed interface RoleLocation : WireContract {
         }
 
         /** Parses a wire representation into [RoleLocation]. */
-        public fun fromFirestore(raw: String?): RoleLocation = fromWireKey(raw)
+        public fun fromRemote(raw: String?): RoleLocation = fromWireKey(raw)
     }
 }
 

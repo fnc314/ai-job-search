@@ -12,7 +12,7 @@ import com.github.ajalt.mordant.rendering.TextStyles.bold
 import com.github.ajalt.mordant.rendering.TextStyles.dim
 import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
-import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -38,12 +38,12 @@ internal class BackfillEmailsCommand : CliktCommand(name = "emails") {
         t.println(cyan("=== Historical Email Association & Metadata Matching ==="))
 
         if (applyWrites) {
-            FirestoreProvider.assertWritesAllowed("historical email backfill")
+            RemoteDataSourceProvider.assertWritesAllowed("historical email backfill")
         } else {
             t.println(yellow("[DRY RUN MODE] Run with --apply and TRACKER_ALLOW_WRITES=1 to write changes to Firestore."))
         }
 
-        val db = FirestoreProvider.firestore
+        val db = RemoteDataSourceProvider.remote
 
         // 1. Ingest JOB/* label hierarchy from gmail-job-labels.json
         val jobLabelsFile = File(jobLabelsFilePath ?: "generated/gmail-job-labels.json")

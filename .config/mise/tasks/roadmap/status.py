@@ -129,16 +129,13 @@ def main():
     def format_item_row(item, is_completed=False):
         item_id = item.get("id", "?")
         title = item.get("title", "?")
-        # Truncate title if too long
-        if len(title) > 28:
-            title = title[:25] + "..."
         crit = item.get("criticality", "?")
         status = item.get("status", "?")
         completion = item.get("completion_percent", "0")
         age = calc_age(item.get("creation_date", ""))
         created = format_date(item.get("creation_date", ""))
         completed = format_date(item.get("completed_date", "")) if is_completed else "-"
-        row = f"  {item_id:<8s}  {title:<28s}  {crit:<8s}  {status:<12s}  {completion:>3s}%  {age:<5s}  {created:>10s}  {completed:>10s}"
+        row = f"  {item_id:<8s}  {title:<{title_width}s}  {crit:<8s}  {status:<12s}  {completion:>3s}%  {age:<5s}  {created:>10s}  {completed:>10s}"
         if is_completed:
             # Apply strike-through and dim to the entire row
             row = DIM + STRIKE + row + RESET
@@ -146,17 +143,21 @@ def main():
 
     # Item list with headers
     if items:
+        # Dynamically calculate title column width so titles are never truncated
+        title_width = max(len("Title"), max((len(item.get("title", "")) for item in items), default=28))
+        total_width = 8 + 2 + title_width + 2 + 8 + 2 + 12 + 2 + 4 + 2 + 5 + 2 + 10 + 2 + 10
+
         print("  Active Items:")
-        print("  " + "-" * 104)
+        print("  " + "-" * total_width)
         # Column headers
-        print(f"  {'ID':<8s}  {'Title':<28s}  {'Crit':<8s}  {'Status':<12s}  {'Done':>4s}  {'Age':<5s}  {'Created':>10s}  {'Completed':>10s}")
-        print("  " + "-" * 104)
+        print(f"  {'ID':<8s}  {'Title':<{title_width}s}  {'Crit':<8s}  {'Status':<12s}  {'Done':>4s}  {'Age':<5s}  {'Created':>10s}  {'Completed':>10s}")
+        print("  " + "-" * total_width)
         for item in active_items:
             print(format_item_row(item, is_completed=False))
         if completed_items:
             print()
             print("  Completed:")
-            print("  " + "-" * 104)
+            print("  " + "-" * total_width)
             for item in completed_items:
                 print(format_item_row(item, is_completed=True))
         print()

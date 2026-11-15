@@ -65,7 +65,7 @@ internal class ArtifactsRepositoryImpl(
         return ArtifactFactory.createTrackerArtifact(
             id = record.getString("artifactId") ?: record.id,
             applicationId = record.getString("applicationId") ?: fallbackApplicationId,
-            kind = TrackerArtifactKind.fromFirestore(record.getString("kind")),
+            kind = TrackerArtifactKind.fromRemote(record.getString("kind")),
             filename = record.getString("filename") ?: record.id,
             contentType = record.getString("contentType"),
             size = record.getLong("size"),

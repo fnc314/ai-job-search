@@ -16,7 +16,9 @@ def main():
     root = Path(__file__).resolve()
     while root != root.parent and not (root / "mise.toml").exists():
         root = root.parent
-    migrate_script = root / "scripts" / "migrate_gcs.py"
+    migrate_script = root / "scripts" / "blob_migrate.py"
+    if not migrate_script.exists():
+        migrate_script = root / "scripts" / "migrate_gcs.py"
     import runpy
     sys.argv[0] = str(migrate_script)
     runpy.run_path(str(migrate_script), run_name="__main__")

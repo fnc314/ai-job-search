@@ -11,7 +11,7 @@ import com.github.ajalt.mordant.rendering.TextColors.yellow
 import com.github.ajalt.mordant.table.ColumnWidth
 import com.github.ajalt.mordant.table.table
 import com.github.ajalt.mordant.terminal.Terminal
-import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -25,7 +25,7 @@ internal class ListApplicationsCommand : CliktCommand(name = "list") {
 
     override fun run() {
         val t = Terminal(nonInteractiveWidth = 200)
-        val db = FirestoreProvider.firestore
+        val db = RemoteDataSourceProvider.remote
         var query = db.collection("applications") as com.google.cloud.firestore.Query
 
         if (status != null) {

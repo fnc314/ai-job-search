@@ -50,7 +50,7 @@ public object TimestampConverter {
    * @param value The object, collection, or scalar to transform.
    * @return The transformed structure suitable for protobuf consumption.
    */
-  public fun toFirestore(value: Any?): Any? =
+  public fun toRemote(value: Any?): Any? =
     when (value) {
       is String -> {
         if (value.matches(Regex("\\d{4}-\\d{2}-\\d{2}.*"))) {
@@ -61,11 +61,11 @@ public object TimestampConverter {
       }
 
       is Map<*, *> -> {
-        value.mapValues { toFirestore(it.value) }
+        value.mapValues { toRemote(it.value) }
       }
 
       is List<*> -> {
-        value.map { toFirestore(it) }
+        value.map { toRemote(it) }
       }
 
       else -> {
@@ -81,11 +81,11 @@ public object TimestampConverter {
    * @param value The object, collection, or scalar to transform.
    * @return The transformed structure with ISO date strings.
    */
-  public fun fromFirestore(value: Any?): Any? =
+  public fun fromRemote(value: Any?): Any? =
     when (value) {
       is Timestamp -> timestampToIso(value)
-      is Map<*, *> -> value.mapValues { fromFirestore(it.value) }
-      is List<*> -> value.map { fromFirestore(it) }
+      is Map<*, *> -> value.mapValues { fromRemote(it.value) }
+      is List<*> -> value.map { fromRemote(it) }
       else -> value
     }
 }

@@ -248,7 +248,7 @@ def extract_company_from_subdir(
     return subdir, None, "subdir"
 
 
-def resolve_role_from_firestore(
+def resolve_role_from_remote(
     company_slug: str, firestore_apps: dict[str, list[tuple[str, str]]]
 ) -> tuple[str | None, str, str]:
     """Resolve role from Firestore applications.
@@ -273,7 +273,7 @@ def resolve_role_from_firestore(
     return role_slug, "medium", f"firestore_ambiguous ({len(apps)} roles)"
 
 
-def load_firestore_applications() -> dict[str, list[tuple[str, str]]]:
+def load_remote_applications() -> dict[str, list[tuple[str, str]]]:
     """Load all applications from Firestore, grouped by companyId.
     
     Returns {companyId: [(company_name, role), ...]}.
@@ -381,7 +381,7 @@ def scan_file(
         role_source = f"filename ({source})"
     else:
         # Try Firestore lookup
-        role_slug, conf_mod, role_source = resolve_role_from_firestore(company_slug, firestore_apps)
+        role_slug, conf_mod, role_source = resolve_role_from_remote(company_slug, remote_apps)
         if conf_mod == "medium":
             confidence = "medium"
             notes = role_source
@@ -417,7 +417,7 @@ def scan(source_dir: pathlib.Path | None = None) -> list[dict]:
     scan_dir = source_dir or RESUMES_DIR
     print(f"Scanning {scan_dir}...")
     
-    firestore_apps = load_firestore_applications()
+    remote_apps = load_remote_applications()
     print(f"  Loaded {len(firestore_apps)} companies from Firestore")
 
     entries = []

@@ -13,7 +13,7 @@ import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
-import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import java.time.Instant
 
 internal class EditCommand : CliktCommand(name = "edit") {
@@ -27,9 +27,9 @@ internal class EditCommand : CliktCommand(name = "edit") {
 
     override fun run() {
         val t = Terminal()
-        FirestoreProvider.assertWritesAllowed("edit application")
+        RemoteDataSourceProvider.assertWritesAllowed("edit application")
 
-        val db = FirestoreProvider.firestore
+        val db = RemoteDataSourceProvider.remote
         val docRef = db.collection("applications").document(applicationId)
         val snap = docRef.get().get()
 

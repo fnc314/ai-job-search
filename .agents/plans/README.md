@@ -24,6 +24,9 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`165000_rm-010-separate-roadmapapp.md`](./2026-11-15/165000_rm-010-separate-roadmapapp.md) | Completed | Complete RM-010: extract RoadmapApp from frontend/apps/terminal to internal/apps/terminal/roadmap standalone application module |
+| [`162500_rm-012-eradicate-interface-naming-baseline.md`](./2026-11-15/162500_rm-012-eradicate-interface-naming-baseline.md) | Completed | Complete RM-012: eradicate all 51 baseline tool-naming violations across Kotlin and Python codebases, shrinking `docs/interface-naming-baseline.txt` to zero |
+| [`161500_rm-011-backend-multimodule-completion.md`](./2026-11-15/161500_rm-011-backend-multimodule-completion.md) | Completed | Complete RM-011 by relocating `BackendServiceTest.kt` to `:service`, purging obsolete `backend/src`, adding Gradle delegation tasks in `backend/build.gradle.kts`, and synchronizing `ROADMAP.md` |
 | [`165500_public-declarations-kdoc-konsist-enforcement-plan.md`](./2026-11-14/165500_public-declarations-kdoc-konsist-enforcement-plan.md) | Completed | Enforce KDocs on all public declarations across `backend`, `records`, `frontend`, and `gradle/tools` via Konsist architecture tests, and author missing KDocs |
 | [`061700_konsist-1-0-0-beta-1-migration-plan.md`](./2026-11-14/061700_konsist-1-0-0-beta-1-migration-plan.md) | Completed | Upgrade Konsist from 0.18.1 to 1.0.0-beta.1 across `records` and `frontend` test suites, review breaking changes, and verify architectural invariants |
 | [`150000_composio-triggers-email-pipeline-integration.md`](./2026-11-14/150000_composio-triggers-email-pipeline-integration.md) | Draft / Proposed | Real-time Composio email triggers (`GMAIL_EMAIL_SENT_TRIGGER`) and webhook ingestion on GCP Cloud Run within Free Tier limits, implemented in pure Kotlin & Ktor |

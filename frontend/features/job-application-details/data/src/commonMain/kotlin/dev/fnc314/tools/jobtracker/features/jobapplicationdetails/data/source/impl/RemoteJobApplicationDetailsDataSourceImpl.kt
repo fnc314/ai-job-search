@@ -64,7 +64,7 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     note: String?,
   ): JobApplication = withContext(Dispatchers.Default) {
     val fields = mutableMapOf<String, Any?>(
-      "status" to status.toFirestore(),
+      "status" to status.toRemote(),
     )
     if (date != null) fields["statusDate"] = date
     if (note != null) fields["statusNote"] = note
@@ -86,14 +86,14 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
   override suspend fun recordEvent(event: TrackerEvent): String = withContext(Dispatchers.Default) {
     val fields = mutableMapOf<String, Any?>(
       "applicationId" to event.applicationId,
-      "type" to event.type.toFirestore(),
-      "actor" to event.actor.toFirestore(),
-      "derivedFrom" to event.derivedFrom.toFirestore(),
-      "confidence" to event.confidence.toFirestore(),
+      "type" to event.type.toRemote(),
+      "actor" to event.actor.toRemote(),
+      "derivedFrom" to event.derivedFrom.toRemote(),
+      "confidence" to event.confidence.toRemote(),
       "createdAt" to event.createdAt.toString(),
     )
-    event.statusFrom?.let { fields["statusFrom"] = it.toFirestore() }
-    event.statusTo?.let { fields["statusTo"] = it.toFirestore() }
+    event.statusFrom?.let { fields["statusFrom"] = it.toRemote() }
+    event.statusTo?.let { fields["statusTo"] = it.toRemote() }
     event.note?.let { fields["note"] = it }
     event.emailMessageId?.let { fields["emailMessageId"] = it }
     event.scheduledAt?.let { fields["scheduledAt"] = it.toString() }
@@ -125,8 +125,8 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
       role = record.nonBlankString("role")
         ?: record.nonBlankString("title"),
       location = record.nonBlankString("location"),
-      status = TrackerStatus.fromFirestore(record.getString("status")),
-      channel = ApplicationChannel.fromFirestore(record.getString("channel")),
+      status = TrackerStatus.fromRemote(record.getString("status")),
+      channel = ApplicationChannel.fromRemote(record.getString("channel")),
       jobId = record.getString("jobId"),
       jobUrl = record.getString("jobUrl"),
       description = record.getString("description"),
@@ -262,14 +262,14 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     return Factory.createTrackerEvent(
       id = record.id,
       applicationId = record.getString("applicationId") ?: "",
-      type = TrackerEventType.fromFirestore(record.getString("type")),
-      statusFrom = record.getString("statusFrom")?.let { TrackerStatus.fromFirestore(it) },
-      statusTo = record.getString("statusTo")?.let { TrackerStatus.fromFirestore(it) },
+      type = TrackerEventType.fromRemote(record.getString("type")),
+      statusFrom = record.getString("statusFrom")?.let { TrackerStatus.fromRemote(it) },
+      statusTo = record.getString("statusTo")?.let { TrackerStatus.fromRemote(it) },
       note = record.getString("note"),
       emailMessageId = record.getString("emailMessageId"),
-      actor = EventActor.fromFirestore(record.getString("actor")),
-      derivedFrom = DerivedFrom.fromFirestore(record.getString("derivedFrom")),
-      confidence = Confidence.fromFirestore(record.getString("confidence")),
+      actor = EventActor.fromRemote(record.getString("actor")),
+      derivedFrom = DerivedFrom.fromRemote(record.getString("derivedFrom")),
+      confidence = Confidence.fromRemote(record.getString("confidence")),
       createdAt = createdAt,
       scheduledAt = scheduledAt,
     )
@@ -295,7 +295,7 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     return ArtifactFactory.createTrackerArtifact(
       id = record.getString("artifactId") ?: record.id,
       applicationId = record.getString("applicationId") ?: fallbackApplicationId,
-      kind = TrackerArtifactKind.fromFirestore(record.getString("kind")),
+      kind = TrackerArtifactKind.fromRemote(record.getString("kind")),
       filename = record.getString("filename") ?: record.id,
       contentType = record.getString("contentType"),
       size = record.getLong("size"),

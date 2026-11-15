@@ -11,8 +11,8 @@ public sealed interface Trigger : WireContract {
     /** Returns the display name. */
     public fun displayName(): String = displayName
 
-    /** Returns the canonical Firestore document string representation. */
-    public fun toFirestore(): String = wireKey
+    /** Returns the canonical remote document string representation. */
+    public fun toRemote(): String = wireKey
 
     /** Closed vocabulary of known trigger sources. */
     public enum class Known(
@@ -78,6 +78,6 @@ public sealed interface Trigger : WireContract {
         }
 
         /** Parses a wire representation into [Trigger]. */
-        public fun fromFirestore(raw: String?): Trigger = fromWireKey(raw)
+        public fun fromRemote(raw: String?): Trigger = fromWireKey(raw)
     }
 }

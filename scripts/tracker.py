@@ -300,7 +300,7 @@ def commandList(args) -> int:
     query = query.order_by("date", direction="DESCENDING")
     if args.limit:
         query = query.limit(args.limit)
-    documents = [contract.fromFirestore(doc.to_dict()) for doc in query.stream()]
+    documents = [contract.from_remote(doc.to_dict()) for doc in query.stream()]
     if args.json:
         emit({"count": len(documents), "documents": documents})
     else:
@@ -362,17 +362,17 @@ def commandGet(args) -> int:
         emit({"found": False, "id": args.id})
         return EXIT_ERROR
     events = [
-        contract.fromFirestore(doc.to_dict())
+        contract.from_remote(doc.to_dict())
         for doc in reference.collection(client.EVENTS).order_by("ts").stream()
     ]
     artifactDocuments = [
-        contract.fromFirestore(doc.to_dict())
+        contract.from_remote(doc.to_dict())
         for doc in reference.collection(client.ARTIFACTS).stream()
     ]
     emit(
         {
             "found": True,
-            "application": contract.fromFirestore(snapshot.to_dict()),
+            "application": contract.from_remote(snapshot.to_dict()),
             "events": events,
             "artifacts": artifactDocuments,
         }
@@ -707,16 +707,16 @@ def writeApplication(db, document: dict, eventsToWrite: list[dict], artifactsToW
     """
     batch = db.batch()
     reference = db.collection(client.APPLICATIONS).document(document["id"])
-    batch.set(reference, contract.toFirestore(document))
+    batch.set(reference, contract.to_remote(document))
     for event in eventsToWrite:
         batch.set(
             reference.collection(client.EVENTS).document(event["eventId"]),
-            contract.toFirestore(event),
+            contract.to_remote(event),
         )
     for artifact in artifactsToWrite:
         batch.set(
             reference.collection(client.ARTIFACTS).document(artifact["artifactId"]),
-            contract.toFirestore(artifact),
+            contract.to_remote(artifact),
         )
     batch.commit()
 
@@ -752,7 +752,7 @@ def ensure_company(db, document: dict) -> None:
     company_doc = {k: v for k, v in company_doc.items() if v is not None}
 
     ref = db.collection(client.COMPANIES).document(company_id)
-    ref.set(contract.toFirestore(company_doc), merge=True)
+    ref.set(contract.to_remote(company_doc), merge=True)
 
 
 def commandLead(args) -> int:
@@ -1248,7 +1248,7 @@ def commandUpsert(args) -> int:
     snapshot = db.collection(client.APPLICATIONS).document(requestedId).get()
     if snapshot.exists:
         document, pendingEvents = mergeApplication(
-            contract.fromFirestore(snapshot.to_dict()), payload, now=now
+            contract.from_remote(snapshot.to_dict()), payload, now=now
         )
         created = False
     else:
@@ -1330,7 +1330,7 @@ def findApplication(db, identifier: str) -> tuple[dict, any] | tuple[None, None]
     ref = db.collection(client.APPLICATIONS).document(identifier)
     snap = ref.get()
     if snap.exists:
-        return contract.fromFirestore(snap.to_dict()), ref
+        return contract.from_remote(snap.to_dict()), ref
 
     # Try query by uuid field
     results = list(
@@ -1340,7 +1340,7 @@ def findApplication(db, identifier: str) -> tuple[dict, any] | tuple[None, None]
         .stream()
     )
     if results:
-        return contract.fromFirestore(results[0].to_dict()), results[0].reference
+        return contract.from_remote(results[0].to_dict()), results[0].reference
 
     # Try query by internal id field (handles case where Firestore doc key is misaligned)
     results = list(
@@ -1350,7 +1350,7 @@ def findApplication(db, identifier: str) -> tuple[dict, any] | tuple[None, None]
         .stream()
     )
     if results:
-        return contract.fromFirestore(results[0].to_dict()), results[0].reference
+        return contract.from_remote(results[0].to_dict()), results[0].reference
 
     return None, None
 
@@ -1360,7 +1360,7 @@ def _select_application_inline(db) -> str | None:
     sys.stderr.write("\nFetching applications...\n")
     apps = []
     for doc in db.collection(client.APPLICATIONS).stream():
-        data = contract.fromFirestore(doc.to_dict())
+        data = contract.from_remote(doc.to_dict())
         apps.append(data)
 
     if not apps:
@@ -1763,7 +1763,7 @@ def commandStatus(args) -> int:
     if not snapshot.exists:
         raise contract.ContractError(f"no such application: {args.id}")
 
-    application = contract.fromFirestore(snapshot.to_dict())
+    application = contract.from_remote(snapshot.to_dict())
     current = contract.normalizeStatus(application["status"])
     target = contract.normalizeStatus(args.status)
     if target == current and not args.correction:
@@ -1797,10 +1797,10 @@ def commandStatus(args) -> int:
     projected["schemaVersion"] = contract.schemaVersion()
 
     batch = db.batch()
-    batch.set(reference, contract.toFirestore(projected), merge=True)
+    batch.set(reference, contract.to_remote(projected), merge=True)
     batch.set(
         reference.collection(client.EVENTS).document(event["eventId"]),
-        contract.toFirestore(event),
+        contract.to_remote(event),
     )
     batch.commit()
     hours = tasks.TERMINAL_HOURS if not projected["isOpen"] else tasks.DEFAULT_HOURS
@@ -1826,7 +1826,7 @@ def commandEvent(args) -> int:
     snapshot = reference.get()
     if not snapshot.exists:
         raise contract.ContractError(f"no such application: {args.id}")
-    application = contract.fromFirestore(snapshot.to_dict())
+    application = contract.from_remote(snapshot.to_dict())
 
     event = eventsModule.buildEvent(
         args.type,
@@ -1852,10 +1852,10 @@ def commandEvent(args) -> int:
     projected["updatedAt"] = eventsModule.nowIso()
 
     batch = db.batch()
-    batch.set(reference, contract.toFirestore(projected), merge=True)
+    batch.set(reference, contract.to_remote(projected), merge=True)
     batch.set(
         reference.collection(client.EVENTS).document(event["eventId"]),
-        contract.toFirestore(event),
+        contract.to_remote(event),
     )
     batch.commit()
     emit(
@@ -1887,7 +1887,7 @@ def commandScore(args) -> int:
     snapshot = reference.get()
     if not snapshot.exists:
         raise contract.ContractError(f"no such application: {args.id}")
-    application = contract.fromFirestore(snapshot.to_dict())
+    application = contract.from_remote(snapshot.to_dict())
     previous = application.get("fitRating")
 
     event = eventsModule.buildEvent(
@@ -1917,10 +1917,10 @@ def commandScore(args) -> int:
     projected["updatedAt"] = eventsModule.nowIso()
 
     batch = db.batch()
-    batch.set(reference, contract.toFirestore(projected), merge=True)
+    batch.set(reference, contract.to_remote(projected), merge=True)
     batch.set(
         reference.collection(client.EVENTS).document(event["eventId"]),
-        contract.toFirestore(event),
+        contract.to_remote(event),
     )
     batch.commit()
     emit(
@@ -1965,7 +1965,7 @@ def requireApplication(db, applicationId: str) -> dict:
     snapshot = db.collection(client.APPLICATIONS).document(applicationId).get()
     if not snapshot.exists:
         raise contract.ContractError(f"no such application: {applicationId}")
-    return contract.fromFirestore(snapshot.to_dict())
+    return contract.from_remote(snapshot.to_dict())
 
 
 def commandArtifact(args) -> int:
@@ -2033,12 +2033,12 @@ def commandArtifact(args) -> int:
     batch = db.batch()
     batch.set(
         reference.collection(client.ARTIFACTS).document(document["artifactId"]),
-        contract.toFirestore(document),
+        contract.to_remote(document),
     )
-    batch.set(reference, contract.toFirestore(projected), merge=True)
+    batch.set(reference, contract.to_remote(projected), merge=True)
     batch.set(
         reference.collection(client.EVENTS).document(event["eventId"]),
-        contract.toFirestore(event),
+        contract.to_remote(event),
     )
     batch.commit()
     emit(
@@ -2379,17 +2379,17 @@ def commandImport(args) -> int:
     operations = 0
     for document, pendingEvents, artifacts in resolved:
         reference = db.collection(client.APPLICATIONS).document(document["id"])
-        batch.set(reference, contract.toFirestore(document))
+        batch.set(reference, contract.to_remote(document))
         for event in pendingEvents:
             batch.set(
                 reference.collection(client.EVENTS).document(event["eventId"]),
-                contract.toFirestore(event),
+                contract.to_remote(event),
             )
             operations += 1
         for artifact in artifacts:
             batch.set(
                 reference.collection(client.ARTIFACTS).document(artifact["artifactId"]),
-                contract.toFirestore(artifact),
+                contract.to_remote(artifact),
             )
             operations += 1
         operations += 1
@@ -2635,7 +2635,7 @@ def collectOnce(db, *, inboxPath: str | None, trigger: str, dryRun: bool) -> dic
     )
     messages = [message for message in messages if str(message.get("messageId")) not in processed]
     applications = {
-        snapshot.id: contract.fromFirestore(snapshot.to_dict())
+        snapshot.id: contract.from_remote(snapshot.to_dict())
         for snapshot in db.collection(client.APPLICATIONS).stream()
     }
     if not messages:
@@ -3046,7 +3046,7 @@ def commandLogoFetch(args) -> int:
                     if info.get(k):
                         update_payload[k] = info[k]
                 db.collection(client.COMPANIES).document(cid).set(
-                    contract.toFirestore(update_payload), merge=True
+                    contract.to_remote(update_payload), merge=True
                 )
                 updated_count += 1
         else:
@@ -3060,7 +3060,7 @@ def commandLogoFetch(args) -> int:
                 if website:
                     basic_payload["website"] = website
                 db.collection(client.COMPANIES).document(cid).set(
-                    contract.toFirestore(basic_payload), merge=True
+                    contract.to_remote(basic_payload), merge=True
                 )
 
     emit({

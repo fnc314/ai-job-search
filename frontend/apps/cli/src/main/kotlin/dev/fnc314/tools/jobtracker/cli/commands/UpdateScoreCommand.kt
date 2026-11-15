@@ -7,7 +7,7 @@ import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
-import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 
 internal class UpdateScoreCommand : CliktCommand(name = "score") {
     private val applicationId: String by argument("id", help = "Application slug ID")
@@ -15,14 +15,14 @@ internal class UpdateScoreCommand : CliktCommand(name = "score") {
 
     override fun run() {
         val t = Terminal()
-        FirestoreProvider.assertWritesAllowed("score recalculation")
+        RemoteDataSourceProvider.assertWritesAllowed("score recalculation")
 
         if (score !in 0..100) {
             t.println(red("Score must be between 0 and 100 inclusive. Received: $score"))
             return
         }
 
-        val db = FirestoreProvider.firestore
+        val db = RemoteDataSourceProvider.remote
         val docRef = db.collection("applications").document(applicationId)
         val snap = docRef.get().get()
 

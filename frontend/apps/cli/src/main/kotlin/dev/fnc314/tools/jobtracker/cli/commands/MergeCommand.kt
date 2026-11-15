@@ -10,7 +10,7 @@ import com.github.ajalt.mordant.rendering.TextColors.yellow
 import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
 import com.google.cloud.firestore.FieldValue
-import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 
 internal class MergeCommand : CliktCommand(name = "merge") {
     private val canonicalId: String by argument("canonical", help = "Canonical application slug ID (the record to keep)")
@@ -21,10 +21,10 @@ internal class MergeCommand : CliktCommand(name = "merge") {
     override fun run() {
         val t = Terminal()
         if (!dryRun) {
-            FirestoreProvider.assertWritesAllowed("merge applications")
+            RemoteDataSourceProvider.assertWritesAllowed("merge applications")
         }
 
-        val db = FirestoreProvider.firestore
+        val db = RemoteDataSourceProvider.remote
         val appsCollection = db.collection("applications")
         val emailsCollection = db.collection("emails")
 

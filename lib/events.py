@@ -298,7 +298,7 @@ def appendEvent(db, applicationId: str, event: dict) -> dict:
         .collection(client.EVENTS)
         .document(validated["eventId"])
     )
-    reference.set(contract.toFirestore(validated))
+    reference.set(contract.to_remote(validated))
     return validated
 
 
@@ -309,7 +309,7 @@ def readEvents(db, applicationId: str) -> list[dict]:
         .document(applicationId)
         .collection(client.EVENTS)
     )
-    raw_events = [contract.fromFirestore(doc.to_dict()) for doc in collection.stream()]
+    raw_events = [contract.from_remote(doc.to_dict()) for doc in collection.stream()]
     return chronologically(raw_events)
 
 

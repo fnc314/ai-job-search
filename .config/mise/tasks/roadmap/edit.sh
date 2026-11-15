@@ -7,14 +7,14 @@
 
 set -euo pipefail
 
-TUI_BIN="${MISE_PROJECT_ROOT}/frontend/apps/terminal/build/install/apps-terminal/bin/apps-terminal"
+TUI_BIN="${MISE_PROJECT_ROOT}/internal/apps/terminal/roadmap/build/install/apps-terminal-roadmap/bin/apps-terminal-roadmap"
 
 if [ ! -f "${TUI_BIN}" ]; then
-  "${MISE_PROJECT_ROOT}/gradlew" :frontend:apps-terminal:installDist
+  "${MISE_PROJECT_ROOT}/gradlew" :internal:apps-terminal-roadmap:installDist
 fi
 
 ARGS=()
 [ -n "${usage_subcommand:-}" ] && ARGS+=("$usage_subcommand")
 [ -n "${usage_item_id:-}" ] && ARGS+=("$usage_item_id")
-export APPS_TERMINAL_OPTS="--enable-native-access=ALL-UNNAMED"
-exec "${TUI_BIN}" --roadmap "${ARGS[@]}"
+export APPS_TERMINAL_ROADMAP_OPTS="--enable-native-access=ALL-UNNAMED"
+exec "${TUI_BIN}" "${ARGS[@]}"

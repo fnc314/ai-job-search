@@ -26,7 +26,7 @@ public expect fun attachInspector(database: AppDatabase)
  *
  * @return The operational [AppDatabase] instance, or null if initialization fails.
  */
-public fun createRoomDatabase(): AppDatabase? {
+public fun createLocalDatabase(): AppDatabase? {
   return runCatching {
     getDatabaseBuilder()?.build()?.also { attachInspector(it) }
   }.getOrNull()

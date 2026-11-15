@@ -7,7 +7,7 @@ import com.github.ajalt.mordant.rendering.TextColors.green
 import com.github.ajalt.mordant.rendering.TextColors.yellow
 import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
-import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import java.util.regex.Pattern
 
 /**
@@ -51,10 +51,10 @@ internal class ReclassifyCommand : CliktCommand(name = "reclassify") {
     override fun run() {
         val t = Terminal()
         if (!dryRun) {
-            FirestoreProvider.assertWritesAllowed("reclassify emails")
+            RemoteDataSourceProvider.assertWritesAllowed("reclassify emails")
         }
 
-        val db = FirestoreProvider.firestore
+        val db = RemoteDataSourceProvider.remote
         val emailsCollection = db.collection("emails")
         val appsCollection = db.collection("applications")
 

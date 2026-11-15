@@ -83,8 +83,8 @@ core/data/src/
 
 ### Self-Contained Open Enums (`WireContract`)
 All domain enums implement `WireContract` as sealed interface hierarchies (`Known` enum + `Unrecognized(wireKey)` carrier for lossless forward-compatible wire parsing) with O(1) lookup maps built via `Iterable<E>.toWireLookupMap()`:
-- `TrackerStatus`: Contains `.displayName()`, `.toFirestore()`, `fromWireKey()` / `fromFirestore()`, `@Composable fun containerColor()`, `@Composable fun contentColor()`, `.isTerminal`, and `.isActive`.
-- `TrackerEventType`: Contains `.icon`, `.displayName()`, `.toFirestore()`, and `fromWireKey()` / `fromFirestore()`.
+- `TrackerStatus`: Contains `.displayName()`, `.toRemote()`, `fromWireKey()` / `fromRemote()`, `@Composable fun containerColor()`, `@Composable fun contentColor()`, `.isTerminal`, and `.isActive`.
+- `TrackerEventType`: Contains `.icon`, `.displayName()`, `.toRemote()`, and `fromWireKey()` / `fromRemote()`.
 - `ApplicationChannel`: Self-contained channel categorization and parsing (including outreach channels).
 - `WorkMode`, `Confidence`, `DerivedFrom`, `EventActor`, `TrackerArtifactKind`, `TrackerEditKind`, `TrackerEditState`, `Trigger`: Audit, provenance, and workflow sealed hierarchies.
 - `SyncKind`, `SyncState`, `Region`, `Tag`, `CompPeriod`, `CompVsTarget`: Synchronization, geographic region, controlled vocabulary tag, and compensation sub-enum sealed hierarchies.

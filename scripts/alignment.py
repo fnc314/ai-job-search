@@ -298,7 +298,7 @@ def align_application(
         snap = ref.get()
         if not snap.exists:
             raise contract.ContractError(f"Application does not exist at reference: {ref.id}")
-        existing = contract.fromFirestore(snap.to_dict())
+        existing = contract.from_remote(snap.to_dict())
     else:
         from tracker import findApplication
         existing, ref = findApplication(db, str(identifier_or_ref))
@@ -324,7 +324,7 @@ def align_application(
     if ref is not None:
         try:
             for subdoc in ref.collection(client.EVENTS).stream():
-                existing_events.append(contract.fromFirestore(subdoc.to_dict()))
+                existing_events.append(contract.from_remote(subdoc.to_dict()))
         except Exception as e:
             sys.stderr.write(f"Warning: could not read existing events: {e}\n")
 
@@ -417,16 +417,16 @@ def align_application(
 
         # Write new document and copy all subcollections
         batch = db.batch()
-        batch.set(target_ref, contract.toFirestore(doc))
+        batch.set(target_ref, contract.to_remote(doc))
 
         for coll_name, subdocs in subcollections_data.items():
             for subdoc_id, subdoc_data in subdocs:
                 batch.set(target_ref.collection(coll_name).document(subdoc_id), subdoc_data)
 
         if fit_event:
-            batch.set(target_ref.collection(client.EVENTS).document(fit_event["eventId"]), contract.toFirestore(fit_event))
+            batch.set(target_ref.collection(client.EVENTS).document(fit_event["eventId"]), contract.to_remote(fit_event))
         if audit_event:
-            batch.set(target_ref.collection(client.EVENTS).document(audit_event["eventId"]), contract.toFirestore(audit_event))
+            batch.set(target_ref.collection(client.EVENTS).document(audit_event["eventId"]), contract.to_remote(audit_event))
 
         batch.commit()
 
@@ -442,11 +442,11 @@ def align_application(
     else:
         # Key was already canonical; update document and append new events
         batch = db.batch()
-        batch.set(target_ref, contract.toFirestore(doc), merge=True)
+        batch.set(target_ref, contract.to_remote(doc), merge=True)
         if fit_event:
-            batch.set(target_ref.collection(client.EVENTS).document(fit_event["eventId"]), contract.toFirestore(fit_event))
+            batch.set(target_ref.collection(client.EVENTS).document(fit_event["eventId"]), contract.to_remote(fit_event))
         if audit_event:
-            batch.set(target_ref.collection(client.EVENTS).document(audit_event["eventId"]), contract.toFirestore(audit_event))
+            batch.set(target_ref.collection(client.EVENTS).document(audit_event["eventId"]), contract.to_remote(audit_event))
         batch.commit()
 
     # Refresh read cache
@@ -470,7 +470,7 @@ def align_all_applications(db, dry_run: bool = False) -> list[dict]:
     """Scan all applications in Firestore and align misaligned keys/fields."""
     results = []
     for snapshot in db.collection(client.APPLICATIONS).stream():
-        data = contract.fromFirestore(snapshot.to_dict())
+        data = contract.from_remote(snapshot.to_dict())
         company = data.get("company")
         if not company:
             continue

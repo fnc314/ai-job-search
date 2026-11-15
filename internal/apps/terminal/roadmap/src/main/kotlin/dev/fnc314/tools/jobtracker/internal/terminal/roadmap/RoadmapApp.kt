@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.terminal.roadmap
+package dev.fnc314.tools.jobtracker.internal.terminal.roadmap
 
 import com.github.ajalt.mordant.rendering.TextColors.brightBlue
 import com.github.ajalt.mordant.rendering.TextColors.cyan

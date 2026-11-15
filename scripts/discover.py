@@ -42,7 +42,7 @@ def discover(db, *, since: str | None = None, dryRun: bool = False) -> dict:
 
     # Get all tracked company IDs
     apps = {
-        snap.id: contract.fromFirestore(snap.to_dict())
+        snap.id: contract.from_remote(snap.to_dict())
         for snap in db.collection(client.APPLICATIONS).stream()
     }
     tracked_company_ids = {
@@ -65,7 +65,7 @@ def discover(db, *, since: str | None = None, dryRun: bool = False) -> dict:
     company_groups = {}
 
     for doc in emails_docs:
-        data = contract.fromFirestore(doc.to_dict())
+        data = contract.from_remote(doc.to_dict())
         status = data.get("status", "UNCLASSIFIED")
 
         # Skip only if truly noise — re-classify by checking for job signals
@@ -184,7 +184,7 @@ def discover(db, *, since: str | None = None, dryRun: bool = False) -> dict:
 
     # Stage proposal
     db.collection(client.PENDING_PROPOSALS).document(proposal["proposalId"]).set(
-        contract.toFirestore(proposal)
+        contract.to_remote(proposal)
     )
 
     return {

@@ -428,7 +428,7 @@ def validate(name: str, document: dict) -> dict:
 # --------------------------------------------------------------------------
 
 
-def toFirestore(document: dict):
+def to_remote(document: dict):
     """Convert ISO date strings into Firestore Timestamps, recursively.
 
     The contract validates the JSON boundary (ISO strings) because that is what
@@ -460,14 +460,14 @@ def toFirestore(document: dict):
     return convert(document)
 
 
-def fromFirestore(value):
+def from_remote(value):
     """Convert Firestore Timestamps back into ISO strings for the JSON boundary."""
     from datetime import datetime
 
     if isinstance(value, dict):
-        return {key: fromFirestore(child) for key, child in value.items()}
+        return {key: from_remote(child) for key, child in value.items()}
     if isinstance(value, list):
-        return [fromFirestore(child) for child in value]
+        return [from_remote(child) for child in value]
     if isinstance(value, datetime):
         return value.isoformat()
     return value

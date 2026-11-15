@@ -14,7 +14,9 @@ def main():
     root = Path(__file__).resolve()
     while root != root.parent and not (root / "mise.toml").exists():
         root = root.parent
-    purge_script = root / "scripts" / "purge_gcs_legacy.py"
+    purge_script = root / "scripts" / "blob_purge_legacy.py"
+    if not purge_script.exists():
+        purge_script = root / "scripts" / "purge_gcs_legacy.py"
     import runpy
     sys.argv[0] = str(purge_script)
     runpy.run_path(str(purge_script), run_name="__main__")

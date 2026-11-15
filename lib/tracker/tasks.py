@@ -70,7 +70,7 @@ def pending(db, kind: str = DEFAULT_KIND) -> list[dict]:
         filter=FieldFilter("state", "==", "sync:pending")
     )
     return [
-        contract.fromFirestore(snapshot.to_dict())
+        contract.from_remote(snapshot.to_dict())
         for snapshot in query.stream()
         if snapshot.to_dict().get("kind", kind) == kind
     ]
@@ -97,7 +97,7 @@ def enqueue(
     if reusable is None:
         if not dryRun:
             db.collection(client.SYNC_REQUESTS).document(candidate["requestId"]).set(
-                contract.toFirestore(candidate)
+                contract.to_remote(candidate)
             )
         return {
             "requestId": candidate["requestId"],
@@ -110,7 +110,7 @@ def enqueue(
     dueAt = min(reusable["dueAt"], candidate["dueAt"])
     if not dryRun:
         db.collection(client.SYNC_REQUESTS).document(reusable["requestId"]).update(
-            contract.toFirestore({"applicationIds": merged, "dueAt": dueAt})
+            contract.to_remote({"applicationIds": merged, "dueAt": dueAt})
         )
     return {
         "requestId": reusable["requestId"],
@@ -131,7 +131,7 @@ def due(db, now: dt.datetime | None = None) -> list[dict]:
         .where(filter=FieldFilter("dueAt", "<=", moment))
         .order_by("dueAt")
     )
-    return [contract.fromFirestore(snapshot.to_dict()) for snapshot in query.stream()]
+    return [contract.from_remote(snapshot.to_dict()) for snapshot in query.stream()]
 
 
 def claim(db, requestId: str) -> dict | None:
@@ -151,8 +151,8 @@ def claim(db, requestId: str) -> dict | None:
             return None
         document["state"] = "sync:claimed"
         document["attempts"] = int(document.get("attempts") or 0) + 1
-        transaction.update(reference, contract.toFirestore(document))
-        return contract.fromFirestore(document)
+        transaction.update(reference, contract.to_remote(document))
+        return contract.from_remote(document)
 
     return _claim(transaction)
 
@@ -165,7 +165,7 @@ def fail(db, requestId: str, error: str, *, maxAttempts: int = 3) -> dict:
     """Record a failure. Retries twice, then stops rather than looping forever."""
     reference = db.collection(client.SYNC_REQUESTS).document(requestId)
     snapshot = reference.get()
-    document = contract.fromFirestore(snapshot.to_dict()) if snapshot.exists else {}
+    document = contract.from_remote(snapshot.to_dict()) if snapshot.exists else {}
     attempts = int(document.get("attempts") or 0)
     if attempts >= maxAttempts:
         reference.update({"state": "sync:failed", "lastError": error[:1000]})

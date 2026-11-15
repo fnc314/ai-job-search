@@ -103,7 +103,7 @@ def _with_spinner(label: str, func, *args, **kwargs):
         sys.stderr.flush()
 
 
-def composioBin() -> str:
+def emailClientBin() -> str:
     """Locate the Composio CLI."""
 
     explicit = os.environ.get("COMPOSIO_BIN")
@@ -133,7 +133,7 @@ def runTool(
     """
 
     command = [
-        composioBin(),
+        emailClientBin(),
         "execute",
         slug,
         "-d",

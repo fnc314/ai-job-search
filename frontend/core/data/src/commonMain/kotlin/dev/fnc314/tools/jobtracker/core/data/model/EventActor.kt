@@ -11,8 +11,8 @@ public sealed interface EventActor : WireContract {
     /** Returns the display name. */
     public fun displayName(): String = displayName
 
-    /** Returns the canonical Firestore document string representation. */
-    public fun toFirestore(): String = wireKey
+    /** Returns the canonical remote document string representation. */
+    public fun toRemote(): String = wireKey
 
     /**
      * Closed vocabulary of known system actors.
@@ -98,6 +98,6 @@ public sealed interface EventActor : WireContract {
         }
 
         /** Parses a wire representation into [EventActor]. */
-        public fun fromFirestore(raw: String?): EventActor = fromWireKey(raw)
+        public fun fromRemote(raw: String?): EventActor = fromWireKey(raw)
     }
 }

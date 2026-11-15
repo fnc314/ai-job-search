@@ -13,7 +13,7 @@ import org.gradle.api.Project
 /**
  * Convention plugin configuring Firebase dependencies, Google Play Services, and platform-specific BOMs.
  */
-public class FirebaseDependenciesConventionPlugin : BaseConventionPlugin, Plugin<Project> {
+public class RemoteDependenciesConventionPlugin : BaseConventionPlugin, Plugin<Project> {
     /**
      * Applies Firebase dependencies to the target Gradle [Project].
      *

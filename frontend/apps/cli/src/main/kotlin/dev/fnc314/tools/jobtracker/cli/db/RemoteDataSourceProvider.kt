@@ -5,8 +5,8 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.cloud.FirestoreClient
 import dev.fnc314.tools.jobtracker.core.data.platform.RemotePlatform
 
-internal object FirestoreProvider {
-    internal val firestore: Firestore by lazy {
+internal object RemoteDataSourceProvider {
+    internal val remote: Firestore by lazy {
         RemotePlatform.initialize()
         val app = FirebaseApp.getInstance()
         FirestoreClient.getFirestore(app)

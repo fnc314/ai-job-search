@@ -16,7 +16,7 @@ import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
 import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
-import dev.fnc314.tools.jobtracker.cli.db.FirestoreProvider
+import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import java.time.Instant
 
 internal class AlignCommand : CliktCommand(name = "align") {
@@ -28,12 +28,12 @@ internal class AlignCommand : CliktCommand(name = "align") {
         t.println(cyan("=== Aligning Job Application Records ==="))
 
         if (!dryRun) {
-            FirestoreProvider.assertWritesAllowed("application alignment")
+            RemoteDataSourceProvider.assertWritesAllowed("application alignment")
         } else {
             t.println(yellow("[DRY RUN MODE] Changes will not be persisted to Firestore."))
         }
 
-        val db = FirestoreProvider.firestore
+        val db = RemoteDataSourceProvider.remote
         val appsToProcess = if (!applicationId.isNullOrBlank()) {
             val doc = db.collection("applications").document(applicationId!!).get().get()
             if (!doc.exists()) {

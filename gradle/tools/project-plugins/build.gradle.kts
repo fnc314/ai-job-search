@@ -101,7 +101,7 @@ gradlePlugin {
     create("dependencies-firebase") {
       id = libs.plugins.local.dependencies.firebase.map { it.pluginId }.get()
       description = "Configures Firebase dependencies"
-      implementationClass = "dev.fnc314.tools.jobtracker.gradle.plugins.config.FirebaseDependenciesConventionPlugin"
+      implementationClass = "dev.fnc314.tools.jobtracker.gradle.plugins.config.RemoteDependenciesConventionPlugin"
       displayName = "Firebase Dependencies Convention"
     }
     create("dependencies-serialization") {

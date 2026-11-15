@@ -23,17 +23,17 @@ public object TrackerParser {
    * @see TimestampConverter.fromFirestore
    */
   @JvmStatic
-  public fun fromFirestore(value: Any?): Any? = TimestampConverter.fromFirestore(value)
+  public fun fromRemote(value: Any?): Any? = TimestampConverter.fromRemote(value)
 
   /**
-   * Converts an ISO-8601 date/time string into a Firestore timestamp map representation.
+   * Converts an ISO-8601 date/time string into a remote timestamp map representation.
    *
    * @param value The ISO-8601 date string (e.g., `"2026-03-15T12:00:00Z"`).
-   * @return A map containing `"seconds"` and `"nanos"` keys compatible with Firestore, or null if parsing fails.
-   * @see TimestampConverter.toFirestore
+   * @return A map containing `"seconds"` and `"nanos"` keys compatible with remote store, or null if parsing fails.
+   * @see TimestampConverter.toRemote
    */
   @JvmStatic
-  public fun toFirestore(value: Any?): Any? = TimestampConverter.toFirestore(value)
+  public fun toRemote(value: Any?): Any? = TimestampConverter.toRemote(value)
 
   /**
    * Normalizes a legacy or human-readable status string into its canonical namespaced identifier.

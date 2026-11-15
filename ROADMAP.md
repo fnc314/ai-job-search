@@ -52,9 +52,9 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
 | RM-007   | Fix KMP Inspector                      | Fix Room and Ktor integrations       | PIVOTAL    | CRITICAL | 0 d    | DONE        |
 | RM-009   | Unify Top-Level Card Component         | Unify Card skeletal approach         | HIGH       | MEDIUM   | 0 d    | DONE        |
-| RM-011   | Break up /backend into proper Gradle Multi-Module | Rework backend into multi-module Gradle | MEDIUM     | MEDIUM   | 0 d    | IN_PROGRESS |
-| RM-012   | Eradicate Interface Naming Baseline Violations | Rename legacy tool-named symbols to interface roles | HIGH        | HIGH     | 0 d    | OPEN        |
-| RM-010   | Separate out RoadmapApp.kt             | Refactor RoadmapApp.kt location      | LOW        | LOW      | 0 d    | OPEN        |
+| RM-011   | Break up /backend into proper Gradle Multi-Module | Rework backend into multi-module Gradle | MEDIUM     | MEDIUM   | 0 d    | DONE        |
+| RM-012   | Eradicate Interface Naming Baseline Violations | Rename legacy tool-named symbols to interface roles | HIGH        | HIGH     | 0 d    | DONE        |
+| RM-010   | Separate out RoadmapApp.kt             | Refactor RoadmapApp.kt location      | LOW        | LOW      | 3 d    | DONE        |
 
 ---
 
@@ -351,21 +351,23 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Criticality:** PIVOTAL
 **Priority:** CRITICAL
 **Complexity:** 0 — Unknown
-**Status:** OPEN
-**Completion %:** 0
+**Status:** DONE
+**Completion %:** 100
 **Creation Date:** 2026-11-10
+**Completed Date:** 2026-11-10
 **Objective:** Fix the integration of KMP Inspector so Room and Ktor traffic is captured on all (supported) platforms
 
 **Dependencies:** None
 
 **Linked Plans:**
 
-- None
+- `frontend/.agents/plans/2026-11-10/231600_fix-kmp-inspector-rm007.md`
 
 **Changelog:**
 
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-10 | Completed         | Wired KmpInspector across Android, iOS, JVM with global switch and deferred Room 3 inspection (commit `f1cde525`) |
 | 2026-11-10 | Item created      | Initial entry                        |
 
 ---
@@ -408,6 +410,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Status:** DONE
 **Completion %:** 100
 **Creation Date:** 2026-11-11
+**Completed Date:** 2026-11-11
 **Objective:** Unify the base skeletal approach to the recycled `Card` treatment found in no less than 2 instances.
 
 ## Instances
@@ -459,9 +462,10 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Criticality:** HIGH
 **Priority:** HIGH
 **Complexity:** 3 — Moderate
-**Status:** OPEN
-**Completion %:** 0
+**Status:** DONE
+**Completion %:** 100
 **Creation Date:** 2026-11-14
+**Completed Date:** 2026-11-15
 **Objective:** Eradicate all known public-surface tool-naming violations recorded in `docs/interface-naming-baseline.txt` by renaming them to role/capability-based terminology (`Remote`, `Local`, `Network`, `Blob`, `Email`) per `docs/interface-naming-exceptions.md` and the `AGENTS.md` rules, shrinking the baseline to zero.
 
 **Scope:**
@@ -484,13 +488,13 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 **Acceptance Criteria:**
 
-- [ ] All `toFirestore()` / `fromFirestore()` Kotlin enum methods are migrated to `toRemote()` / `fromRemote()`.
-- [ ] `JPypeBridge` is refactored to `PythonBridge` with `toRemote()` / `fromRemote()`.
-- [ ] CLI/Terminal/Backend classes no longer expose tool names (`FirestoreProvider` -> `RemoteDataSourceProvider`, etc.).
-- [ ] `scripts/` deployable modules no longer contain tool-named filenames or public functions.
-- [ ] `docs/interface-naming-baseline.txt` contains zero entries (or only permanent external contract exceptions).
-- [ ] `mise run dev:guards` passes with the reduced/empty baseline.
-- [ ] `mise run dev:konsist` and `mise run frontend:detekt` pass with zero violations.
+- [x] All `toFirestore()` / `fromFirestore()` Kotlin enum methods are migrated to `toRemote()` / `fromRemote()`.
+- [x] `JPypeBridge` is refactored to `PythonBridge` with `toRemote()` / `fromRemote()`.
+- [x] CLI/Terminal/Backend classes no longer expose tool names (`FirestoreProvider` -> `RemoteDataSourceProvider`, etc.).
+- [x] `scripts/` deployable modules no longer contain tool-named filenames or public functions.
+- [x] `docs/interface-naming-baseline.txt` contains zero entries (or only permanent external contract exceptions).
+- [x] `mise run dev:guards` passes with the reduced/empty baseline.
+- [x] `mise run dev:konsist` and `mise run frontend:detekt` pass with zero violations.
 
 **Notes:**
 
@@ -501,11 +505,13 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Linked Plans:**
 
 - `.agents/plans/2026-11-14/022100_interface-first-naming-policy.md`
+- `.agents/plans/2026-11-15/162500_rm-012-eradicate-interface-naming-baseline.md`
 
 **Changelog:**
 
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-15 | Completed         | Eradicated all 51 baseline entries across Kotlin and Python codebases: migrated 11 Kotlin enums to `toRemote()`/`fromRemote()`, renamed `createRoomDatabase` to `createLocalDatabase`, `FirestoreProvider` to `RemoteDataSourceProvider`, `BackendService.firestore` to `remoteDatabase`, `ComposioWebhookRoute` to `EmailWebhookRoute`, `FirebaseDependenciesConventionPlugin` to `RemoteDependenciesConventionPlugin`, `JPypeBridge` to `PythonBridge`, and renamed Python scripts/functions (`email_fetch`, `blob_*`, `remote_*`). Shrunk `docs/interface-naming-baseline.txt` to zero violations. |
 | 2026-11-14 | Item created      | Initial entry                        |
 
 ---
@@ -515,22 +521,24 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Short Desc:** Address Separate out RoadmapApp.kt to address LOW concern
 **Criticality:** LOW
 **Priority:** LOW
-**Complexity:** 0 — Unknown
-**Status:** OPEN
-**Completion %:** 0
+**Complexity:** 2 — Minor
+**Status:** DONE
+**Completion %:** 100
 **Creation Date:** 2026-11-12
-**Objective:** Refactor the RoadmapApp.kt from frontend/apps/terminal into a frontend/apps/internal or otherwise-located location
+**Completed Date:** 2026-11-15
+**Objective:** Refactor the RoadmapApp.kt from frontend/apps/terminal into internal/apps/terminal/roadmap standalone application module
 
 **Dependencies:** None
 
 **Linked Plans:**
 
-- None
+- `.agents/plans/2026-11-15/165000_rm-010-separate-roadmapapp.md`
 
 **Changelog:**
 
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-15 | Completed         | Extracted RoadmapApp to `internal/apps/terminal/roadmap`, created `:apps-terminal-roadmap` module, updated `edit.sh`, and updated terminal delegation |
 | 2026-11-12 | Item created      | Initial entry                        |
 
 ---
@@ -541,9 +549,10 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Criticality:** MEDIUM
 **Priority:** MEDIUM
 **Complexity:** 4 — Complex
-**Status:** IN_PROGRESS
-**Completion %:** 80
+**Status:** DONE
+**Completion %:** 100
 **Creation Date:** 2026-11-12
+**Completed Date:** 2026-11-15
 **Objective:** Explicitly define and separate each piece of functionality within `/backend` to more accurately represent a proper multi-module architecture.  Distribution can be a single JAR still.
 
 **Dependencies:** None
@@ -551,11 +560,14 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Linked Plans:**
 
 - `.agents/plans/2026-11-12/185800_deterministic-fit-score-unification.md`
+- `.agents/plans/2026-11-12/192800_extract-deterministic-ai-flow-processes.md`
+- `.agents/plans/2026-11-15/161500_rm-011-backend-multimodule-completion.md`
 
 **Changelog:**
 
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-15 | Completed         | Finalized backend multi-module architecture: relocated orphaned `BackendServiceTest.kt` to `backend/service/src/test`, purged obsolete `backend/src`, added forwarding tasks (`jar`, `installDist`, `run`) to root `backend/build.gradle.kts`, and updated `backfill.sh` |
 | 2026-11-12 | Implementation    | Reworked `backend/` into multi-module Gradle: created `backend/job-post-ranking/` pure Kotlin library with unified RankScorer, moved existing code to `backend/service/`, added BackendServiceConventionPlugin, and added new `backend/settings.gradle.kts` |
 | 2026-11-12 | Item created      | Initial entry                        |
 

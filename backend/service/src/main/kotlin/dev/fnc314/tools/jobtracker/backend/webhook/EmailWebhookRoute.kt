@@ -21,7 +21,7 @@ import kotlinx.serialization.json.contentOrNull
  * or inbound push notifications) from Composio/PubSub and triggers
  * the corresponding logic in BackendService.
  */
-public fun Route.composioWebhookRoute(): Route =
+public fun Route.emailWebhookRoute(): Route =
     post("/webhook/composio") {
         try {
             val bodyText = call.receiveText()

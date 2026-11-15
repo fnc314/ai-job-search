@@ -191,7 +191,7 @@ def _fetch_companies(database, company_ids: set[str]) -> dict[str, dict]:
         refs = [database.collection(client.COMPANIES).document(cid) for cid in company_ids]
         for snapshot in database.get_all(refs):
             if snapshot.exists:
-                companies[snapshot.id] = contract.fromFirestore(snapshot.to_dict())
+                companies[snapshot.id] = contract.from_remote(snapshot.to_dict())
     except Exception:  # noqa: BLE001 - missing companies are not a read failure
         pass
     return companies
@@ -207,9 +207,9 @@ def rowsFromStore(db=None) -> tuple[list[dict], dict]:
     # Firestore's .stream() blocks on the first iteration until all documents
     # are returned. The FETCHING state covers this entire network round-trip.
     for snapshot in database.collection(client.APPLICATIONS).stream():
-        application = contract.fromFirestore(snapshot.to_dict())
+        application = contract.from_remote(snapshot.to_dict())
         artifacts = [
-            contract.fromFirestore(document.to_dict())
+            contract.from_remote(document.to_dict())
             for document in snapshot.reference.collection(client.ARTIFACTS).stream()
         ]
         row = rowFromStore(application, artifacts)
