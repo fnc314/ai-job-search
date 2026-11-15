@@ -44,8 +44,12 @@ jobs:
           mise install python
           mise install gradle
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Configure Android SDK and Environment
+        run: |
+          mkdir -p "${HOME}/.android"
+          touch "${HOME}/.android/analytics.settings"
+          echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> $GITHUB_ENV
+          echo "ANDROID_USER_HOME=${HOME}/.android" >> $GITHUB_ENV
 
       - name: Generate Dokka API Documentation
         run: mise run docs:generate
