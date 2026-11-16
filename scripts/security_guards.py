@@ -79,6 +79,7 @@ ALLOWED_IGNORE_NEGATIONS = {
     "!templates/cv/main_example.tex",
     "!templates/cover-letters/cover_example.tex",
     "!.env.example",
+    "!.env.ci",
     # Instruction pointers only. The rest of each runner directory stays local.
     "!.gemini/GEMINI.md",
     "!.qwen/QWEN.md",
