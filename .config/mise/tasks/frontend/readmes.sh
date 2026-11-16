@@ -7,15 +7,21 @@ set -euo pipefail
 FRONTEND_ROOT="${MISE_PROJECT_ROOT:-$(git rev-parse --show-toplevel)}/frontend"
 
 MODULES=(
+    "core/artifacts"
     "core/data"
     "core/design-system"
+    "core/logging"
     "core/network"
+    "core/navigation"
     "core/widgets"
-    "features/sign-in"
-    "features/job-applications-list"
-    "features/job-application-details"
-    "features/settings"
     "features/add-job-application"
+    "features/artifact-previewer"
+    "features/companies-list"
+    "features/company-details"
+    "features/job-application-details"
+    "features/job-applications-list"
+    "features/settings"
+    "features/sign-in"
     "features/tracker-edits"
 )
 

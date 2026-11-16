@@ -263,10 +263,12 @@ internal fun JobApplicationsListContent(
   }
 
   // Group applications into prioritized categories: 1=Interviewing, 2=In Draft, 3=Applied, 4=Rejected
-  val groupedApplications = remember(content.applications) {
+  val groupedApplications: Map<Int, List<JobApplicationItemUiModel>> = remember(content.applications) {
     content.applications
       .groupBy { it.status.sectionOrder }
-      .toSortedMap()
+      .entries
+      .sortedBy { it.key }
+      .associate { it.key to it.value }
   }
   val activeSections = remember(groupedApplications) {
     groupedApplications.keys.toList()

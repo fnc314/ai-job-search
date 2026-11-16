@@ -2,4 +2,4 @@
 #MISE description="Generate Dokka API documentation HTML for frontend"
 #MISE alias="frontend:dokka"
 set -eu
-./gradlew :frontend:dokkaGenerate
+exec "${MISE_PROJECT_ROOT}/gradlew" :frontend:apps-core:dokkaGenerateHtml "$@"

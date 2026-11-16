@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
   alias(libs.plugins.kotlinJvm)
   alias(libs.plugins.kotlinSerialization)
-  alias(libs.plugins.dokka)
+  alias(libs.plugins.local.dokka)
 }
 
 kotlin {

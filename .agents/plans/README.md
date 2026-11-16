@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`012200_dokka_multibuild_hierarchy_plan.md`](./2026-11-16/012200_dokka_multibuild_hierarchy_plan.md) | Completed | Multi-build Dokka 2.3.0 documentation overhaul: structure Dokka site around included Gradle builds (`settings.gradle.kts`), collapsible left-hand navigation, nested README frontpieces, and comprehensive KDocs |
 | [`234856_logo_design_and_cross_platform_rollout_plan.md`](./2026-11-15/234856_logo_design_and_cross_platform_rollout_plan.md) | Completed | Brand logo design specification, vector motif layers, Android Adaptive Icon (108dp/72dp safe zone), Compose interactive animations, favicon.ico generation, and iOS/Desktop asset rollout |
 | [`200427_naming_inconsistencies_and_alignment_plan.md`](./2026-11-15/200427_naming_inconsistencies_and_alignment_plan.md) | Completed | Repository naming, package namespace, brand, and build coordinate alignment across the monorepo for release v2.0.0 |
 | [`181134_public_documentation_pages_and_release_plan.md`](./2026-11-15/181134_public_documentation_pages_and_release_plan.md) | Completed | Public GitHub Pages documentation deployment at ai-job-tracker.fnc314.dev, version/1.0.0 git tag, automated mise release task, and 2.0.0 naming consistency audit |
