@@ -3,10 +3,13 @@ package dev.fnc314.aijobtracker.frontend.core.data.platform
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import java.io.File
 import java.io.FileOutputStream
+
+private const val TAG = "AIJT"
 
 public actual class PdfDocumentRenderer actual constructor(documentBytes: ByteArray) {
 
@@ -35,7 +38,7 @@ public actual class PdfDocumentRenderer actual constructor(documentBytes: ByteAr
             page.close()
             bitmap.asImageBitmap()
         } catch (e: Exception) {
-            println("Android PdfRenderer error: ${e.message}")
+            Log.e(TAG, "Android PdfRenderer error: ${e.message}", e)
             null
         }
     }
@@ -46,7 +49,7 @@ public actual class PdfDocumentRenderer actual constructor(documentBytes: ByteAr
             fileDescriptor.close()
             tempFile.delete()
         } catch (e: Exception) {
-            println("Error closing Android PdfRenderer: ${e.message}")
+            Log.e(TAG, "Error closing Android PdfRenderer: ${e.message}", e)
         }
     }
 }

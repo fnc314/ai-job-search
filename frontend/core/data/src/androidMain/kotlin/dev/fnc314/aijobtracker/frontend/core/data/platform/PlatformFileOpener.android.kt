@@ -2,8 +2,11 @@ package dev.fnc314.aijobtracker.frontend.core.data.platform
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import dev.fnc314.aijobtracker.frontend.core.data.ApplicationContextHolder
 import java.io.File
+
+private const val TAG = "AIJT"
 
 public actual class PlatformFileOpener public actual constructor() {
     public actual fun openUrl(url: String): Unit {
@@ -14,7 +17,7 @@ public actual class PlatformFileOpener public actual constructor() {
             }
             context.startActivity(intent)
         } catch (e: Exception) {
-            println("Failed to open URL on Android: ${e.message}")
+            Log.e(TAG, "Failed to open URL on Android: ${e.message}", e)
         }
     }
 
@@ -47,7 +50,7 @@ public actual class PlatformFileOpener public actual constructor() {
             }
             context.startActivity(intent)
         } catch (e: Exception) {
-            println("Failed to open file on Android: ${e.message}")
+            Log.e(TAG, "Failed to open file on Android: ${e.message}", e)
         }
     }
 }

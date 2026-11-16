@@ -18,7 +18,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.model.UserAccount
 import kotlinx.coroutines.tasks.await
 import androidx.credentials.Credential
 
-private const val TAG = "PlatformSignInHandler"
+private const val TAG = "AIJT"
 
 internal actual class PlatformSignInHandler(
     private val context: Context?,

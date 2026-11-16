@@ -14,6 +14,9 @@ import co.touchlab.kermit.Logger
  */
 public object AppLogger {
 
+    /** Default log tag across the application. */
+    public const val DEFAULT_TAG: String = "AIJT"
+
     /**
      * Initialize the global Kermit logger with the provided [writers].
      * Call this once at application startup.
@@ -23,32 +26,32 @@ public object AppLogger {
     }
 
     /** Log a verbose message. */
-    public fun v(tag: String = defaultTag(), msg: () -> String) {
+    public fun v(tag: String = DEFAULT_TAG, msg: () -> String) {
         Logger.v(tag = tag, message = msg)
     }
 
     /** Log a debug message. */
-    public fun d(tag: String = defaultTag(), msg: () -> String) {
+    public fun d(tag: String = DEFAULT_TAG, msg: () -> String) {
         Logger.d(tag = tag, message = msg)
     }
 
     /** Log an info message. */
-    public fun i(tag: String = defaultTag(), msg: () -> String) {
+    public fun i(tag: String = DEFAULT_TAG, msg: () -> String) {
         Logger.i(tag = tag, message = msg)
     }
 
     /** Log a warning message. */
-    public fun w(tag: String = defaultTag(), msg: () -> String) {
+    public fun w(tag: String = DEFAULT_TAG, msg: () -> String) {
         Logger.w(tag = tag, message = msg)
     }
 
     /** Log an error message. */
-    public fun e(tag: String = defaultTag(), msg: () -> String) {
+    public fun e(tag: String = DEFAULT_TAG, msg: () -> String) {
         Logger.e(tag = tag, message = msg)
     }
 
     /** Log an error message with a [throwable] cause. */
-    public fun e(tag: String = defaultTag(), throwable: Throwable, msg: () -> String) {
+    public fun e(tag: String = DEFAULT_TAG, throwable: Throwable, msg: () -> String) {
         Logger.e(throwable = throwable, tag = tag, message = msg)
     }
 
