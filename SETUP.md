@@ -96,10 +96,10 @@ gcloud storage buckets add-iam-policy-binding gs://YOUR_BUCKET \
   --role="roles/storage.objectAdmin"
 
 # Key on disk, outside the repo
-mkdir -p ~/.config/job-tracker
-gcloud iam service-accounts keys create ~/.config/job-tracker/sa.json \
+mkdir -p ~/.config/ai-job-tracker
+gcloud iam service-accounts keys create ~/.config/ai-job-tracker/sa.json \
   --iam-account=tracker@YOUR_PROJECT_ID.iam.gserviceaccount.com
-chmod 600 ~/.config/job-tracker/sa.json
+chmod 600 ~/.config/ai-job-tracker/sa.json
 ```
 
 Create the Firestore database in native mode once (its location is permanent):
@@ -108,7 +108,7 @@ Create the Firestore database in native mode once (its location is permanent):
 gcloud firestore databases create --project YOUR_PROJECT_ID --location=nam5 --type=firestore-native
 ```
 
-Finally copy `.env.example` to `.env.local` and fill it in `TRACKER_SA_KEY` (default `~/.config/job-tracker/sa.json`), `TRACKER_ALLOW_WRITES=1`, `GOOGLE_API_KEY`, and `TRACKER_SHEET_ID`. `.env.local` is gitignored and mode `600`; mise loads it automatically via `[env] _.file`.
+Finally copy `.env.example` to `.env.local` and fill it in `TRACKER_SA_KEY` (default `~/.config/ai-job-tracker/sa.json`), `TRACKER_ALLOW_WRITES=1`, `GOOGLE_API_KEY`, and `TRACKER_SHEET_ID`. `.env.local` is gitignored and mode `600`; mise loads it automatically via `[env] _.file`.
 
 > `firebase.json` and `.firebaserc` pin the maintenance project `job-search-fnc314-dev`. For your own fork, change `.firebaserc` to your project id before deploying rules or indexes.
 
@@ -520,7 +520,7 @@ Upstream keeps improving the methodology files your fork has personalized, so pl
 `mise run tracker` exits with a write-gate error unless `TRACKER_ALLOW_WRITES=1` is in the environment. `.env.local` supplies it; check that you are running from the repo root (where `mise.toml` applies) or export it for the command.
 
 ### Firestore permission denied / "Could not automatically determine credentials"
-The service-account key is missing or unreadable. Confirm `TRACKER_SA_KEY` points at an existing file (default `~/.config/job-tracker/sa.json`, mode `600`) and that the service account has `roles/datastore.user` on the project and `roles/storage.objectAdmin` on the artifact bucket.
+The service-account key is missing or unreadable. Confirm `TRACKER_SA_KEY` points at an existing file (default `~/.config/ai-job-tracker/sa.json`, mode `600`) and that the service account has `roles/datastore.user` on the project and `roles/storage.objectAdmin` on the artifact bucket.
 
 ### `firebase emulators` fails to start
 The Firestore emulator needs Java 11+. Check `java -version`; on macOS `brew install openjdk` and follow the `brew` caveats to put it on `PATH`.

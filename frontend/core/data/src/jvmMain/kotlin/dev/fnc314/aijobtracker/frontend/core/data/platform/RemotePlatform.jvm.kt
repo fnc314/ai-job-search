@@ -43,9 +43,13 @@ public object RemotePlatform {
         if (!saKeyEnv.isNullOrBlank() && File(saKeyEnv).exists()) {
             return FileInputStream(File(saKeyEnv)).use { GoogleCredentials.fromStream(it) }
         }
-        val canonicalSaFile = File(System.getProperty("user.home"), ".config/job-tracker/sa.json")
+        val canonicalSaFile = File(System.getProperty("user.home"), ".config/ai-job-tracker/sa.json")
         if (canonicalSaFile.exists()) {
             return FileInputStream(canonicalSaFile).use { GoogleCredentials.fromStream(it) }
+        }
+        val legacySaFile = File(System.getProperty("user.home"), ".config/job-tracker/sa.json")
+        if (legacySaFile.exists()) {
+            return FileInputStream(legacySaFile).use { GoogleCredentials.fromStream(it) }
         }
         val gAppCredsEnv = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")
         if (!gAppCredsEnv.isNullOrBlank() && File(gAppCredsEnv).exists()) {

@@ -16,8 +16,8 @@ elif [ "${usage_cloud:-false}" = "true" ]; then
   MODE="cloud"
 fi
 
-SERVICE_NAME="job-tracker-backend"
-IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT}/job-tracker-backend/backend:latest"
+SERVICE_NAME="${REMOTE_SERVICE_NAME:-dev-fnc314-ai-job-tracker-backend}"
+IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT}/${SERVICE_NAME}/backend:latest"
 
 echo "Building and deploying ${SERVICE_NAME} to ${REGION} in project ${PROJECT} (mode: ${MODE})..."
 

@@ -6,7 +6,8 @@ set -euo pipefail
 PROJECT="${REMOTE_GCP_PROJECT:-${TRACKER_PROJECT:-$(gcloud config get-value project 2>/dev/null || echo "job-search-fnc314-dev")}}"
 REGION="${REMOTE_GCP_REGION:-us-east1}"
 CRON="${REMOTE_SWEEP_CRON:-0 */6 * * *}"
-SERVICE_NAME="job-tracker-backend"
+SERVICE_NAME="${REMOTE_SERVICE_NAME:-dev-fnc314-ai-job-tracker-backend}"
+JOB_NAME="${REMOTE_JOB_NAME:-dev-fnc314-ai-job-tracker-routine-sweep}"
 
 SERVICE_URL=$(gcloud run services describe "${SERVICE_NAME}" --platform=managed --region="${REGION}" --project="${PROJECT}" --format="value(status.url)")
 
@@ -14,8 +15,6 @@ if [ -z "$SERVICE_URL" ]; then
   echo "Error: Could not determine Cloud Run service URL." >&2
   exit 1
 fi
-
-JOB_NAME="job-tracker-routine-sweep"
 
 echo "Configuring Cloud Scheduler job ${JOB_NAME} with CRON '${CRON}' -> ${SERVICE_URL}/tasks/sweep..."
 

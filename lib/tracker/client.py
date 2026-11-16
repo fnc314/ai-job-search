@@ -28,7 +28,8 @@ ARTIFACT_BUCKET = os.environ.get("TRACKER_BUCKET", "job-search-fnc314-dev-artifa
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCHEMA_PATH = REPO_ROOT / "tracker.schema.json"
 CACHE_PATH = REPO_ROOT / "generated" / "tracker-cache.json"
-CANONICAL_KEY = pathlib.Path.home() / ".config" / "job-tracker" / "sa.json"
+CANONICAL_KEY = pathlib.Path.home() / ".config" / "ai-job-tracker" / "sa.json"
+LEGACY_KEY = pathlib.Path.home() / ".config" / "job-tracker" / "sa.json"
 
 # Collection and subcollection names. Kebab-case, plural, per x-naming.
 APPLICATIONS = "applications"
@@ -63,6 +64,8 @@ def resolveCredentialsPath() -> pathlib.Path | None:
         return path
     if CANONICAL_KEY.exists():
         return CANONICAL_KEY
+    if LEGACY_KEY.exists():
+        return LEGACY_KEY
     return None
 
 

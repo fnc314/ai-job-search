@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`141800_gcloud_project_migration_plan.md`](./2026-11-16/141800_gcloud_project_migration_plan.md) | Completed | Complete GCP and Firebase project migration from `job-search-fnc314-dev` to `dev-fnc314-ai-job-tracker` (Firestore data, Cloud Storage artifacts, Cloud Run, Scheduler, and client credentials) |
 | [`135500_backend_security_credentials_and_apps_integration_plan.md`](./2026-11-16/135500_backend_security_credentials_and_apps_integration_plan.md) | Completed | Security layer for Cloud Run backend ingress, Firebase client credentials threat analysis & git protection, and @frontend/apps integration |
 | [`133000_script-migration-and-cloud-run-deployment-plan.md`](./2026-11-16/133000_script-migration-and-cloud-run-deployment-plan.md) | Completed | Migration of remaining Python scraping and compilation scripts to Kotlin, Docker containerization with TeX Live, and Google Cloud Run deployment |
 | [`054800_mobile-migration-and-on-device-intelligence-plan.md`](./2026-11-16/054800_mobile-migration-and-on-device-intelligence-plan.md) | Completed | Full mobile migration architecture: backend-assisted intelligence (@backend/service backbone), eradication of v* drift across @records proto and REST APIs, S22 Ultra baseline, and Phase 1 funnel execution |

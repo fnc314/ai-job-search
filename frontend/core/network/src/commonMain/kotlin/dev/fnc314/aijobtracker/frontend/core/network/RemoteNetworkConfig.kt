@@ -7,7 +7,7 @@ public object RemoteNetworkConfig {
     /**
      * Default base URL for the Cloud Run backend service.
      */
-    public const val DEFAULT_REMOTE_BACKEND_URL: String = "https://job-tracker-backend-399944190604.us-east1.run.app"
+    public const val DEFAULT_REMOTE_BACKEND_URL: String = "https://dev-fnc314-ai-job-tracker-backend-375389268913.us-east1.run.app"
 
     /**
      * Header key used for authenticating with the backend API.

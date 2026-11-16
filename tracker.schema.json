@@ -67,7 +67,7 @@
     ]
   },
   "x-firestore": {
-    "project": "job-search-fnc314-dev",
+    "project": "dev-fnc314-ai-job-tracker",
     "database": "(default)",
     "location": "nam5",
     "collections": {
@@ -84,7 +84,7 @@
       "applications/events": "append-only status and activity history",
       "applications/artifacts": "artifact metadata; blobs live in GCS"
     },
-    "blobBucket": "job-search-fnc314-dev-artifacts",
+    "blobBucket": "dev-fnc314-ai-job-tracker-artifacts",
     "blobPath": "applications/{id}/{kind}/{filename}"
   },
   "x-legacy-csv": {

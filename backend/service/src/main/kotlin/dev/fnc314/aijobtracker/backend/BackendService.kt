@@ -60,7 +60,8 @@ public object BackendService {
         if (initialized) return
         try {
             val saKeyEnv = System.getenv("TRACKER_SA_KEY")
-            val canonicalSaFile = File(System.getProperty("user.home"), ".config/job-tracker/sa.json")
+            val canonicalSaFile = File(System.getProperty("user.home"), ".config/ai-job-tracker/sa.json")
+            val legacySaFile = File(System.getProperty("user.home"), ".config/job-tracker/sa.json")
             val gAppCredsEnv = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
             val credentials = when {
@@ -69,6 +70,9 @@ public object BackendService {
                 }
                 canonicalSaFile.exists() -> {
                     FileInputStream(canonicalSaFile).use { GoogleCredentials.fromStream(it) }
+                }
+                legacySaFile.exists() -> {
+                    FileInputStream(legacySaFile).use { GoogleCredentials.fromStream(it) }
                 }
                 !gAppCredsEnv.isNullOrBlank() && File(gAppCredsEnv).exists() -> {
                     FileInputStream(File(gAppCredsEnv)).use { GoogleCredentials.fromStream(it) }
@@ -80,7 +84,8 @@ public object BackendService {
 
             val projectId = System.getenv("TRACKER_PROJECT")
                 ?: System.getenv("REMOTE_GCP_PROJECT")
-                ?: "job-search-fnc314-dev"
+                ?: System.getenv("GOOGLE_CLOUD_PROJECT")
+                ?: "dev-fnc314-ai-job-tracker"
 
             val options = FirebaseOptions.builder()
                 .setCredentials(credentials)
@@ -711,7 +716,7 @@ public object BackendService {
                 continue
             }
 
-            val data = doc.data ?: continue
+            val data = doc.data
             val companyId = doc.id
 
             // Check if fully enriched recently
@@ -851,14 +856,14 @@ public object BackendService {
 
         // Normalize website to domain
         val domain = try {
-            val url = URL(website)
-            url.host.removePrefix("www.")
+            val uri = java.net.URI(website)
+            uri.host?.removePrefix("www.") ?: website.removePrefix("https://").removePrefix("http://").removePrefix("www.").split("/").first()
         } catch (_: Exception) {
             website.removePrefix("https://").removePrefix("http://").removePrefix("www.").split("/").first()
         }
 
         val apiUrl = "https://api.hunter.io/v2/companies/find?domain=$domain&api_key=$apiKey"
-        val connection = URL(apiUrl).openConnection() as HttpURLConnection
+        val connection = java.net.URI(apiUrl).toURL().openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
         connection.connectTimeout = 5000
         connection.readTimeout = 10000
@@ -1648,7 +1653,7 @@ public object BackendService {
         val emailsSnap = db.collection("emails").get().get()
         val uncorrelatedEmails = mutableListOf<Map<String, Any?>>()
         for (doc in emailsSnap.documents) {
-            val data = doc.data ?: continue
+            val data = doc.data
             val appId = data["applicationId"] as? String
             val status = (data["status"] as? String) ?: "UNCLASSIFIED"
             if (appId.isNullOrBlank() && status != "NOISE") {
@@ -1956,7 +1961,7 @@ public object BackendService {
         // Search emails collection for messages from the same company
         val emailsSnap = db.collection("emails").get().get()
         for (doc in emailsSnap.documents) {
-            val data = doc.data ?: continue
+            val data = doc.data
             val mid = (data["id"] as? String) ?: (data["messageId"] as? String) ?: continue
             if (mid == excludeMessageId) continue
             if ((data["companyId"] as? String) == companyId) {
@@ -2294,7 +2299,7 @@ public object BackendService {
         val enrichedZeroApp = mutableListOf<AuditEntry>()
 
         for (doc in snapshot.documents) {
-            val data = doc.data ?: continue
+            val data = doc.data
             val docId = doc.id
             val name = (data["name"] as? String)?.takeIf { it.isNotBlank() } ?: docId
 
@@ -2519,7 +2524,7 @@ public object BackendService {
         val toKeep = mutableListOf<MigrateEntry>()
 
         for (doc in snapshot.documents) {
-            val data = doc.data ?: continue
+            val data = doc.data
             val docId = doc.id
 
             // Check application count

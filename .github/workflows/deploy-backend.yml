@@ -51,10 +51,10 @@ jobs:
 
       - name: Submit Cloud Build & Deploy to Cloud Run
         run: |
-          PROJECT="${{ vars.GCP_PROJECT_ID || 'job-search-fnc314-dev' }}"
+          PROJECT="${{ vars.GCP_PROJECT_ID || 'dev-fnc314-ai-job-tracker' }}"
           REGION="${{ vars.GCP_REGION || 'us-east1' }}"
-          SERVICE_NAME="job-tracker-backend"
-          IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT}/job-tracker-backend/backend:${{ github.sha }}"
+          SERVICE_NAME="${{ vars.GCP_SERVICE_NAME || 'dev-fnc314-ai-job-tracker-backend' }}"
+          IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT}/${SERVICE_NAME}/backend:${{ github.sha }}"
 
           echo "Submitting Cloud Build image: ${IMAGE_URI}..."
           gcloud builds submit --tag "${IMAGE_URI}" backend --project="${PROJECT}"
