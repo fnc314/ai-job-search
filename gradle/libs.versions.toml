@@ -152,8 +152,8 @@
   project-plugins = { module = "dev.fnc314.aijobtracker.tools:ai-job-tracker_gradle-tools_project-plugins", version = "1.0.0" }
   protobuf-bom = { module = "com.google.protobuf:protobuf-bom", version.ref = "protobuf" }
   protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
-  records-parser = { group = "dev.fnc314.tools.jobsearch.records", name = "records-parser", version.ref = "records" }
-  records-proto = { group = "dev.fnc314.tools.jobsearch.records", name = "records-proto", version.ref = "records" }
+  records-parser = { group = "dev.fnc314.aijobtracker.records", name = "records-parser", version.ref = "records" }
+  records-proto = { group = "dev.fnc314.aijobtracker.records", name = "records-proto", version.ref = "records" }
   wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
 
 [bundles]

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package tracker.v1;
 
-option java_package = "dev.fnc314.tools.jobsearch.tracker.v1";
+option java_package = "dev.fnc314.aijobtracker.records.v1";
 option java_multiple_files = true;
 
 // TrackerCounts — events/followUpsSent/interviews/rejections counts

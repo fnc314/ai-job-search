@@ -31,4 +31,26 @@ class PackageAndDirectoryArchitectureTest : BaseArchitectureTest() {
                 file.path.replace('\\', '/').substringBeforeLast('/').endsWith(expectedSubpath)
             }
     }
+
+    @Test
+    fun `records parser packages start with dev fnc314 aijobtracker`() {
+        recordsScope
+            .files
+            .filterNot { it.path.contains("/build/") || it.path.contains("/bin/") }
+            .assertTrue {
+                it.packagee?.name?.startsWith("dev.fnc314.aijobtracker") == true
+            }
+    }
+
+    @Test
+    fun `records parser directory paths match package declarations`() {
+        recordsScope
+            .files
+            .filterNot { it.path.contains("/build/") || it.path.contains("/bin/") }
+            .assertTrue { file ->
+                val pkg = file.packagee?.name ?: return@assertTrue false
+                val expectedSubpath = pkg.replace('.', '/')
+                file.path.replace('\\', '/').substringBeforeLast('/').endsWith(expectedSubpath)
+            }
+    }
 }

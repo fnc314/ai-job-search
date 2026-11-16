@@ -21,12 +21,12 @@ class RecordsArchitectureTest : BaseArchitectureTest() {
     }
 
     @Test
-    fun `all records source files reside within dev fnc314 tools jobsearch package`() {
+    fun `all records source files reside within dev fnc314 aijobtracker records package`() {
         recordsScope
             .files
             .filterNot { it.path.contains("/test/") || it.path.contains("/jvmTest/") || it.path.contains("/build/") || it.path.contains("/bin/") }
             .assertTrue { file ->
-                file.packagee?.name?.startsWith("dev.fnc314.tools.jobsearch") == true
+                file.packagee?.name?.startsWith("dev.fnc314.aijobtracker.records") == true
             }
     }
 

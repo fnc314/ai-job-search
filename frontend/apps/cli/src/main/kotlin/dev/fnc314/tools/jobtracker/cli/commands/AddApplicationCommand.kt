@@ -8,7 +8,7 @@ import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
 import com.google.cloud.firestore.SetOptions
-import dev.fnc314.tools.jobsearch.parser.DocumentIdGenerator
+import dev.fnc314.aijobtracker.records.parser.DocumentIdGenerator
 import dev.fnc314.tools.jobtracker.cli.db.RemoteDataSourceProvider
 import dev.fnc314.tools.jobtracker.core.data.model.Uuid7
 import kotlinx.serialization.json.Json

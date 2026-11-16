@@ -18,7 +18,7 @@ import com.google.cloud.firestore.SetOptions
 import com.google.firebase.FirebaseApp
 import com.google.firebase.cloud.FirestoreClient
 import dev.fnc314.tools.jobtracker.core.data.platform.RemotePlatform
-import dev.fnc314.tools.jobsearch.parser.InterviewProgress
+import dev.fnc314.aijobtracker.records.parser.InterviewProgress
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject

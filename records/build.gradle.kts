@@ -8,7 +8,7 @@ plugins {
 val detektVersion = libs.versions.detekt.get()
 
 subprojects {
-    group = "dev.fnc314.tools.jobsearch.records"
+    group = "dev.fnc314.aijobtracker.records"
     version = "1.0.0"
 
     apply(plugin = "io.gitlab.arturbosch.detekt")

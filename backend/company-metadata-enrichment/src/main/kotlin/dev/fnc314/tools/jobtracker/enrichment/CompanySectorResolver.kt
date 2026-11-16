@@ -1,6 +1,6 @@
 package dev.fnc314.tools.jobtracker.enrichment
 
-import dev.fnc314.tools.jobsearch.tracker.v1.CompanySector
+import dev.fnc314.aijobtracker.records.v1.CompanySector
 
 /**
  * Resolves a company's sector from Hunter.io data, falling back to TECH default.

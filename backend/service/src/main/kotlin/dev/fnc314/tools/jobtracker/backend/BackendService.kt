@@ -7,28 +7,28 @@ import com.google.cloud.firestore.SetOptions
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
-import dev.fnc314.tools.jobsearch.parser.ApplicationTimelineProjector
-import dev.fnc314.tools.jobsearch.parser.CompanyMetricsParser
-import dev.fnc314.tools.jobsearch.parser.CompanySectorNormalizer
-import dev.fnc314.tools.jobsearch.parser.DocumentIdGenerator
-import dev.fnc314.tools.jobsearch.parser.EventChainBuilder
-import dev.fnc314.tools.jobsearch.parser.EventChainVerifier
-import dev.fnc314.tools.jobsearch.tracker.v1.ApplicationChannel
-import dev.fnc314.tools.jobsearch.tracker.v1.CompanyMetrics
-import dev.fnc314.tools.jobsearch.tracker.v1.CompanySector
-import dev.fnc314.tools.jobsearch.tracker.v1.EventActor
-import dev.fnc314.tools.jobsearch.tracker.v1.SubmissionConfirmation
-import dev.fnc314.tools.jobsearch.tracker.v1.Timeline
-import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEvent
-import dev.fnc314.tools.jobsearch.tracker.v1.TrackerEventType
-import dev.fnc314.tools.jobsearch.tracker.v1.TrackerStatus
+import dev.fnc314.aijobtracker.records.parser.ApplicationTimelineProjector
+import dev.fnc314.aijobtracker.records.parser.CompanyMetricsParser
+import dev.fnc314.aijobtracker.records.parser.CompanySectorNormalizer
+import dev.fnc314.aijobtracker.records.parser.DocumentIdGenerator
+import dev.fnc314.aijobtracker.records.parser.EventChainBuilder
+import dev.fnc314.aijobtracker.records.parser.EventChainVerifier
+import dev.fnc314.aijobtracker.records.v1.ApplicationChannel
+import dev.fnc314.aijobtracker.records.v1.CompanyMetrics
+import dev.fnc314.aijobtracker.records.v1.CompanySector
+import dev.fnc314.aijobtracker.records.v1.EventActor
+import dev.fnc314.aijobtracker.records.v1.SubmissionConfirmation
+import dev.fnc314.aijobtracker.records.v1.Timeline
+import dev.fnc314.aijobtracker.records.v1.TrackerEvent
+import dev.fnc314.aijobtracker.records.v1.TrackerEventType
+import dev.fnc314.aijobtracker.records.v1.TrackerStatus
 import java.io.File
 import java.io.FileInputStream
-import Instant
+import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Locale
-import Json
-import JsonArray
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -39,10 +39,7 @@ import com.google.protobuf.Timestamp as ProtoTimestamp
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.Duration
-import java.time.Instant
 import java.util.UUID
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
 
 /**
  * Core backend service facade managing server-side transaction workflows, event chaining,
