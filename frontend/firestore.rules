@@ -1,9 +1,466 @@
 rules_version = '2';
 
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// This security rules file assumes the following data structures for the
+// single-user AI Job Search Tracker system of record:
+//
+// Collection: applications
+// Document ID: [slug or uuid]
+// Fields:
+//   - id: string (required, max 200 chars, immutable)
+//   - company: string (required, max 200 chars)
+//   - companyId: string (optional, max 200 chars, immutable)
+//   - status: string (required, max 50 chars)
+//   - role: string (optional, max 200 chars)
+//   - roleType: string (optional, max 100 chars)
+//   - channel: string (optional, max 100 chars)
+//   - statusRank: int (optional, 0..11)
+//   - isOpen: bool (optional)
+//   - contactPerson: string (optional, max 200 chars)
+//   - contactEmail: string (optional, max 200 chars)
+//   - jobUrl: string (optional, max 2000 chars)
+//   - jobApplicationUrl: string (optional, max 2000 chars)
+//   - fitRating: int (optional, 0..100)
+//   - source: string (optional, max 200 chars)
+//   - notesRendered: string (optional, max 100000 chars)
+//   - notesLegacy: string (optional, max 100000 chars)
+//   - statusDate: string (optional, max 100 chars)
+//   - statusNote: string (optional, max 10000 chars)
+//   - uuid: string (optional, max 100 chars)
+//   - schemaVersion: number (optional)
+//   - tags: list of strings (optional, max 100 items)
+//   - emailMessageIds: list of strings (optional, max 1000 items)
+//   - timeline: map (optional)
+//   - compensation: map (optional)
+//   - location: map (optional)
+//   - fitEvaluation: map (optional)
+//   - counters: map (optional)
+//   - metadata: map (optional)
+//   - createdAt: timestamp or string (optional)
+//   - updatedAt: timestamp or string (optional)
+//   - date: timestamp or string (optional)
+//   - submittedAt: timestamp or string (optional)
+//   - submissionConfirmedAt: timestamp or string (optional)
+//
+// Subcollection: applications/{applicationId}/events
+// Document ID: [eventId or uuid]
+// Fields:
+//   - applicationId: string (optional, max 200 chars, immutable)
+//   - type: string (required, max 100 chars)
+//   - actor: string (optional, max 100 chars)
+//   - derivedFrom: string (optional, max 100 chars)
+//   - confidence: string (optional, max 100 chars)
+//   - statusFrom: string (optional, max 100 chars)
+//   - statusTo: string (optional, max 100 chars)
+//   - note: string (optional, max 50000 chars)
+//   - emailMessageId: string (optional, max 255 chars)
+//   - scheduledAt: timestamp or string (optional)
+//   - ts: timestamp or string (optional)
+//   - date: timestamp or string (optional)
+//   - createdAt: timestamp or string (optional)
+//
+// Subcollection: applications/{applicationId}/artifacts
+// Document ID: [artifactId]
+// Fields:
+//   - artifactId: string (optional, max 200 chars)
+//   - applicationId: string (optional, max 200 chars, immutable)
+//   - kind: string (optional, max 100 chars)
+//   - filename: string (optional, max 500 chars)
+//   - contentType: string (optional, max 100 chars)
+//   - size: number (optional, >= 0)
+//   - sha256: string (optional, max 100 chars)
+//   - storage: map (optional)
+//   - localPath: string (optional, max 1000 chars)
+//   - driveUrl: string (optional, max 2000 chars)
+//   - externalUrl: string (optional, max 2000 chars)
+//   - content: string (optional, max 500000 chars)
+//   - createdAt: timestamp or string (optional)
+//
+// Collection: companies
+// Document ID: [companySlug]
+//
+// Collection: contacts
+// Document ID: [contactId]
+//
+// Collection: pending-proposals
+// Document ID: [proposalId]
+//
+// Collection: scraped-postings
+// Document ID: [postingId]
+//
+// Collection: sync-requests
+// Document ID: [requestId]
+//
+// Collection: meta
+// Document ID: schema | sync
+//
+// Collection: emails
+// Document ID: [messageId]
+//
+// ===============================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the request is authenticated via Firebase Auth
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Single-user authorization invariant:
+    // Only the verified candidate user may access or modify the store.
+    function isCandidateUser() {
+      return isAuthenticated() && (
+        request.auth.uid == 'MhIM272H0fZJTp5qk5ZeC55tSpQ2' ||
+        request.auth.token.email == 'fnc314@gmail.com'
+      );
+    }
+
+    // Validate string field length
+    function validStringLength(data, field, minLen, maxLen) {
+      return field in data &&
+             data[field] is string &&
+             data[field].size() >= minLen &&
+             data[field].size() <= maxLen;
+    }
+
+    // Validate optional string field
+    function validOptionalString(data, field, minLen, maxLen) {
+      return !(field in data) ||
+             data[field] == null ||
+             (data[field] is string &&
+              data[field].size() >= minLen &&
+              data[field].size() <= maxLen);
+    }
+
+    // Validate optional number field
+    function validOptionalNumber(data, field, minVal, maxVal) {
+      return !(field in data) ||
+             data[field] == null ||
+             (data[field] is number &&
+              data[field] >= minVal &&
+              data[field] <= maxVal);
+    }
+
+    // Validate optional boolean field
+    function validOptionalBool(data, field) {
+      return !(field in data) ||
+             data[field] == null ||
+             (data[field] is bool);
+    }
+
+    // Validate optional list field
+    function validOptionalList(data, field, maxSize) {
+      return !(field in data) ||
+             data[field] == null ||
+             (data[field] is list &&
+              data[field].size() <= maxSize);
+    }
+
+    // Validate optional map field
+    function validOptionalMap(data, field) {
+      return !(field in data) ||
+             data[field] == null ||
+             (data[field] is map);
+    }
+
+    // Validate optional timestamp or ISO date string
+    function validOptionalTimestampOrString(data, field) {
+      return !(field in data) ||
+             data[field] == null ||
+             data[field] is timestamp ||
+             (data[field] is string && data[field].size() <= 100);
+    }
+
+    // Ensure immutable fields are not changed during an update
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidApplication(data) {
+      return validStringLength(data, 'company', 1, 200) &&
+             validStringLength(data, 'status', 1, 50) &&
+             validOptionalString(data, 'id', 1, 200) &&
+             validOptionalString(data, 'companyId', 1, 200) &&
+             validOptionalString(data, 'role', 0, 200) &&
+             validOptionalString(data, 'roleType', 0, 100) &&
+             validOptionalString(data, 'channel', 0, 100) &&
+             validOptionalString(data, 'contactPerson', 0, 200) &&
+             validOptionalString(data, 'contactEmail', 0, 200) &&
+             validOptionalString(data, 'jobUrl', 0, 2000) &&
+             validOptionalString(data, 'jobApplicationUrl', 0, 2000) &&
+             validOptionalString(data, 'source', 0, 200) &&
+             validOptionalString(data, 'uuid', 0, 100) &&
+             validOptionalString(data, 'notesRendered', 0, 100000) &&
+             validOptionalString(data, 'notesLegacy', 0, 100000) &&
+             validOptionalString(data, 'statusDate', 0, 100) &&
+             validOptionalString(data, 'statusNote', 0, 10000) &&
+             validOptionalBool(data, 'isOpen') &&
+             validOptionalNumber(data, 'statusRank', 0, 11) &&
+             validOptionalNumber(data, 'fitRating', 0, 100) &&
+             validOptionalNumber(data, 'schemaVersion', 0, 1000) &&
+             validOptionalList(data, 'tags', 100) &&
+             validOptionalList(data, 'emailMessageIds', 1000) &&
+             validOptionalMap(data, 'timeline') &&
+             validOptionalMap(data, 'compensation') &&
+             validOptionalMap(data, 'location') &&
+             validOptionalMap(data, 'fitEvaluation') &&
+             validOptionalMap(data, 'counters') &&
+             validOptionalMap(data, 'metadata') &&
+             validOptionalTimestampOrString(data, 'createdAt') &&
+             validOptionalTimestampOrString(data, 'updatedAt') &&
+             validOptionalTimestampOrString(data, 'date') &&
+             validOptionalTimestampOrString(data, 'submittedAt') &&
+             validOptionalTimestampOrString(data, 'submissionConfirmedAt');
+    }
+
+    function isValidEvent(data) {
+      return validStringLength(data, 'type', 1, 100) &&
+             validOptionalString(data, 'applicationId', 1, 200) &&
+             validOptionalString(data, 'actor', 1, 100) &&
+             validOptionalString(data, 'derivedFrom', 1, 100) &&
+             validOptionalString(data, 'confidence', 1, 100) &&
+             validOptionalString(data, 'statusFrom', 0, 100) &&
+             validOptionalString(data, 'statusTo', 0, 100) &&
+             validOptionalString(data, 'note', 0, 50000) &&
+             validOptionalString(data, 'emailMessageId', 0, 255) &&
+             validOptionalString(data, 'eventId', 0, 200) &&
+             validOptionalTimestampOrString(data, 'scheduledAt') &&
+             validOptionalTimestampOrString(data, 'ts') &&
+             validOptionalTimestampOrString(data, 'date') &&
+             validOptionalTimestampOrString(data, 'createdAt');
+    }
+
+    function isValidArtifact(data) {
+      return validOptionalString(data, 'artifactId', 1, 200) &&
+             validOptionalString(data, 'applicationId', 1, 200) &&
+             validOptionalString(data, 'kind', 1, 100) &&
+             validOptionalString(data, 'filename', 1, 500) &&
+             validOptionalString(data, 'contentType', 0, 100) &&
+             validOptionalString(data, 'sha256', 0, 100) &&
+             validOptionalString(data, 'localPath', 0, 1000) &&
+             validOptionalString(data, 'driveUrl', 0, 2000) &&
+             validOptionalString(data, 'externalUrl', 0, 2000) &&
+             validOptionalString(data, 'content', 0, 500000) &&
+             validOptionalNumber(data, 'size', 0, 100000000) &&
+             validOptionalMap(data, 'storage') &&
+             validOptionalTimestampOrString(data, 'createdAt');
+    }
+
+    function isValidCompany(data) {
+      return validOptionalString(data, 'companyId', 1, 200) &&
+             validOptionalString(data, 'id', 1, 200) &&
+             validOptionalString(data, 'name', 0, 200) &&
+             validOptionalString(data, 'company', 0, 200) &&
+             validOptionalString(data, 'website', 0, 1000) &&
+             validOptionalString(data, 'industry', 0, 200) &&
+             validOptionalString(data, 'sector', 0, 200) &&
+             validOptionalString(data, 'logoUrl', 0, 2000) &&
+             validOptionalString(data, 'logoFormat', 0, 50) &&
+             validOptionalString(data, 'logoShape', 0, 50) &&
+             validOptionalString(data, 'description', 0, 10000) &&
+             validOptionalString(data, 'companyType', 0, 100) &&
+             validOptionalString(data, 'employees', 0, 100) &&
+             validOptionalString(data, 'location', 0, 200) &&
+             validOptionalString(data, 'city', 0, 200) &&
+             validOptionalString(data, 'state', 0, 200) &&
+             validOptionalString(data, 'country', 0, 200) &&
+             validOptionalString(data, 'subIndustry', 0, 200) &&
+             validOptionalString(data, 'twitterUrl', 0, 1000) &&
+             validOptionalString(data, 'crunchbaseUrl', 0, 1000) &&
+             validOptionalString(data, 'linkedinUrl', 0, 1000) &&
+             validOptionalString(data, 'hunterIoId', 0, 100) &&
+             validOptionalNumber(data, 'logoWidth', 0, 10000) &&
+             validOptionalNumber(data, 'logoHeight', 0, 10000) &&
+             validOptionalNumber(data, 'foundedYear', 1800, 2100) &&
+             validOptionalNumber(data, 'employeesCount', 0, 10000000) &&
+             validOptionalList(data, 'aliases', 100) &&
+             validOptionalMap(data, 'metrics') &&
+             validOptionalTimestampOrString(data, 'createdAt') &&
+             validOptionalTimestampOrString(data, 'updatedAt') &&
+             validOptionalTimestampOrString(data, 'logoFetchedAt') &&
+             validOptionalTimestampOrString(data, 'lastHunterEnrichedAt');
+    }
+
+    function isValidContact(data) {
+      return validOptionalString(data, 'name', 0, 200) &&
+             validOptionalString(data, 'email', 0, 200) &&
+             validOptionalString(data, 'phone', 0, 50) &&
+             validOptionalString(data, 'company', 0, 200) &&
+             validOptionalString(data, 'role', 0, 200) &&
+             validOptionalString(data, 'notes', 0, 10000) &&
+             validOptionalTimestampOrString(data, 'createdAt') &&
+             validOptionalTimestampOrString(data, 'updatedAt');
+    }
+
+    function isValidPendingProposal(data) {
+      return validOptionalString(data, 'proposalId', 1, 200) &&
+             validOptionalString(data, 'kind', 1, 100) &&
+             validOptionalString(data, 'state', 1, 50) &&
+             validOptionalMap(data, 'sourceEmail') &&
+             validOptionalMap(data, 'unmatched') &&
+             validOptionalTimestampOrString(data, 'createdAt') &&
+             validOptionalTimestampOrString(data, 'updatedAt');
+    }
+
+    function isValidScrapedPosting(data) {
+      return validOptionalString(data, 'id', 1, 200) &&
+             validOptionalString(data, 'url', 0, 2000) &&
+             validOptionalString(data, 'title', 0, 300) &&
+             validOptionalString(data, 'company', 0, 200) &&
+             validOptionalString(data, 'location', 0, 200) &&
+             validOptionalString(data, 'status', 0, 50) &&
+             validOptionalTimestampOrString(data, 'createdAt') &&
+             validOptionalTimestampOrString(data, 'updatedAt');
+    }
+
+    function isValidSyncRequest(data) {
+      return validOptionalString(data, 'requestId', 1, 200) &&
+             validOptionalString(data, 'kind', 1, 100) &&
+             validOptionalString(data, 'state', 1, 50) &&
+             validOptionalTimestampOrString(data, 'createdAt') &&
+             validOptionalTimestampOrString(data, 'updatedAt');
+    }
+
+    function isValidMeta(data) {
+      return validOptionalTimestampOrString(data, 'createdAt') &&
+             validOptionalTimestampOrString(data, 'updatedAt');
+    }
+
+    function isValidEmail(data) {
+      return validOptionalString(data, 'id', 0, 255) &&
+             validOptionalString(data, 'messageId', 0, 255) &&
+             validOptionalString(data, 'applicationId', 0, 200) &&
+             validOptionalString(data, 'subject', 0, 500) &&
+             validOptionalString(data, 'snippet', 0, 5000) &&
+             validOptionalString(data, 'body', 0, 100000) &&
+             validOptionalTimestampOrString(data, 'receivedAt') &&
+             validOptionalTimestampOrString(data, 'createdAt');
+    }
+
+    // ===============================================================
+    // Collection Match Rules
+    // ===============================================================
+
+    // Applications Collection
+    match /applications/{applicationId} {
+      allow read: if isCandidateUser();
+      allow create: if isCandidateUser() &&
+                       isValidApplication(request.resource.data);
+      allow update: if isCandidateUser() &&
+                       isValidApplication(request.resource.data) &&
+                       areImmutableFieldsUnchanged(['id']);
+      allow delete: if isCandidateUser();
+
+      // Nested Events Subcollection
+      match /events/{eventId} {
+        allow read: if isCandidateUser();
+        allow create: if isCandidateUser() &&
+                         isValidEvent(request.resource.data) &&
+                         (!('applicationId' in request.resource.data) ||
+                          request.resource.data.applicationId == applicationId);
+        allow update: if isCandidateUser() &&
+                         isValidEvent(request.resource.data) &&
+                         areImmutableFieldsUnchanged(['applicationId']);
+        allow delete: if isCandidateUser();
+      }
+
+      // Nested Artifacts Subcollection
+      match /artifacts/{artifactId} {
+        allow read: if isCandidateUser();
+        allow create: if isCandidateUser() &&
+                         isValidArtifact(request.resource.data) &&
+                         (!('applicationId' in request.resource.data) ||
+                          request.resource.data.applicationId == applicationId);
+        allow update: if isCandidateUser() &&
+                         isValidArtifact(request.resource.data) &&
+                         areImmutableFieldsUnchanged(['applicationId']);
+        allow delete: if isCandidateUser();
+      }
+    }
+
+    // Companies Collection
+    match /companies/{companyId} {
+      allow read: if isCandidateUser();
+      allow create: if isCandidateUser() &&
+                       isValidCompany(request.resource.data);
+      allow update: if isCandidateUser() &&
+                       isValidCompany(request.resource.data);
+      allow delete: if isCandidateUser();
+    }
+
+    // Contacts Collection
+    match /contacts/{contactId} {
+      allow read: if isCandidateUser();
+      allow create: if isCandidateUser() &&
+                       isValidContact(request.resource.data);
+      allow update: if isCandidateUser() &&
+                       isValidContact(request.resource.data);
+      allow delete: if isCandidateUser();
+    }
+
+    // Pending Proposals Collection (collector staged reviews)
+    match /pending-proposals/{proposalId} {
+      allow read: if isCandidateUser();
+      allow create: if isCandidateUser() &&
+                       isValidPendingProposal(request.resource.data);
+      allow update: if isCandidateUser() &&
+                       isValidPendingProposal(request.resource.data);
+      allow delete: if isCandidateUser();
+    }
+
+    // Scraped Postings Collection
+    match /scraped-postings/{postingId} {
+      allow read: if isCandidateUser();
+      allow create: if isCandidateUser() &&
+                       isValidScrapedPosting(request.resource.data);
+      allow update: if isCandidateUser() &&
+                       isValidScrapedPosting(request.resource.data);
+      allow delete: if isCandidateUser();
+    }
+
+    // Sync Requests Collection
+    match /sync-requests/{requestId} {
+      allow read: if isCandidateUser();
+      allow create: if isCandidateUser() &&
+                       isValidSyncRequest(request.resource.data);
+      allow update: if isCandidateUser() &&
+                       isValidSyncRequest(request.resource.data);
+      allow delete: if isCandidateUser();
+    }
+
+    // Meta Singleton Collection (schema, sync)
+    match /meta/{metaId} {
+      allow read: if isCandidateUser();
+      allow create, update: if isCandidateUser() &&
+                               isValidMeta(request.resource.data);
+      allow delete: if false; // Metadata singletons should never be deleted
+    }
+
+    // Emails Collection (evidence and ingestion records)
+    match /emails/{emailId} {
+      allow read: if isCandidateUser();
+      allow create: if isCandidateUser() &&
+                       isValidEmail(request.resource.data);
+      allow update: if isCandidateUser() &&
+                       isValidEmail(request.resource.data);
+      allow delete: if isCandidateUser();
+    }
+
+    // Default Deny: Deny all reads and writes to unmapped collections or paths
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }
