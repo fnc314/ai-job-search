@@ -26,7 +26,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRAPE_COLLECTION = "scraped-postings"
 SKILLS_DIR = REPO_ROOT / ".agents" / "skills"
-SEEN_FILE = REPO_ROOT / "job-scraper" / "seen_jobs.json"
+SEEN_FILE = REPO_ROOT / ".agents" / "skills" / "job-scraper" / "seen_jobs.json"
 QUERIES_FILE = REPO_ROOT / ".agents" / "skills" / "job-scraper" / "search-queries.md"
 
 # Portal-specific flag mapping: each portal's keyword flag and any required flags.
