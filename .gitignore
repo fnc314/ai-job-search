@@ -108,6 +108,7 @@ upskill/*.md
 .env
 .env.*
 !.env.example
+!.env.ci
 *.pem
 *.key
 *.p8

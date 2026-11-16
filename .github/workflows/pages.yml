@@ -44,21 +44,24 @@ jobs:
           mise install python
           mise install gradle
 
-      - name: Configure Gradle init.d and Android SDK Environment
+      - name: Configure Environment and Android SDK
         run: |
           mkdir -p "${HOME}/.gradle/init.d"
           cp gradle/init.d/root.init.gradle.kts "${HOME}/.gradle/init.d/"
+          # Export env vars from .env.ci
+          if [ -f .env.ci ]; then
+            cat .env.ci >> $GITHUB_ENV
+          fi
           mkdir -p "${HOME}/.android"
           touch "${HOME}/.android/analytics.settings"
-          mkdir -p "${ANDROID_HOME}/licenses"
-          echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n2fa28118083d4d7204f0292bd4f5e7304e420247" > "${ANDROID_HOME}/licenses/android-sdk-license"
-          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "${ANDROID_HOME}/licenses/android-sdk-preview-license"
-          echo -e "\n859f317696f67ef3d7f30a50a5560e7834b43903" > "${ANDROID_HOME}/licenses/android-sdk-arm-dbt-license"
-          echo -e "\n601085b94cd77f0b54ff86406957099ebe79c4d6" > "${ANDROID_HOME}/licenses/android-googletv-license"
-          echo -e "\n33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > "${ANDROID_HOME}/licenses/google-gdk-license"
-          echo -e "\ne9acab5b5fbb560a72cfaecce8946896ff6aab9d" > "${ANDROID_HOME}/licenses/mips-android-sysimage-license"
-          echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> $GITHUB_ENV
-          echo "ANDROID_USER_HOME=${HOME}/.android" >> $GITHUB_ENV
+          ANDROID_DIR="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          mkdir -p "${ANDROID_DIR}/licenses"
+          echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n2fa28118083d4d7204f0292bd4f5e7304e420247" > "${ANDROID_DIR}/licenses/android-sdk-license"
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "${ANDROID_DIR}/licenses/android-sdk-preview-license"
+          echo -e "\n859f317696f67ef3d7f30a50a5560e7834b43903" > "${ANDROID_DIR}/licenses/android-sdk-arm-dbt-license"
+          echo -e "\n601085b94cd77f0b54ff86406957099ebe79c4d6" > "${ANDROID_DIR}/licenses/android-googletv-license"
+          echo -e "\n33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > "${ANDROID_DIR}/licenses/google-gdk-license"
+          echo -e "\ne9acab5b5fbb560a72cfaecce8946896ff6aab9d" > "${ANDROID_DIR}/licenses/mips-android-sysimage-license"
 
       - name: Generate Dokka API Documentation
         run: mise run docs:generate

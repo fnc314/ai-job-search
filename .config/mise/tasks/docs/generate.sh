@@ -3,4 +3,4 @@
 #MISE alias="docs:generate"
 set -eu
 
-exec "${MISE_PROJECT_ROOT}/gradlew" :dokkaGenerateHtml "$@"
+exec "${MISE_PROJECT_ROOT}/gradlew" :dokkaGenerateHtml --stacktrace "$@"
