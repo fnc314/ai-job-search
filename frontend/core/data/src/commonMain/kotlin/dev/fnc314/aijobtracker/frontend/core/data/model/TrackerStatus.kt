@@ -25,6 +25,15 @@ public sealed interface TrackerStatus : WireContract {
     /** Indicates whether the application is currently active and requires ongoing monitoring or engagement. */
     public val isActive: Boolean
 
+    /** Resolves the category section group for list organization: 1=Interviewing, 2=Drafting, 3=Applied, 4=Rejected. */
+    public val sectionOrder: Int
+
+    /** Resolves whether the card should render with subdued/disabled alpha and styling. */
+    public val isSubduedCard: Boolean
+
+    /** Resolves whether the card should present an action-required pestering flair. */
+    public val isActionRequiredCard: Boolean
+
     /** Resolves the theme-aware Material 3 container background color for this status. */
     @Composable
     public fun containerColor(): Color
@@ -89,6 +98,27 @@ public sealed interface TrackerStatus : WireContract {
                 NONE, UNSPECIFIED, HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> false
             }
 
+        override val sectionOrder: Int
+            get() = when (this) {
+                INTERVIEW, OFFER_EXPECTED, HIRED -> 1
+                DRAFTING, LEAD -> 2
+                APPLIED -> 3
+                REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> 4
+                NONE, UNSPECIFIED -> 3
+            }
+
+        override val isSubduedCard: Boolean
+            get() = when (this) {
+                REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> true
+                else -> false
+            }
+
+        override val isActionRequiredCard: Boolean
+            get() = when (this) {
+                DRAFTING, LEAD -> true
+                else -> false
+            }
+
         @Composable
         override fun containerColor(): Color = when (this) {
             LEAD, DRAFTING -> MaterialTheme.colorScheme.surfaceContainerLow
@@ -124,6 +154,9 @@ public sealed interface TrackerStatus : WireContract {
         override val displayName: String get() = "Unknown ($wireKey)"
         override val isTerminal: Boolean get() = false
         override val isActive: Boolean get() = false
+        override val sectionOrder: Int get() = 3
+        override val isSubduedCard: Boolean get() = false
+        override val isActionRequiredCard: Boolean get() = false
 
         @Composable
         override fun containerColor(): Color = MaterialTheme.colorScheme.surfaceVariant

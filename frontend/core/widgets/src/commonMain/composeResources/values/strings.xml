@@ -41,6 +41,7 @@
     <string name="card_cd">%1$s, %2$s, %3$s</string>
     <string name="card_click_cd">%1$s at %2$s. Double tap to view details.</string>
     <string name="card_auto_synced">[AUTO-SYNCED]</string>
+    <string name="card_action_required_badge">Action Required</string>
     <string name="logo_http_error_code">HTTP %1$d</string>
     <string name="logo_error_generic">ERR</string>
 </resources>

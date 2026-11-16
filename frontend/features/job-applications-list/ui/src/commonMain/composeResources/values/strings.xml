@@ -63,4 +63,14 @@
     <string name="data_not_applied">Not applied</string>
     <string name="data_not_evaluated">Not evaluated</string>
     <string name="parsing_error">PARSING ERROR</string>
+
+    <!-- Categorized Section Headers & Jump Actions -->
+    <string name="list_section_interviewing">Interviewing</string>
+    <string name="list_section_drafting">In Draft</string>
+    <string name="list_section_applied">Applied</string>
+    <string name="list_section_rejected">Rejected &amp; Closed</string>
+    <string name="list_section_jump_tooltip">Jump to section</string>
+    <string name="list_section_jump_menu_title">Jump to Category</string>
+    <string name="list_jump_to_top_tooltip">Jump to top</string>
+    <string name="list_jump_to_top_cd">Scroll back to top of list</string>
 </resources>

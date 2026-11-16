@@ -14,11 +14,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import dev.fnc314.aijobtracker.frontend.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 import ai_job_tracker_frontend.core_widgets.generated.resources.Res
+import ai_job_tracker_frontend.core_widgets.generated.resources.card_action_required_badge
 import ai_job_tracker_frontend.core_widgets.generated.resources.card_action_view_details
 import ai_job_tracker_frontend.core_widgets.generated.resources.card_applied
 import ai_job_tracker_frontend.core_widgets.generated.resources.card_auto_synced
@@ -83,9 +85,12 @@ public fun JobApplicationCard(
   val appliedDate = model.appliedDateDisplay(backup = notAppliedText)
   val updatedDate = model.updatedDateDisplay(backup = notAvailableText)
   val viewDetailsLabel = stringResource(Res.string.card_action_view_details)
+  val isSubdued = model.status.isSubduedCard
+  val isActionRequired = model.status.isActionRequiredCard
+  val cardModifier = if (isSubdued) modifier.alpha(0.6f) else modifier
 
   TopLevelCard(
-    modifier = modifier,
+    modifier = cardModifier,
     onClick = { onApplicationClick(model.id) },
     contentDescription = rowContentDescription,
     onClickLabel = clickLabel,
@@ -125,6 +130,13 @@ public fun JobApplicationCard(
               textAlign = TextAlign.Start,
               maxLines = 1,
             )
+            if (isActionRequired) {
+              Text(
+                text = stringResource(Res.string.card_action_required_badge),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.tertiary,
+              )
+            }
             if (model.fitScore != null) {
               FitBadge(score = model.fitScore)
             }
@@ -159,6 +171,13 @@ public fun JobApplicationCard(
             textAlign = TextAlign.Start,
             maxLines = 1,
           )
+          if (isActionRequired) {
+            Text(
+              text = stringResource(Res.string.card_action_required_badge),
+              style = MaterialTheme.typography.labelSmall,
+              color = MaterialTheme.colorScheme.tertiary,
+            )
+          }
           if (model.isAutoSynced) {
             Text(
               text = stringResource(Res.string.card_auto_synced),
