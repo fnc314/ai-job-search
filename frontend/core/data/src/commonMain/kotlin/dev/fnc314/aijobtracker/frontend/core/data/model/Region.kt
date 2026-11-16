@@ -52,17 +52,17 @@ public sealed interface Region : WireContract {
         }
 
         // Aliases for backward compatibility
-        /** Shortcut accessor for [Known.PIT]. */
+        /** Shortcut accessor for [Known.US_PIT]. */
         public val PIT: Region = Known.US_PIT
-        /** Shortcut accessor for [Known.NYC]. */
+        /** Shortcut accessor for [Known.US_NYC]. */
         public val NYC: Region = Known.US_NYC
-        /** Shortcut accessor for [Known.SF]. */
+        /** Shortcut accessor for [Known.US_SF]. */
         public val SF: Region = Known.US_SF
-        /** Shortcut accessor for [Known.LA]. */
+        /** Shortcut accessor for [Known.US_LA]. */
         public val LA: Region = Known.US_LA
-        /** Shortcut accessor for [Known.DC]. */
+        /** Shortcut accessor for [Known.US_DC]. */
         public val DC: Region = Known.US_DC
-        /** Shortcut accessor for [Known.REMOTE_US]. */
+        /** Shortcut accessor for [Known.US_REMOTE]. */
         public val REMOTE_US: Region = Known.US_REMOTE
 
         /** All canonical [Region] entries. */

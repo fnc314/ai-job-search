@@ -9,7 +9,7 @@ public expect object PlatformFileSaver {
      *
      * @param content The text content to save.
      * @param filename The desired filename (e.g., "cover-letter.md").
-     * @return [Result.Success] if the file was saved, [Result.Failure] otherwise.
+     * @return `Result.success` if the file was saved, `Result.failure` otherwise.
      */
     public suspend fun saveText(content: String, filename: String): Result<Unit>
 }

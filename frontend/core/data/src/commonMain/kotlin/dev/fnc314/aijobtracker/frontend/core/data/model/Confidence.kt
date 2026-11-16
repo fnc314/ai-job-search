@@ -67,11 +67,11 @@ public sealed interface Confidence : WireContract {
         public val LOW_CONFIDENCE: Confidence = Known.LOW_CONFIDENCE
 
         // Aliases for backward compatibility
-        /** Shortcut accessor for [Known.HIGH]. */
+        /** Shortcut accessor for [Known.HIGH_CONFIDENCE]. */
         public val HIGH: Confidence = Known.HIGH_CONFIDENCE
-        /** Shortcut accessor for [Known.MEDIUM]. */
+        /** Shortcut accessor for [Known.MEDIUM_CONFIDENCE]. */
         public val MEDIUM: Confidence = Known.MEDIUM_CONFIDENCE
-        /** Shortcut accessor for [Known.LOW]. */
+        /** Shortcut accessor for [Known.LOW_CONFIDENCE]. */
         public val LOW: Confidence = Known.LOW_CONFIDENCE
 
         /** All canonical [Confidence] entries. */
