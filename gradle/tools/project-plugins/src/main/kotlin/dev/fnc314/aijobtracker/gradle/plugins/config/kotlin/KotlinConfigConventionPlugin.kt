@@ -1,13 +1,13 @@
-package dev.fnc314.tools.jobtracker.gradle.plugins.config.kotlin
+package dev.fnc314.aijobtracker.gradle.plugins.config.kotlin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import dev.fnc314.tools.jobtracker.gradle.catalog.CatalogTypes
-import dev.fnc314.tools.jobtracker.gradle.plugins.config.ComposeDependenciesConventionPlugin
-import dev.fnc314.tools.jobtracker.gradle.plugins.functional.ComposeConventionPlugin
-import dev.fnc314.tools.jobtracker.gradle.plugins.configureKotlinMultiplatformExtension
-import dev.fnc314.tools.jobtracker.gradle.plugins.hasKotlinPlugin
+import dev.fnc314.aijobtracker.gradle.catalog.CatalogTypes
+import dev.fnc314.aijobtracker.gradle.plugins.config.ComposeDependenciesConventionPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.functional.ComposeConventionPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.configureKotlinMultiplatformExtension
+import dev.fnc314.aijobtracker.gradle.plugins.hasKotlinPlugin
 
 private val KOTLIN_OPT_INS = setOf(
     "kotlin.time.ExperimentalTime",

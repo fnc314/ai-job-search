@@ -1,8 +1,8 @@
-package dev.fnc314.tools.jobtracker.gradle.plugins
+package dev.fnc314.aijobtracker.gradle.plugins
 
 import com.android.build.api.dsl.CompileOptions
 import com.android.build.api.dsl.Lint
-import dev.fnc314.tools.jobtracker.gradle.catalog.CatalogTypes
+import dev.fnc314.aijobtracker.gradle.catalog.CatalogTypes
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 

@@ -1,6 +1,6 @@
-package dev.fnc314.tools.jobtracker.gradle.plugins
+package dev.fnc314.aijobtracker.gradle.plugins
 
-import dev.fnc314.tools.jobtracker.gradle.plugins.internal.TestingConventionPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.internal.TestingConventionPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import javax.inject.Inject

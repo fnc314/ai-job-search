@@ -1,11 +1,11 @@
-package dev.fnc314.tools.jobtracker.gradle.plugins.functional
+package dev.fnc314.aijobtracker.gradle.plugins.functional
 
-import dev.fnc314.tools.jobtracker.gradle.catalog.CatalogTypes
-import dev.fnc314.tools.jobtracker.gradle.plugins.BaseConventionPlugin
-import dev.fnc314.tools.jobtracker.gradle.plugins.config.DetektConventionPlugin
-import dev.fnc314.tools.jobtracker.gradle.plugins.config.DokkaConventionPlugin
-import dev.fnc314.tools.jobtracker.gradle.plugins.configureKotlinMultiplatformExtension
-import dev.fnc314.tools.jobtracker.gradle.plugins.internal.TestingConventionPlugin
+import dev.fnc314.aijobtracker.gradle.catalog.CatalogTypes
+import dev.fnc314.aijobtracker.gradle.plugins.BaseConventionPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.config.DetektConventionPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.config.DokkaConventionPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.configureKotlinMultiplatformExtension
+import dev.fnc314.aijobtracker.gradle.plugins.internal.TestingConventionPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl

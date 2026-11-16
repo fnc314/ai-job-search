@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.gradle.catalog
+package dev.fnc314.aijobtracker.gradle.catalog
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ExternalModuleDependencyBundle

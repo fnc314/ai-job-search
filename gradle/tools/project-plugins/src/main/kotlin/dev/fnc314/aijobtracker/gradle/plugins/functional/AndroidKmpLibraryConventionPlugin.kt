@@ -1,11 +1,11 @@
-package dev.fnc314.tools.jobtracker.gradle.plugins.functional
+package dev.fnc314.aijobtracker.gradle.plugins.functional
 
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
-import dev.fnc314.tools.jobtracker.gradle.catalog.CatalogTypes
-import dev.fnc314.tools.jobtracker.gradle.plugins.BaseConventionPlugin
-import dev.fnc314.tools.jobtracker.gradle.plugins.configure
-import dev.fnc314.tools.jobtracker.gradle.plugins.configureKotlinMultiplatformExtension
-import dev.fnc314.tools.jobtracker.gradle.plugins.internal.TestingConventionPlugin
+import dev.fnc314.aijobtracker.gradle.catalog.CatalogTypes
+import dev.fnc314.aijobtracker.gradle.plugins.BaseConventionPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.configure
+import dev.fnc314.aijobtracker.gradle.plugins.configureKotlinMultiplatformExtension
+import dev.fnc314.aijobtracker.gradle.plugins.internal.TestingConventionPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -39,7 +39,7 @@ public class AndroidKmpLibraryConventionPlugin : Plugin<Project>, BaseConvention
                 val sanitized = relative.split('/').joinToString(".") { segment ->
                     segment.replace("-", "").lowercase()
                 }
-                android.namespace = "dev.fnc314.tools.jobtracker.$sanitized"
+                android.namespace = "dev.fnc314.aijobtracker.$sanitized"
             }
             android.androidResources {
                 enable = true

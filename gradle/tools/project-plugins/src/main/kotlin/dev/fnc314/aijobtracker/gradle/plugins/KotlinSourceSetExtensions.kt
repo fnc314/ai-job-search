@@ -1,6 +1,6 @@
-package dev.fnc314.tools.jobtracker.gradle.plugins
+package dev.fnc314.aijobtracker.gradle.plugins
 
-import dev.fnc314.tools.jobtracker.gradle.catalog.CatalogTypes
+import dev.fnc314.aijobtracker.gradle.catalog.CatalogTypes
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension

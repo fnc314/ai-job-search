@@ -149,7 +149,7 @@
   navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
   navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
   navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
-  project-plugins = { module = "dev.fnc314.tools.jobtracker.tools:ai-job-search_gradle-tools_project-plugins", version = "1.0.0" }
+  project-plugins = { module = "dev.fnc314.aijobtracker.tools:ai-job-tracker_gradle-tools_project-plugins", version = "1.0.0" }
   protobuf-bom = { module = "com.google.protobuf:protobuf-bom", version.ref = "protobuf" }
   protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
   records-parser = { group = "dev.fnc314.tools.jobsearch.records", name = "records-parser", version.ref = "records" }
@@ -267,29 +267,29 @@
   kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
   kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
   google-play-services = { id = "com.google.gms.google-services", version.ref = "google-play-services" }
-  local-multiplatform-library = { id = "dev.fnc314.tools.jobtracker.multiplatform-library" }
+  local-multiplatform-library = { id = "dev.fnc314.aijobtracker.multiplatform-library" }
   ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
   koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-compiler" }
   dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-  local-dokka = { id = "dev.fnc314.tools.jobtracker.dokka" }
+  local-dokka = { id = "dev.fnc314.aijobtracker.dokka" }
   detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-  local-detekt = { id = "dev.fnc314.tools.jobtracker.detekt" }
+  local-detekt = { id = "dev.fnc314.aijobtracker.detekt" }
   protobuf = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
   android-library = { id = "com.android.library", version.ref = "agp" }
 
   # Local Functional Cause Plugins
-  local-kotlin-multiplatform = { id = "dev.fnc314.tools.jobtracker.kotlin-multiplatform" }
-  local-kotlin-jvm = { id = "dev.fnc314.tools.jobtracker.kotlin-jvm" }
-  local-android-kmp-library = { id = "dev.fnc314.tools.jobtracker.android-kmp-library" }
-  local-android-application = { id = "dev.fnc314.tools.jobtracker.android-application" }
-  local-compose = { id = "dev.fnc314.tools.jobtracker.compose" }
+  local-kotlin-multiplatform = { id = "dev.fnc314.aijobtracker.kotlin-multiplatform" }
+  local-kotlin-jvm = { id = "dev.fnc314.aijobtracker.kotlin-jvm" }
+  local-android-kmp-library = { id = "dev.fnc314.aijobtracker.android-kmp-library" }
+  local-android-application = { id = "dev.fnc314.aijobtracker.android-application" }
+  local-compose = { id = "dev.fnc314.aijobtracker.compose" }
 
   # Local Configuration Concern Plugins
-  local-dependencies-compose = { id = "dev.fnc314.tools.jobtracker.dependencies.compose" }
-  local-dependencies-di = { id = "dev.fnc314.tools.jobtracker.dependencies.di" }
-  local-dependencies-firebase = { id = "dev.fnc314.tools.jobtracker.dependencies.firebase" }
-  local-dependencies-koin = { id = "dev.fnc314.tools.jobtracker.dependencies.koin" }
-  local-dependencies-ktor = { id = "dev.fnc314.tools.jobtracker.dependencies.ktor" }
-  local-dependencies-serialization = { id = "dev.fnc314.tools.jobtracker.dependencies.serialization" }
-  local-dependencies-navigation = { id = "dev.fnc314.tools.jobtracker.dependencies.navigation" }
-  local-dependencies-datasource = { id = "dev.fnc314.tools.jobtracker.dependencies.datasource" }
+  local-dependencies-compose = { id = "dev.fnc314.aijobtracker.dependencies.compose" }
+  local-dependencies-di = { id = "dev.fnc314.aijobtracker.dependencies.di" }
+  local-dependencies-firebase = { id = "dev.fnc314.aijobtracker.dependencies.firebase" }
+  local-dependencies-koin = { id = "dev.fnc314.aijobtracker.dependencies.koin" }
+  local-dependencies-ktor = { id = "dev.fnc314.aijobtracker.dependencies.ktor" }
+  local-dependencies-serialization = { id = "dev.fnc314.aijobtracker.dependencies.serialization" }
+  local-dependencies-navigation = { id = "dev.fnc314.aijobtracker.dependencies.navigation" }
+  local-dependencies-datasource = { id = "dev.fnc314.aijobtracker.dependencies.datasource" }

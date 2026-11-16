@@ -1,12 +1,12 @@
-package dev.fnc314.tools.jobtracker.gradle.plugins.config
+package dev.fnc314.aijobtracker.gradle.plugins.config
 
-import dev.fnc314.tools.jobtracker.gradle.catalog.CatalogTypes
-import dev.fnc314.tools.jobtracker.gradle.catalog.versionCatalog
-import dev.fnc314.tools.jobtracker.gradle.plugins.BaseConventionPlugin
-import dev.fnc314.tools.jobtracker.gradle.plugins.androidMain
-import dev.fnc314.tools.jobtracker.gradle.plugins.hasAndroidPlugin
-import dev.fnc314.tools.jobtracker.gradle.plugins.hasKotlinPlugin
-import dev.fnc314.tools.jobtracker.gradle.plugins.kotlinMultiplatform
+import dev.fnc314.aijobtracker.gradle.catalog.CatalogTypes
+import dev.fnc314.aijobtracker.gradle.catalog.versionCatalog
+import dev.fnc314.aijobtracker.gradle.plugins.BaseConventionPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.androidMain
+import dev.fnc314.aijobtracker.gradle.plugins.hasAndroidPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.hasKotlinPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.kotlinMultiplatform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

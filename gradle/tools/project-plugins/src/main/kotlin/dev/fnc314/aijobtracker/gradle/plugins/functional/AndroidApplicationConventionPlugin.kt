@@ -1,10 +1,10 @@
-package dev.fnc314.tools.jobtracker.gradle.plugins.functional
+package dev.fnc314.aijobtracker.gradle.plugins.functional
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import dev.fnc314.tools.jobtracker.gradle.catalog.CatalogTypes
-import dev.fnc314.tools.jobtracker.gradle.plugins.BaseConventionPlugin
-import dev.fnc314.tools.jobtracker.gradle.plugins.configure
+import dev.fnc314.aijobtracker.gradle.catalog.CatalogTypes
+import dev.fnc314.aijobtracker.gradle.plugins.BaseConventionPlugin
+import dev.fnc314.aijobtracker.gradle.plugins.configure
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -17,8 +17,8 @@ public class AndroidApplicationConventionPlugin : Plugin<Project>, BaseConventio
     private fun Project.configureDefaultConfig(androidExt: ApplicationExtension) {
         androidExt.apply {
             defaultConfig {
-                namespace = "dev.fnc314.tools.jobtracker.app.android"
-                applicationId = "dev.fnc314.tools.jobtracker"
+                namespace = "dev.fnc314.aijobtracker.app.android"
+                applicationId = "dev.fnc314.aijobtracker"
                 versionCode = 1
                 versionName = "1.0.0"
                 buildToolsVersion =
