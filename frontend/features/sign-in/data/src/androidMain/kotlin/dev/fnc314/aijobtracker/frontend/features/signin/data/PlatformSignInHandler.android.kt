@@ -48,7 +48,7 @@ internal actual class PlatformSignInHandler(
         Log.d(TAG, "signIn: No existing Firebase session, proceeding with Google sign-in")
 
         // Web OAuth client ID (client_type 3) from google-services.json
-        val clientId = serverClientId ?: "399944190604-dpasrf0mis9860nvp74m6dc98cp5rphq.apps.googleusercontent.com"
+        val clientId = serverClientId ?: "375389268913-83qulec8m6ap7pgrtgk2sg64v9l9ket2.apps.googleusercontent.com"
         Log.d(TAG, "signIn: Using server client ID: $clientId")
 
         // Use GetSignInWithGoogleOption for explicit "Sign in with Google" button flows.
