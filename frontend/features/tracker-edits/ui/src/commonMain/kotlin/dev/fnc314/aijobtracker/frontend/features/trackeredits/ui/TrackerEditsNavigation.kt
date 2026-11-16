@@ -1,0 +1,50 @@
+package dev.fnc314.aijobtracker.frontend.features.trackeredits.ui
+
+import androidx.compose.runtime.collectAsState
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey as PlatformNavKey
+import dev.fnc314.aijobtracker.frontend.core.navigation.LocalAppNavigator
+import dev.fnc314.aijobtracker.frontend.core.data.settings.AppSettingsRepository
+import dev.fnc314.aijobtracker.frontend.core.navigation.ApplicationId
+import dev.fnc314.aijobtracker.frontend.core.navigation.FeatureEntryRegistry
+import dev.fnc314.aijobtracker.frontend.core.navigation.JobApplicationsTrackerNavKey
+import dev.fnc314.aijobtracker.frontend.core.navigation.TopBarActions
+import ai_job_tracker_frontend.features_tracker_edits_ui.generated.resources.Res
+import ai_job_tracker_frontend.features_tracker_edits_ui.generated.resources.edits_route_title
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import org.jetbrains.compose.resources.StringResource
+import org.koin.compose.koinInject
+
+/**
+ * Navigation destination route for the proposed edits review dashboard.
+ */
+@Serializable
+public data object JobApplicationEditsRoute : JobApplicationsTrackerNavKey {
+  @Transient
+  override val titleRes: StringResource = Res.string.edits_route_title
+
+  @Transient
+  override val topBarActions: TopBarActions = TopBarActions.TopLevel
+}
+
+/**
+ * Navigation entry registry providing routes for the tracker edits feature.
+ */
+public class TrackerEditsEntryRegistry : FeatureEntryRegistry {
+  override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+    scope.entry<JobApplicationEditsRoute> {
+      val navigator = LocalAppNavigator.current
+      val settingsRepository = koinInject<AppSettingsRepository>()
+      val settings = settingsRepository.settings.collectAsState().value
+      TrackerEditsScreen(
+        onNavigateBack = navigator::popBackStack,
+        onEditClick = { id ->
+          navigator.navigateToApplicationDetails(ApplicationId(id))
+        },
+        settings = settings,
+        onSettingsChange = { settingsRepository.updateSettings(it) },
+      )
+    }
+  }
+}

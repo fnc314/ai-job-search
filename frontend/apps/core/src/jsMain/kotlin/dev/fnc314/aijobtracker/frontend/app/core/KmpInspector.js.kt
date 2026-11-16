@@ -1,0 +1,12 @@
+package dev.fnc314.aijobtracker.frontend.app.core
+
+import androidx.compose.runtime.Composable
+
+@Composable
+public actual fun KmpInspector(enabled: Boolean, content: @Composable () -> Unit) {
+    content()
+}
+
+public actual fun setInspectorEnabled(enabled: Boolean) {
+    // No-op: kmp-inspector does not support web targets
+}

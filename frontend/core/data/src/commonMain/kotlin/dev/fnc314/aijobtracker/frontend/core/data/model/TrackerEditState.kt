@@ -1,0 +1,88 @@
+package dev.fnc314.aijobtracker.frontend.core.data.model
+
+/**
+ * Review and adjudication state of a staged [TrackerEdit] proposal.
+ *
+ * Implemented as a sealed interface hierarchy supporting Swift-style associated values:
+ * [Known] encapsulates canonical proposal states, while [Unrecognized] captures unexpected strings.
+ */
+public sealed interface TrackerEditState : WireContract {
+
+    /** Returns the display name. */
+    public fun displayName(): String = displayName
+
+    /** Returns the canonical remote document string representation. */
+    public fun toRemote(): String = wireKey
+
+    /**
+     * Closed vocabulary of known proposal review states.
+     */
+    public enum class Known(
+        override val displayName: String,
+        override val wireKey: String,
+        override val wireTag: Int = -1,
+    ) : TrackerEditState {
+        /** Fallback when proposal state is unrecorded. */
+        UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", wireTag = 0),
+
+        /** Staged and awaiting explicit candidate review and approval. */
+        PENDING(displayName = "Pending", wireKey = "PENDING", wireTag = 1),
+
+        /** Confirmed by candidate; mutations applied to the target application record. */
+        APPROVED(displayName = "Approved", wireKey = "APPROVED", wireTag = 2),
+
+        /** Dismissed by candidate; proposal rejected with no underlying mutations made. */
+        REJECTED(displayName = "Rejected", wireKey = "REJECTED", wireTag = 3),
+
+        /** Unreviewed proposal expired after its time-to-live deadline passed. */
+        EXPIRED(displayName = "Expired", wireKey = "EXPIRED", wireTag = 4);
+    }
+
+    /**
+     * Associated-value carrier for unmapped, future, or custom edit state strings.
+     */
+    public data class Unrecognized(
+        override val wireKey: String
+    ) : TrackerEditState {
+        override val displayName: String get() = "Unknown ($wireKey)"
+    }
+
+    /** Companion object providing lookup and shortcut accessors for [TrackerEditState]. */
+    public companion object {
+        /** Default fallback value for [TrackerEditState]. */
+        public val DEFAULT: TrackerEditState = Known.UNSPECIFIED
+
+        private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
+            listOf("proposal:" + entry.name.lowercase(), entry.name.lowercase())
+        }
+
+        /** Fallback when proposal state is unrecorded. */
+        public val UNSPECIFIED: TrackerEditState = Known.UNSPECIFIED
+        /** Staged and awaiting explicit candidate review and approval. */
+        public val PENDING: TrackerEditState = Known.PENDING
+        /** Confirmed by candidate; mutations applied to the target application record. */
+        public val APPROVED: TrackerEditState = Known.APPROVED
+        /** Dismissed by candidate; proposal rejected with no underlying mutations made. */
+        public val REJECTED: TrackerEditState = Known.REJECTED
+        /** Unreviewed proposal expired after its time-to-live deadline passed. */
+        public val EXPIRED: TrackerEditState = Known.EXPIRED
+
+        /** All canonical [TrackerEditState] entries. */
+        public val entries: List<TrackerEditState> = Known.entries
+
+        /**
+         * Resolves a [TrackerEditState] instance from its raw wire key string.
+         *
+         * @param raw Raw wire key string from external storage or serialized payload.
+         * @return Matching canonical entry, or an unrecognized fallback instance.
+         */
+        public fun fromWireKey(raw: String?): TrackerEditState {
+            if (raw.isNullOrBlank()) return DEFAULT
+            val cleaned = raw.trim().lowercase()
+            return lookup[cleaned] ?: Unrecognized(raw)
+        }
+
+        /** Parses a wire representation into [TrackerEditState]. */
+        public fun fromRemote(raw: String?): TrackerEditState = fromWireKey(raw)
+    }
+}

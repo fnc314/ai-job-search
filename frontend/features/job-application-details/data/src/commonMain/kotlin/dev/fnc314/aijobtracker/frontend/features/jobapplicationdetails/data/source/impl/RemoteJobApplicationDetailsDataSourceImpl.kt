@@ -1,0 +1,311 @@
+package dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.data.source.impl
+
+import dev.fnc314.aijobtracker.frontend.core.artifacts.factory.ArtifactFactory
+import dev.fnc314.aijobtracker.frontend.core.artifacts.model.ArtifactStorage
+import dev.fnc314.aijobtracker.frontend.core.artifacts.model.TrackerArtifact
+import dev.fnc314.aijobtracker.frontend.core.artifacts.model.TrackerArtifactKind
+import dev.fnc314.aijobtracker.frontend.core.data.factory.Factory
+import dev.fnc314.aijobtracker.frontend.core.data.model.ApplicationChannel
+import dev.fnc314.aijobtracker.frontend.core.data.model.Company
+import dev.fnc314.aijobtracker.frontend.core.data.model.Confidence
+import dev.fnc314.aijobtracker.frontend.core.data.model.DerivedFrom
+import dev.fnc314.aijobtracker.frontend.core.data.model.EventActor
+import dev.fnc314.aijobtracker.frontend.core.data.model.JobApplication
+import dev.fnc314.aijobtracker.frontend.core.data.model.LogoFormat
+import dev.fnc314.aijobtracker.frontend.core.data.model.LogoShape
+import dev.fnc314.aijobtracker.frontend.core.data.model.Timeline
+import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEvent
+import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEventType
+import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus
+import dev.fnc314.aijobtracker.frontend.core.data.source.MapRemoteRecord
+import dev.fnc314.aijobtracker.frontend.core.data.source.RemoteDataSource
+import dev.fnc314.aijobtracker.frontend.core.data.source.RemoteRecord
+import dev.fnc314.aijobtracker.frontend.core.data.util.InstantParser
+import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.data.source.RemoteJobApplicationDetailsDataSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlin.time.Instant
+import dev.fnc314.aijobtracker.frontend.core.data.model.CompanyMetrics
+
+@Suppress("TooManyFunctions")
+internal class RemoteJobApplicationDetailsDataSourceImpl(
+  private val remoteDataSource: RemoteDataSource,
+) : RemoteJobApplicationDetailsDataSource {
+
+  override suspend fun getJobApplication(id: String): JobApplication? = withContext(Dispatchers.Default) {
+    val record = remoteDataSource.getDocument("applications", id)
+    if (record != null) {
+      return@withContext mapRecordToJobApplication(record)
+    }
+    val all = remoteDataSource.getCollection("applications")
+    val fallback = all.find { it.id == id || it.getString("slugId") == id || it.getString("uuid") == id }
+    fallback?.let(::mapRecordToJobApplication)
+  }
+
+  override suspend fun getCompanies(): List<Company> = withContext(Dispatchers.Default) {
+    remoteDataSource.getCollection("companies").map(::mapRecordToCompany)
+  }
+
+  override suspend fun getEvents(applicationId: String): List<TrackerEvent> =
+    withContext(Dispatchers.Default) {
+      val collectionPath = "applications/$applicationId/events"
+      remoteDataSource.getCollection(collectionPath).map(::mapRecordToTrackerEvent)
+    }
+
+  override suspend fun getArtifacts(applicationId: String): List<TrackerArtifact> =
+    withContext(Dispatchers.Default) {
+      val collectionPath = "applications/$applicationId/artifacts"
+      remoteDataSource.getCollection(collectionPath).map { mapRecordToTrackerArtifact(it, applicationId) }
+    }
+
+  override suspend fun updateStatus(
+    id: String,
+    status: TrackerStatus,
+    date: String?,
+    note: String?,
+  ): JobApplication = withContext(Dispatchers.Default) {
+    val fields = mutableMapOf<String, Any?>(
+      "status" to status.toRemote(),
+    )
+    if (date != null) fields["statusDate"] = date
+    if (note != null) fields["statusNote"] = note
+
+    remoteDataSource.updateDocument(
+      collectionPath = "applications",
+      documentId = id,
+      record = MapRemoteRecord(id = id, fields = fields),
+    )
+    getJobApplication(id)
+      ?: Factory.createJobApplication(
+        id = id,
+        company = "",
+        status = status,
+        notesRendered = note,
+      )
+  }
+
+  override suspend fun recordEvent(event: TrackerEvent): String = withContext(Dispatchers.Default) {
+    val fields = mutableMapOf<String, Any?>(
+      "applicationId" to event.applicationId,
+      "type" to event.type.toRemote(),
+      "actor" to event.actor.toRemote(),
+      "derivedFrom" to event.derivedFrom.toRemote(),
+      "confidence" to event.confidence.toRemote(),
+      "createdAt" to event.createdAt.toString(),
+    )
+    event.statusFrom?.let { fields["statusFrom"] = it.toRemote() }
+    event.statusTo?.let { fields["statusTo"] = it.toRemote() }
+    event.note?.let { fields["note"] = it }
+    event.emailMessageId?.let { fields["emailMessageId"] = it }
+    event.scheduledAt?.let { fields["scheduledAt"] = it.toString() }
+
+    remoteDataSource.setDocument(
+      collectionPath = "applications/${event.applicationId}/events",
+      documentId = event.id,
+      record = MapRemoteRecord(id = event.id, fields = fields),
+    )
+    event.id
+  }
+
+  private fun mapRecordToJobApplication(record: RemoteRecord): JobApplication {
+    val timeline = parseTimeline(record.fields["timeline"] as? Map<*, *>)
+    val createdAt = resolveCreatedAt(record)
+    val updatedAt = resolveUpdatedAt(record, timeline, createdAt)
+    val submittedAt = resolveSubmittedAt(record = record)
+    val submissionConfirmedAt = resolveSubmissionConfirmedAt(record = record)
+
+    @Suppress("UNCHECKED_CAST")
+    val tags = (record.fields["tags"] as? List<String>)
+      ?: emptyList()
+
+    return Factory.createJobApplication(
+      id = record.id,
+      company = record.nonBlankString("company")
+        ?: record.nonBlankString("name")
+        ?: "Unknown Company",
+      role = record.nonBlankString("role")
+        ?: record.nonBlankString("title"),
+      location = record.nonBlankString("location"),
+      status = TrackerStatus.fromRemote(record.getString("status")),
+      channel = ApplicationChannel.fromRemote(record.getString("channel")),
+      jobId = record.getString("jobId"),
+      jobUrl = record.getString("jobUrl"),
+      description = record.getString("description"),
+      tags = tags,
+      fitRating = (record.getLong("fitScore")
+        ?: record.getLong("fitRating"))?.toInt(),
+      timeline = timeline,
+      notesRendered = record.getString("notesRendered"),
+      createdAt = createdAt,
+      updatedAt = updatedAt,
+      jobApplicationUrl = record.getString("jobApplicationUrl"),
+      submittedAt = submittedAt,
+      submissionConfirmedAt = submissionConfirmedAt,
+    )
+  }
+
+  private fun mapRecordToCompany(record: RemoteRecord): Company {
+    @Suppress("UNCHECKED_CAST")
+    val aliases = (record.fields["aliases"] as? List<String>)
+      ?: emptyList()
+    val logoFormatStr = record.getString("logoFormat")?.uppercase()
+      ?: "UNKNOWN"
+    val logoShapeStr = record.getString("logoShape")?.uppercase()
+      ?: "UNKNOWN"
+
+    val logoFormat = runCatching { LogoFormat.valueOf(logoFormatStr) }.getOrDefault(LogoFormat.UNKNOWN)
+    val logoShape = runCatching { LogoShape.valueOf(logoShapeStr) }.getOrDefault(LogoShape.UNKNOWN)
+
+    return Factory.createCompany(
+      id = record.id,
+      name = record.nonBlankString("name")
+        ?: record.nonBlankString("company")
+        ?: record.id,
+      aliases = aliases,
+      website = record.getString("website"),
+      industry = record.getString("sector") ?: record.getString("industry"),
+      createdAt = InstantParser.parse(
+        record.fields["createdAt"]
+          ?: record.fields["created_at"],
+      ),
+      updatedAt = InstantParser.parse(
+        record.fields["updatedAt"]
+          ?: record.fields["updated_at"],
+      ),
+      logoUrl = record.getString("logoUrl"),
+      logoFormat = logoFormat,
+      logoWidth = record.getLong("logoWidth")?.toInt()
+        ?: 0,
+      logoHeight = record.getLong("logoHeight")?.toInt()
+        ?: 0,
+      logoShape = logoShape,
+      logoFetchedAt = InstantParser.parse(record.fields["logoFetchedAt"]),
+      metrics = CompanyMetrics.fromMap(record.fields["metrics"] as? Map<*, *>),
+      linkedinUrl = record.getString("linkedinUrl"),
+    )
+  }
+
+  private fun parseTimeline(map: Map<*, *>?): Timeline? {
+    if (map == null) return null
+    return Timeline(
+      firstActivityAt = InstantParser.parse(
+        map["firstActivityAt"]
+          ?: map["first_activity_at"],
+      ),
+      lastActivityAt = InstantParser.parse(
+        map["lastActivityAt"]
+          ?: map["last_activity_at"],
+      ),
+      daysSinceActivity = ((map["daysSinceActivity"]
+        ?: map["days_since_activity"]) as? Number)?.toInt()
+        ?: 0,
+      nextFollowUpAt = InstantParser.parse(
+        map["nextFollowUpAt"]
+          ?: map["next_follow_up_at"],
+      ),
+    )
+  }
+
+  private fun resolveCreatedAt(record: RemoteRecord): Instant {
+    val rawCreatedAt = InstantParser.parse(
+      record.fields["createdAt"]
+        ?: record.fields["created_at"],
+    )
+    return if (rawCreatedAt != Instant.DISTANT_PAST) {
+      rawCreatedAt
+    } else {
+      InstantParser.parse(record.fields["date"])
+    }
+  }
+
+  private fun resolveUpdatedAt(record: RemoteRecord, timeline: Timeline?, createdAt: Instant): Instant {
+    val rawUpdatedAt = InstantParser.parse(
+      record.fields["updatedAt"]
+        ?: record.fields["updated_at"],
+    )
+    return when {
+      rawUpdatedAt != Instant.DISTANT_PAST -> rawUpdatedAt
+      timeline != null && timeline.lastActivityAt != Instant.DISTANT_PAST -> timeline.lastActivityAt
+      else -> createdAt
+    }
+  }
+
+  private fun resolveSubmittedAt(record: RemoteRecord): Instant {
+    val submittedAt = record.getInstant("submittedAt")
+    if (submittedAt != Instant.DISTANT_PAST) {
+      return submittedAt
+    }
+    return when (val rawData = record.getInstant("date")) {
+      Instant.DISTANT_PAST -> Instant.DISTANT_FUTURE
+      else -> rawData
+    }
+  }
+
+  private fun resolveSubmissionConfirmedAt(record: RemoteRecord): Instant? {
+    val confirmedAt = record.getInstant("submissionConfirmedAt")
+    return if (confirmedAt != Instant.DISTANT_PAST) confirmedAt else null
+  }
+
+  private fun RemoteRecord.nonBlankString(key: String): String? =
+    getString(key)?.takeIf { it.isNotBlank() }
+
+  private fun mapRecordToTrackerEvent(record: RemoteRecord): TrackerEvent {
+    // Firestore event documents use "ts" (write timestamp) and "date" (event date),
+    // not "createdAt" — see tracker.schema.json $defs.event properties.
+    val createdAtRaw = record.fields["ts"] ?: record.fields["date"]
+    val createdAt = InstantParser.parse(createdAtRaw)
+    val scheduledAtRaw = record.fields["scheduledAt"]
+    val scheduledAt = if (scheduledAtRaw != null) {
+      InstantParser.parse(scheduledAtRaw).takeIf { it != Instant.DISTANT_PAST }
+    } else {
+      null
+    }
+    return Factory.createTrackerEvent(
+      id = record.id,
+      applicationId = record.getString("applicationId") ?: "",
+      type = TrackerEventType.fromRemote(record.getString("type")),
+      statusFrom = record.getString("statusFrom")?.let { TrackerStatus.fromRemote(it) },
+      statusTo = record.getString("statusTo")?.let { TrackerStatus.fromRemote(it) },
+      note = record.getString("note"),
+      emailMessageId = record.getString("emailMessageId"),
+      actor = EventActor.fromRemote(record.getString("actor")),
+      derivedFrom = DerivedFrom.fromRemote(record.getString("derivedFrom")),
+      confidence = Confidence.fromRemote(record.getString("confidence")),
+      createdAt = createdAt,
+      scheduledAt = scheduledAt,
+    )
+  }
+
+  private fun mapRecordToTrackerArtifact(record: RemoteRecord, fallbackApplicationId: String): TrackerArtifact {
+    val storageMap = record.fields["storage"] as? Map<*, *>
+    val storage = if (storageMap != null) {
+      val bucket = storageMap["bucket"] as? String ?: ""
+      val path = storageMap["path"] as? String ?: ""
+      if (bucket.isNotBlank() && path.isNotBlank()) {
+        ArtifactStorage(bucket = bucket, path = path)
+      } else {
+        null
+      }
+    } else {
+      null
+    }
+
+    val createdAtRaw = record.fields["createdAt"] ?: record.fields["created_at"]
+    val createdAt = InstantParser.parse(createdAtRaw).takeIf { it != Instant.DISTANT_PAST }
+
+    return ArtifactFactory.createTrackerArtifact(
+      id = record.getString("artifactId") ?: record.id,
+      applicationId = record.getString("applicationId") ?: fallbackApplicationId,
+      kind = TrackerArtifactKind.fromRemote(record.getString("kind")),
+      filename = record.getString("filename") ?: record.id,
+      contentType = record.getString("contentType"),
+      size = record.getLong("size"),
+      sha256 = record.getString("sha256"),
+      storage = storage,
+      localPath = record.getString("localPath") ?: record.getString("driveUrl"),
+      content = record.getString("content"),
+      externalUrl = record.getString("externalUrl"),
+      createdAt = createdAt,
+    )
+  }
+}

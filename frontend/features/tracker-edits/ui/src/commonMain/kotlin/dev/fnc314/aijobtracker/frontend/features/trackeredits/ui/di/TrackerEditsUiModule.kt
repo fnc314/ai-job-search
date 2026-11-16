@@ -1,0 +1,25 @@
+package dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.di
+
+import dev.fnc314.aijobtracker.frontend.features.trackeredits.data.di.trackerEditsDataModule
+import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.di.trackerEditsDomainModule
+import dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.TrackerEditsEntryRegistry
+import dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.TrackerEditsViewModel
+import org.koin.core.module.Module
+import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.module
+
+/**
+ * Koin module declaring UI layer dependencies for the tracker edits feature.
+ */
+public val trackerEditsUiModule: Module = module {
+    viewModelOf(::TrackerEditsViewModel)
+    singleOf(::TrackerEditsEntryRegistry)
+}
+
+/**
+ * Aggregate Koin module uniting data, domain, and UI definitions for the tracker edits feature.
+ */
+public val trackerEditsFeatureModule: Module = module {
+    includes(trackerEditsDataModule, trackerEditsDomainModule, trackerEditsUiModule)
+}

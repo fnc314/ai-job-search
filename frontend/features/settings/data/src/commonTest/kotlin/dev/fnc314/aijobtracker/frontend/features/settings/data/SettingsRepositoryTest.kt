@@ -1,0 +1,115 @@
+package dev.fnc314.aijobtracker.frontend.features.settings.data
+
+import dev.fnc314.aijobtracker.frontend.core.data.settings.AppSettings
+import dev.fnc314.aijobtracker.frontend.core.data.settings.UiMode
+import dev.fnc314.aijobtracker.frontend.core.data.source.LocalDataSource
+import dev.fnc314.aijobtracker.frontend.features.settings.data.repository.impl.SettingsRepositoryImpl
+import dev.fnc314.aijobtracker.frontend.features.settings.data.source.impl.LocalSettingsDataSourceImpl
+import dev.fnc314.aijobtracker.frontend.features.settings.domain.usecase.ObserveSettingsUseCase
+import dev.fnc314.aijobtracker.frontend.features.settings.domain.usecase.UpdateSettingsUseCase
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import dev.fnc314.aijobtracker.frontend.core.data.settings.AppSettingsRepository
+import dev.fnc314.aijobtracker.frontend.core.data.settings.SettingsStorage
+
+class SettingsRepositoryTest {
+
+    internal class FakeLocalDataSource(
+        initialValues: Map<String, String> = emptyMap(),
+    ) : LocalDataSource {
+        val map = initialValues.toMutableMap()
+        override fun getString(key: String): String? = map[key]
+        override fun putString(key: String, value: String) {
+            map[key] = value
+        }
+        override fun remove(key: String) {
+            map.remove(key)
+        }
+        override fun clear() {
+            map.clear()
+        }
+    }
+
+    private fun createRepository(storage: FakeLocalDataSource): SettingsRepositoryImpl {
+        val appSettingsRepo = AppSettingsRepository(
+            object : SettingsStorage {
+                override fun getString(key: String): String? = storage.getString(key)
+                override fun putString(key: String, value: String) {
+                    storage.putString(key, value)
+                }
+            }
+        )
+        val localDataSource = LocalSettingsDataSourceImpl(storage)
+        return SettingsRepositoryImpl(appSettingsRepo, localDataSource)
+    }
+
+    @Test
+    fun testSettings_InitialEmptyStorageReturnsDefaults() {
+        val storage = FakeLocalDataSource()
+        val repo = createRepository(storage)
+        val observeUseCase = ObserveSettingsUseCase { repo.settings }
+
+        val settings = observeUseCase().value
+        assertEquals(UiMode.SYSTEM, settings.uiMode)
+        assertEquals("#2F5597", settings.seedColorHex)
+    }
+
+    @Test
+    fun testSettings_CorruptedJsonRecoversToDefaults() {
+        val storage = FakeLocalDataSource(mapOf("job_tracker_app_settings" to "{not valid json at all!"))
+        val repo = createRepository(storage)
+        val observeUseCase = ObserveSettingsUseCase { repo.settings }
+
+        val settings = observeUseCase().value
+        // Must recover gracefully without throwing an exception and return default settings
+        assertEquals(UiMode.SYSTEM, settings.uiMode)
+        assertEquals("#2F5597", settings.seedColorHex)
+    }
+
+    @Test
+    fun testSettings_PartialJsonWithMissingKeys() {
+        // Only uiMode is specified; other fields must decode with defaults
+        val storage = FakeLocalDataSource(mapOf("job_tracker_app_settings" to "{\"uiMode\":\"DARK\"}"))
+        val repo = createRepository(storage)
+        val observeUseCase = ObserveSettingsUseCase { repo.settings }
+
+        val settings = observeUseCase().value
+        assertEquals(UiMode.DARK, settings.uiMode)
+        assertEquals("#2F5597", settings.seedColorHex)
+    }
+
+    @Test
+    fun testSettings_UpdateNotifiesObserverImmediately() {
+        val storage = FakeLocalDataSource()
+        val repo = createRepository(storage)
+        val observeUseCase = ObserveSettingsUseCase { repo.settings }
+        val updateUseCase = UpdateSettingsUseCase { repo.updateSettings(it) }
+
+        assertEquals(UiMode.SYSTEM, observeUseCase().value.uiMode)
+
+        val newSettings = AppSettings(uiMode = UiMode.LIGHT, seedColorHex = "#AABBCC")
+        updateUseCase(newSettings)
+
+        assertEquals(UiMode.LIGHT, observeUseCase().value.uiMode)
+        assertEquals("#AABBCC", observeUseCase().value.seedColorHex)
+        assertNotNull(storage.getString("job_tracker_app_settings"))
+    }
+
+    @Test
+    fun testSettings_CustomSeedHexPersistence() {
+        val storage = FakeLocalDataSource()
+        val repo1 = createRepository(storage)
+        val updateUseCase = UpdateSettingsUseCase { repo1.updateSettings(it) }
+
+        val updated = AppSettings(uiMode = UiMode.DARK, seedColorHex = "#FF5722")
+        updateUseCase(updated)
+
+        // Instantiate new repository from same storage to verify roundtrip persistence
+        val repo2 = createRepository(storage)
+        val observeUseCase2 = ObserveSettingsUseCase { repo2.settings }
+
+        assertEquals(UiMode.DARK, observeUseCase2().value.uiMode)
+        assertEquals("#FF5722", observeUseCase2().value.seedColorHex)
+    }
+}

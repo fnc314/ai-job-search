@@ -75,4 +75,26 @@ class PackageAndDirectoryArchitectureTest : BaseArchitectureTest() {
                 file.path.replace('\\', '/').substringBeforeLast('/').endsWith(expectedSubpath)
             }
     }
+
+    @Test
+    fun `frontend packages start with dev fnc314 aijobtracker`() {
+        frontendScope
+            .files
+            .filterNot { it.path.contains("/build/") || it.path.contains("/bin/") }
+            .assertTrue {
+                it.packagee?.name?.startsWith("dev.fnc314.aijobtracker.frontend") == true
+            }
+    }
+
+    @Test
+    fun `frontend directory paths match package declarations`() {
+        frontendScope
+            .files
+            .filterNot { it.path.contains("/build/") || it.path.contains("/bin/") }
+            .assertTrue { file ->
+                val pkg = file.packagee?.name ?: return@assertTrue false
+                val expectedSubpath = pkg.replace('.', '/')
+                file.path.replace('\\', '/').substringBeforeLast('/').endsWith(expectedSubpath)
+            }
+    }
 }
