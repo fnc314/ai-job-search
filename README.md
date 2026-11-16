@@ -1,12 +1,10 @@
 <p align="center">
   <img src="assets/branding/brand_logo.svg" alt="AI Job Search & Application OS Logo" width="380">
-  <br>
-  <img src="assets/mascot/pip_flight_loop.gif" alt="Pip, the courier bird" width="120">
 </p>
 
 # AI Job Search & Personal Application OS
 
-*The job search platform that runs entirely on your machine.*
+_The job search platform that runs entirely on your machine._
 
 [![CI](https://github.com/fnc314/ai-job-search/actions/workflows/ci.yml/badge.svg)](https://github.com/fnc314/ai-job-search/actions/workflows/ci.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4.21-purple.svg?logo=kotlin)](https://kotlinlang.org)
@@ -68,6 +66,7 @@ flowchart TD
 The repository adheres to strict modern engineering standards: isolated modular boundaries, composite builds, interface-first naming, strict `explicitApi()`, and unified dependency catalogs.
 
 ### 1. Isolated Gradle Composite Build Architecture
+
 Instead of an unwieldy mega-project with coupled build logic, the repository is partitioned into isolated, self-contained Gradle included builds united by a shared Version Catalog ([`gradle/libs.versions.toml`](gradle/libs.versions.toml)):
 
 ```
@@ -105,10 +104,13 @@ ai-job-search/
 ```
 
 ### 2. "Backend" as Headless Logic & Distributed Services
+
 In this architecture, **"Backend" carries zero user interface**. It represents pure headless logical services, scheduled background tasks, deterministic evaluation rules, and third-party webhooks (e.g., email ingestion, company data enrichment, Hunter.io resolvers). UI code is strictly sequestered inside `frontend/`.
 
 ### 3. Event-Sourced System of Record
-Cloud Firestore is the single authoritative system of record (`applications`, `companies`, `emails`). 
+
+Cloud Firestore is the single authoritative system of record (`applications`, `companies`, `emails`).
+
 - **Append-Only History:** Application status changes, recruiter interactions, notes, and salary negotiations are logged as immutable events in `applications/{id}/events`.
 - **Zero Fabrication (Grounding):** No AI tool is permitted to fabricate achievements or metrics. All generated materials are audited against [`01-candidate-profile.md`](.agents/skills/job-application-assistant/01-candidate-profile.md).
 - **Interface-First Naming:** Public APIs, data models, and services name their role and capability (`Remote`, `Local`, `Network`, `Email`, `Blob`), never vendor or third-party tool implementations.
@@ -119,15 +121,15 @@ Cloud Firestore is the single authoritative system of record (`applications`, `c
 
 Manage and inspect your search across whatever medium suits your flow:
 
-| Surface | Interface | How to Launch | Highlights |
-| :--- | :--- | :--- | :--- |
-| **Desktop GUI** | Compose Multiplatform (JVM) | `mise run frontend:desktop:run` | Full responsive windowed desktop application, split-pane detail views, offline caching. |
-| **Mobile App** | Android (Compose M3) | `mise run frontend:android:install` | Native Material 3 app, offline-first Room-backed database, dynamic theming. |
-| **Web App** | Compose Web (Wasm / JS) | `mise run frontend:web:wasm:dev` | Modern browser-based dashboard running Kotlin compiled directly to WebAssembly. |
-| **Interactive TUI**| Mordant Terminal UI | `mise run tui` | Fast, keyboard-driven console experience; live filtering, review queue, and quick PDF launcher. |
-| **Headless CLI** | Clikt Kotlin CLI | `mise run tracker <command>` | Scriptable terminal operations for listing, inspecting, updating, and scoring. |
-| **Roadmap TUI** | Internal Manager | `mise run roadmap:edit` | Developer TUI to review milestones, inspect complexity, and update development items. |
-| **Web Dashboard** | Lightweight HTML/SVG Server | `mise run dashboard` | Zero-dependency local visualizer (`http://127.0.0.1:8000`) for pipeline statistics. |
+| Surface             | Interface                   | How to Launch                       | Highlights                                                                                      |
+| :------------------ | :-------------------------- | :---------------------------------- | :---------------------------------------------------------------------------------------------- |
+| **Desktop GUI**     | Compose Multiplatform (JVM) | `mise run frontend:desktop:run`     | Full responsive windowed desktop application, split-pane detail views, offline caching.         |
+| **Mobile App**      | Android (Compose M3)        | `mise run frontend:android:install` | Native Material 3 app, offline-first Room-backed database, dynamic theming.                     |
+| **Web App**         | Compose Web (Wasm / JS)     | `mise run frontend:web:wasm:dev`    | Modern browser-based dashboard running Kotlin compiled directly to WebAssembly.                 |
+| **Interactive TUI** | Mordant Terminal UI         | `mise run tui`                      | Fast, keyboard-driven console experience; live filtering, review queue, and quick PDF launcher. |
+| **Headless CLI**    | Clikt Kotlin CLI            | `mise run tracker <command>`        | Scriptable terminal operations for listing, inspecting, updating, and scoring.                  |
+| **Roadmap TUI**     | Internal Manager            | `mise run roadmap:edit`             | Developer TUI to review milestones, inspect complexity, and update development items.           |
+| **Web Dashboard**   | Lightweight HTML/SVG Server | `mise run dashboard`                | Zero-dependency local visualizer (`http://127.0.0.1:8000`) for pipeline statistics.             |
 
 ---
 
@@ -149,6 +151,7 @@ All agent workflows are self-contained and portable across Claude Code, Gemini, 
 The repository uses [`mise`](https://mise.jdx.dev/) for unified command orchestration across toolchains:
 
 ### Search & Pipeline Management
+
 ```bash
 mise run scrape                     # Scrape active postings across configured search portals
 mise run search:rank                # Compute deterministic match scores across new postings
@@ -159,6 +162,7 @@ mise run align                      # Realign IDs, reproject notes, and refresh 
 ```
 
 ### Email Integration & Proposals
+
 ```bash
 mise run email:sync-labels          # Synchronize provider email labels and folder mappings
 mise run email:read-inbox           # Ingest job-related correspondence into local payloads
@@ -166,6 +170,7 @@ mise run email:collect              # Stage discovered application updates as re
 ```
 
 ### Multiplatform Builds & Quality Gates
+
 ```bash
 mise run frontend:build             # Build all Kotlin Multiplatform targets
 mise run frontend:desktop:run       # Launch Compose desktop client
@@ -180,12 +185,14 @@ mise run dev:guards                 # Verify supply-chain permissions and naming
 ## Prerequisites & Quickstart
 
 ### Prerequisites
+
 1. **AI Assistant CLI**: [Claude Code](https://claude.ai/code), [Gemini CLI / Antigravity](https://github.com/google-gemini), [OpenCode](https://opencode.dev), or Codex.
 2. **Task Runner**: [mise](https://mise.jdx.dev/) (`brew install mise` or `curl https://mise.run | sh`).
 3. **Runtimes**: JDK 17+ (JDK 21 recommended), Python 3.10+, [Bun](https://bun.sh).
 4. **Document Compilers**: `lualatex` (for CV) and `xelatex` (for Cover Letter) via MacTeX, TeX Live, or MiKTeX; `pdftotext` (`brew install poppler`).
 
 ### Setup
+
 ```bash
 # 1. Clone repository and install toolchains
 git clone https://github.com/fnc314/ai-job-search.git
@@ -200,6 +207,7 @@ antigravity # or claude, opencode
 ```
 
 Inside your AI CLI session, initialize your background:
+
 ```text
 /setup
 ```
@@ -208,7 +216,7 @@ Inside your AI CLI session, initialize your background:
 
 ## Attribution & Origins
 
-This project originated as a fork of [**ai-job-search**](https://github.com/MadsLorentzen/ai-job-search) created by [**Mads Lorentzen**](https://www.linkedin.com/in/mads-lorentzen/). When Mads faced sudden unemployment in late 2025, he built the original agentic pipeline to run his search — landing 20 first-round interviews and an AI engineering role in June 2026. 
+This project originated as a fork of [**ai-job-search**](https://github.com/MadsLorentzen/ai-job-search) created by [**Mads Lorentzen**](https://www.linkedin.com/in/mads-lorentzen/). When Mads faced sudden unemployment in late 2025, he built the original agentic pipeline to run his search — landing 20 first-round interviews and an AI engineering role in June 2026.
 
 We honor that original spark: a developer using code to turn an overwhelming process into an empowering, structured journey. This fork expands upon that vision with an enterprise Kotlin Multiplatform architecture, deterministic ranking algorithms, multi-module distributed Gradle engineering, and an expansive multi-modal UI suite.
 

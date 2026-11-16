@@ -36,6 +36,8 @@
   junit = "4.13.2"
   kermit = "2.2.0"
   kmp-inspector = "1.0.2"
+  pdfbox = "3.0.4"
+  pdfjs-dist = "4.10.38"
   koin = "4.2.2"
   koin-compiler = "1.2.3"
   konsist = "1.0.0-beta.1"
@@ -110,6 +112,7 @@
   junit = { module = "junit:junit", version.ref = "junit" }
   kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
   kmp-inspector = { module = "io.github.waqas028:kmp-inspector", version.ref = "kmp-inspector" }
+  pdfbox = { module = "org.apache.pdfbox:pdfbox", version.ref = "pdfbox" }
   kmp-inspector-ktor = { module = "io.github.waqas028:kmp-inspector-ktor", version.ref = "kmp-inspector" }
   kmp-inspector-noop = { module = "io.github.waqas028:kmp-inspector-no-op", version.ref = "kmp-inspector" }
   kmp-inspector-room = { module = "io.github.waqas028:kmp-inspector-room", version.ref = "kmp-inspector" }

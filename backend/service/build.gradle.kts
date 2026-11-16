@@ -9,11 +9,13 @@ kotlin {
 }
 
 application {
-    mainClass.set("dev.fnc314.tools.jobtracker.backend.MainKt")
+    mainClass.set("dev.fnc314.aijobtracker.backend.MainKt")
 }
 
 dependencies {
     implementation(project(":job-post-ranking"))
+    implementation(project(":job-post-scraping"))
+    implementation(project(":artifact-compilation"))
     implementation(libs.records.proto)
     implementation(libs.records.parser)
     implementation(libs.ktor.server.core)

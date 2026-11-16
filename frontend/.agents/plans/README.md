@@ -20,6 +20,7 @@ This directory contains design and implementation plans for the `frontend` proje
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`131500_compose-multiplatform-pdf-rendering-plan.md`](./2026-11-16/131500_compose-multiplatform-pdf-rendering-plan.md) | Completed | In-app cross-platform PDF rendering solution in Compose Multiplatform across Android (PdfRenderer), iOS (CoreGraphics), Desktop (PDFBox), and Web |
 | [`004109_job_applications_categorized_sections_plan.md`](./2026-11-16/004109_job_applications_categorized_sections_plan.md) | Completed | Categorized sections (Interviewing, In Draft, Applied, Rejected) with sticky headers, quick-jump navigation, and differentiated Material 3 card styling |
 | [`002919_top_app_bar_title_dropdown_plan.md`](./2026-11-16/002919_top_app_bar_title_dropdown_plan.md) | Completed | Interactive animated title dropdown summary widget in CenterAlignedTopAppBar across Job Applications, Details, Companies, and Company Details screens |
 | [`add-job-application-url-and-records-dep.md`](./2026-11-03/232245_add-job-application-url-and-records-dep.md) | Completed | Job URL navigation support and records composite build integration |

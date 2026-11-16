@@ -1,5 +1,9 @@
 package dev.fnc314.aijobtracker.backend
 
+import dev.fnc314.aijobtracker.backend.routes.applicationRoutes
+import dev.fnc314.aijobtracker.backend.routes.compilerRoutes
+import dev.fnc314.aijobtracker.backend.routes.rankingRoutes
+import dev.fnc314.aijobtracker.backend.routes.scrapingRoutes
 import dev.fnc314.aijobtracker.backend.webhook.emailWebhookRoute
 import io.ktor.server.application.call
 import io.ktor.server.engine.embeddedServer
@@ -121,6 +125,10 @@ public fun main(args: Array<String>): Unit {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
     embeddedServer(Netty, port = port) {
         routing {
+            scrapingRoutes()
+            rankingRoutes()
+            applicationRoutes()
+            compilerRoutes()
             emailWebhookRoute()
             get("/health") {
                 call.respondText(

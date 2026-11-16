@@ -37,6 +37,7 @@ import dev.fnc314.aijobtracker.frontend.core.artifacts.model.TrackerArtifact
 import dev.fnc314.aijobtracker.frontend.core.data.platform.PlatformFileSaver
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 import dev.fnc314.aijobtracker.frontend.core.navigation.LocalTopBarActionsSlot
+import dev.fnc314.aijobtracker.frontend.core.widgets.PdfViewer
 import dev.fnc314.aijobtracker.frontend.features.artifactpreviewer.domain.usecase.LoadArtifactContentUseCase
 import dev.fnc314.aijobtracker.frontend.features_artifact_previewer_ui.generated.resources.Res
 import dev.fnc314.aijobtracker.frontend.features_artifact_previewer_ui.generated.resources.artifact_previewer_action_save
@@ -156,41 +157,51 @@ public fun ArtifactPreviewScreen(
                 )
             }
             content != null -> {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    Markdown(
-                        content = content!!,
-                        colors = markdownColor(),
-                        typography = markdownTypography(
-                            h1 = MaterialTheme.typography.headlineSmall,
-                            h2 = MaterialTheme.typography.titleLarge,
-                            h3 = MaterialTheme.typography.titleMedium,
-                            h4 = MaterialTheme.typography.titleSmall,
-                            h5 = MaterialTheme.typography.bodyLarge,
-                            h6 = MaterialTheme.typography.bodyMedium,
-                            paragraph = MaterialTheme.typography.bodyLarge,
-                            code = MaterialTheme.typography.bodyMedium,
-                            inlineCode = MaterialTheme.typography.bodyMedium,
-                            quote = MaterialTheme.typography.bodyMedium,
-                            ordered = MaterialTheme.typography.bodyLarge,
-                            bullet = MaterialTheme.typography.bodyLarge,
-                            list = MaterialTheme.typography.bodyLarge,
-                            textLink = TextLinkStyles(
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold,
-                                    textDecoration = TextDecoration.Underline,
-                                ).toSpanStyle(),
-                            ),
-                            table = MaterialTheme.typography.bodyMedium,
-                            alertTitle = MaterialTheme.typography.bodyLarge,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .verticalScroll(rememberScrollState())
-                            .padding(MaterialTheme.spacing.medium),
+                val isPdf = filename.endsWith(".pdf", ignoreCase = true) ||
+                    artifact?.contentType?.contains("pdf", ignoreCase = true) == true
+
+                if (isPdf) {
+                    PdfViewer(
+                        documentBytes = content!!.encodeToByteArray(),
+                        modifier = Modifier.fillMaxSize()
                     )
+                } else {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Markdown(
+                            content = content!!,
+                            colors = markdownColor(),
+                            typography = markdownTypography(
+                                h1 = MaterialTheme.typography.headlineSmall,
+                                h2 = MaterialTheme.typography.titleLarge,
+                                h3 = MaterialTheme.typography.titleMedium,
+                                h4 = MaterialTheme.typography.titleSmall,
+                                h5 = MaterialTheme.typography.bodyLarge,
+                                h6 = MaterialTheme.typography.bodyMedium,
+                                paragraph = MaterialTheme.typography.bodyLarge,
+                                code = MaterialTheme.typography.bodyMedium,
+                                inlineCode = MaterialTheme.typography.bodyMedium,
+                                quote = MaterialTheme.typography.bodyMedium,
+                                ordered = MaterialTheme.typography.bodyLarge,
+                                bullet = MaterialTheme.typography.bodyLarge,
+                                list = MaterialTheme.typography.bodyLarge,
+                                textLink = TextLinkStyles(
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold,
+                                        textDecoration = TextDecoration.Underline,
+                                    ).toSpanStyle(),
+                                ),
+                                table = MaterialTheme.typography.bodyMedium,
+                                alertTitle = MaterialTheme.typography.bodyLarge,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                                .padding(MaterialTheme.spacing.medium),
+                        )
+                    }
                 }
             }
         }
