@@ -46,7 +46,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 |----------|----------------------------------------|-------------------------------------|-------------|----------|--------|--------|
 | RM-001   | Kotlin-Only Migration                  | Migrate all Python scripts to Kotlin | PIVOTAL    | MEDIUM   | 70 d   | IN_PROGRESS |
 | RM-002   | AI-Portable Pluginization              | Make agent contributions portable   | LOW         | LOW      | 70 d   | OPEN   |
-| RM-003   | Backend Functionality Abstraction      | Expose deterministic tasks as services | HIGH       | HIGH     | 70 d   | IN_PROGRESS |
+| RM-003   | Backend Functionality Abstraction      | Expose deterministic tasks as services | HIGH       | HIGH     | 70 d   | DONE   |
 | RM-006   | Add Email Top-Level Destination for in-app analysis | Add Email evidence & rectification | MEDIUM      | MEDIUM   | 0 d    | DONE        |
 | RM-004   | Firestore Events Migration Investigation | Evaluate top-level events collection | LOW        | LOW      | 35 d   | DONE   |
 | RM-005   | LinkedIn Company Enrichment            | Enrich companies with LinkedIn data | HIGH        | HIGH     | 35 d   | DONE   |
@@ -65,7 +65,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Priority:** MEDIUM
 **Complexity:** 5 — Critical
 **Status:** IN_PROGRESS
-**Completion %:** 60
+**Completion %:** 70
 **Creation Date:** 2026-11-10
 **Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/cli`).
 
@@ -108,6 +108,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-16 | Progress update   | Bumped completion to 70%: Kotlin backend services absorbed LaTeX compilation (backend:artifact-compilation), portal scraping (backend:job-post-scraping), ranking (backend:job-post-ranking), and on-device PDF rendering (frontend:core:widgets) |
 | 2026-11-10 | Progress update   | Created 10 Kotlin modules (DocumentIdGenerator, UuidGenerator, EventBuilder, FitEvaluator, RankScorer, ProposalClassifier, ArtifactUtils, CacheUtils, ContractError, EventError) with 117 tests in records/parser |
 | 2026-11-10 | Progress update   | Added RankCommand.kt CLI command and registered in Main.kt |
 | 2026-11-10 | Progress update   | Converted 13 Python mise tasks to shell wrappers (tracker/check, add, list, get, status, score, event, align, seed, default, search/rank, dev/test, ui/web/server) |
@@ -176,9 +177,10 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Criticality:** HIGH
 **Priority:** HIGH
 **Complexity:** 3 — Moderate
-**Status:** IN_PROGRESS
-**Completion %:** 75
+**Status:** DONE
+**Completion %:** 100
 **Creation Date:** 2026-11-10
+**Completion Date:** 2026-11-16
 **Objective:** Migrate existing deterministic Python functionalities and expose them to both `backend/` and `frontend/apps` projects. This sets the high-level requirement for any backend functionality created — deterministic tasks that don't require AI oversight should be offloaded to regular computation environments or automated processes.
 
 **Scope:**
@@ -214,6 +216,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-16 | Completed         | Deployed modularized Kotlin backend service to Cloud Run (dev-fnc314-ai-job-tracker-backend) with automated sweep scheduler; exposed deterministic routes for compilation, scraping, ranking, alignment, and event append |
 | 2026-11-10 | Status update     | Implemented application alignment route and service logic |
 | 2026-11-10 | Status update     | Implemented event chaining, projections, and backend service append |
 | 2026-11-10 | Item created      | Renamed from TODO-003 to RM-003      |
