@@ -1,6 +1,6 @@
 # Architecture Plan: Repository Naming Inconsistencies & Alignment for Release 2.0.0
 
-**Status:** Proposed  
+**Status:** Completed  
 **Date:** 2026-11-15  
 **Target:** Monorepo (`records`, `frontend`, `backend`, `internal`, `scripts`, `.config/mise`, `docs`)  
 **Evaluates:** [docs/naming-inconsistencies.md](../../../docs/naming-inconsistencies.md)

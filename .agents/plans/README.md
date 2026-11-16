@@ -24,7 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
-| [`200427_naming_inconsistencies_and_alignment_plan.md`](./2026-11-15/200427_naming_inconsistencies_and_alignment_plan.md) | Proposed | Repository naming, package namespace, brand, and build coordinate alignment across the monorepo for release v2.0.0 |
+| [`200427_naming_inconsistencies_and_alignment_plan.md`](./2026-11-15/200427_naming_inconsistencies_and_alignment_plan.md) | Completed | Repository naming, package namespace, brand, and build coordinate alignment across the monorepo for release v2.0.0 |
 | [`181134_public_documentation_pages_and_release_plan.md`](./2026-11-15/181134_public_documentation_pages_and_release_plan.md) | Completed | Public GitHub Pages documentation deployment at ai-job-tracker.fnc314.dev, version/1.0.0 git tag, automated mise release task, and 2.0.0 naming consistency audit |
 | [`165000_rm-010-separate-roadmapapp.md`](./2026-11-15/165000_rm-010-separate-roadmapapp.md) | Completed | Complete RM-010: extract RoadmapApp from frontend/apps/terminal to internal/apps/terminal/roadmap standalone application module |
 | [`162500_rm-012-eradicate-interface-naming-baseline.md`](./2026-11-15/162500_rm-012-eradicate-interface-naming-baseline.md) | Completed | Complete RM-012: eradicate all 51 baseline tool-naming violations across Kotlin and Python codebases, shrinking `docs/interface-naming-baseline.txt` to zero |
