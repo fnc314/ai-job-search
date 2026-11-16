@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.composables.icons.fontawesome.FontAwesome
 import com.composables.icons.fontawesome.brands.Linkedin
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
+import dev.fnc314.aijobtracker.frontend.core.navigation.LocalTopBarTitleSummarySlot
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyLogoImage
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyLogoSize
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyMetricsTextRow
@@ -41,6 +42,7 @@ import dev.fnc314.aijobtracker.frontend.core.widgets.JobApplicationCard
 import dev.fnc314.aijobtracker.frontend.core.widgets.LoadingWidget
 import dev.fnc314.aijobtracker.frontend.core.widgets.TooltipIconButton
 import dev.fnc314.aijobtracker.frontend.core.widgets.TopLevelCardSurfaceVariant
+import dev.fnc314.aijobtracker.frontend.features.companydetails.ui.component.CompanyDetailsSummaryMenu
 import ai_job_tracker_frontend.features_company_details_ui.generated.resources.Res
 import ai_job_tracker_frontend.features_company_details_ui.generated.resources.company_details_applications_header
 import ai_job_tracker_frontend.features_company_details_ui.generated.resources.company_details_avg_fit_label
@@ -78,6 +80,19 @@ internal fun CompanyDetailsScreen(
   }
 
   val state by viewModel.uiState.collectAsState()
+  val titleSummarySlot = LocalTopBarTitleSummarySlot.current
+
+  val details = (state as? CompanyDetailsUiState.Content)?.details
+  LaunchedEffect(details) {
+    if (details != null) {
+      titleSummarySlot.summary.value = { onDismiss ->
+        CompanyDetailsSummaryMenu(
+          details = details,
+          onDismiss = onDismiss,
+        )
+      }
+    }
+  }
 
   when (val s = state) {
     is CompanyDetailsUiState.Loading -> {

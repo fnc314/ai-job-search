@@ -20,6 +20,8 @@ This directory contains design and implementation plans for the `frontend` proje
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`004109_job_applications_categorized_sections_plan.md`](./2026-11-16/004109_job_applications_categorized_sections_plan.md) | Completed | Categorized sections (Interviewing, In Draft, Applied, Rejected) with sticky headers, quick-jump navigation, and differentiated Material 3 card styling |
+| [`002919_top_app_bar_title_dropdown_plan.md`](./2026-11-16/002919_top_app_bar_title_dropdown_plan.md) | Completed | Interactive animated title dropdown summary widget in CenterAlignedTopAppBar across Job Applications, Details, Companies, and Company Details screens |
 | [`add-job-application-url-and-records-dep.md`](./2026-11-03/232245_add-job-application-url-and-records-dep.md) | Completed | Job URL navigation support and records composite build integration |
 | [`build-logs-and-compiler-warnings-triage-plan.md`](./2026-11-05/160417_build-logs-and-compiler-warnings-triage-plan.md) | Completed | Build logs and compiler warnings triage & resolution |
 | [`clean-architecture-datasources-repositories-plan.md`](./2026-11-05/164709_clean-architecture-datasources-repositories-plan.md) | Completed | Clean Architecture layer decoupling: DataSources in core, Repositories in features |

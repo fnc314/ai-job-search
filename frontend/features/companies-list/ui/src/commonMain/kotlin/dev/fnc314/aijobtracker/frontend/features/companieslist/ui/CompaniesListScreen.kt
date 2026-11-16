@@ -44,12 +44,14 @@ import dev.fnc314.aijobtracker.frontend.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.aijobtracker.frontend.core.designsystem.WindowWidthSizeClass
 import dev.fnc314.aijobtracker.frontend.core.designsystem.componentSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
+import dev.fnc314.aijobtracker.frontend.core.navigation.LocalTopBarTitleSummarySlot
 import dev.fnc314.aijobtracker.frontend.core.widgets.EmptyStateWidget
 import dev.fnc314.aijobtracker.frontend.core.widgets.ErrorBannerWidget
 import dev.fnc314.aijobtracker.frontend.core.widgets.LoadingWidget
 import dev.fnc314.aijobtracker.frontend.core.widgets.TooltipIconButton
 import dev.fnc314.aijobtracker.frontend.core.widgets.TopLevelCardSurfaceVariant
 import dev.fnc314.aijobtracker.frontend.features.companieslist.domain.CompanySortOption
+import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.component.CompaniesListSummaryMenu
 import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.component.CompanyCard
 import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.component.CompanyFilterMenu
 import ai_job_tracker_frontend.features_companies_list_ui.generated.resources.Res
@@ -69,6 +71,19 @@ internal fun CompaniesListScreen(
     viewModel: CompaniesListViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
+    val titleSummarySlot = LocalTopBarTitleSummarySlot.current
+
+    val companies = (state as? CompaniesListUiState.Content)?.companies
+    androidx.compose.runtime.LaunchedEffect(companies) {
+        if (companies != null) {
+            titleSummarySlot.summary.value = { onDismiss ->
+                CompaniesListSummaryMenu(
+                    companies = companies,
+                    onDismiss = onDismiss,
+                )
+            }
+        }
+    }
 
     when (val s = state) {
         is CompaniesListUiState.Loading -> {

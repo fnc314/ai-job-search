@@ -60,3 +60,20 @@ public class TopBarActionsSlot {
  */
 public val LocalTopBarActionsSlot: ProvidableCompositionLocal<TopBarActionsSlot> =
     staticCompositionLocalOf { TopBarActionsSlot() }
+
+/**
+ * Wrapper holding an optional state-backed composable lambda that renders a screen summary
+ * within the dropdown menu attached to the [CenterAlignedTopAppBar] title.
+ */
+public class TopBarTitleSummarySlot {
+    /** State-backed composable content rendering the summary dropdown content when expanded. */
+    public val summary: MutableState<(@Composable (onDismiss: () -> Unit) -> Unit)?> =
+        mutableStateOf(null)
+}
+
+/**
+ * CompositionLocal carrying the [TopBarTitleSummarySlot] for child screens to populate.
+ */
+public val LocalTopBarTitleSummarySlot: ProvidableCompositionLocal<TopBarTitleSummarySlot> =
+    staticCompositionLocalOf { TopBarTitleSummarySlot() }
+

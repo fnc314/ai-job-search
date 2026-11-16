@@ -38,15 +38,21 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.fnc314.aijobtracker.frontend.core.navigation.LocalAppNavigator
 import dev.fnc314.aijobtracker.frontend.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.aijobtracker.frontend.core.navigation.JobApplicationsTrackerNavKey
 import dev.fnc314.aijobtracker.frontend.core.navigation.LocalTopBarActionsSlot
+import dev.fnc314.aijobtracker.frontend.core.navigation.LocalTopBarTitleSummarySlot
 import dev.fnc314.aijobtracker.frontend.core.navigation.TopBarActions
 import dev.fnc314.aijobtracker.frontend.core.navigation.TopBarActionsSlot
+import dev.fnc314.aijobtracker.frontend.core.navigation.TopBarTitleSummarySlot
+import dev.fnc314.aijobtracker.frontend.core.widgets.TopBarTitleDropdown
 import dev.fnc314.aijobtracker.frontend.core.navigation.Navigator
 import dev.fnc314.aijobtracker.frontend.core.navigation.TopLevelDestinationEnum
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplicationAddApplicationRoute
@@ -177,13 +183,18 @@ public fun AppScaffold(
   // and the TopAppBar reads it.
   val childActionsSlot = remember { TopBarActionsSlot() }
 
-  // Clear custom actions when the current route declares none, so leftover
-  // buttons from a previous destination (e.g., ArtifactPreview save) don't
-  // persist when navigating away.
+  // Shared title summary slot: child screens populate summary content,
+  // and the TopAppBar title wraps with an animated chevron dropdown.
+  val titleSummarySlot = remember { TopBarTitleSummarySlot() }
+  var isTitleDropdownExpanded by remember { mutableStateOf(false) }
+
+  // Clear custom actions and summaries when the current route changes
   LaunchedEffect(currentDestination) {
     if (!topBarActions.hasCustomActions) {
       childActionsSlot.render.value = {}
     }
+    titleSummarySlot.summary.value = null
+    isTitleDropdownExpanded = false
   }
 
   Scaffold(
@@ -192,10 +203,23 @@ public fun AppScaffold(
     topBar = {
       CenterAlignedTopAppBar(
         title = {
-          Text(
-            text = titleText,
-            style = MaterialTheme.typography.titleLarge,
-          )
+          val summaryContent = titleSummarySlot.summary.value
+          if (summaryContent != null) {
+            TopBarTitleDropdown(
+              title = titleText,
+              isExpanded = isTitleDropdownExpanded,
+              onToggle = { isTitleDropdownExpanded = !isTitleDropdownExpanded },
+              onDismiss = { isTitleDropdownExpanded = false },
+              dropdownContent = {
+                summaryContent { isTitleDropdownExpanded = false }
+              },
+            )
+          } else {
+            Text(
+              text = titleText,
+              style = MaterialTheme.typography.titleLarge,
+            )
+          }
         },
         navigationIcon = {
           if (canNavigateBack) {
@@ -285,7 +309,10 @@ public fun AppScaffold(
         }
 
         Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-          CompositionLocalProvider(LocalTopBarActionsSlot provides childActionsSlot) {
+          CompositionLocalProvider(
+            LocalTopBarActionsSlot provides childActionsSlot,
+            LocalTopBarTitleSummarySlot provides titleSummarySlot,
+          ) {
             content(PaddingValues())
           }
         }
@@ -297,7 +324,10 @@ public fun AppScaffold(
           .padding(innerPadding)
           .consumeWindowInsets(innerPadding),
       ) {
-        CompositionLocalProvider(LocalTopBarActionsSlot provides childActionsSlot) {
+        CompositionLocalProvider(
+          LocalTopBarActionsSlot provides childActionsSlot,
+          LocalTopBarTitleSummarySlot provides titleSummarySlot,
+        ) {
           content(PaddingValues())
         }
       }

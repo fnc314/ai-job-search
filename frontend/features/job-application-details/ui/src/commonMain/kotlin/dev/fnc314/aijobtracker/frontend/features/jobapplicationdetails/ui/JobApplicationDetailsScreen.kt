@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -45,6 +47,7 @@ import dev.fnc314.aijobtracker.frontend.core.designsystem.componentSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.iconSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 import dev.fnc314.aijobtracker.frontend.core.navigation.BackHandler
+import dev.fnc314.aijobtracker.frontend.core.navigation.LocalTopBarTitleSummarySlot
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyLogoImage
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyLogoSize
 import dev.fnc314.aijobtracker.frontend.core.widgets.ErrorBannerWidget
@@ -53,6 +56,7 @@ import dev.fnc314.aijobtracker.frontend.core.widgets.LoadingWidget
 import dev.fnc314.aijobtracker.frontend.core.widgets.StatusBadge
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.ui.component.ArtifactsList
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.ui.component.EventsTimeline
+import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.ui.component.JobApplicationDetailsSummaryMenu
 import ai_job_tracker_frontend.features_job_application_details_ui.generated.resources.Res
 import ai_job_tracker_frontend.features_job_application_details_ui.generated.resources.detail_action_go_back
 import ai_job_tracker_frontend.features_job_application_details_ui.generated.resources.detail_action_record_event
@@ -102,6 +106,7 @@ public fun JobApplicationDetailsScreen(
   modifier: Modifier = Modifier,
 ) {
   val uiState by viewModel.uiState.collectAsState()
+  val titleSummarySlot = LocalTopBarTitleSummarySlot.current
 
   BackHandler(enabled = true) {
     onNavigateBack()
@@ -109,6 +114,19 @@ public fun JobApplicationDetailsScreen(
 
   LaunchedEffect(applicationId) {
     viewModel.onIntent(JobApplicationDetailUiIntent.Load(applicationId))
+  }
+
+  // Publish summary content to the top app bar title dropdown when content is loaded
+  val contentModel = (uiState as? JobApplicationDetailUiState.Content)?.model
+  LaunchedEffect(contentModel) {
+    if (contentModel != null) {
+      titleSummarySlot.summary.value = { onDismiss ->
+        JobApplicationDetailsSummaryMenu(
+          model = contentModel,
+          onDismiss = onDismiss,
+        )
+      }
+    }
   }
 
   when (val state = uiState) {
@@ -230,6 +248,7 @@ private fun JobApplicationDetailContent(
               )
 
               ApplicationTimelineSection(model = model)
+              Spacer(modifier = Modifier.height(MaterialTheme.spacing.fabBottomPadding))
             }
           }
         } else {
@@ -257,6 +276,7 @@ private fun JobApplicationDetailContent(
             )
 
             ApplicationTimelineSection(model = model)
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.fabBottomPadding))
           }
         }
       }
