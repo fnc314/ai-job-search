@@ -7,20 +7,20 @@ package dev.fnc314.tools.jobsearch.parser
  * ```python
  * from dev.fnc314.tools.jobsearch.parser import TrackerParser
  *
- * iso_date = TrackerParser.fromFirestore(timestamp_map)
+ * iso_date = TrackerParser.fromRemote(timestamp_map)
  * normalized = TrackerParser.normalizeStatus("interviewing")
  * flat_row = TrackerParser.rowFromStore(app_dict, artifacts_list)
  * ```
  */
 public object TrackerParser {
   /**
-   * Converts a Firestore timestamp representation into an ISO-8601 formatted date/time string.
+   * Converts a remote timestamp representation into an ISO-8601 formatted date/time string.
    *
    * Accepts a map containing `"seconds"` and `"nanos"` numeric keys, or a protobuf [com.google.protobuf.Timestamp] instance.
    *
-   * @param value The raw Firestore timestamp representation or proto instance.
+   * @param value The raw remote timestamp representation or proto instance.
    * @return The formatted ISO-8601 string, or null if the input value was null or unparseable.
-   * @see TimestampConverter.fromFirestore
+   * @see TimestampConverter.fromRemote
    */
   @JvmStatic
   public fun fromRemote(value: Any?): Any? = TimestampConverter.fromRemote(value)
