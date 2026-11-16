@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.architecture
+package dev.fnc314.aijobtracker.architecture
 
 import com.lemonappdev.konsist.api.verify.assertTrue
 import kotlin.test.Test

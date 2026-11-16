@@ -41,7 +41,7 @@ public data object JobApplicationAddLeadRoute : JobApplicationsTrackerNavKey {
  * Navigation entry registry providing routes for adding job applications and leads.
  */
 public class AddJobApplicationEntryRegistry : FeatureEntryRegistry {
-    override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+    override operator fun invoke(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationAddApplicationRoute> {
             val navigator = LocalAppNavigator.current
             AddJobApplicationScreen(

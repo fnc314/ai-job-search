@@ -5,7 +5,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.repository.UseCase
 /**
  * Use case capturing an informal unsubmitted opportunity lead in [dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus.DRAFTING] status.
  */
-public interface CreateLeadUseCase : UseCase<CreateLeadUseCase.Params, String> {
+public fun interface CreateLeadUseCase : UseCase<CreateLeadUseCase.Params, String> {
 
     /**
      * Parameter carrier for creating an opportunity lead.

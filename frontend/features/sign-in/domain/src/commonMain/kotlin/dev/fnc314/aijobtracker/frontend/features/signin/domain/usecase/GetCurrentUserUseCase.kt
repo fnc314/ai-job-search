@@ -5,7 +5,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.model.UserAccount
 /**
  * Use case retrieving the currently signed-in user account.
  */
-public interface GetCurrentUserUseCase {
+public fun interface GetCurrentUserUseCase {
 
     /**
      * Resolves the current user identity.

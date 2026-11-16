@@ -22,7 +22,7 @@ internal class CompanyDetailsRepositoryImpl(
     private val remoteDataSource: RemoteDataSource,
 ) : CompanyDetailsRepository {
 
-    override suspend fun getCompanyDetails(companyId: String): CompanyWithApplications? {
+    override suspend fun invoke(companyId: String): CompanyWithApplications? {
         return withContext(Dispatchers.Default) {
             val companyRecord = remoteDataSource.getDocument("companies", companyId) ?: return@withContext null
             val company = mapRecordToCompany(companyRecord)

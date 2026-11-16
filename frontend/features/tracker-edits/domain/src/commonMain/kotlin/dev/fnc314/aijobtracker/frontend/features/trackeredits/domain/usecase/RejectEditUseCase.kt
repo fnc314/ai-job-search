@@ -6,7 +6,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEdit
 /**
  * Use case rejecting an edit proposal.
  */
-public interface RejectEditUseCase : UseCase<RejectEditUseCase.Params, TrackerEdit> {
+public fun interface RejectEditUseCase : UseCase<RejectEditUseCase.Params, TrackerEdit> {
 
     /**
      * Parameter carrier for proposal rejection.

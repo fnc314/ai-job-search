@@ -35,7 +35,7 @@ public data class JobApplicationDetailRoute(
  * Navigation entry registry providing routes for the job application details feature.
  */
 public class JobApplicationDetailsEntryRegistry : FeatureEntryRegistry {
-    override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+    override operator fun invoke(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationDetailRoute> { key ->
             val navigator = LocalAppNavigator.current
             val settingsRepository = koinInject<AppSettingsRepository>()

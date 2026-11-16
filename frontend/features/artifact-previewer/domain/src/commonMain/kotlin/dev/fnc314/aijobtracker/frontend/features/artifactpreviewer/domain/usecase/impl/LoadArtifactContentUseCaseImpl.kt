@@ -29,7 +29,7 @@ internal class LoadArtifactContentUseCaseImpl(
 
         // Try 2: Fetch from external URL (signed URL or public link)
         if (!fetched && externalUrl != null) {
-            val urlContent = contentRepository.fetchContent(externalUrl)
+            val urlContent = contentRepository(externalUrl)
             if (urlContent != null) {
                 content = urlContent
                 fetched = true
@@ -39,7 +39,7 @@ internal class LoadArtifactContentUseCaseImpl(
         // Try 3: Fall back to GCS storage URL
         if (!fetched && storage != null) {
             val gcsUrl = "https://storage.googleapis.com/${storage.bucket}/${storage.path}"
-            val gcsContent = contentRepository.fetchContent(gcsUrl)
+            val gcsContent = contentRepository(gcsUrl)
             if (gcsContent != null) {
                 content = gcsContent
                 fetched = true

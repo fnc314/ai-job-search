@@ -56,7 +56,7 @@ internal class JobApplicationDetailsRepositoryImpl(
     }
 
     override suspend fun getArtifactSignedUrl(path: String): String {
-        return networkDataSource.getArtifactSignedUrl(path)
+        return networkDataSource(path)
     }
 
     override suspend fun getArtifacts(applicationId: String): List<TrackerArtifact> {

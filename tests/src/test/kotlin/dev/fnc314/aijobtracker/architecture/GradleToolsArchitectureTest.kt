@@ -1,22 +1,22 @@
-package dev.fnc314.tools.jobtracker.architecture
+package dev.fnc314.aijobtracker.architecture
 
 import com.lemonappdev.konsist.api.verify.assertTrue
 import kotlin.test.Test
 
 /**
- * Architecture test suite for `backend` subsystem.
+ * Architecture test suite for `gradle/tools` project plugins.
  *
- * Enforces architectural boundaries and comprehensive KDoc documentation on every public declaration.
+ * Enforces conventions and comprehensive KDoc documentation on every public declaration.
  */
-class BackendArchitectureTest : BaseArchitectureTest() {
+class GradleToolsArchitectureTest : BaseArchitectureTest() {
 
     @Test
-    fun `all public declarations in backend have KDoc`() {
-        val decls = backendScope.classes() +
-            backendScope.interfaces() +
-            backendScope.objects() +
-            backendScope.functions() +
-            backendScope.properties()
+    fun `all public declarations in gradle tools have KDoc`() {
+        val decls = gradleToolsScope.classes() +
+            gradleToolsScope.interfaces() +
+            gradleToolsScope.objects() +
+            gradleToolsScope.functions() +
+            gradleToolsScope.properties()
 
         decls
             .filter { it.hasPublicModifier }
@@ -30,8 +30,8 @@ class BackendArchitectureTest : BaseArchitectureTest() {
     }
 
     @Test
-    fun `all public functions in backend have explicit return types`() {
-        backendScope
+    fun `all public functions in gradle tools have explicit return types`() {
+        gradleToolsScope
             .functions()
             .filter { it.hasPublicModifier }
             .filterNot {

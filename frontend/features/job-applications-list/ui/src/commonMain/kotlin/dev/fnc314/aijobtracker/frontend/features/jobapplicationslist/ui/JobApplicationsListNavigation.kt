@@ -35,7 +35,7 @@ public data object JobApplicationListRoute : JobApplicationsTrackerNavKey {
  * Navigation entry registry providing routes for the job applications list feature.
  */
 public class JobApplicationsEntryRegistry : FeatureEntryRegistry {
-    override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+    override operator fun invoke(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationListRoute> {
             val navigator = LocalAppNavigator.current
             val settingsRepository = koinInject<AppSettingsRepository>()

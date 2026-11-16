@@ -6,7 +6,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.repository.UseCase
 /**
  * Use case querying a specific application entity by its unique slug or UUID.
  */
-public interface LoadJobApplicationUseCase : UseCase<LoadJobApplicationUseCase.Params, JobApplication?> {
+public fun interface LoadJobApplicationUseCase : UseCase<LoadJobApplicationUseCase.Params, JobApplication?> {
 
     /**
      * Parameter carrier for loading an application.

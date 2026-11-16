@@ -54,7 +54,7 @@ class CompanyDetailsViewModelTest {
         Dispatchers.setMain(testDispatcher)
 
         val mockRepo = object : CompanyDetailsRepository {
-            override suspend fun getCompanyDetails(companyId: String): CompanyWithApplications? {
+            override suspend fun invoke(companyId: String): CompanyWithApplications? {
                 return if (companyId == "google") {
                     CompanyWithApplications(sampleCompany, sampleApplications)
                 } else null
@@ -80,7 +80,7 @@ class CompanyDetailsViewModelTest {
         Dispatchers.setMain(testDispatcher)
 
         val mockRepo = object : CompanyDetailsRepository {
-            override suspend fun getCompanyDetails(companyId: String): CompanyWithApplications? = null
+            override suspend fun invoke(companyId: String): CompanyWithApplications? = null
         }
 
         val viewModel = CompanyDetailsViewModel(LoadCompanyDetailsUseCase(mockRepo))

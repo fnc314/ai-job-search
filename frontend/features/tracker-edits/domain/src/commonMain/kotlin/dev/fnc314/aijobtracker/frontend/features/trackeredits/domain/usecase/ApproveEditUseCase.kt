@@ -6,7 +6,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEdit
 /**
  * Use case approving an edit proposal and mutating the target application document.
  */
-public interface ApproveEditUseCase : UseCase<ApproveEditUseCase.Params, TrackerEdit> {
+public fun interface ApproveEditUseCase : UseCase<ApproveEditUseCase.Params, TrackerEdit> {
 
     /**
      * Parameter carrier for proposal approval.

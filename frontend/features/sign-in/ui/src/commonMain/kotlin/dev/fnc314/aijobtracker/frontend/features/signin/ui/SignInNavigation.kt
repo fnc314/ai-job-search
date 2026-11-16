@@ -29,7 +29,7 @@ public data object SignInRoute : JobApplicationsTrackerNavKey {
  * Navigation entry registry providing routes for the sign-in feature.
  */
 public class SignInEntryRegistry : FeatureEntryRegistry {
-  override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+  override operator fun invoke(scope: EntryProviderScope<PlatformNavKey>) {
     scope.entry<SignInRoute> {
       val viewModel = koinViewModel<SignInViewModel>()
       val navigator = LocalAppNavigator.current

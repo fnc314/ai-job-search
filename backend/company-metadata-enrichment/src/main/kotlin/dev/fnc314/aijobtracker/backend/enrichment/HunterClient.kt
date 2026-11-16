@@ -10,7 +10,7 @@ import java.net.URL
 /**
  * Interface for Hunter.io API access.
  */
-public interface HunterClient {
+public fun interface HunterClient {
     /**
      * Lookup company metadata by domain.
      *

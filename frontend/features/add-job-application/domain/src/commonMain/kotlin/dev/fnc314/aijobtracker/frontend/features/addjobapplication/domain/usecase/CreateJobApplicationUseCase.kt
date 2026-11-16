@@ -6,7 +6,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.model.JobApplication
 /**
  * Use case saving a newly drafted or submitted job application into the tracking pipeline.
  */
-public interface CreateJobApplicationUseCase : UseCase<CreateJobApplicationUseCase.Params, String> {
+public fun interface CreateJobApplicationUseCase : UseCase<CreateJobApplicationUseCase.Params, String> {
 
     /**
      * Parameter carrier containing the [JobApplication] to persist.

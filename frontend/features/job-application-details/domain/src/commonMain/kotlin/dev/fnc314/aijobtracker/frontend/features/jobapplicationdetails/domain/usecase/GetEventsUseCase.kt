@@ -6,7 +6,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.repository.UseCase
 /**
  * Use case fetching all audit events for a specific application from its timeline subcollection.
  */
-public interface GetEventsUseCase : UseCase<GetEventsUseCase.Params, List<TrackerEvent>> {
+public fun interface GetEventsUseCase : UseCase<GetEventsUseCase.Params, List<TrackerEvent>> {
 
     /**
      * Parameter carrier for loading events.

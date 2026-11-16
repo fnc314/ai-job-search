@@ -10,7 +10,7 @@ import kotlin.time.Instant
 /**
  * Use case filtering an in-memory collection of applications by lifecycle status and creation age.
  */
-public interface FilterJobApplicationsUseCase : UseCase<FilterJobApplicationsUseCase.Params, List<JobApplication>> {
+public fun interface FilterJobApplicationsUseCase : UseCase<FilterJobApplicationsUseCase.Params, List<JobApplication>> {
 
     /**
      * Relative age intervals used for temporal filtering.

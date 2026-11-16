@@ -5,7 +5,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.model.UserAccount
 /**
  * Use case initiating platform-specific user sign-in.
  */
-public interface SignInUseCase {
+public fun interface SignInUseCase {
 
     /**
      * Executes interactive sign-in.

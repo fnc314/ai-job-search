@@ -16,6 +16,6 @@ public class LoadCompanyDetailsUseCase(
      * @return [CompanyWithApplications] or null when not found.
      */
     public suspend operator fun invoke(companyId: String): CompanyWithApplications? {
-        return repository.getCompanyDetails(companyId)
+        return repository(companyId)
     }
 }

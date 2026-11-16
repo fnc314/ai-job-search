@@ -202,7 +202,7 @@ public fun App() {
                       backStack = navigator.backStack,
                       onBack = { appNavigator.popBackStack() },
                       entryProvider = entryProvider {
-                        entryRegistries.forEach { it.register(this) }
+                        entryRegistries.forEach { it(this) }
                       },
                       modifier = Modifier.fillMaxSize(),
                     )

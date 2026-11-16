@@ -7,7 +7,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.repository.UseCase
 /**
  * Use case orchestrating status transitions, audit event creation, and timestamp updates for an application.
  */
-public interface UpdateApplicationStatusUseCase : UseCase<UpdateApplicationStatusUseCase.Params, JobApplication> {
+public fun interface UpdateApplicationStatusUseCase : UseCase<UpdateApplicationStatusUseCase.Params, JobApplication> {
 
     /**
      * Parameter carrier for application status transitions.

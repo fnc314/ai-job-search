@@ -28,7 +28,7 @@ public data object JobApplicationSettingsRoute : JobApplicationsTrackerNavKey {
  * Navigation entry registry providing routes for the settings feature.
  */
 public class SettingsEntryRegistry : FeatureEntryRegistry {
-    override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+    override operator fun invoke(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationSettingsRoute> {
             val navigator = LocalAppNavigator.current
             SettingsScreen(

@@ -7,7 +7,7 @@ import kotlin.time.Instant
 /**
  * Use case sorting an in-memory collection of applications by specified column criteria and direction.
  */
-public interface SortJobApplicationsUseCase : UseCase<SortJobApplicationsUseCase.Params, List<JobApplication>> {
+public fun interface SortJobApplicationsUseCase : UseCase<SortJobApplicationsUseCase.Params, List<JobApplication>> {
 
     /**
      * Supported sortable column attributes.

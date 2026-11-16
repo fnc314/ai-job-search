@@ -32,7 +32,7 @@ public data object JobApplicationEditsRoute : JobApplicationsTrackerNavKey {
  * Navigation entry registry providing routes for the tracker edits feature.
  */
 public class TrackerEditsEntryRegistry : FeatureEntryRegistry {
-  override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+  override operator fun invoke(scope: EntryProviderScope<PlatformNavKey>) {
     scope.entry<JobApplicationEditsRoute> {
       val navigator = LocalAppNavigator.current
       val settingsRepository = koinInject<AppSettingsRepository>()

@@ -6,7 +6,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.repository.UseCase
 /**
  * Use case appending an immutable audit event to an application's event subcollection.
  */
-public interface RecordEventUseCase : UseCase<RecordEventUseCase.Params, String> {
+public fun interface RecordEventUseCase : UseCase<RecordEventUseCase.Params, String> {
 
     /**
      * Parameter carrier containing the [TrackerEvent] to persist.

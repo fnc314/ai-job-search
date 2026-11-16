@@ -8,11 +8,11 @@ import androidx.navigation3.runtime.NavKey as PlatformNavKey
  * callback parameters. Implementations use `org.koin.compose.koinInject` to obtain
  * an [AppNavigator] for navigation actions.
  */
-public interface FeatureEntryRegistry {
+public fun interface FeatureEntryRegistry {
     /**
      * Registers feature navigation entries into the provided [scope].
      *
      * @param scope Navigation entry provider scope.
      */
-    public fun register(scope: EntryProviderScope<PlatformNavKey>)
+    public operator fun invoke(scope: EntryProviderScope<PlatformNavKey>)
 }

@@ -1,4 +1,4 @@
-package dev.fnc314.tools.jobtracker.architecture
+package dev.fnc314.aijobtracker.architecture
 
 import com.lemonappdev.konsist.api.verify.assertTrue
 import java.io.File
@@ -91,7 +91,7 @@ class FrontendArchitectureTest : BaseArchitectureTest() {
             .filter { it.path.contains("/features/") && it.path.contains("/domain/") }
             .assertTrue { file ->
                 file.imports.none { import ->
-                    (!import.name.startsWith("dev.fnc314.tools.jobtracker.core.data.") &&
+                    (!import.name.startsWith("dev.fnc314.aijobtracker.frontend.core.data.") &&
                         !import.name.endsWith("Repository") &&
                         import.name.contains(".data.")) ||
                         import.name.contains(".ui.")

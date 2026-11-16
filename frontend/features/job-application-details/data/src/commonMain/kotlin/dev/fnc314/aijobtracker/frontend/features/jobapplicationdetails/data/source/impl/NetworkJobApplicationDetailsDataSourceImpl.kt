@@ -6,7 +6,7 @@ import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.data.sour
 internal class NetworkJobApplicationDetailsDataSourceImpl(
     private val networkDataSource: NetworkDataSource,
 ) : NetworkJobApplicationDetailsDataSource {
-    override suspend fun getArtifactSignedUrl(path: String): String {
+    override suspend fun invoke(path: String): String {
         return "https://storage.googleapis.com/jobsearch-artifacts/$path"
     }
 }

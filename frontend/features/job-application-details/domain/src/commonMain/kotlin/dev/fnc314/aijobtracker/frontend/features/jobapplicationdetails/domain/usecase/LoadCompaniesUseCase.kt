@@ -6,7 +6,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.repository.UseCase
 /**
  * Use case retrieving the collection of registered employer companies for auto-completion and company cards.
  */
-public interface LoadCompaniesUseCase : UseCase<LoadCompaniesUseCase.Params, List<Company>> {
+public fun interface LoadCompaniesUseCase : UseCase<LoadCompaniesUseCase.Params, List<Company>> {
 
     /**
      * Parameter carrier for querying companies.

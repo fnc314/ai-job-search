@@ -34,7 +34,7 @@ public data class JobApplicationCompanyDetailsRoute(
  * Navigation entry registry providing routes for the company details feature.
  */
 public class CompanyDetailsEntryRegistry : FeatureEntryRegistry {
-    override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+    override operator fun invoke(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationCompanyDetailsRoute> { key ->
             val navigator = LocalAppNavigator.current
             CompanyDetailsScreen(

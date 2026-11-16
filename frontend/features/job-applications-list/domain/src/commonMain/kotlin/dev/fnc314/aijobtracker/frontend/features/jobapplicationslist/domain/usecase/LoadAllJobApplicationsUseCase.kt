@@ -8,7 +8,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.repository.UseCase
  *
  * Implements [UseCase] receiving [LoadAllJobApplicationsUseCase.Params] and returning `List<JobApplication>`.
  */
-public interface LoadAllJobApplicationsUseCase : UseCase<LoadAllJobApplicationsUseCase.Params, List<JobApplication>> {
+public fun interface LoadAllJobApplicationsUseCase : UseCase<LoadAllJobApplicationsUseCase.Params, List<JobApplication>> {
 
     /**
      * Execution parameters for loading job applications.

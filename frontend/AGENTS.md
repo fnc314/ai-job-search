@@ -68,6 +68,12 @@ All modules enforce explicit API mode (`explicitApi()` or `explicitApiWarning()`
 - Feature modules (`features/*/ui`) must depend on `projects.coreWidgets` and **not** directly on `projects.coreDesignSystem`.
 - `core/design-system` must remain strictly token- and theme-only; no widgets may be introduced into it.
 
+### Rule 6: Single Abstract Method (SAM) & Functional Interface Standard
+Every Kotlin `interface` in `frontend` (domain use cases, data sources, repositories, listeners) with exactly 1 abstract method must be declared as a `[public|internal] fun interface`:
+- **Method Signature:** The method must be `operator fun invoke(...)`.
+- **Calling Convention:** Invoked directly via operator call syntax: `useCase(params)`.
+- **UseCase Extension:** All domain use cases extending `UseCase<Params, Result>` without additional abstract methods must be declared as `public fun interface ... : UseCase<Params, Result>`.
+
 ### Rule 5: Convention Plugins Standard
 Build scripts must apply the local convention plugins declared in `gradle/libs.versions.toml`:
 - Functional plugins: `local.kotlin.multiplatform`, `local.android.kmp.library`, `local.compose`.

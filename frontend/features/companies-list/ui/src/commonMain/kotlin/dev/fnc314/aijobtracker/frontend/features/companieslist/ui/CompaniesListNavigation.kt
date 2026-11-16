@@ -29,7 +29,7 @@ public data object JobApplicationCompaniesRoute : JobApplicationsTrackerNavKey {
  * Navigation entry registry providing routes for the companies list feature.
  */
 public class CompaniesEntryRegistry : FeatureEntryRegistry {
-    override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+    override operator fun invoke(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<JobApplicationCompaniesRoute> {
             val navigator = LocalAppNavigator.current
             CompaniesListScreen(

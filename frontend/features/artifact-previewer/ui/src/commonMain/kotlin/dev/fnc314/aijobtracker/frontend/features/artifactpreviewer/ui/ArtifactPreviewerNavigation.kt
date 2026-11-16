@@ -30,7 +30,7 @@ public data class ArtifactPreviewRoute(
  * Navigation entry registry providing routes for the artifact previewer feature.
  */
 public class ArtifactPreviewerEntryRegistry : FeatureEntryRegistry {
-    override fun register(scope: EntryProviderScope<PlatformNavKey>) {
+    override operator fun invoke(scope: EntryProviderScope<PlatformNavKey>) {
         scope.entry<ArtifactPreviewRoute> { route ->
             ArtifactPreviewScreen(
                 applicationId = route.applicationId,

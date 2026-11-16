@@ -6,7 +6,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEdit
 /**
  * Use case loading all edit proposals awaiting candidate review.
  */
-public interface LoadPendingEditsUseCase : UseCase<LoadPendingEditsUseCase.Params, List<TrackerEdit>> {
+public fun interface LoadPendingEditsUseCase : UseCase<LoadPendingEditsUseCase.Params, List<TrackerEdit>> {
 
     /**
      * Parameter carrier for querying pending edits.

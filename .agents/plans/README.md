@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`041546_sam-fun-interface-and-operator-invoke-standardization.md`](./2026-11-16/041546_sam-fun-interface-and-operator-invoke-standardization.md) | In Progress | Standardize all Single Abstract Method (SAM) Kotlin interfaces to `fun interface` with `operator fun invoke`, enforce via Konsist rules, and update code generation guidelines |
 | [`012200_dokka_multibuild_hierarchy_plan.md`](./2026-11-16/012200_dokka_multibuild_hierarchy_plan.md) | Completed | Multi-build Dokka 2.3.0 documentation overhaul: structure Dokka site around included Gradle builds (`settings.gradle.kts`), collapsible left-hand navigation, nested README frontpieces, and comprehensive KDocs |
 | [`234856_logo_design_and_cross_platform_rollout_plan.md`](./2026-11-15/234856_logo_design_and_cross_platform_rollout_plan.md) | Completed | Brand logo design specification, vector motif layers, Android Adaptive Icon (108dp/72dp safe zone), Compose interactive animations, favicon.ico generation, and iOS/Desktop asset rollout |
 | [`200427_naming_inconsistencies_and_alignment_plan.md`](./2026-11-15/200427_naming_inconsistencies_and_alignment_plan.md) | Completed | Repository naming, package namespace, brand, and build coordinate alignment across the monorepo for release v2.0.0 |

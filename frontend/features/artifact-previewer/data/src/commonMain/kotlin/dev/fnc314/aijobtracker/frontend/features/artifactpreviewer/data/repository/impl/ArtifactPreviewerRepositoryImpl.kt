@@ -6,6 +6,6 @@ import dev.fnc314.aijobtracker.frontend.features.artifactpreviewer.data.reposito
 internal class ArtifactPreviewerRepositoryImpl(
     private val networkDataSource: NetworkDataSource,
 ) : ArtifactPreviewerRepository {
-    override suspend fun fetchContent(url: String): String? =
+    override suspend fun invoke(url: String): String? =
         runCatching { networkDataSource.get(url) }.getOrNull()
 }

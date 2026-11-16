@@ -5,7 +5,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.repository.UseCase
 /**
  * Use case generating a time-limited signed HTTPS URL for accessing a Cloud Storage document artifact.
  */
-public interface GetArtifactSignedUrlUseCase : UseCase<GetArtifactSignedUrlUseCase.Params, String> {
+public fun interface GetArtifactSignedUrlUseCase : UseCase<GetArtifactSignedUrlUseCase.Params, String> {
 
     /**
      * Parameter carrier specifying the artifact cloud storage location.
