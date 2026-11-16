@@ -52,9 +52,9 @@ public fun PdfViewer(
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
 
-    val transformState = rememberTransformableState { zoomChange, offsetChange, _ ->
+    val transformState = rememberTransformableState { centroid, zoomChange, panChange, _ ->
         scale = (scale * zoomChange).coerceIn(1f, 4f)
-        offset = if (scale > 1f) offset + offsetChange else Offset.Zero
+        offset = if (scale > 1f) offset + panChange else Offset.Zero
     }
 
     DisposableEffect(documentBytes) {
