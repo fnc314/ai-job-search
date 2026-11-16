@@ -189,6 +189,7 @@ cover_*.log
 
 bin
 frontend/apps/android/google-services.json
+frontend/apps/ios/iosApp/GoogleService-Info.plist
 ui/kmp/androidApp/google-services.json
 
 # Local Maven repository for records project

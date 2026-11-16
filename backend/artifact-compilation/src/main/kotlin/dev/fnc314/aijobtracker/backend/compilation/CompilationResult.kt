@@ -12,8 +12,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 public data class CompilationResult(
-    val success: Boolean,
-    val artifactName: String,
-    val artifactUrl: String? = null,
-    val log: String = ""
+    public val success: Boolean,
+    public val artifactName: String,
+    public val artifactUrl: String? = null,
+    public val log: String = ""
 )

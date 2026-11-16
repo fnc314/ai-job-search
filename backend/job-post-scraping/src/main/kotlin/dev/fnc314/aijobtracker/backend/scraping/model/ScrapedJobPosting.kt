@@ -16,12 +16,12 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 public data class ScrapedJobPosting(
-    val id: String,
-    val portal: String,
-    val title: String,
-    val company: String,
-    val location: String,
-    val url: String,
-    val description: String,
-    val datePosted: String? = null
+    public val id: String,
+    public val portal: String,
+    public val title: String,
+    public val company: String,
+    public val location: String,
+    public val url: String,
+    public val description: String,
+    public val datePosted: String? = null
 )

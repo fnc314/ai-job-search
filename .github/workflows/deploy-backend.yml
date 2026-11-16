@@ -60,6 +60,11 @@ jobs:
           gcloud builds submit --tag "${IMAGE_URI}" backend --project="${PROJECT}"
 
           echo "Deploying to Cloud Run ${SERVICE_NAME} in ${REGION}..."
+          ENV_VARS_FLAG=""
+          if [ -n "${{ secrets.JOB_TRACKER_API_KEY }}" ]; then
+            ENV_VARS_FLAG="--set-env-vars=JOB_TRACKER_API_KEY=${{ secrets.JOB_TRACKER_API_KEY }}"
+          fi
+
           gcloud run deploy "${SERVICE_NAME}" \
             --image="${IMAGE_URI}" \
             --region="${REGION}" \
@@ -69,4 +74,5 @@ jobs:
             --min-instances=0 \
             --max-instances=1 \
             --memory=512Mi \
-            --cpu=1
+            --cpu=1 \
+            ${ENV_VARS_FLAG}

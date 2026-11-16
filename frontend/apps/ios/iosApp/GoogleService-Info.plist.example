@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyBUGd_C-ZA8gi2vYGr_3W3TBTtJrEkNAIQ</string>
+	<string>AIzaSyDummyApiKeyPlaceholder0000000000</string>
 	<key>GCM_SENDER_ID</key>
-	<string>399944190604</string>
+	<string>123456789000</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>dev.fnc314.tools.jobtracker</string>
+	<string>dev.fnc314.aijobtracker</string>
 	<key>PROJECT_ID</key>
-	<string>job-search-fnc314-dev</string>
+	<string>example-firebase-project</string>
 	<key>STORAGE_BUCKET</key>
-	<string>job-search-fnc314-dev.firebasestorage.app</string>
+	<string>example-firebase-project.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:399944190604:ios:cfa48c008e273059adc9a9</string>
+	<string>1:123456789000:ios:abcdef0123456789</string>
 </dict>
 </plist>

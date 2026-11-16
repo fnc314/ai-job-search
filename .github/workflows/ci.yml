@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: jdx/mise-action@v2
-      - uses: jdx/mise-action@v2
+      - run: mise run secrets:decrypt --passphrase "${{ secrets.SECRETS_PASSPHRASE || '' }}" || true
       - run: mise run security-guards
 
   python-tests:

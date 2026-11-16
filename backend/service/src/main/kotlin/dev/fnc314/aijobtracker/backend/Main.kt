@@ -4,6 +4,7 @@ import dev.fnc314.aijobtracker.backend.routes.applicationRoutes
 import dev.fnc314.aijobtracker.backend.routes.compilerRoutes
 import dev.fnc314.aijobtracker.backend.routes.rankingRoutes
 import dev.fnc314.aijobtracker.backend.routes.scrapingRoutes
+import dev.fnc314.aijobtracker.backend.security.ApiKeyAuthPlugin
 import dev.fnc314.aijobtracker.backend.webhook.emailWebhookRoute
 import io.ktor.server.application.call
 import io.ktor.server.engine.embeddedServer
@@ -12,6 +13,7 @@ import io.ktor.server.request.receiveText
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -125,18 +127,27 @@ public fun main(args: Array<String>): Unit {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
     embeddedServer(Netty, port = port) {
         routing {
-            scrapingRoutes()
-            rankingRoutes()
-            applicationRoutes()
-            compilerRoutes()
-            emailWebhookRoute()
+            // Public endpoint for uptime and platform health checks
             get("/health") {
                 call.respondText(
                     """{"status":"UP","service":"jobtracker-backend","port":$port}""",
                     ContentType.Application.Json
                 )
             }
-            post("/applications/{id}/events") {
+
+            // Webhook ingestion route (managed with webhook signature validation)
+            emailWebhookRoute()
+
+            // Protected API surface secured by ApiKeyAuthPlugin
+            route("") {
+                install(ApiKeyAuthPlugin)
+
+                scrapingRoutes()
+                rankingRoutes()
+                applicationRoutes()
+                compilerRoutes()
+
+                post("/applications/{id}/events") {
                 val applicationId = call.parameters["id"]
                 if (applicationId.isNullOrBlank()) {
                     call.respondText(
@@ -465,6 +476,7 @@ public fun main(args: Array<String>): Unit {
                         status = HttpStatusCode.InternalServerError
                     )
                 }
+            }
             }
         }
     }.start(wait = true)
