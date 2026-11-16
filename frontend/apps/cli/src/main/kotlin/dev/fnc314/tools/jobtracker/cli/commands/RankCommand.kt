@@ -6,8 +6,8 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.terminal.Terminal
-import dev.fnc314.tools.jobtracker.ranking.RankScorer
-import dev.fnc314.tools.jobtracker.ranking.ScoringWeights
+import dev.fnc314.aijobtracker.backend.ranking.RankScorer
+import dev.fnc314.aijobtracker.backend.ranking.ScoringWeights
 import kotlinx.serialization.json.Json
 import java.io.File
 

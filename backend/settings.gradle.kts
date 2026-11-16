@@ -1,6 +1,6 @@
 apply(from = "../gradle/tools/settings-plugins/subsystem.settings.gradle.kts")
 
-rootProject.name = "ai-job-search_backend"
+rootProject.name = "ai-job-tracker_backend"
 
 include(":service")
 include(":job-post-ranking")
