@@ -1,5 +1,7 @@
 <p align="center">
-  <img src="assets/mascot/pip_flight_loop.gif" alt="Pip, the courier bird" width="180">
+  <img src="assets/branding/brand_logo.svg" alt="AI Job Search & Application OS Logo" width="380">
+  <br>
+  <img src="assets/mascot/pip_flight_loop.gif" alt="Pip, the courier bird" width="120">
 </p>
 
 # AI Job Search & Personal Application OS
