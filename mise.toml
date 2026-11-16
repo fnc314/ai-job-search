@@ -10,9 +10,9 @@
   gradle = "9.9.1"
   java = "26.0.2+101"
   node = "26.13.1"
-ktlint = "1.8.0"
-firebase = "15.36.0"
-gcloud = "593.0.0"
+  ktlint = "1.8.0"
+  firebase = "15.36.0"
+  gcloud = "593.0.0"
 
 [env]
   GOOGLE_CLOUD_LOCATION = "global"
@@ -23,7 +23,7 @@ gcloud = "593.0.0"
   TRACKER_SOURCE = "store"
   MISE_TASK = "1"
   # TUI log cleanup settings (used by the `cd` hook)
-  TUI_LOG_RETENTION_DAYS = "7"  # Days to keep TUI log directories (0 = always clean)
-  TUI_LOG_COOLDOWN_HOURS = "24" # Hours between cleanup prompts
+  TUI_LOG_RETENTION_DAYS = "7"                                                         # Days to keep TUI log directories (0 = always clean)
+  TUI_LOG_COOLDOWN_HOURS = "24"                                                        # Hours between cleanup prompts
   ANDROID_USER_HOME = "{{env.HOME}}/.android"
   ANDROID_HOME = "{{env.HOME}}/.android/sdk"
