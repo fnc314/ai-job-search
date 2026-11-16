@@ -64,6 +64,8 @@ public object DocumentIdGenerator {
       "jpmorganchase" to "jpmorgan-chase",
       "homedepot" to "home-depot",
       "thompsonreuters" to "thomson-reuters",
+      "thompson-reuters" to "thomson-reuters",
+      "washpost" to "washington-post",
       "colossustechnologies" to "colossus-technologies",
       "fitnesstech" to "fitness-tech",
       "planetfitness" to "planet-fitness",

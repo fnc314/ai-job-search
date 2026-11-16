@@ -116,6 +116,8 @@ _COMPANY_SLUG_ALIASES = {
     "jpmorganchase": "jpmorgan-chase",
     "homedepot": "home-depot",
     "thompsonreuters": "thomson-reuters",
+    "thompson-reuters": "thomson-reuters",
+    "washpost": "washington-post",
     "colossustechnologies": "colossus-technologies",
     "fitnesstech": "fitness-tech",
     "planetfitness": "planet-fitness",
