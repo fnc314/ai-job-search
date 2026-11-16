@@ -27,7 +27,7 @@ import org.jetbrains.compose.resources.stringResource
 /**
  * Prominent Material 3 error card alerting the user to operation failures or network disconnects.
  *
- * Utilizes [MaterialTheme.colorScheme.errorContainer] and provides optional retry and secondary action buttons.
+ * Utilizes `MaterialTheme.colorScheme.errorContainer` and provides optional retry and secondary action buttons.
  *
  * @param message Descriptive error message describing the failure.
  * @param modifier Layout modifier applied to the card.

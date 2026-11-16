@@ -7,7 +7,7 @@ import org.jetbrains.compose.resources.StringResource
  * App-wide route contract extending Navigation 3 NavKey for destination routes.
  *
  * Each route declares its toolbar icon treatments via [topBarActions] so the app-level
- * [AppScaffold] can render the correct navigation icon, action buttons, and custom action
+ * `AppScaffold` can render the correct navigation icon, action buttons, and custom action
  * slots based solely on the top of the back stack.
  *
  * @property titleRes String resource for the top-bar title.

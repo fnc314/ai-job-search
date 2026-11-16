@@ -28,7 +28,7 @@ public val LocalJobTrackerImageLoader: ProvidableCompositionLocal<ImageLoader> =
  * Calls [setSingletonImageLoaderFactory] so that all [coil3.compose.AsyncImage] calls — including
  * those in third-party libraries — use the configured loader with observability hooks.
  *
- * This composable follows the same pattern as [JobTrackerTheme] and [ProvideWindowSizeClass]:
+ * This composable follows the same pattern as `JobTrackerTheme` and `ProvideWindowSizeClass`:
  * it wraps the app content and sets up a global resource.
  *
  * @param content Child composable content that uses the configured image loader.

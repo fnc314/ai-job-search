@@ -14,7 +14,7 @@ import kotlinx.collections.immutable.persistentListOf
  * @property role Position or job title.
  * @property sector Business domain or market sector.
  * @property roleType Level or specialty classification.
- * @property workMode Expected work format ([WorkMode.REMOTE], [WorkMode.HYBRID], [WorkMode.ONSITE]).
+ * @property workMode Expected work format (`WorkMode.REMOTE`, `WorkMode.HYBRID`, `WorkMode.ONSITE`).
  * @property channel Application submission method ([ApplicationChannel]).
  * @property status Initial lifecycle state ([TrackerStatus]).
  * @property jobUrl Web link to the public job posting.

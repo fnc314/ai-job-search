@@ -58,7 +58,7 @@ import org.koin.compose.koinInject
  * with font-scaled typography mapped to [MaterialTheme.typography].
  *
  * The TopAppBar (back button, title, save icon) is rendered by the app-level
- * [AppScaffold]; this screen contributes the save action via [LocalTopBarActionsSlot].
+ * `AppScaffold`; this screen contributes the save action via [LocalTopBarActionsSlot].
  *
  * @param applicationId Application identifier for loading the artifact.
  * @param artifactId Artifact identifier for loading the content.

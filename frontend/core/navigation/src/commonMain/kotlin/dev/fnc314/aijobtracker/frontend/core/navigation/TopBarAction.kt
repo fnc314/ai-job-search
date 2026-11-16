@@ -8,7 +8,7 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 
 /**
  * Describes the toolbar icon treatments a [JobApplicationsTrackerNavKey] destination
- * requests from the app-level [AppScaffold].
+ * requests from the app-level `AppScaffold`.
  *
  * @property showSettingsIcon Whether to render the settings gear icon in the top-bar actions.
  * @property showBackButton Whether to render the back arrow in the navigation icon slot.
@@ -54,7 +54,7 @@ public class TopBarActionsSlot {
 /**
  * CompositionLocal carrying the [TopBarActionsSlot] for child screens to populate.
  *
- * The [AppScaffold] provides this slot; child screens assign their actions composable
+ * The `AppScaffold` provides this slot; child screens assign their actions composable
  * to `LocalTopBarActionsSlot.current.render` to contribute buttons to the shared TopAppBar,
  * eliminating the need for individual screens to embed their own Scaffold.
  */
@@ -63,7 +63,7 @@ public val LocalTopBarActionsSlot: ProvidableCompositionLocal<TopBarActionsSlot>
 
 /**
  * Wrapper holding an optional state-backed composable lambda that renders a screen summary
- * within the dropdown menu attached to the [CenterAlignedTopAppBar] title.
+ * within the dropdown menu attached to the top app bar title.
  */
 public class TopBarTitleSummarySlot {
     /** State-backed composable content rendering the summary dropdown content when expanded. */

@@ -8,7 +8,7 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 /**
  * CompositionLocal providing [AppNavigator] to all descendant composables.
  *
- * Feature screens read this value via [LocalAppNavigator.current] instead of receiving
+ * Feature screens read this value via `LocalAppNavigator.current` instead of receiving
  * navigation callbacks through composable parameters.
  */
 public val LocalAppNavigator: ProvidableCompositionLocal<AppNavigator> =
@@ -18,7 +18,7 @@ public val LocalAppNavigator: ProvidableCompositionLocal<AppNavigator> =
  * Provides [AppNavigator] to all descendant composables within [content].
  *
  * @param navigator The [AppNavigator] instance to provide.
- * @param content Content that can access the navigator via [LocalAppNavigator.current].
+ * @param content Content that can access the navigator via `LocalAppNavigator.current`.
  */
 @Composable
 public fun ProvideAppNavigator(
