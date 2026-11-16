@@ -2,8 +2,8 @@
 
 These entries need manual review before running `--apply`.
 
-| Source                                                                       | Company               | Role                                             | Confidence | Notes                                                           |
-| ---------------------------------------------------------------------------- | --------------------- | ------------------------------------------------ | ---------- | --------------------------------------------------------------- |
+| Source                                                                       | Company               | Role                                             | Confidence | Notes                                                           | URL / Job Notes                                  |
+| ---------------------------------------------------------------------------- | --------------------- | ------------------------------------------------ | ---------- | --------------------------------------------------------------- | ------------------------------------------------ |
 | `COLAIZZI_FRANCO_LIB_V3.docx`                                                | generic               | resume                                           | low        | Generic resume file — no company detected                       |
 | `COLAIZZI_FRANCO_Res_Pinterest`                                              | pinterest             | general                                          | low        | No role detected                                                |
 | `COLAIZZI_FRANCO_Res_V3.docx`                                                | generic.              | resume                                           | low        | Generic resume file — no company detected                       |
@@ -24,8 +24,8 @@ These entries need manual review before running `--apply`.
 | `FrancoNColaizzi_Resume_PlanetFitness.docx`                                  | planet-fitness        | general                                          | low        | No role detected                                                |
 | `FrancoNColaizzi_Resume_Reddit.docx`                                         | reddit                | android-software-engineer-consumer-engineering   | medium     | firestore_ambiguous (4 roles)                                   |
 | `FrancoNColaizzi_Resume_Redfin.gdoc`                                         | redfin                | general                                          | low        | No role detected                                                |
-| `FrancoNColaizzi_Resume_Temu.docx`                                           | temu                  | general                                          | low        | No role detected                                                |
-| `FrancoNColaizzi_Resume_ThompsonReuters.docx`                                | thompson-reuters      | general                                          | low        | No role detected                                                |
+| `FrancoNColaizzi_Resume_Temu.docx`                                           | temu                  | general                                          | low        | No role detected                                                | <https://www.linkedin.com/jobs/view/4451113420/> |
+| `FrancoNColaizzi_Resume_ThompsonReuters.docx`                                | thompson-reuters      | general                                          | low        | No role detected                                                | JREQ202875 Lead Software Engineer Mobile App     |
 | `capital-one/CapitalOne_FrancoNColaizzi_Resume.pdf`                          | capital-one           | android-mobile-engineer-4                        | medium     | firestore_ambiguous (3 roles)                                   |
 | `consumer-tech/SeniorAndroidDeveloperNewFeatureDevelopment/resume-edits.txt` | consumer-tech         | senior-android-developer-new-feature-development | unresolved | Generic placeholder company — user must identify actual company |
 | `lyft/Lyft_FrancoNColaizzi_Resume.pdf`                                       | lyft                  | general                                          | low        | No role detected                                                |

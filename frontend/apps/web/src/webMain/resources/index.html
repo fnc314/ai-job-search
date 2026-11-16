@@ -4,16 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Job Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link type="text/css" rel="stylesheet" href="styles.css">
 </head>
-<body style="text-align: center; align-content: center">
-    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 50 50" role="presentation">
-        <circle cx="25" cy="25" r="20" stroke="#ccc" stroke-width="4" fill="none"/>
-        <circle cx="25" cy="25" r="20" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"
-                stroke-dasharray="90 125">
-            <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s"
-                              repeatCount="indefinite"/>
-        </circle>
+<body style="text-align: center; align-content: center; background-color: #0F172A;">
+    <!-- Animated Brand Glider Loader -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="presentation">
+        <style>
+            @keyframes pulse-ring {
+                0% { transform: rotate(0deg); stroke-dashoffset: 0; }
+                50% { stroke-dashoffset: 60; }
+                100% { transform: rotate(360deg); stroke-dashoffset: 0; }
+            }
+            @keyframes float-glider {
+                0%, 100% { transform: translate(0, 0); }
+                50% { transform: translate(2px, -3px); }
+            }
+            @keyframes pulse-spark {
+                0%, 100% { transform: scale(1); opacity: 0.85; }
+                50% { transform: scale(1.25); opacity: 1; }
+            }
+            .orbit-arc {
+                transform-origin: 32px 32px;
+                animation: pulse-ring 3s linear infinite;
+            }
+            .glider-group {
+                animation: float-glider 2.4s ease-in-out infinite;
+            }
+            .spark {
+                transform-origin: 46px 16px;
+                animation: pulse-spark 1.8s ease-in-out infinite;
+            }
+        </style>
+        <circle cx="32" cy="32" r="24" fill="none" stroke="#38BDF8" stroke-opacity="0.4" stroke-width="2" 
+                stroke-dasharray="35 45" stroke-linecap="round" class="orbit-arc" />
+        <g class="glider-group">
+            <polygon points="39,21 26,42 30,39" fill="#94A3B8" />
+            <polygon points="39,21 17,34 30,39" fill="#FFFFFF" />
+            <polygon points="39,21 30,39 43,35" fill="#CBD5E1" />
+        </g>
+        <path d="M 46 12 C 46 14.5 47.5 16 50 16 C 47.5 16 46 17.5 46 20 C 46 17.5 44.5 16 42 16 C 44.5 16 46 14.5 46 12 Z" 
+              fill="#F59E0B" class="spark" />
     </svg>
     <script type="application/javascript" src="webApp.js"></script>
 </body>

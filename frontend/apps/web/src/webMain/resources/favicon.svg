@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <style>
+      :root {
+        --bg-color: #2F5597;
+        --glider-main: #FFFFFF;
+        --glider-shade: #CBD5E1;
+        --glider-keel: #94A3B8;
+        --arc-color: #38BDF8;
+        --spark-color: #F59E0B;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-color: #1E293B;
+          --glider-main: #F8FAFC;
+          --glider-shade: #94A3B8;
+          --glider-keel: #64748B;
+          --arc-color: #60A5FA;
+          --spark-color: #FBBF24;
+        }
+      }
+    </style>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="64" height="64" rx="14" fill="var(--bg-color)" />
+
+  <!-- Target Arc -->
+  <path d="M 16 43 A 20 20 0 1 1 49 27" 
+        fill="none" 
+        stroke="var(--arc-color)" 
+        stroke-opacity="0.45" 
+        stroke-width="1.8" 
+        stroke-linecap="round" />
+
+  <!-- Delta Glider -->
+  <polygon points="39,21 26,42 30,39" fill="var(--glider-keel)" />
+  <polygon points="39,21 17,34 30,39" fill="var(--glider-main)" />
+  <polygon points="39,21 30,39 43,35" fill="var(--glider-shade)" />
+
+  <!-- AI Diamond Spark -->
+  <path d="M 46 12 C 46 14.5 47.5 16 50 16 C 47.5 16 46 17.5 46 20 C 46 17.5 44.5 16 42 16 C 44.5 16 46 14.5 46 12 Z" 
+        fill="var(--spark-color)" />
+</svg>

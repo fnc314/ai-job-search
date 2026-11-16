@@ -8,7 +8,7 @@ kotlin {
 }
 
 application {
-    mainClass.set("dev.fnc314.tools.jobtracker.cli.MainKt")
+    mainClass.set("dev.fnc314.aijobtracker.frontend.cli.MainKt")
 }
 
 dependencies {

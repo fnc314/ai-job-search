@@ -7,6 +7,50 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:399944190604:android:257cdfbd0e595730adc9a9",
+        "android_client_info": {
+          "package_name": "dev.fnc314.aijobtracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "399944190604-lee8r2nn689t42r98h9r4n301que2ngg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.fnc314.aijobtracker",
+            "certificate_hash": "785a7d8ffd32574947e5b08c2ba5757d284f0573"
+          }
+        },
+        {
+          "client_id": "399944190604-dpasrf0mis9860nvp74m6dc98cp5rphq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdnr32qCcc1eE8Gez91NPhBDj75NuhhEU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "399944190604-dpasrf0mis9860nvp74m6dc98cp5rphq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "399944190604-km3a5ubqrlil8rd6giok4o1cqur85bj4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.fnc314.tools.jobtracker"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:399944190604:android:039c88290beda151adc9a9",
         "android_client_info": {
           "package_name": "dev.fnc314.tools.jobtracker"

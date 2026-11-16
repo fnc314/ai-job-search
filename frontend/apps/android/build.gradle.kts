@@ -17,11 +17,11 @@ dependencies {
 }
 
 android {
-  namespace = "dev.fnc314.tools.jobtracker.app.android"
+  namespace = "dev.fnc314.aijobtracker.app.android"
   compileSdk = libs.versions.android.compile.sdk.asProvider().get().toInt()
 
   defaultConfig {
-    applicationId = "dev.fnc314.tools.jobtracker"
+    applicationId = "dev.fnc314.aijobtracker"
     minSdk = libs.versions.android.min.sdk.get().toInt()
     targetSdk = libs.versions.android.target.sdk.get().toInt()
     versionCode = 1
