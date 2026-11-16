@@ -3,8 +3,8 @@ package dev.fnc314.aijobtracker.frontend.core.widgets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus
-import ai_job_tracker_frontend.core_widgets.generated.resources.Res
-import ai_job_tracker_frontend.core_widgets.generated.resources.card_not_available
+import dev.fnc314.aijobtracker.frontend.core_widgets.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.core_widgets.generated.resources.card_not_available
 import kotlin.time.Instant
 import org.jetbrains.compose.resources.stringResource
 

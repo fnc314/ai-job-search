@@ -31,13 +31,13 @@ import androidx.compose.ui.text.style.TextAlign
 import dev.fnc314.aijobtracker.frontend.core.designsystem.componentSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.iconSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
-import ai_job_tracker_frontend.features_sign_in_ui.generated.resources.Res
-import ai_job_tracker_frontend.features_sign_in_ui.generated.resources.sign_in_action_google
-import ai_job_tracker_frontend.features_sign_in_ui.generated.resources.sign_in_action_retry
-import ai_job_tracker_frontend.features_sign_in_ui.generated.resources.sign_in_app_title
-import ai_job_tracker_frontend.features_sign_in_ui.generated.resources.sign_in_failed
-import ai_job_tracker_frontend.features_sign_in_ui.generated.resources.sign_in_progress
-import ai_job_tracker_frontend.features_sign_in_ui.generated.resources.sign_in_subtitle
+import dev.fnc314.aijobtracker.frontend.features_sign_in_ui.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.features_sign_in_ui.generated.resources.sign_in_action_google
+import dev.fnc314.aijobtracker.frontend.features_sign_in_ui.generated.resources.sign_in_action_retry
+import dev.fnc314.aijobtracker.frontend.features_sign_in_ui.generated.resources.sign_in_app_title
+import dev.fnc314.aijobtracker.frontend.features_sign_in_ui.generated.resources.sign_in_failed
+import dev.fnc314.aijobtracker.frontend.features_sign_in_ui.generated.resources.sign_in_progress
+import dev.fnc314.aijobtracker.frontend.features_sign_in_ui.generated.resources.sign_in_subtitle
 import org.jetbrains.compose.resources.stringResource
 
 /**

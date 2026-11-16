@@ -54,10 +54,10 @@ import dev.fnc314.aijobtracker.frontend.features.companieslist.domain.CompanySor
 import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.component.CompaniesListSummaryMenu
 import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.component.CompanyCard
 import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.component.CompanyFilterMenu
-import ai_job_tracker_frontend.features_companies_list_ui.generated.resources.Res
-import ai_job_tracker_frontend.features_companies_list_ui.generated.resources.companies_empty_message
-import ai_job_tracker_frontend.features_companies_list_ui.generated.resources.companies_search_placeholder
-import ai_job_tracker_frontend.features_companies_list_ui.generated.resources.companies_sort_menu_tooltip
+import dev.fnc314.aijobtracker.frontend.features_companies_list_ui.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.features_companies_list_ui.generated.resources.companies_empty_message
+import dev.fnc314.aijobtracker.frontend.features_companies_list_ui.generated.resources.companies_search_placeholder
+import dev.fnc314.aijobtracker.frontend.features_companies_list_ui.generated.resources.companies_sort_menu_tooltip
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

@@ -21,3 +21,11 @@ plugins {
   alias(libs.plugins.local.dependencies.di) apply false
   alias(libs.plugins.local.dependencies.koin) apply false
 }
+
+
+subprojects {
+    group = "dev.fnc314.aijobtracker.frontend"
+    version = "1.0.0"
+
+    apply(plugin = "dev.fnc314.aijobtracker.dokka")
+}

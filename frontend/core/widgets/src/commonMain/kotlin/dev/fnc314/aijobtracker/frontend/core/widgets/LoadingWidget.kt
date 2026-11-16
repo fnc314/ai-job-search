@@ -15,8 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dev.fnc314.aijobtracker.frontend.core.designsystem.componentSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
-import ai_job_tracker_frontend.core_widgets.generated.resources.Res
-import ai_job_tracker_frontend.core_widgets.generated.resources.widget_loading_default
+import dev.fnc314.aijobtracker.frontend.core_widgets.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.core_widgets.generated.resources.widget_loading_default
 import org.jetbrains.compose.resources.stringResource
 
 /**

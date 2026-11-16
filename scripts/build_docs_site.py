@@ -370,12 +370,46 @@ def build_site(output_dir: Path, domain: str) -> None:
         (readme_dest / "index.html").write_text(wrapped_readme, encoding="utf-8")
         print("✓ Rendered readme/index.html")
 
-    # 4. Copy Dokka HTML
+    # 4. Copy Dokka HTML & Brand Favicons
     dokka_src = repo_root / "dokka"
     if dokka_src.exists() and (dokka_src / "index.html").exists():
         dokka_dest = output_dir / "dokka"
         shutil.copytree(dokka_src, dokka_dest)
-        print("✓ Copied aggregated Dokka documentation to dokka/")
+
+        # Replace Dokka generic logo-icon.svg with brand favicon.svg in all images/ directories
+        brand_svg_src = repo_root / "docs" / "site" / "favicon.svg"
+        brand_ico_src = repo_root / "docs" / "site" / "favicon.ico"
+        brand_apple_src = repo_root / "docs" / "site" / "apple-touch-icon.png"
+
+        if brand_svg_src.exists():
+            for img_dir in dokka_dest.rglob("images"):
+                if img_dir.is_dir():
+                    shutil.copy2(brand_svg_src, img_dir / "logo-icon.svg")
+                    shutil.copy2(brand_svg_src, img_dir / "favicon.svg")
+                    if brand_ico_src.exists():
+                        shutil.copy2(brand_ico_src, img_dir / "favicon.ico")
+                    if brand_apple_src.exists():
+                        shutil.copy2(brand_apple_src, img_dir / "apple-touch-icon.png")
+
+        # Also inject brand favicon link tags into all HTML files in dokka
+        for html_file in dokka_dest.rglob("*.html"):
+            content = html_file.read_text(encoding="utf-8")
+            if "images/logo-icon.svg" in content:
+                match = re.search(r'var pathToRoot = "([^"]*)";', content)
+                prefix = match.group(1) if match else ""
+                favicon_tags = (
+                    f'<link rel="icon" type="image/svg+xml" href="{prefix}images/logo-icon.svg">\n'
+                    f'    <link rel="alternate icon" type="image/x-icon" href="{prefix}images/favicon.ico">\n'
+                    f'    <link rel="apple-touch-icon" href="{prefix}images/apple-touch-icon.png">'
+                )
+                content = re.sub(
+                    r'<link href="[^"]*images/logo-icon\.svg" rel="icon" type="image/svg">',
+                    favicon_tags,
+                    content,
+                )
+                html_file.write_text(content, encoding="utf-8")
+
+        print("✓ Copied aggregated Dokka documentation with brand favicons to dokka/")
     else:
         print(f"⚠️ Warning: root dokka/ directory not found or empty at {dokka_src}.")
         # Create placeholder

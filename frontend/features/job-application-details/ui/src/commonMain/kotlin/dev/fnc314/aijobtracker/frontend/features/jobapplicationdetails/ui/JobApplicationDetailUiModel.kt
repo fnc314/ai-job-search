@@ -16,10 +16,10 @@ import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEvent
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEventType
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus
 import dev.fnc314.aijobtracker.frontend.core.widgets.formatRelativeInstant
-import ai_job_tracker_frontend.features_job_application_details_ui.generated.resources.Res
-import ai_job_tracker_frontend.features_job_application_details_ui.generated.resources.data_missing
-import ai_job_tracker_frontend.features_job_application_details_ui.generated.resources.detail_applied_on
-import ai_job_tracker_frontend.features_job_application_details_ui.generated.resources.detail_not_applied
+import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.data_missing
+import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_applied_on
+import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_not_applied
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList

@@ -63,15 +63,15 @@ import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.ui.JobApp
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.ui.JobApplicationListRoute
 import dev.fnc314.aijobtracker.frontend.features.settings.ui.JobApplicationSettingsRoute
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.JobApplicationEditsRoute
-import ai_job_tracker_frontend.apps_core.generated.resources.Res
-import ai_job_tracker_frontend.apps_core.generated.resources.app_action_back
-import ai_job_tracker_frontend.apps_core.generated.resources.app_nav_applications
-import ai_job_tracker_frontend.apps_core.generated.resources.app_nav_applications_cd
-import ai_job_tracker_frontend.apps_core.generated.resources.app_nav_companies
-import ai_job_tracker_frontend.apps_core.generated.resources.app_nav_companies_cd
-import ai_job_tracker_frontend.apps_core.generated.resources.app_nav_edits
-import ai_job_tracker_frontend.apps_core.generated.resources.app_nav_edits_cd
-import ai_job_tracker_frontend.apps_core.generated.resources.app_nav_settings_cd
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_action_back
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_applications
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_applications_cd
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_companies
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_companies_cd
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_edits
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_edits_cd
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_settings_cd
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 

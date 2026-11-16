@@ -5,8 +5,8 @@ import androidx.compose.runtime.Immutable
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus
 import dev.fnc314.aijobtracker.frontend.core.widgets.JobApplicationCardUiModel
 import dev.fnc314.aijobtracker.frontend.core.widgets.formatRelativeInstant
-import ai_job_tracker_frontend.features_job_applications_list_ui.generated.resources.Res
-import ai_job_tracker_frontend.features_job_applications_list_ui.generated.resources.data_missing
+import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.data_missing
 import kotlin.time.Instant
 import org.jetbrains.compose.resources.stringResource
 

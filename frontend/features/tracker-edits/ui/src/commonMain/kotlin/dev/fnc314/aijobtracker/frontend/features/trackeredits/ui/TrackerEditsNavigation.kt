@@ -9,8 +9,8 @@ import dev.fnc314.aijobtracker.frontend.core.navigation.ApplicationId
 import dev.fnc314.aijobtracker.frontend.core.navigation.FeatureEntryRegistry
 import dev.fnc314.aijobtracker.frontend.core.navigation.JobApplicationsTrackerNavKey
 import dev.fnc314.aijobtracker.frontend.core.navigation.TopBarActions
-import ai_job_tracker_frontend.features_tracker_edits_ui.generated.resources.Res
-import ai_job_tracker_frontend.features_tracker_edits_ui.generated.resources.edits_route_title
+import dev.fnc314.aijobtracker.frontend.features_tracker_edits_ui.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.features_tracker_edits_ui.generated.resources.edits_route_title
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource

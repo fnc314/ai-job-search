@@ -43,9 +43,9 @@ import dev.fnc314.aijobtracker.frontend.core.logging.AppLogger
 import dev.fnc314.aijobtracker.frontend.core.designsystem.componentSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 import dev.fnc314.aijobtracker.frontend.core.widgets.di.extractHttpStatusCode
-import ai_job_tracker_frontend.core_widgets.generated.resources.Res
-import ai_job_tracker_frontend.core_widgets.generated.resources.logo_error_generic
-import ai_job_tracker_frontend.core_widgets.generated.resources.logo_http_error_code
+import dev.fnc314.aijobtracker.frontend.core_widgets.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.core_widgets.generated.resources.logo_error_generic
+import dev.fnc314.aijobtracker.frontend.core_widgets.generated.resources.logo_http_error_code
 import org.jetbrains.compose.resources.stringResource
 
 private const val MIN_LOGO_DIMENSION_PX = 32f

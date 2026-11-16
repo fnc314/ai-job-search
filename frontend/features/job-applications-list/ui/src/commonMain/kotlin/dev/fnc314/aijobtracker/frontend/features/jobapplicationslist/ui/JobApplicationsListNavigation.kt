@@ -12,8 +12,8 @@ import dev.fnc314.aijobtracker.frontend.core.navigation.TopBarActions
 import dev.fnc314.aijobtracker.frontend.core.navigation.TopLevelDestinationEnum
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplicationAddApplicationRoute
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplicationAddLeadRoute
-import ai_job_tracker_frontend.features_job_applications_list_ui.generated.resources.Res
-import ai_job_tracker_frontend.features_job_applications_list_ui.generated.resources.list_route_title
+import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.list_route_title
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
