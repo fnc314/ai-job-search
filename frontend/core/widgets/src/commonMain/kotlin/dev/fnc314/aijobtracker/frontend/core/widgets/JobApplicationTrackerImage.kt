@@ -9,7 +9,7 @@ import coil3.compose.AsyncImagePainter
 /**
  * Single public image loading composable for the Job Tracker application.
  *
- * Delegates to Coil's [AsyncImage] using the application-configured [ImageLoader]
+ * Delegates to Coil's [AsyncImage] using the application-configured `ImageLoader`
  * provided by [ProvideImageLoader]. All image loading within the app should flow
  * through this composable to ensure centralized observability and configuration.
  *

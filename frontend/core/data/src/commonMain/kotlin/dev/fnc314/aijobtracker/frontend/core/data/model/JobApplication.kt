@@ -75,7 +75,7 @@ public data class JobApplication(
     public val submissionConfirmedAt: Instant? = null,
 ) {
     /**
-     * Resolves the primary fit score (0..100) by prioritizing [fitRating] over [fitEvaluation.score].
+     * Resolves the primary fit score (0..100) by prioritizing [fitRating] over `fitEvaluation.score`.
      */
     public val fitScore: Int?
         get() = fitRating ?: fitEvaluation?.score

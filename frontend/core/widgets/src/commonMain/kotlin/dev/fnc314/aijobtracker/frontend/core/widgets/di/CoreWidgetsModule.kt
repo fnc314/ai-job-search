@@ -46,7 +46,7 @@ public fun interface OnImageLoadStart {
     public operator fun invoke(url: String)
 }
 
-/** Called when an image load request completes successfully. [durationMs] is the elapsed time in milliseconds. */
+/** Called when an image load request completes successfully. `durationMs` is the elapsed time in milliseconds. */
 public fun interface OnImageLoadSuccess {
     /**
      * Invoked when an image request succeeds.

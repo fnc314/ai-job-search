@@ -347,7 +347,7 @@ public object Factory {
    * @param city City or metropolitan area.
    * @param region State or administrative region.
    * @param country Country code or name.
-   * @param workMode Remote policy [WorkMode]. Defaults to [WorkMode.UNSPECIFIED].
+   * @param roleLocation Remote policy [RoleLocation]. Defaults to [RoleLocation.UNSPECIFIED].
    * @param relocation Relocation requirement flag. Defaults to `false`.
    * @param superCommuter Super-commuting eligibility flag. Defaults to `false`.
    * @return A constructed [Location] instance.

@@ -15,7 +15,7 @@ import dev.fnc314.aijobtracker.frontend.features.signin.ui.SignInRoute
 /**
  * Internal implementation of [AppNavigator] that delegates to [Navigator] for back stack operations.
  *
- * Must remain [internal] and reside in the `.impl` package to satisfy Konsist architecture tests.
+ * Must remain internal and reside in the `.impl` package to satisfy Konsist architecture tests.
  *
  * @param navigator Wrapper around the Navigation 3 back stack.
  * @param routeResolver Maps [TopLevelDestinationEnum] to actual [JobApplicationsTrackerNavKey] instances.

@@ -10,7 +10,7 @@ import dev.fnc314.aijobtracker.frontend.core.data.database.entity.JobApplication
  * Multiplatform Room 3 embedded database providing local relational caching and offline-first queries.
  *
  * Configured with [JobApplicationEntity] schema tables and registered type converters [DatabaseConverters].
- * Initialized across Android, Desktop JVM, iOS, and Web via expect/actual [DatabaseBuilder].
+ * Initialized across Android, Desktop JVM, iOS, and Web via expect/actual `DatabaseBuilder`.
  */
 @Database(entities = [JobApplicationEntity::class], version = 1)
 @ColumnTypeConverters(DatabaseConverters::class)

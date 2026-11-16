@@ -9,7 +9,7 @@ import co.touchlab.kermit.Logger
  * Call [init] once at app startup to configure log writers.
  * After initialization, use [v], [d], [i], [w], and [e] to log messages.
  *
- * Tag derivation: if [tag] is not provided, the caller's class name is derived
+ * Tag derivation: if `tag` is not provided, the caller's class name is derived
  * from the stack trace. Supply an explicit tag to avoid the stack inspection cost.
  */
 public object AppLogger {
