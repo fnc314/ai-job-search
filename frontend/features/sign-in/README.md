@@ -76,6 +76,22 @@ When launched with an unauthenticated session or when an active session expires,
 
 ---
 
+## Android Diagnostics & Logcat Filter
+
+All Android authentication and platform lifecycle events are tagged with `AIJT`. To inspect the sign-in flow, Credential Manager responses, and Firebase authentication errors in real time via ADB:
+
+```bash
+# Stream all AI Job Tracker logs and Firebase/Auth errors (clears buffer first)
+adb logcat -c && adb logcat -v time -s AIJT:V FirebaseAuth:V Credentials:V "*:E"
+```
+
+To capture logs specifically to a file or filter exclusively on the `AIJT` tag:
+```bash
+adb logcat -v color -s AIJT
+```
+
+---
+
 ## Key Gradle Tasks
 
 Run the following commands from the repository root:

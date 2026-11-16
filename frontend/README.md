@@ -82,6 +82,9 @@ The Android application uses Jetpack Compose Material 3 and Firebase Authenticat
 
 # Install directly to an active emulator or USB-connected device
 ./gradlew :frontend:apps-android:installDebug
+
+# Diagnose authentication, sign-in, or runtime issues in real time via ADB:
+adb logcat -c && adb logcat -v time -s AIJT:V FirebaseAuth:V Credentials:V "*:E"
 ```
 
 ### 3. Web (Wasm & JS)
