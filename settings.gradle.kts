@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ai-job-search"
+rootProject.name = "ai-job-tracker"
 
 includeBuild("backend")
 includeBuild("frontend")

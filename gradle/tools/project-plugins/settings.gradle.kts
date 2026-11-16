@@ -1,4 +1,4 @@
-rootProject.name = "ai-job-search_gradle-tools_project-plugins"
+rootProject.name = "ai-job-tracker_gradle-tools_project-plugins"
 
 pluginManagement {
     repositories {
