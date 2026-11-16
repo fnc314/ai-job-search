@@ -143,6 +143,9 @@ def wrap_with_material_layout(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{html.escape(title)} - AI Job Search & Application OS</title>
+  <link rel="icon" type="image/svg+xml" href="{base_prefix}favicon.svg">
+  <link rel="alternate icon" type="image/x-icon" href="{base_prefix}favicon.ico">
+  <link rel="apple-touch-icon" href="{base_prefix}apple-touch-icon.png">
   <link rel="stylesheet" href="{base_prefix}css/material3-tokens.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -323,7 +326,7 @@ def build_site(output_dir: Path, domain: str) -> None:
 
     version = get_current_git_version(repo_root)
 
-    # 1. Copy CSS material tokens
+    # 1. Copy CSS material tokens and favicon assets
     css_dest = output_dir / "css"
     css_dest.mkdir(parents=True, exist_ok=True)
     css_src = repo_root / "docs" / "site" / "css" / "material3-tokens.css"
@@ -331,6 +334,14 @@ def build_site(output_dir: Path, domain: str) -> None:
         shutil.copy2(css_src, css_dest / "material3-tokens.css")
     else:
         print(f"⚠️ Warning: {css_src} not found.")
+
+    for asset_name in ["favicon.svg", "favicon.ico", "apple-touch-icon.png"]:
+        src_asset = repo_root / "docs" / "site" / asset_name
+        if not src_asset.exists():
+            src_asset = repo_root / "frontend" / "apps" / "web" / "src" / "webMain" / "resources" / asset_name
+        if src_asset.exists():
+            shutil.copy2(src_asset, output_dir / asset_name)
+            print(f"✓ Copied {asset_name} to root")
 
     # 2. Render Landing Page
     landing_template = repo_root / "docs" / "site" / "templates" / "landing.html"
