@@ -33,7 +33,7 @@ def get_current_git_version(repo_root: Path) -> str:
         )
         tags = [line.strip().removeprefix("version/") for line in proc.stdout.splitlines() if line.strip()]
         if not tags:
-            return "version/1.0.0"
+            return "version/2.0.0"
         # Sort semantic versions
         def parse_semver(v: str) -> tuple[int, ...]:
             parts = v.split(".")
@@ -45,7 +45,7 @@ def get_current_git_version(repo_root: Path) -> str:
         tags.sort(key=parse_semver)
         return f"version/{tags[-1]}"
     except Exception:
-        return "version/1.0.0"
+        return "version/2.0.0"
 
 
 def convert_markdown_to_simple_html(markdown_text: str) -> str:
