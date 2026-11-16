@@ -12,7 +12,6 @@ import dev.fnc314.aijobtracker.gradle.plugins.hasKotlinPlugin
 private val KOTLIN_OPT_INS = setOf(
     "kotlin.time.ExperimentalTime",
     "kotlin.uuid.ExperimentalUuidApi",
-    "kotlin.io.path.ExperimentalPathApi",
     "kotlin.contracts.ExperimentalContracts",
 
     "kotlinx.coroutines.ExperimentalCoroutinesApi",
