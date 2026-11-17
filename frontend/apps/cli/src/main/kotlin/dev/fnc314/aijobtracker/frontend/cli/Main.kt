@@ -9,6 +9,7 @@ import dev.fnc314.aijobtracker.frontend.cli.commands.AlignCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.BackfillParentCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.CheckCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.EditCommand
+import dev.fnc314.aijobtracker.frontend.cli.commands.ExportCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.GetApplicationCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.MergeCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.ReclassifyCommand
@@ -32,6 +33,7 @@ internal class TrackerCommand : CliktCommand(name = "tracker") {
             GetApplicationCommand(),
             AddApplicationCommand(),
             EditCommand(),
+            ExportCommand(),
             MergeCommand(),
             ReclassifyCommand(),
             UpdateStatusCommand(),
