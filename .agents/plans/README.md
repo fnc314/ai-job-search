@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`195419_rm-001-next-slices-plan.md`](./2026-11-16/195419_rm-001-next-slices-plan.md) | Completed | Next Slices for RM-001 (Kotlin-Only Migration): archiving fully superseded scripts (render, urls, fit_evaluator, rank, events) and migrating tracker export/bulk/edit CLI subcommands and tasks to Kotlin |
 | [`193505_rm-001-chipping-away-plan.md`](./2026-11-16/193505_rm-001-chipping-away-plan.md) | Completed | Chipping away at remaining scripts in RM-001 (Kotlin-Only Migration): archiving one-off scripts, migrating proposals CLI subcommands to Kotlin, and porting salary lookup |
 | [`141800_gcloud-project-migration-plan.md`](./2026-11-16/141800_gcloud-project-migration-plan.md) | Completed | Complete GCP and Firebase project migration from `job-search-fnc314-dev` to `dev-fnc314-ai-job-tracker` (Firestore data, Cloud Storage artifacts, Cloud Run, Scheduler, and client credentials) |
 | [`135500_backend-security-credentials-and-apps-integration-plan.md`](./2026-11-16/135500_backend-security-credentials-and-apps-integration-plan.md) | Completed | Security layer for Cloud Run backend ingress, Firebase client credentials threat analysis & git protection, and @frontend/apps integration |
