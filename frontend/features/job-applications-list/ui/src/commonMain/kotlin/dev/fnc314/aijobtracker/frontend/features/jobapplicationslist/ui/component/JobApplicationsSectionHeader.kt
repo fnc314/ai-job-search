@@ -1,5 +1,6 @@
 package dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.ui.component
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
@@ -34,7 +36,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
@@ -80,6 +84,8 @@ public fun resolveSectionIcon(sectionOrder: Int): ImageVector = when (sectionOrd
  * @param count Number of application items contained in this section.
  * @param availableSections List of all active section orders present in the list.
  * @param onJumpToSection Callback invoked when the user selects a target section to jump to.
+ * @param isExpanded Whether this section's application list is currently expanded.
+ * @param onToggleExpand Callback invoked to expand or collapse this section.
  * @param modifier Composable layout modifier.
  */
 @Composable
@@ -89,10 +95,13 @@ public fun JobApplicationsSectionHeader(
     availableSections: List<Int>,
     onJumpToSection: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    isExpanded: Boolean = true,
+    onToggleExpand: (() -> Unit)? = null,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val title = resolveSectionTitle(sectionOrder)
     val icon = resolveSectionIcon(sectionOrder)
+    val chevronRotation by animateFloatAsState(targetValue = if (isExpanded) 90f else 0f)
 
     val containerColor = when (sectionOrder) {
         1 -> MaterialTheme.colorScheme.primaryContainer
@@ -130,9 +139,25 @@ public fun JobApplicationsSectionHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
+                modifier = if (onToggleExpand != null) {
+                    Modifier
+                        .clip(MaterialTheme.shapes.small)
+                        .clickable(role = Role.Button, onClick = onToggleExpand)
+                        .padding(vertical = 2.dp, horizontal = 2.dp)
+                } else {
+                    Modifier
+                },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = if (isExpanded) "Collapse section" else "Expand section",
+                    modifier = Modifier
+                        .size(20.dp)
+                        .rotate(chevronRotation),
+                    tint = contentColor,
+                )
                 Icon(
                     imageVector = icon,
                     contentDescription = null,

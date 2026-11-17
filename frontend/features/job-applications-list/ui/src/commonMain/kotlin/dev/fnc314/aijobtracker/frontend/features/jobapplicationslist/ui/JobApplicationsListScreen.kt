@@ -48,6 +48,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -245,6 +246,9 @@ internal fun JobApplicationsListContent(
   val listState = rememberLazyListState()
   val gridState = rememberLazyGridState()
 
+  // Track collapsed section orders (1=Interviewing, 2=In Draft, 3=Applied, 4=Rejected)
+  var collapsedSections by rememberSaveable { mutableStateOf(setOf<Int>()) }
+
   // Reset scroll to top whenever the filter or sorting configuration changes
   LaunchedEffect(content.statusFilter, content.ageFilter, content.sortColumn, content.sortAscending) {
     if (isCompact) {
@@ -275,13 +279,14 @@ internal fun JobApplicationsListContent(
   }
 
   // Calculate item index offsets for jumping between sections
-  val sectionOffsets = remember(groupedApplications) {
+  val sectionOffsets = remember(groupedApplications, collapsedSections) {
     val offsets = mutableMapOf<Int, Int>()
     var accumulated = 0
     groupedApplications.forEach { (sectionOrder, apps) ->
       offsets[sectionOrder] = accumulated
-      // 1 item for the header + N items for the application cards
-      accumulated += 1 + apps.size
+      // 1 item for the header + (if expanded, N items for the application cards)
+      val sectionItemCount = if (sectionOrder in collapsedSections) 0 else apps.size
+      accumulated += 1 + sectionItemCount
     }
     offsets
   }
@@ -359,6 +364,7 @@ internal fun JobApplicationsListContent(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
               ) {
                 groupedApplications.forEach { (sectionOrder, apps) ->
+                  val isExpanded = sectionOrder !in collapsedSections
                   stickyHeader(
                     key = "header_$sectionOrder",
                     contentType = "section_header",
@@ -366,6 +372,14 @@ internal fun JobApplicationsListContent(
                     JobApplicationsSectionHeader(
                       sectionOrder = sectionOrder,
                       count = apps.size,
+                      isExpanded = isExpanded,
+                      onToggleExpand = {
+                        collapsedSections = if (isExpanded) {
+                          collapsedSections + sectionOrder
+                        } else {
+                          collapsedSections - sectionOrder
+                        }
+                      },
                       availableSections = activeSections,
                       onJumpToSection = { targetOrder ->
                         val targetIndex = sectionOffsets[targetOrder] ?: 0
@@ -376,23 +390,25 @@ internal fun JobApplicationsListContent(
                     )
                   }
 
-                  items(
-                    items = apps,
-                    key = { it.id },
-                    contentType = { "application_card" },
-                  ) { item ->
-                    JobApplicationCard(
-                      model = item.toCardUiModel(),
-                      onApplicationClick = { onIntent(item.onClickIntent) },
-                      modifier = Modifier,
-                      variant = when (sectionOrder) {
-                        1 -> TopLevelCardSurfaceVariant.Highlighted
-                        2 -> TopLevelCardSurfaceVariant.FilledTonal
-                        3 -> TopLevelCardSurfaceVariant.FilledTonal
-                        4 -> TopLevelCardSurfaceVariant.Surface
-                        else -> TopLevelCardSurfaceVariant.FilledTonal
-                      },
-                    )
+                  if (isExpanded) {
+                    items(
+                      items = apps,
+                      key = { it.id },
+                      contentType = { "application_card" },
+                    ) { item ->
+                      JobApplicationCard(
+                        model = item.toCardUiModel(),
+                        onApplicationClick = { onIntent(item.onClickIntent) },
+                        modifier = Modifier,
+                        variant = when (sectionOrder) {
+                          1 -> TopLevelCardSurfaceVariant.Highlighted
+                          2 -> TopLevelCardSurfaceVariant.FilledTonal
+                          3 -> TopLevelCardSurfaceVariant.FilledTonal
+                          4 -> TopLevelCardSurfaceVariant.Surface
+                          else -> TopLevelCardSurfaceVariant.FilledTonal
+                        },
+                      )
+                    }
                   }
                 }
               }
@@ -408,6 +424,7 @@ internal fun JobApplicationsListContent(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
               ) {
                 groupedApplications.forEach { (sectionOrder, apps) ->
+                  val isExpanded = sectionOrder !in collapsedSections
                   item(
                     key = "header_$sectionOrder",
                     span = { GridItemSpan(maxLineSpan) },
@@ -416,6 +433,14 @@ internal fun JobApplicationsListContent(
                     JobApplicationsSectionHeader(
                       sectionOrder = sectionOrder,
                       count = apps.size,
+                      isExpanded = isExpanded,
+                      onToggleExpand = {
+                        collapsedSections = if (isExpanded) {
+                          collapsedSections + sectionOrder
+                        } else {
+                          collapsedSections - sectionOrder
+                        }
+                      },
                       availableSections = activeSections,
                       onJumpToSection = { targetOrder ->
                         val targetIndex = sectionOffsets[targetOrder] ?: 0
@@ -426,23 +451,25 @@ internal fun JobApplicationsListContent(
                     )
                   }
 
-                  items(
-                    items = apps,
-                    key = { it.id },
-                    contentType = { "application_card" },
-                  ) { item ->
-                    JobApplicationCard(
-                      model = item.toCardUiModel(),
-                      onApplicationClick = { onIntent(item.onClickIntent) },
-                      modifier = Modifier,
-                      variant = when (sectionOrder) {
-                        1 -> TopLevelCardSurfaceVariant.Highlighted
-                        2 -> TopLevelCardSurfaceVariant.FilledTonal
-                        3 -> TopLevelCardSurfaceVariant.FilledTonal
-                        4 -> TopLevelCardSurfaceVariant.Surface
-                        else -> TopLevelCardSurfaceVariant.FilledTonal
-                      },
-                    )
+                  if (isExpanded) {
+                    items(
+                      items = apps,
+                      key = { it.id },
+                      contentType = { "application_card" },
+                    ) { item ->
+                      JobApplicationCard(
+                        model = item.toCardUiModel(),
+                        onApplicationClick = { onIntent(item.onClickIntent) },
+                        modifier = Modifier,
+                        variant = when (sectionOrder) {
+                          1 -> TopLevelCardSurfaceVariant.Highlighted
+                          2 -> TopLevelCardSurfaceVariant.FilledTonal
+                          3 -> TopLevelCardSurfaceVariant.FilledTonal
+                          4 -> TopLevelCardSurfaceVariant.Surface
+                          else -> TopLevelCardSurfaceVariant.FilledTonal
+                        },
+                      )
+                    }
                   }
                 }
               }
@@ -458,6 +485,7 @@ internal fun JobApplicationsListContent(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
               ) {
                 groupedApplications.forEach { (sectionOrder, apps) ->
+                  val isExpanded = sectionOrder !in collapsedSections
                   item(
                     key = "header_$sectionOrder",
                     span = { GridItemSpan(maxLineSpan) },
@@ -466,6 +494,14 @@ internal fun JobApplicationsListContent(
                     JobApplicationsSectionHeader(
                       sectionOrder = sectionOrder,
                       count = apps.size,
+                      isExpanded = isExpanded,
+                      onToggleExpand = {
+                        collapsedSections = if (isExpanded) {
+                          collapsedSections + sectionOrder
+                        } else {
+                          collapsedSections - sectionOrder
+                        }
+                      },
                       availableSections = activeSections,
                       onJumpToSection = { targetOrder ->
                         val targetIndex = sectionOffsets[targetOrder] ?: 0
@@ -476,23 +512,25 @@ internal fun JobApplicationsListContent(
                     )
                   }
 
-                  items(
-                    items = apps,
-                    key = { it.id },
-                    contentType = { "application_card" },
-                  ) { item ->
-                    JobApplicationCard(
-                      model = item.toCardUiModel(),
-                      onApplicationClick = { onIntent(item.onClickIntent) },
-                      modifier = Modifier,
-                      variant = when (sectionOrder) {
-                        1 -> TopLevelCardSurfaceVariant.Highlighted
-                        2 -> TopLevelCardSurfaceVariant.FilledTonal
-                        3 -> TopLevelCardSurfaceVariant.FilledTonal
-                        4 -> TopLevelCardSurfaceVariant.Surface
-                        else -> TopLevelCardSurfaceVariant.FilledTonal
-                      },
-                    )
+                  if (isExpanded) {
+                    items(
+                      items = apps,
+                      key = { it.id },
+                      contentType = { "application_card" },
+                    ) { item ->
+                      JobApplicationCard(
+                        model = item.toCardUiModel(),
+                        onApplicationClick = { onIntent(item.onClickIntent) },
+                        modifier = Modifier,
+                        variant = when (sectionOrder) {
+                          1 -> TopLevelCardSurfaceVariant.Highlighted
+                          2 -> TopLevelCardSurfaceVariant.FilledTonal
+                          3 -> TopLevelCardSurfaceVariant.FilledTonal
+                          4 -> TopLevelCardSurfaceVariant.Surface
+                          else -> TopLevelCardSurfaceVariant.FilledTonal
+                        },
+                      )
+                    }
                   }
                 }
               }
