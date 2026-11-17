@@ -1,6 +1,6 @@
 # Implementation Plan: RM-001 Kotlin-Only Migration — Chipping Away at Remaining Scripts
 
-**Status:** In Progress  
+**Status:** Completed  
 **Date:** 2026-11-16  
 **Target:** repository-wide (`frontend/apps/cli/`, `records/parser/`, `.config/mise/tasks/`, `scripts/`, `ROADMAP.md`)  
 **Harness:** Antigravity  
@@ -97,7 +97,30 @@ Rather than an unmanageable all-at-once rewrite, this plan tackles the migration
 - Regenerated documentation and shell completions.
 - Committed changes (`bf5e1d04`).
 
-### Slice C: Salary Benchmark Lookup in Kotlin (Bite 3) — **IN PROGRESS**
+### Slice C: Salary Benchmark Lookup in Kotlin (Bite 3) — **COMPLETED**
+- Created `SalaryBenchmarkEngine.kt` in `records/parser/` providing `normalizeCompanyName()`, fuzzy search, and JSON serialization.
+- Authored and verified unit tests in `SalaryBenchmarkEngineTest.kt` (100% pass).
+- Created `SalaryCommand.kt` in `frontend/apps/cli/commands/` supporting `--city`, `--json`, `--list-all`, and `--validate`.
+- Registered `SalaryCommand` in `JobSearchCli` and `TrackerCommand`.
+- Converted `.config/mise/tasks/salary/lookup.py` to `.sh` wrapper.
+- Verified `mise run salary --validate`.
+- Regenerated documentation and shell completions.
+- Updated `ROADMAP.md` RM-001 completion to 80% and committed (`078d35f4`).
+
+### Slice D: Final Verification & Plan Alignment — **COMPLETED**
+- Verified filename adheres strictly to `.agents/plans/TEMPLATE.md`: `.agents/plans/2026-11-16/193505_rm-001-chipping-away-plan.md` (lowercase kebab-case prefix with 24-hr timestamp).
+- Verified frontmatter adheres strictly to TEMPLATE.md (Status, Date, Target, Harness, Model, Session, Schema Authority, Depends On, Related Items).
+- Verified all quality gates pass: `mise run dev:guards`, `mise run dev:konsist`, and `mise run records:test`.
+- Synced `ROADMAP.md` RM-001 progress to 80% completion.
+
+---
+
+## 5. Bookkeeping Checklist
+- [x] Plan persisted at `.agents/plans/2026-11-16/193505_rm-001-chipping-away-plan.md` (kebab-case title)
+- [x] Registry `.agents/plans/README.md` row added / status synchronized
+- [x] Craft a single commit of all changed files
+- [x] Stage changed files and craft a commit message based on the name of this file
+- [x] Note SSH agent/passphrase constraints when pushing to remote origin (`git push origin main`)
 1. **Add `ProposalCommand` to `frontend/apps/cli`**:
    - Subcommands:
      - `proposals list [--state <state>]`

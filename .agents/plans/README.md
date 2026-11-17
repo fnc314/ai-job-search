@@ -24,7 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
-| [`193505_rm-001-chipping-away-plan.md`](./2026-11-16/193505_rm-001-chipping-away-plan.md) | In Progress | Chipping away at remaining scripts in RM-001 (Kotlin-Only Migration): archiving one-off scripts, migrating proposals CLI subcommands to Kotlin, and porting salary lookup |
+| [`193505_rm-001-chipping-away-plan.md`](./2026-11-16/193505_rm-001-chipping-away-plan.md) | Completed | Chipping away at remaining scripts in RM-001 (Kotlin-Only Migration): archiving one-off scripts, migrating proposals CLI subcommands to Kotlin, and porting salary lookup |
 | [`141800_gcloud-project-migration-plan.md`](./2026-11-16/141800_gcloud-project-migration-plan.md) | Completed | Complete GCP and Firebase project migration from `job-search-fnc314-dev` to `dev-fnc314-ai-job-tracker` (Firestore data, Cloud Storage artifacts, Cloud Run, Scheduler, and client credentials) |
 | [`135500_backend-security-credentials-and-apps-integration-plan.md`](./2026-11-16/135500_backend-security-credentials-and-apps-integration-plan.md) | Completed | Security layer for Cloud Run backend ingress, Firebase client credentials threat analysis & git protection, and @frontend/apps integration |
 | [`133000_script-migration-and-cloud-run-deployment-plan.md`](./2026-11-16/133000_script-migration-and-cloud-run-deployment-plan.md) | Completed | Migration of remaining Python scraping and compilation scripts to Kotlin, Docker containerization with TeX Live, and Google Cloud Run deployment |
