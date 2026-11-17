@@ -103,8 +103,8 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Linked Plans:**
 
 - `.agents/plans/2026-11-10/192641_rm-001-python-to-kotlin-migration-plan.md` (canonical, supersedes all)
-- `.agents/plans/2026-11-10/154500_pure_kotlin_migration_render_py.md`
-- `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
+- `.agents/plans/2026-11-10/154500_pure-kotlin-migration-render-py.md`
+- `.agents/plans/2026-11-10/144500_centralized-event-cryptography-and-projections.md`
 - `.agents/plans/2026-11-08/171648_hunter-logo-integration.md`
 - `.agents/plans/2026-11-08/214000_fix-email-collect-contract-error.md`
 - `.agents/plans/2026-11-08/215200_fix-event-type-and-email-pipeline-docs.md`
@@ -226,10 +226,10 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Linked Plans:**
 
 - `.agents/plans/2026-11-10/160200_retroactive-company-enrichment.md`
-- `.agents/plans/2026-11-10/154500_pure_kotlin_migration_render_py.md`
-- `.agents/plans/2026-11-09/164500_post_monorepo_quality_gates_and_cloud_run_deployment_plan.md`
-- `.agents/plans/2026-11-10/144500_centralized_event_cryptography_and_projections.md`
-- `.agents/plans/2026-11-09/125800_kotlin_cloud_run_remote_tasks_and_tui_plan.md`
+- `.agents/plans/2026-11-10/154500_pure-kotlin-migration-render-py.md`
+- `.agents/plans/2026-11-09/164500_post-monorepo-quality-gates-and-cloud-run-deployment-plan.md`
+- `.agents/plans/2026-11-10/144500_centralized-event-cryptography-and-projections.md`
+- `.agents/plans/2026-11-09/125800_kotlin-cloud-run-remote-tasks-and-tui-plan.md`
 
 **Changelog:**
 
@@ -284,7 +284,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 **Linked Plans:**
 
-- `.agents/plans/2026-11-10/162700_firestore_events_migration_investigation.md`
+- `.agents/plans/2026-11-10/162700_firestore-events-migration-investigation.md`
 
 **Changelog:**
 
@@ -338,7 +338,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Linked Plans:**
 
 - `.agents/plans/2026-11-10/160200_retroactive-company-enrichment.md`
-- `.agents/plans/2026-11-10/152500_linkedin_company_enrichment_plan.md`
+- `.agents/plans/2026-11-10/152500_linkedin-company-enrichment-plan.md`
 - `.agents/plans/2026-11-08/171648_hunter-logo-integration.md`
 
 **Changelog:**
@@ -375,7 +375,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 **Linked Plans:**
 
-- `.agents/plans/2026-11-10/164050_email_evidence_taxonomy_and_tui_rectification.md`
+- `.agents/plans/2026-11-10/164050_email-evidence-taxonomy-and-tui-rectification.md`
 - `.agents/plans/2026-11-10/163500_rm-006-email-top-level-collection-assessment.md`
 
 **Changelog:**
