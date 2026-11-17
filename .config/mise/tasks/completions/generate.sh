@@ -16,8 +16,9 @@ else
     mkdir -p ./completions
     mise completion zsh > ./completions/_mise
     # Copy custom completions
-    if [ -f "${MISE_PROJECT_ROOT}/completions/_roadmap_edit" ]; then
-        cp "${MISE_PROJECT_ROOT}/completions/_roadmap_edit" ./completions/_roadmap_edit
+    root_file="${MISE_PROJECT_ROOT:-.}/completions/_roadmap_edit"
+    if [ -f "$root_file" ] && [ "$(realpath "$root_file" 2>/dev/null || echo "$root_file")" != "$(realpath ./completions/_roadmap_edit 2>/dev/null || echo ./completions/_roadmap_edit)" ]; then
+        cp "$root_file" ./completions/_roadmap_edit
     fi
     echo "Generated Zsh completions in ./completions/_mise (user directory unwritable)"
 fi

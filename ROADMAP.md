@@ -65,7 +65,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Priority:** MEDIUM
 **Complexity:** 5 — Critical
 **Status:** IN_PROGRESS
-**Completion %:** 70
+**Completion %:** 75
 **Creation Date:** 2026-11-10
 **Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/cli`).
 
