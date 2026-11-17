@@ -1,10 +1,14 @@
 # Implementation Plan: RM-001 Kotlin-Only Migration — Chipping Away at Remaining Scripts
 
-**Status:** Proposed  
+**Status:** In Progress  
 **Date:** 2026-11-16  
 **Target:** repository-wide (`frontend/apps/cli/`, `records/parser/`, `.config/mise/tasks/`, `scripts/`, `ROADMAP.md`)  
+**Harness:** Antigravity  
+**Model:** gemini-3.8-flash  
+**Session:** 7093357f-5e5a-45e0-9093-a854e5ab458a  
 **Schema Authority:** [`tracker.schema.json`](../../tracker.schema.json)  
-**Related Items:** `RM-001` (Kotlin-Only Migration), `RM-003` (Backend Functionality Abstraction)
+**Depends On:** [`192641_rm-001-python-to-kotlin-migration-plan.md`](../2026-11-10/192641_rm-001-python-to-kotlin-migration-plan.md)  
+**Related Items:** `RM-001` (Kotlin-Only Migration), `RM-003` (Backend Functionality Abstraction)  
 
 ---
 
@@ -83,7 +87,17 @@ Rather than an unmanageable all-at-once rewrite, this plan tackles the migration
 - Updated task docs and completions via `docs:tasks` and `completions:generate`.
 - Updated `ROADMAP.md` RM-001 completion to 75% and committed (`132968d2`).
 
-### Slice B: Proposals Management in Kotlin CLI (Bite 2) — **IN PROGRESS**
+### Slice B: Proposals Management in Kotlin CLI (Bite 2) — **COMPLETED**
+- Created `ProposalCommand.kt` in `frontend/apps/cli/commands/` implementing subcommands: `list`, `show`, `approve`, `reject`, `expire`.
+- Registered `ProposalCommand` in `JobSearchCli` and `TrackerCommand` entry points.
+- Fixed `RemotePlatform.jvm.kt` fallback to target `dev-fnc314-ai-job-tracker`.
+- Resolved Konsist Architecture Test rule on design system color tokens (`BrandPalette`).
+- Converted all 5 proposal tasks in `.config/mise/tasks/proposals/` from `.py` to `.sh` wrappers.
+- Verified `mise run proposals:list` and `mise run proposals:show <id>`.
+- Regenerated documentation and shell completions.
+- Committed changes (`bf5e1d04`).
+
+### Slice C: Salary Benchmark Lookup in Kotlin (Bite 3) — **IN PROGRESS**
 1. **Add `ProposalCommand` to `frontend/apps/cli`**:
    - Subcommands:
      - `proposals list [--state <state>]`

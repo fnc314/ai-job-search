@@ -3,7 +3,7 @@
   (root, `records/.agents/plans/`, `frontend/.agents/plans/`).
 
   Usage:
-    1. Copy to `<plans-dir>/YYYY-MM-DD/HHMMSS_<plan-name>.md` (24-hour clock).
+    1. Copy to `<plans-dir>/YYYY-MM-DD/HHMMSS_<plan-name>.md` (24-hour clock; `<plan-name>` must be lowercase kebab-case, e.g. `fix-login-crash`).
     2. Fill the frontmatter block. `Status`, `Date`, `Target` are MANDATORY.
        Delete optional lines you don't need (Evaluates / Schema Authority / Depends On / Supersedes).
        When an AI model creates the plan, include `Harness` (the official name of the current running harness, e.g. Antigravity, Junie, Claude Code, OpenCode),
@@ -39,7 +39,7 @@
 ## 4. Verification Plan & Testing Checklist
 
 ## 5. Bookkeeping
-- [ ] Plan persisted at `<plans-dir>/YYYY-MM-DD/HHMMSS_<plan-name>.md`
+- [ ] Plan persisted at `<plans-dir>/YYYY-MM-DD/HHMMSS_<plan-name>.md` (kebab-case title)
 - [ ] Registry `README.md` row added / status synchronized
 - [ ] Craft a single commit of all changed files
 - [ ] Stage changed files and craft a commit message based on the name of this file
