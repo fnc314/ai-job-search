@@ -10,6 +10,7 @@ import dev.fnc314.aijobtracker.frontend.cli.commands.BackfillParentCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.BulkCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.CheckCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.EditCommand
+import dev.fnc314.aijobtracker.frontend.cli.commands.EmailCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.ExportCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.GetApplicationCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.LabelsCommand
@@ -64,6 +65,6 @@ internal class TrackerCommand : CliktCommand(name = "tracker") {
  */
 public fun main(args: Array<String>) {
     JobSearchCli()
-        .subcommands(TrackerCommand(), ProposalCommand(), SalaryCommand())
+        .subcommands(TrackerCommand(), ProposalCommand(), SalaryCommand(), EmailCommand())
         .main(args)
 }

@@ -8,4 +8,4 @@
 
 set -euo pipefail
 
-echo "[email:sync-labels] Completed."
+"${MISE_PROJECT_ROOT}/gradlew" -q :frontend:apps-cli:run --args="email sync-labels $*"

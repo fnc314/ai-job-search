@@ -23,4 +23,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     // job-post-ranking is published by the backend composite build
     implementation("dev.fnc314.tools.jobtracker.backend:job-post-ranking:1.0.0")
+    implementation("dev.fnc314.tools.jobtracker.backend:email-classification:1.0.0")
+    implementation("dev.fnc314.tools.jobtracker.backend:service:1.0.0")
 }

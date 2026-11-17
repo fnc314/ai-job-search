@@ -10,4 +10,4 @@
 
 set -euo pipefail
 
-echo "[email:read-inbox] Completed."
+"${MISE_PROJECT_ROOT}/gradlew" -q :frontend:apps-cli:run --args="email read-inbox $*"
