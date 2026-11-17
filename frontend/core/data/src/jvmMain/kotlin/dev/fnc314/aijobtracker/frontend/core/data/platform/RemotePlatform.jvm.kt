@@ -61,6 +61,7 @@ public object RemotePlatform {
     private fun resolveProjectId(): String {
         return System.getenv("TRACKER_PROJECT")
             ?: System.getenv("REMOTE_GCP_PROJECT")
-            ?: "job-search-fnc314-dev"
+            ?: System.getenv("GOOGLE_CLOUD_PROJECT")
+            ?: "dev-fnc314-ai-job-tracker"
     }
 }

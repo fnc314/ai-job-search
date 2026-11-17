@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus
+import dev.fnc314.aijobtracker.frontend.core.designsystem.BrandPalette
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.ui.JobApplicationItemUiModel
 
@@ -75,25 +76,25 @@ public fun JobApplicationsSummaryMenu(
         SummaryRow(
             label = "Applied / Submitted",
             count = appliedCount,
-            dotColor = Color(0xFF2563EB),
+            dotColor = BrandPalette.BlueApplied,
         )
         Spacer(modifier = Modifier.height(8.dp))
         SummaryRow(
             label = "Interviewing",
             count = interviewingCount,
-            dotColor = Color(0xFF10B981),
+            dotColor = BrandPalette.GreenInterviewing,
         )
         Spacer(modifier = Modifier.height(8.dp))
         SummaryRow(
             label = "Rejected / Archived",
             count = rejectedCount,
-            dotColor = Color(0xFFEF4444),
+            dotColor = BrandPalette.RedRejected,
         )
         Spacer(modifier = Modifier.height(8.dp))
         SummaryRow(
             label = "Draft / Saved",
             count = draftCount,
-            dotColor = Color(0xFFF59E0B),
+            dotColor = BrandPalette.AmberDraft,
         )
     }
 }

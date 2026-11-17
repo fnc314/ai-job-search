@@ -13,6 +13,7 @@ import dev.fnc314.aijobtracker.frontend.cli.commands.GetApplicationCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.MergeCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.ReclassifyCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.ListApplicationsCommand
+import dev.fnc314.aijobtracker.frontend.cli.commands.ProposalCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.RankCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.SeedCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.UpdateScoreCommand
@@ -39,6 +40,7 @@ internal class TrackerCommand : CliktCommand(name = "tracker") {
             AlignCommand(),
             RankCommand(),
             SeedCommand(),
+            ProposalCommand(),
         )
     }
 
@@ -50,6 +52,6 @@ internal class TrackerCommand : CliktCommand(name = "tracker") {
  */
 public fun main(args: Array<String>) {
     JobSearchCli()
-        .subcommands(TrackerCommand())
+        .subcommands(TrackerCommand(), ProposalCommand())
         .main(args)
 }

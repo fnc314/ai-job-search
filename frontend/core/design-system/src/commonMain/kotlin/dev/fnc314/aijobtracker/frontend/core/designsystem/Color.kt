@@ -43,6 +43,33 @@ public object SeedColors {
 }
 
 /**
+ * Common brand and status palette constants defined strictly in the design system.
+ * Adheres strictly to Architecture Rule 3: Zero rogue `Color()` calls outside this file.
+ */
+public object BrandPalette {
+    /** Blue highlight for applied applications. */
+    public val BlueApplied: Color = Color(0xFF2563EB)
+
+    /** Green highlight for interviewing applications. */
+    public val GreenInterviewing: Color = Color(0xFF10B981)
+
+    /** Red highlight for rejected applications. */
+    public val RedRejected: Color = Color(0xFFEF4444)
+
+    /** Amber highlight for drafts / saved / AI stars. */
+    public val AmberDraft: Color = Color(0xFFF59E0B)
+
+    /** Supersonic Glider radar arc cyan. */
+    public val GliderArcCyan: Color = Color(0xFF38BDF8)
+
+    /** Supersonic Glider underside keel slate. */
+    public val GliderKeelSlate: Color = Color(0xFF94A3B8)
+
+    /** Supersonic Glider wing slate shaded. */
+    public val GliderWingSlate: Color = Color(0xFFCBD5E1)
+}
+
+/**
  * Parses a 6-digit hex string (e.g. `"#2F5597"` or `"2F5597"`) into a Compose [Color], or null if invalid.
  *
  * @receiver The hexadecimal string to parse.

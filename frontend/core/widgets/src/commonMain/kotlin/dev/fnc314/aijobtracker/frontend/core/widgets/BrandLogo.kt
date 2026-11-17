@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.fnc314.aijobtracker.frontend.core.designsystem.BrandPalette
 
 /**
  * Brand logo rendering the supersonic Delta Glider, orbital radar arc, and AI North Star spark.
@@ -113,7 +114,7 @@ public fun BrandLogo(
 private fun DrawScope.drawOrbitalArc(scale: Float, angle: Float) {
     val center = Offset(32f * scale, 32f * scale)
     val radius = 24f * scale
-    val arcColor = Color(0xFF38BDF8).copy(alpha = 0.45f)
+    val arcColor = BrandPalette.GliderArcCyan.copy(alpha = 0.45f)
 
     drawArc(
         color = arcColor,
@@ -139,7 +140,7 @@ private fun DrawScope.drawGlider(scale: Float, hoverRatio: Float) {
         lineTo(30f * scale, 39f * scale + dy)
         close()
     }
-    drawPath(keelPath, Color(0xFF94A3B8))
+    drawPath(keelPath, BrandPalette.GliderKeelSlate)
 
     // Left Wing (White top illuminated) (39, 21) -> (17, 34) -> (30, 39)
     val leftWing = Path().apply {
@@ -157,13 +158,13 @@ private fun DrawScope.drawGlider(scale: Float, hoverRatio: Float) {
         lineTo(43f * scale, 35f * scale + dy)
         close()
     }
-    drawPath(rightWing, Color(0xFFCBD5E1))
+    drawPath(rightWing, BrandPalette.GliderWingSlate)
 }
 
 private fun DrawScope.drawAiSpark(scale: Float, sparkScale: Float) {
     val sparkCenter = Offset(46f * scale, 16f * scale)
     val baseRadius = 4f * scale * sparkScale
-    val sparkColor = Color(0xFFF59E0B)
+    val sparkColor = BrandPalette.AmberDraft
 
     val sparkPath = Path().apply {
         moveTo(sparkCenter.x, sparkCenter.y - baseRadius)

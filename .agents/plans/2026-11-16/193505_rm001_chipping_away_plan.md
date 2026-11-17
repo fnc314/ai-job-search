@@ -70,18 +70,20 @@ Rather than an unmanageable all-at-once rewrite, this plan tackles the migration
 
 ## 3. Proposed Slices
 
-### Slice A: Archival of One-Time Scripts (Bite 1)
-Move verified historical one-off scripts to `archive/scripts/`:
-- `importer.py`
-- `reconcile_submissions.py`
-- `resume_migration.py`
-- `blob_migrate.py`
-- `blob_batch_relocate.py`
-- `blob_relocate.py`
-- `blob_relocate_role_slugs.py`
-- `blob_purge_legacy.py`
+### Slice A: Archival of One-Time Scripts (Bite 1) — **COMPLETED**
+- Moved verified historical one-off scripts to `archive/scripts/`:
+  - `importer.py`
+  - `reconcile_submissions.py`
+  - `resume_migration.py`
+  - `blob_migrate.py`
+  - `blob_batch_relocate.py`
+  - `blob_relocate.py`
+  - `blob_relocate_role_slugs.py`
+  - `blob_purge_legacy.py`
+- Updated task docs and completions via `docs:tasks` and `completions:generate`.
+- Updated `ROADMAP.md` RM-001 completion to 75% and committed (`132968d2`).
 
-### Slice B: Proposals Management in Kotlin CLI (Bite 2)
+### Slice B: Proposals Management in Kotlin CLI (Bite 2) — **IN PROGRESS**
 1. **Add `ProposalCommand` to `frontend/apps/cli`**:
    - Subcommands:
      - `proposals list [--state <state>]`
