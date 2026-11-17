@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`002635_migrate-mise-tasks-to-zsh-and-github-actions.md`](./2026-11-17/002635_migrate-mise-tasks-to-zsh-and-github-actions.md) | Completed | Migrate all task scripts across `.config/mise/tasks` from `.sh` to `.zsh`, set shebangs to `#!/usr/bin/env zsh`, standardize GitHub Actions CI/CD workflows to install and run steps with `shell: zsh {0}`, and update task document generators |
 | [`201200_rm-001-final-sprint-plan.md`](./2026-11-16/201200_rm-001-final-sprint-plan.md) | Completed | RM-001 Final Sprint: migrate/archive remaining Python scripts, convert .config/mise/tasks to shell/Kotlin wrappers, and reach 100% completion on RM-001 |
 | [`200053_rm-001-domain-scripts-and-lead-plan.md`](./2026-11-16/200053_rm-001-domain-scripts-and-lead-plan.md) | Completed | Next Slices for RM-001 (Kotlin-Only Migration): archiving superseded domain scripts (alignment, salary_lookup, proposals), porting tracker lead command to Kotlin, and bumping completion to 90% |
 | [`195419_rm-001-next-slices-plan.md`](./2026-11-16/195419_rm-001-next-slices-plan.md) | Completed | Next Slices for RM-001 (Kotlin-Only Migration): archiving fully superseded scripts (render, urls, fit_evaluator, rank, events) and migrating tracker export/bulk/edit CLI subcommands and tasks to Kotlin |

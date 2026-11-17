@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 STAGED="$(git diff-index --cached --name-only -z HEAD | xargs -0)"
 export STAGED
 export MISE_PRE_COMMIT=1

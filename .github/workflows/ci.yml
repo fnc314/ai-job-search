@@ -40,30 +40,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install Zsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
       - uses: jdx/mise-action@v2
         with:
           fetch-depth: 0
       - uses: jdx/mise-action@v2
       - run: mise run lint
+        shell: zsh {0}
 
   security-guards:
     name: Security guards (permissions, gitignore, manifests)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install Zsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
       - uses: jdx/mise-action@v2
       - run: mise run secrets:decrypt --passphrase "${{ secrets.SECRETS_PASSPHRASE || '' }}" || true
+        shell: zsh {0}
       - run: mise run security-guards
+        shell: zsh {0}
 
-  python-tests:
-    name: Python tool tests
+  dev-tests:
+    name: Development and architecture test suites
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install Zsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
       - uses: jdx/mise-action@v2
-      - uses: jdx/mise-action@v2
-      - run: pip install -r requirements-tracker.txt
       - run: mise run test
+        shell: zsh {0}
 
   dependency-review:
     name: Dependency review (upstream PRs only)
@@ -104,12 +118,10 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: jdx/mise-action@v2
-      - name: Install PDF inspection tools
+      - name: Install PDF inspection tools and Zsh
         run: |
-          if ! command -v pdfinfo >/dev/null || ! command -v pdftotext >/dev/null; then
-            apt-get update
-            apt-get install -y --no-install-recommends poppler-utils
-          fi
+          apt-get update
+          apt-get install -y --no-install-recommends poppler-utils zsh
       - name: Compile CV example (lualatex)
         run: |
           cd cv
@@ -134,6 +146,7 @@ jobs:
         run: |
           mise run verify-pdf templates/cv/main_example.pdf --min-chars 100
           mise run verify-pdf templates/cover-letters/cover_example.pdf --min-chars 100
+        shell: zsh {0}
       - name: Assert stock PDF structure (upstream template only)
         if: github.repository == 'MadsLorentzen/ai-job-search'
         run: |
@@ -145,6 +158,7 @@ jobs:
             --pages 1 \
             --contains 'your.email@example.com' \
             --contains 'Dear [Hiring Manager / Team]'
+        shell: zsh {0}
 
   cli-checks:
     name: CLI checks ${{ matrix.tool }}
