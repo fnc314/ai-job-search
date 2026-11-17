@@ -11,6 +11,20 @@ prefer updating to a tagged release over pulling raw `master` (see
 files a release touched; `python3 tools/check_upstream_updates.py` lists them with
 per-file diff commands.
 
+## [2.6.0] - 2026-11-17
+
+### Completed
+- **[RM-001] Kotlin-Only Migration (100% DONE)**:
+  - Migrated and eradicated all 56 legacy Python scripts and modules from `scripts/` and `lib/`, relocating them to `archive/`.
+  - Converted all 31 `.config/mise/tasks/**/*.py` tasks to native POSIX shell scripts (`.sh`) invoking `:frontend:apps-cli:run` or native backend targets.
+  - Implemented Kotlin CLI commands: `ProposalCommand` (subcommands: `list`, `show`, `approve`, `reject`, `expire`), `SalaryCommand`, `ExportCommand` (JSON, CSV, NDJSON), `LeadCommand`, `LabelsCommand`, `UpsertCommand`, and `BulkCommand`.
+  - Re-implemented `roadmap:status` as a high-performance shell/awk script fully compatible with GitHub rendering constraints.
+  - Removed Python interpreter (`python = "3.15.2"`) and `PYTHONPATH` from `mise.toml`.
+- **Database & Architecture Integrity**:
+  - Maintained canonical company slug invariant across all data mutations.
+  - Preserved Interface-First Naming invariants (`Remote`, `Local`, `Network`, `Blob`, `Email`) with zero baseline violations.
+  - Regenerated all task documentation (`docs/mise/`) and Zsh completions (`completions:generate`).
+
 ## [Unreleased]
 
 - **Custom templates: any compile-to-PDF toolchain (Typst, ...)** - `/add-template` no longer
