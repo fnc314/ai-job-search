@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`162755_proposal-edit-cli-command.md`](./2026-11-17/162755_proposal-edit-cli-command.md) | Completed | Add proposals edit CLI command to frontend:apps-cli to support editing and removing proposed changes before approval |
 | [`160515_email-mise-tasks-to-kotlin-cli.md`](./2026-11-17/160515_email-mise-tasks-to-kotlin-cli.md) | Completed | Restore functionality of email:sync-labels, email:read-inbox, email:collect, and email:discover by implementing email commands in frontend:apps-cli and wiring Mise tasks |
 | [`002635_migrate-mise-tasks-to-zsh-and-github-actions.md`](./2026-11-17/002635_migrate-mise-tasks-to-zsh-and-github-actions.md) | Completed | Migrate all task scripts across `.config/mise/tasks` from `.sh` to `.zsh`, set shebangs to `#!/usr/bin/env zsh`, standardize GitHub Actions CI/CD workflows to install and run steps with `shell: zsh {0}`, and update task document generators |
 | [`201200_rm-001-final-sprint-plan.md`](./2026-11-16/201200_rm-001-final-sprint-plan.md) | Completed | RM-001 Final Sprint: migrate/archive remaining Python scripts, convert .config/mise/tasks to shell/Kotlin wrappers, and reach 100% completion on RM-001 |

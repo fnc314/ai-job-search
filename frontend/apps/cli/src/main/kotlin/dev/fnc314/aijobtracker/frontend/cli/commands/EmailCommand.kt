@@ -173,8 +173,19 @@ internal class EmailReadInboxCommand : CliktCommand(name = "read-inbox") {
         }
 
         val maxResults = max?.toIntOrNull() ?: 50
-        val args = mutableListOf(
-            composioBin, "execute", "GMAIL_LIST_MESSAGES", "-d", """{"q": "$fullQuery", "max_results": $maxResults}"""
+        val requestBody = Json.encodeToString(
+            JsonObject(
+                mapOf(
+                    "user_id" to kotlinx.serialization.json.JsonPrimitive("me"),
+                    "query" to kotlinx.serialization.json.JsonPrimitive(fullQuery),
+                    "max_results" to kotlinx.serialization.json.JsonPrimitive(maxResults),
+                    "verbose" to kotlinx.serialization.json.JsonPrimitive(true),
+                    "include_payload" to kotlinx.serialization.json.JsonPrimitive(true)
+                )
+            )
+        )
+        val args = listOf(
+            composioBin, "execute", "GMAIL_FETCH_EMAILS", "-d", requestBody
         )
 
         try {
@@ -183,7 +194,7 @@ internal class EmailReadInboxCommand : CliktCommand(name = "read-inbox") {
             val exitCode = process.waitFor()
 
             if (exitCode != 0) {
-                t.println(yellow("Provider list messages output: $output"))
+                t.println(yellow("Provider fetch messages output: $output"))
                 t.println(red("Failed to read inbox (exit code $exitCode)"))
                 return
             }
@@ -196,19 +207,43 @@ internal class EmailReadInboxCommand : CliktCommand(name = "read-inbox") {
                 else -> null
             } ?: JsonArray(emptyList())
 
+            // Normalize message attributes to standard schema
+            val normalizedMessages = rawMessages.mapNotNull { elem ->
+                val obj = elem.jsonObject
+                val id = obj["messageId"]?.jsonPrimitive?.contentOrNull
+                    ?: obj["id"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
+                val subj = obj["subject"]?.jsonPrimitive?.contentOrNull.orEmpty()
+                val sender = obj["sender"]?.jsonPrimitive?.contentOrNull.orEmpty()
+                val body = obj["messageText"]?.jsonPrimitive?.contentOrNull
+                    ?: obj["body"]?.jsonPrimitive?.contentOrNull.orEmpty()
+                val snippet = if (body.isNotBlank()) "$subj\n\n$body".take(800) else subj.take(800)
+                val received = obj["messageTimestamp"]?.jsonPrimitive?.contentOrNull
+                    ?: obj["receivedAt"]?.jsonPrimitive?.contentOrNull.orEmpty()
+
+                JsonObject(
+                    mapOf(
+                        "messageId" to kotlinx.serialization.json.JsonPrimitive(id),
+                        "subject" to kotlinx.serialization.json.JsonPrimitive(subj),
+                        "sender" to kotlinx.serialization.json.JsonPrimitive(sender),
+                        "snippet" to kotlinx.serialization.json.JsonPrimitive(snippet),
+                        "receivedAt" to kotlinx.serialization.json.JsonPrimitive(received)
+                    )
+                )
+            }
+
             val payload = JsonObject(
                 mapOf(
                     "lookbackFrom" to kotlinx.serialization.json.JsonPrimitive(since ?: ""),
                     "query" to kotlinx.serialization.json.JsonPrimitive(fullQuery),
-                    "messages" to rawMessages
+                    "messages" to JsonArray(normalizedMessages)
                 )
             )
 
             if (!dryRun) {
                 File(generatedDir, "gmail-inbox.json").writeText(Json.encodeToString(payload))
-                t.println(green("✓ Successfully fetched ${rawMessages.size} messages to generated/gmail-inbox.json"))
+                t.println(green("✓ Successfully fetched ${normalizedMessages.size} messages to generated/gmail-inbox.json"))
             } else {
-                t.println(green("✓ [dry-run] Found ${rawMessages.size} messages"))
+                t.println(green("✓ [dry-run] Found ${normalizedMessages.size} messages"))
             }
         } catch (e: Exception) {
             t.println(red("Error reading inbox: ${e.message}"))

@@ -3,4 +3,4 @@
 - **Usage:** `dev:guards`
 - **Aliases:** `security-guards`
 
-Run supply-chain security guards (permissions, gitignore, manifests)
+Run supply-chain security guards (permissions, gitignore, manifests, naming baseline)

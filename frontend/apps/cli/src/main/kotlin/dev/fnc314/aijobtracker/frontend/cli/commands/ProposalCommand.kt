@@ -37,6 +37,7 @@ public class ProposalCommand : CliktCommand(name = "proposals") {
             ApproveProposalCommand(),
             RejectProposalCommand(),
             ExpireProposalsCommand(),
+            EditProposalCommand(),
         )
     }
 
@@ -338,5 +339,117 @@ internal class ExpireProposalsCommand : CliktCommand(name = "expire") {
         }
 
         t.println(green("✓ Expired $count pending proposal(s)"))
+    }
+}
+
+internal class EditProposalCommand : CliktCommand(name = "edit") {
+    private val proposalId: String by argument("id", help = "Proposal ID to edit")
+    private val item: String? by option("--item", "-i", help = "1-based index of the change item to edit or remove")
+    private val event: String? by option("--event", help = "Change eventType (e.g. REJECT, SCREEN, OFFER, INTERVIEW, RECEIVED, LEAD)")
+    private val statusTo: String? by option("--status-to", help = "Target status transition (e.g. REJECTED, INTERVIEWING, OFFER, CONSIDERING, or NONE)")
+    private val appId: String? by option("--app-id", help = "Target application ID")
+    private val remove: Boolean by option("--remove", help = "Remove this change item from the proposal").flag(default = false)
+    private val note: String? by option("--note", help = "Reason for the edit")
+
+    override fun run() {
+        val t = Terminal()
+        RemoteDataSourceProvider.assertWritesAllowed("proposal edit")
+
+        val index1 = item?.toIntOrNull()
+        if (index1 == null || index1 < 1) {
+            t.println(red("Error: --item <1-based index> is required (e.g. --item 1)"))
+            return
+        }
+
+        val db = RemoteDataSourceProvider.remote
+        val docRef = db.collection("pending-proposals").document(proposalId)
+        val snap = docRef.get().get()
+
+        if (!snap.exists()) {
+            t.println(red("Proposal not found: $proposalId"))
+            return
+        }
+
+        val data = snap.data ?: emptyMap<String, Any?>()
+        val state = (data["state"] as? String) ?: "PENDING"
+        if (state != "PENDING") {
+            t.println(red("Cannot edit proposal $proposalId: state is already $state"))
+            return
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        val changes = ((data["changes"] as? List<*>)?.mapNotNull { it as? Map<String, Any?> }?.toMutableList())
+            ?: mutableListOf()
+
+        if (index1 > changes.size) {
+            t.println(red("Invalid item index $index1. Proposal has ${changes.size} change(s)."))
+            return
+        }
+
+        val targetIndex = index1 - 1
+        val targetChange = changes[targetIndex].toMutableMap()
+
+        if (remove) {
+            changes.removeAt(targetIndex)
+            val sourceEmail = targetChange["sourceEmail"] as? Map<*, *>
+            val unmatched = ((data["unmatched"] as? List<*>)?.mapNotNull { it as? Map<String, Any?> }?.toMutableList())
+                ?: mutableListOf()
+
+            if (sourceEmail != null) {
+                unmatched.add(
+                    mapOf(
+                        "sender" to sourceEmail["sender"],
+                        "subject" to sourceEmail["subject"],
+                        "receivedAt" to sourceEmail["receivedAt"],
+                        "snippet" to sourceEmail["snippet"],
+                        "reason" to (note ?: "Removed during proposal edit (not a valid job change)")
+                    )
+                )
+            }
+
+            docRef.set(
+                mapOf(
+                    "changes" to changes,
+                    "unmatched" to unmatched,
+                    "updatedAt" to Instant.now().toString()
+                ),
+                SetOptions.merge()
+            ).get()
+
+            t.println(green("✓ Removed item [$index1] from proposal $proposalId (${changes.size} changes remaining)"))
+            return
+        }
+
+        if (event != null) {
+            targetChange["eventType"] = event!!.uppercase()
+        }
+        if (statusTo != null) {
+            if (statusTo!!.equals("NONE", ignoreCase = true) || statusTo!!.isBlank()) {
+                targetChange["statusTo"] = null
+            } else {
+                targetChange["statusTo"] = statusTo!!.uppercase()
+            }
+        }
+        if (appId != null) {
+            targetChange["applicationId"] = appId
+            targetChange["leadCompany"] = null
+            targetChange["leadChannel"] = null
+        }
+        targetChange["confidence"] = "HIGH_CONFIDENCE"
+        if (note != null) {
+            targetChange["editNote"] = note
+        }
+
+        changes[targetIndex] = targetChange
+
+        docRef.set(
+            mapOf(
+                "changes" to changes,
+                "updatedAt" to Instant.now().toString()
+            ),
+            SetOptions.merge()
+        ).get()
+
+        t.println(green("✓ Updated item [$index1] in proposal $proposalId: eventType=${targetChange["eventType"]}, statusTo=${targetChange["statusTo"]}, appId=${targetChange["applicationId"]}"))
     }
 }

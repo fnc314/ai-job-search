@@ -5,4 +5,4 @@
 
 set -euo pipefail
 
-echo "[artifacts:sync] Completed."
+exec "${MISE_PROJECT_ROOT}/gradlew" -q :frontend:apps-cli:run --args="artifacts sync $*"

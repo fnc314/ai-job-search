@@ -9,4 +9,4 @@
 
 set -euo pipefail
 
-echo "[artifacts:add] Completed."
+exec "${MISE_PROJECT_ROOT}/gradlew" -q :frontend:apps-cli:run --args="artifacts add $*"
