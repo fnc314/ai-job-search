@@ -21,11 +21,11 @@ private fun findProjectRoot(): File {
  * Command to generate the HTML applications dashboard report snapshot.
  */
 public class ReportCommand : CliktCommand(name = "report") {
-    private val output: String? by option("-o", "--output", help = "Output path for the HTML dashboard (default: ui/web/application-dashboard.html)")
+    private val output: String? by option("-o", "--output", help = "Output path for the HTML dashboard (default: reports/dashboard/application-dashboard.html)")
 
     override fun run() {
         val t = Terminal()
-        val destPath = output ?: File(findProjectRoot(), "ui/web/application-dashboard.html").path
+        val destPath = output ?: File(findProjectRoot(), "reports/dashboard/application-dashboard.html").path
         val destFile = File(destPath)
         destFile.parentFile?.mkdirs()
 

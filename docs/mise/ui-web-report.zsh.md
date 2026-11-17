@@ -7,4 +7,4 @@ Generate the HTML applications report
 - **Aliases:** `report`
 
 ### Flags
-- **`-o --output <output>`** — Output path for the HTML dashboard (default: ui/web/application-dashboard.html)
+- **`-o --output <output>`** — Output path for the HTML dashboard (default: reports/dashboard/application-dashboard.html)
