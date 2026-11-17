@@ -34,6 +34,9 @@ class EnumLogicTest {
         assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("status:applied"))
         assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("APPLIED"))
         assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("applied"))
+        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("SUBMITTED"))
+        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("submitted"))
+        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("status:submitted"))
         assertEquals(TrackerStatus.INTERVIEW, TrackerStatus.fromRemote("status:interview"))
         assertEquals(TrackerStatus.OFFER_EXPECTED, TrackerStatus.fromRemote("status:offer"))
     }

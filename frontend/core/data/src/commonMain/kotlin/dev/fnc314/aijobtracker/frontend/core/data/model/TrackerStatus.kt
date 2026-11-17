@@ -174,10 +174,10 @@ public sealed interface TrackerStatus : WireContract {
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
             val legacy = when (entry) {
                 Known.LEAD -> listOf("status:lead", "lead")
-                Known.DRAFTING -> listOf("status:drafting", "drafting", "draft")
-                Known.APPLIED -> listOf("status:applied", "applied", "screening")
-                Known.INTERVIEW -> listOf("status:interview", "interview", "interviewing", "onsite")
-                Known.OFFER_EXPECTED -> listOf("status:offer", "offer")
+                Known.DRAFTING -> listOf("status:drafting", "drafting", "draft", "drafted", "status:drafted")
+                Known.APPLIED -> listOf("status:applied", "applied", "screening", "submitted", "status:submitted")
+                Known.INTERVIEW -> listOf("status:interview", "interview", "interviewing", "onsite", "recruiter_screened", "recruiter-screened", "status:recruiter-screened")
+                Known.OFFER_EXPECTED -> listOf("status:offer", "offer", "negotiating_pre_offer", "negotiating-pre-offer", "negotiating_post_offer", "negotiating-post-offer")
                 Known.HIRED -> listOf("status:hired", "hired")
                 Known.REJECTED -> listOf("status:rejected", "rejected")
                 Known.NO_RESPONSE -> listOf("status:no-response", "no-response", "no_response")
