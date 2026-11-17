@@ -18,10 +18,9 @@ def main():
     while root != root.parent and not (root / "mise.toml").exists():
         root = root.parent
     tracker_script = root / "scripts" / "tracker.py"
-    # Ensure scripts/ and lib/ are on sys.path so runpy picks up the latest modules
+    # Ensure scripts/ is on sys.path so runpy picks up the latest modules
     scripts_dir = str(root / "scripts")
-    lib_dir = str(root / "lib")
-    for p in (scripts_dir, lib_dir, str(root)):
+    for p in (scripts_dir, str(root)):
         if p not in sys.path:
             sys.path.insert(0, p)
     import runpy

@@ -18,7 +18,7 @@
   GOOGLE_CLOUD_LOCATION = "global"
   WORKSPACE_ROOT = "{{config_root}}"
   _ = { file = ".env.local" }
-  PYTHONPATH = "{{config_root}}/lib:{{config_root}}/scripts:{{config_root}}"
+  PYTHONPATH = "{{config_root}}/scripts:{{config_root}}"
   TRACKER_ALLOW_WRITES = "1"
   TRACKER_SOURCE = "store"
   MISE_TASK = "1"
