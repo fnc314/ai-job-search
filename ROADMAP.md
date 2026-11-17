@@ -61,11 +61,17 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-001] Kotlin-Only Migration
 
 **Short Desc:** Migrate all Python scripts to Kotlin
+
 **Criticality:** PIVOTAL
+
 **Priority:** MEDIUM
+
 **Complexity:** 5 — Critical
+
 **Status:** IN_PROGRESS
+
 **Completion %:** 80
+
 **Creation Date:** 2026-11-10
 **Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/cli`).
 
@@ -126,11 +132,17 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-002] AI-Portable Pluginization
 
 **Short Desc:** Make agent contributions portable
+
 **Criticality:** LOW
+
 **Priority:** LOW
+
 **Complexity:** 4 — Complex
+
 **Status:** OPEN
+
 **Completion %:** 0
+
 **Creation Date:** 2026-11-10
 **Objective:** Enforce `.agents/*` as the canonical and EXCLUSIVE home for all AI contributions from this repository. Encapsulate key operations (tool calls, database knowledge, workflows) into consumable, self-contained plugins for maximum AI-agent portability.
 
@@ -174,12 +186,19 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-003] Backend Functionality Abstraction
 
 **Short Desc:** Expose deterministic tasks as services
+
 **Criticality:** HIGH
+
 **Priority:** HIGH
+
 **Complexity:** 3 — Moderate
+
 **Status:** DONE
+
 **Completion %:** 100
+
 **Creation Date:** 2026-11-10
+
 **Completed Date:** 2026-11-16
 **Objective:** Migrate existing deterministic Python functionalities and expose them to both `backend/` and `frontend/apps` projects. This sets the high-level requirement for any backend functionality created — deterministic tasks that don't require AI oversight should be offloaded to regular computation environments or automated processes.
 
@@ -226,12 +245,19 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-004] Firestore Events Migration Investigation
 
 **Short Desc:** Evaluate top-level events collection
+
 **Criticality:** LOW
+
 **Priority:** LOW
+
 **Complexity:** 2 — Simple
+
 **Status:** DONE
+
 **Completion %:** 100
+
 **Creation Date:** 2026-11-10
+
 **Completed Date:** 2026-11-10
 **Objective:** Investigate migrating `events` to a top-level collection aligned with `applications` and evaluate the value, query impact, and metrics implications. A no-op outcome is acceptable if the investigation shows no benefit.
 
@@ -272,12 +298,19 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-005] LinkedIn Company Enrichment
 
 **Short Desc:** Enrich companies with LinkedIn data
+
 **Criticality:** HIGH
+
 **Priority:** HIGH
+
 **Complexity:** 1 — Trivial
+
 **Status:** DONE
+
 **Completion %:** 100
+
 **Creation Date:** 2026-11-10
+
 **Completed Date:** 2026-11-10
 **Objective:** Integrate LinkedIn to enrich the `companies` collection with `industry` tags and `logo` metadata during `/scrape` for roles that are surfaced to `/apply`.
 
@@ -322,12 +355,19 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-006] Add Email Top-Level Destination for in-app analysis
 
 **Short Desc:** Add Email evidence & rectification
+
 **Criticality:** MEDIUM
+
 **Priority:** MEDIUM
+
 **Complexity:** 3 — Moderate
+
 **Status:** DONE
+
 **Completion %:** 100
+
 **Creation Date:** 2026-11-10
+
 **Completed Date:** 2026-11-10
 **Objective:** Surface the evidence used behind automated decisions to records. Introduce a top-level `emails` collection in Firestore, a backend backfill & rectification service, an interactive TUI rectification mode, and in-context email evidence viewing on application detail records.
 
@@ -351,12 +391,19 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-007] Fix KMP Inspector
 
 **Short Desc:** Fix KMP Inspector to address Room and Ktor integrations on all platforms
+
 **Criticality:** PIVOTAL
+
 **Priority:** CRITICAL
+
 **Complexity:** 0 — Unknown
+
 **Status:** DONE
+
 **Completion %:** 100
+
 **Creation Date:** 2026-11-10
+
 **Completed Date:** 2026-11-10
 **Objective:** Fix the integration of KMP Inspector so Room and Ktor traffic is captured on all (supported) platforms
 
@@ -380,12 +427,19 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-008] Add MaterialKolor Library
 
 **Short Desc:** Add MaterialKolor Library
+
 **Criticality:** HIGH
+
 **Priority:** MEDIUM
+
 **Complexity:** 0 — Unknown
+
 **Status:** DONE
+
 **Completion %:** 100
+
 **Creation Date:** 2026-11-11
+
 **Completed Date:** 2026-11-11
 **Objective:** Integrate MaterialKolor library to replace manual color scheme derivation with Google's official material-color-utilities engine
 
@@ -407,12 +461,19 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-009] Unify Top-Level Card Component
 
 **Short Desc:** Unify Card skeletal approach
+
 **Criticality:** PIVOTAL
+
 **Priority:** CRITICAL
+
 **Complexity:** Moderate
+
 **Status:** DONE
+
 **Completion %:** 100
+
 **Creation Date:** 2026-11-11
+
 **Completed Date:** 2026-11-11
 **Objective:** Unify the base skeletal approach to the recycled `Card` treatment found in no less than 2 instances.
 
@@ -463,11 +524,17 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Short Desc:** Rename legacy tool-named symbols and file paths across Kotlin and Python to interface roles
 
 **Criticality:** HIGH
+
 **Priority:** HIGH
+
 **Complexity:** 3 — Moderate
+
 **Status:** DONE
+
 **Completion %:** 100
+
 **Creation Date:** 2026-11-14
+
 **Completed Date:** 2026-11-15
 **Objective:** Eradicate all known public-surface tool-naming violations recorded in `docs/interface-naming-baseline.txt` by renaming them to role/capability-based terminology (`Remote`, `Local`, `Network`, `Blob`, `Email`) per `docs/interface-naming-exceptions.md` and the `AGENTS.md` rules, shrinking the baseline to zero.
 
@@ -522,12 +589,19 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-010] Separate out RoadmapApp.kt from frontend/apps/terminal
 
 **Short Desc:** Address Separate out RoadmapApp.kt to address LOW concern
+
 **Criticality:** LOW
+
 **Priority:** LOW
+
 **Complexity:** 2 — Minor
+
 **Status:** DONE
+
 **Completion %:** 100
+
 **Creation Date:** 2026-11-12
+
 **Completed Date:** 2026-11-15
 **Objective:** Refactor the RoadmapApp.kt from frontend/apps/terminal into internal/apps/terminal/roadmap standalone application module
 
@@ -549,12 +623,19 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 ### [RM-011] Break up /backend into proper Gradle Multi-Module architecture
 
 **Short Desc:** Expose Break up /backend to address MEDIUM concern
+
 **Criticality:** MEDIUM
+
 **Priority:** MEDIUM
+
 **Complexity:** 4 — Complex
+
 **Status:** DONE
+
 **Completion %:** 100
+
 **Creation Date:** 2026-11-12
+
 **Completed Date:** 2026-11-15
 **Objective:** Explicitly define and separate each piece of functionality within `/backend` to more accurately represent a proper multi-module architecture.  Distribution can be a single JAR still.
 
@@ -590,11 +671,17 @@ To add a new roadmap item, use `mise roadmap:edit` for the interactive experienc
 ### [RM-XXX] Title
 
 **Short Desc:** — one-line summary
+
 **Criticality:** PIVOTAL | HIGH | MEDIUM | LOW | NOT_SET
+
 **Priority:** CRITICAL | HIGH | MEDIUM | LOW | NOT_SET
+
 **Complexity:** 1-5 (see Complexity Scale)
+
 **Status:** OPEN
+
 **Completion %:** 0
+
 **Creation Date:** YYYY-MM-DD
 **Objective:** — clear statement of what this item achieves
 
