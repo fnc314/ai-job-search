@@ -655,6 +655,29 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 | 2026-11-12 | Implementation    | Reworked `backend/` into multi-module Gradle: created `backend/job-post-ranking/` pure Kotlin library with unified RankScorer, moved existing code to `backend/service/`, added BackendServiceConventionPlugin, and added new `backend/settings.gradle.kts` |
 | 2026-11-12 | Item created      | Initial entry                        |
 
+
+---
+
+### [RM-013] OnDevice AI
+
+**Short Desc:** OnDevice AI to drive core functionality
+**Criticality:** PIVOTAL
+**Priority:** HIGH
+**Complexity:** 0 — Unknown
+**Status:** OPEN
+**Completion %:** 0
+**Creation Date:** 2026-11-16
+**Objective:** Move the need to use CLI access to AI Models via the use of 3rd party tools (Firebase ML) or on-device models
+
+**Dependencies:** None
+
+**Linked Plans:**
+- None
+
+**Changelog:**
+| Date       | Change            | Details                              |
+|------------|-------------------|--------------------------------------|
+| 2026-11-16 | Item created      | Initial entry                        |
 ## Frozen Items
 
 Items in this section have been frozen via the nuclear clear roadmap option. They are archived and should not be considered active work items.
