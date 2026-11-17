@@ -44,7 +44,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 | ID       | Title                                  | Short Desc                          | Criticality | Priority | Age    | Status |
 |----------|----------------------------------------|-------------------------------------|-------------|----------|--------|--------|
-| RM-001   | Kotlin-Only Migration                  | Migrate all Python scripts to Kotlin | PIVOTAL    | MEDIUM   | 70 d   | IN_PROGRESS |
+| RM-001   | Kotlin-Only Migration                  | Migrate all Python scripts to Kotlin | PIVOTAL    | MEDIUM   | 70 d   | DONE |
 | RM-002   | AI-Portable Pluginization              | Make agent contributions portable   | LOW         | LOW      | 70 d   | OPEN   |
 | RM-003   | Backend Functionality Abstraction      | Expose deterministic tasks as services | HIGH       | HIGH     | 70 d   | DONE   |
 | RM-006   | Add Email Top-Level Destination for in-app analysis | Add Email evidence & rectification | MEDIUM      | MEDIUM   | 0 d    | DONE        |
@@ -68,11 +68,13 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 **Complexity:** 5 — Critical
 
-**Status:** IN_PROGRESS
+**Status:** DONE
 
-**Completion %:** 90
+**Completion %:** 100
 
 **Creation Date:** 2026-11-10
+
+**Completed Date:** 2026-11-16
 **Objective:** Incrementally migrate all Python functionality in `scripts/` (56 files) to Kotlin Multiplatform, fully eradicating Python from the codebase. The ideal workflow becomes `Agent` → `mise` → `some-locally-built.jar <ARGS>` where the JAR originates from this repo (most likely `frontend/apps/cli`).
 
 **Scope:**
@@ -114,6 +116,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
+| 2026-11-16 | Completed         | Completed 100% Kotlin migration: archived all remaining Python scripts and tests to archive/scripts/, converted all Python mise tasks to POSIX shell / Kotlin CLI wrappers, removed Python interpreter pin and PYTHONPATH from mise.toml, implemented LabelsCommand, UpsertCommand, and BulkCommand in Kotlin CLI |
 | 2026-11-16 | Progress update   | Bumped completion to 70%: Kotlin backend services absorbed LaTeX compilation (backend:artifact-compilation), portal scraping (backend:job-post-scraping), ranking (backend:job-post-ranking), and on-device PDF rendering (frontend:core:widgets) |
 | 2026-11-10 | Progress update   | Created 10 Kotlin modules (DocumentIdGenerator, UuidGenerator, EventBuilder, FitEvaluator, RankScorer, ProposalClassifier, ArtifactUtils, CacheUtils, ContractError, EventError) with 117 tests in records/parser |
 | 2026-11-10 | Progress update   | Added RankCommand.kt CLI command and registered in Main.kt |

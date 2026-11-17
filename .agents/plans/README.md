@@ -24,7 +24,8 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
-| [`200053_rm-001-domain-scripts-and-lead-plan.md`](./2026-11-16/200053_rm-001-domain-scripts-and-lead-plan.md) | Proposed | Next Slices for RM-001 (Kotlin-Only Migration): archiving superseded domain scripts (alignment, salary_lookup, proposals), porting tracker lead command to Kotlin, and bumping completion to 90% |
+| [`201200_rm-001-final-sprint-plan.md`](./2026-11-16/201200_rm-001-final-sprint-plan.md) | Completed | RM-001 Final Sprint: migrate/archive remaining Python scripts, convert .config/mise/tasks to shell/Kotlin wrappers, and reach 100% completion on RM-001 |
+| [`200053_rm-001-domain-scripts-and-lead-plan.md`](./2026-11-16/200053_rm-001-domain-scripts-and-lead-plan.md) | Completed | Next Slices for RM-001 (Kotlin-Only Migration): archiving superseded domain scripts (alignment, salary_lookup, proposals), porting tracker lead command to Kotlin, and bumping completion to 90% |
 | [`195419_rm-001-next-slices-plan.md`](./2026-11-16/195419_rm-001-next-slices-plan.md) | Completed | Next Slices for RM-001 (Kotlin-Only Migration): archiving fully superseded scripts (render, urls, fit_evaluator, rank, events) and migrating tracker export/bulk/edit CLI subcommands and tasks to Kotlin |
 | [`193505_rm-001-chipping-away-plan.md`](./2026-11-16/193505_rm-001-chipping-away-plan.md) | Completed | Chipping away at remaining scripts in RM-001 (Kotlin-Only Migration): archiving one-off scripts, migrating proposals CLI subcommands to Kotlin, and porting salary lookup |
 | [`141800_gcloud-project-migration-plan.md`](./2026-11-16/141800_gcloud-project-migration-plan.md) | Completed | Complete GCP and Firebase project migration from `job-search-fnc314-dev` to `dev-fnc314-ai-job-tracker` (Firestore data, Cloud Storage artifacts, Cloud Run, Scheduler, and client credentials) |

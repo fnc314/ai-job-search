@@ -7,10 +7,12 @@ import dev.fnc314.aijobtracker.frontend.cli.commands.AddApplicationCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.AddEventCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.AlignCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.BackfillParentCommand
+import dev.fnc314.aijobtracker.frontend.cli.commands.BulkCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.CheckCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.EditCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.ExportCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.GetApplicationCommand
+import dev.fnc314.aijobtracker.frontend.cli.commands.LabelsCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.LeadCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.MergeCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.ReclassifyCommand
@@ -21,6 +23,7 @@ import dev.fnc314.aijobtracker.frontend.cli.commands.SalaryCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.SeedCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.UpdateScoreCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.UpdateStatusCommand
+import dev.fnc314.aijobtracker.frontend.cli.commands.UpsertCommand
 
 internal class JobSearchCli : CliktCommand(name = "jobsearch") {
     override fun run(): Unit = Unit
@@ -47,6 +50,9 @@ internal class TrackerCommand : CliktCommand(name = "tracker") {
             SalaryCommand(),
             SeedCommand(),
             ProposalCommand(),
+            LabelsCommand(),
+            UpsertCommand(),
+            BulkCommand(),
         )
     }
 
