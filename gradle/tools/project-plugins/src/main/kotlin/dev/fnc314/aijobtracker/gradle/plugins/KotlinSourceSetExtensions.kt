@@ -20,11 +20,12 @@ internal val KotlinMultiplatformExtension.commonTest: KotlinSourceSet
 internal fun KotlinMultiplatformExtension.commonTest(configure: KotlinSourceSet.() -> Unit): KotlinSourceSet =
     commonTest.apply(configure)
 
-internal val KotlinMultiplatformExtension.androidMain: KotlinSourceSet?
-    get() = sourceSets.findByName("androidMain")
-
 internal fun KotlinMultiplatformExtension.androidMain(configure: KotlinSourceSet.() -> Unit) {
-    androidMain?.apply(configure)
+    sourceSets.named("androidMain").configure(configure)
+}
+
+internal fun KotlinMultiplatformExtension.androidHostTest(configure: KotlinSourceSet.() -> Unit) {
+    sourceSets.named("androidHostTest").configure(configure)
 }
 
 internal val KotlinMultiplatformExtension.jvmMain: KotlinSourceSet?

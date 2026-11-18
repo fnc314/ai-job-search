@@ -28,12 +28,6 @@ kotlin {
       implementation(libs.kmp.inspector)
       implementation(libs.kmp.inspector.room)
     }
-    androidMain.dependencies {
-      implementation(libs.bundles.ktor.client.android)
-      implementation(libs.kotlinx.coroutinesPlayServices)
-      implementation(libs.kmp.inspector)
-      implementation(libs.kmp.inspector.room)
-    }
     iosMain.dependencies {
       implementation(libs.bundles.ktor.client.ios)
       implementation(libs.kmp.inspector)
@@ -43,4 +37,11 @@ kotlin {
       implementation(libs.bundles.ktor.client.js)
     }
   }
+}
+
+dependencies {
+  androidMainImplementation(libs.bundles.ktor.client.android)
+  androidMainImplementation(libs.kotlinx.coroutinesPlayServices)
+  androidMainImplementation(libs.kmp.inspector)
+  androidMainImplementation(libs.kmp.inspector.room)
 }

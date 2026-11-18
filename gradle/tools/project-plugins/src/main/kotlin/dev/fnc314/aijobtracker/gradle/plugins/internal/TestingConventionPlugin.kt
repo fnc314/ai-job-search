@@ -68,11 +68,7 @@ internal class TestingConventionPlugin : Plugin<Project>, BaseConventionPlugin {
             extAware?.extensions?.configure(KotlinMultiplatformAndroidLibraryTarget::class.java) { android ->
                 android.withHostTest {}
             }
-            kotlin?.sourceSets?.matching { it.name == "androidHostTest" }?.configureEach { hostTest ->
-                hostTest.dependencies {
-                    implementation(CatalogTypes.Bundles.TESTING_ANDROID(project))
-                }
-            }
+            dependencies.add("androidHostTestImplementation", CatalogTypes.Bundles.TESTING_ANDROID(this@configurePlugin))
         }
     }
 }

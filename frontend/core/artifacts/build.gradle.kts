@@ -24,10 +24,6 @@ kotlin {
     jvmMain.dependencies {
       implementation(libs.bundles.ktor.client.jvm)
     }
-    androidMain.dependencies {
-      implementation(libs.bundles.ktor.client.android)
-      implementation(libs.kotlinx.coroutinesPlayServices)
-    }
     iosMain.dependencies {
       implementation(libs.bundles.ktor.client.ios)
     }
@@ -35,4 +31,9 @@ kotlin {
       implementation(libs.bundles.ktor.client.js)
     }
   }
+}
+
+dependencies {
+  androidMainImplementation(libs.bundles.ktor.client.android)
+  androidMainImplementation(libs.kotlinx.coroutinesPlayServices)
 }

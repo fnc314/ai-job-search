@@ -3,7 +3,6 @@ package dev.fnc314.aijobtracker.gradle.plugins.config
 import dev.fnc314.aijobtracker.gradle.catalog.CatalogTypes
 import dev.fnc314.aijobtracker.gradle.catalog.versionCatalog
 import dev.fnc314.aijobtracker.gradle.plugins.BaseConventionPlugin
-import dev.fnc314.aijobtracker.gradle.plugins.androidMain
 import dev.fnc314.aijobtracker.gradle.plugins.hasAndroidPlugin
 import dev.fnc314.aijobtracker.gradle.plugins.hasKotlinPlugin
 import dev.fnc314.aijobtracker.gradle.plugins.kotlinMultiplatform
@@ -35,12 +34,10 @@ public class RemoteDependenciesConventionPlugin : BaseConventionPlugin, Plugin<P
         }
 
         if (hasKotlinPlugin) {
+            CatalogTypes.Bundles.FIREBASE_ANDROID(this).get().forEach {
+                dependencies.add("androidMainImplementation", it)
+            }
             kotlinMultiplatform {
-                sourceSets.androidMain.dependencies {
-                    CatalogTypes.Bundles.FIREBASE_ANDROID(this@configurePlugin).get().forEach {
-                        implementation(it)
-                    }
-                }
                 sourceSets.jvmMain.dependencies {
                     CatalogTypes.Bundles.FIREBASE_JVM(this@configurePlugin).get().forEach {
                         implementation(it)

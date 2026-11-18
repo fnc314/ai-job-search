@@ -10,9 +10,6 @@ kotlin {
             api(libs.kermit)
             implementation(libs.koin.core)
         }
-        androidMain.dependencies {
-            implementation(libs.kmp.inspector)
-        }
         iosMain.dependencies {
             implementation(libs.kmp.inspector)
         }
@@ -20,4 +17,8 @@ kotlin {
             implementation(libs.kmp.inspector)
         }
     }
+}
+
+dependencies {
+    androidMainImplementation(libs.kmp.inspector)
 }

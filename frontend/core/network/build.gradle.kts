@@ -10,11 +10,6 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.bundles.ktor.client)
         }
-        androidMain.dependencies {
-            implementation(libs.bundles.ktor.client.android)
-            implementation(libs.kmp.inspector)
-            implementation(libs.kmp.inspector.ktor)
-        }
         iosMain.dependencies {
             implementation(libs.bundles.ktor.client.ios)
             implementation(libs.kmp.inspector)
@@ -29,4 +24,10 @@ kotlin {
             implementation(libs.bundles.ktor.client.js)
         }
     }
+}
+
+dependencies {
+    androidMainImplementation(libs.bundles.ktor.client.android)
+    androidMainImplementation(libs.kmp.inspector)
+    androidMainImplementation(libs.kmp.inspector.ktor)
 }

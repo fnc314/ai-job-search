@@ -20,7 +20,7 @@ kotlin {
 
 dependencies {
     implementation(libs.kotlinx.serialization.json)
-    implementation(project(":tracker-conventions"))
+    implementation(projects.trackerConventions)
 
     testImplementation(kotlin("test"))
 }

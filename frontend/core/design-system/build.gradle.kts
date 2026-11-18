@@ -12,8 +12,9 @@ kotlin {
             api(libs.materialKolor.core)
             api(libs.compose.icons.font.awesome.brands)
         }
-        androidMain.dependencies {
-            implementation(libs.androidx.core.ktx)
-        }
     }
+}
+
+dependencies {
+    androidMainImplementation(libs.androidx.core.ktx)
 }

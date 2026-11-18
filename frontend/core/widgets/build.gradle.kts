@@ -14,8 +14,9 @@ kotlin {
             implementation(projects.coreLogging)
             implementation(libs.bundles.coil)
         }
-        androidMain.dependencies {
-            implementation(libs.androidx.core.ktx)
-        }
     }
+}
+
+dependencies {
+    androidMainImplementation(libs.androidx.core.ktx)
 }

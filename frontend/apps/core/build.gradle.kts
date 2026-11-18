@@ -48,9 +48,6 @@ kotlin {
     commonTest.dependencies {
       implementation(libs.kotlin.test)
     }
-    androidMain.dependencies {
-      implementation(libs.kmp.inspector)
-    }
     iosMain.dependencies {
       implementation(libs.kmp.inspector)
     }
@@ -61,4 +58,8 @@ kotlin {
       implementation(libs.wrappers.browser)
     }
   }
+}
+
+dependencies {
+  androidMainImplementation(libs.kmp.inspector)
 }

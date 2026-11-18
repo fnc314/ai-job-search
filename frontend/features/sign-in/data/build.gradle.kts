@@ -11,12 +11,13 @@ kotlin {
             implementation(projects.coreData)
             implementation(libs.kotlinx.coroutines.core)
         }
-        androidMain.dependencies {
-            implementation(libs.firebase.auth)
-            implementation(libs.androidx.credentials)
-            implementation(libs.androidx.credentials.play.services.auth)
-            implementation(libs.google.id)
-            implementation(libs.androidx.activity.compose)
-        }
     }
+}
+
+dependencies {
+    androidMainImplementation(libs.firebase.auth)
+    androidMainImplementation(libs.androidx.credentials)
+    androidMainImplementation(libs.androidx.credentials.play.services.auth)
+    androidMainImplementation(libs.google.id)
+    androidMainImplementation(libs.androidx.activity.compose)
 }

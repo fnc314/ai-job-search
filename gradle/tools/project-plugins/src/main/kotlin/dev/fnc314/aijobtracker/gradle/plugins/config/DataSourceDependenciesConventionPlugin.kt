@@ -33,11 +33,7 @@ public class DataSourceDependenciesConventionPlugin : Plugin<Project>, BaseConve
                         implementation(CatalogTypes.Bundles.SQLITE_BUNDLED(project))
                     }
                 }
-                sourceSets.matching { it.name == "androidMain" }.configureEach { sourceSet ->
-                    sourceSet.dependencies {
-                        implementation(CatalogTypes.Bundles.SQLITE_BUNDLED(project))
-                    }
-                }
+                dependencies.add("androidMainImplementation", CatalogTypes.Bundles.SQLITE_BUNDLED(this@configurePlugin))
                 sourceSets.matching { it.name == "wasmJsMain" || it.name == "jsMain" }.configureEach { sourceSet ->
                     sourceSet.dependencies {
                         implementation(CatalogTypes.Bundles.SQLITE_WEB(project))

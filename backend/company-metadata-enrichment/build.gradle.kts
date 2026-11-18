@@ -21,7 +21,7 @@ kotlin {
 dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
-    implementation(project(":tracker-conventions"))
+    implementation(projects.trackerConventions)
     implementation(libs.records.proto)
     implementation(libs.protobuf.kotlin)
 

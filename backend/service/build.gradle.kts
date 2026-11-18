@@ -13,9 +13,9 @@ application {
 }
 
 dependencies {
-    implementation(project(":job-post-ranking"))
-    implementation(project(":job-post-scraping"))
-    implementation(project(":artifact-compilation"))
+    implementation(projects.jobPostRanking)
+    implementation(projects.jobPostScraping)
+    implementation(projects.artifactCompilation)
     implementation(libs.records.proto)
     implementation(libs.records.parser)
     implementation(libs.ktor.server.core)
