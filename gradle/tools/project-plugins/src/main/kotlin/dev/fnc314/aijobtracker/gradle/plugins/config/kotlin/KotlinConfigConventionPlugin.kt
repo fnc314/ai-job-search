@@ -56,8 +56,8 @@ internal sealed interface KotlinConfigConventionPlugin : Plugin<Project> {
                     implementation(CatalogTypes.Bundles.MATERIAL3_ADAPTIVE(project))
                 }
 
-                dependencies.add("androidMainImplementation", CatalogTypes.Bundles.COMPOSE_TOOLING(project))
-                dependencies.add("androidMainImplementation", CatalogTypes.Libraries.COMPOSE_CONSTRAINT_LAYOUT(project))
+                project.dependencies.add("androidMainImplementation", CatalogTypes.Bundles.COMPOSE_TOOLING(project))
+                project.dependencies.add("androidMainImplementation", CatalogTypes.Libraries.COMPOSE_CONSTRAINT_LAYOUT(project))
             }
         override val optIns: Set<String> = KOTLIN_OPT_INS + setOf(
             "androidx.compose.ui.ExperimentalComposeUiApi",

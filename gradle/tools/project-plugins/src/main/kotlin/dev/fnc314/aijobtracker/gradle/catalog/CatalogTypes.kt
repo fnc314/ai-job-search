@@ -13,6 +13,20 @@ import org.gradle.plugin.use.PluginDependency
 internal sealed interface CatalogTypes<out T> {
     val catalogKey: String
     fun fromCatalog(project: Project): T
+  fun applyToConfig(
+    project: Project,
+    config: String
+  ) {
+    project.run {
+      dependencies.addProvider(
+        config,
+        when (this@CatalogTypes) {
+          is Versions, is Plugins -> project.provider { null }
+          is Libraries, is Bundles -> fromCatalog(project)
+        }
+      )
+    }
+  }
 
     operator fun invoke(project: Project): T = fromCatalog(project)
 

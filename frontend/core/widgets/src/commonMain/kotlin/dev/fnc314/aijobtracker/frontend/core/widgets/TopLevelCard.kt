@@ -4,6 +4,7 @@ package dev.fnc314.aijobtracker.frontend.core.widgets
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -73,6 +75,19 @@ public enum class TopLevelCardSurfaceVariant {
 
   /** High-emphasis container surface (`MaterialTheme.colorScheme.surfaceContainerHigh`, `6.dp` elevation). */
   Highlighted,
+}
+
+@Composable
+public fun TopLevelCardSurfaceVariant.border(): BorderStroke? = when (this) {
+  TopLevelCardSurfaceVariant.Surface -> BorderStroke(
+    width = MaterialTheme.componentSizes.hairline,
+    brush = SolidColor(
+      value = cardColors().contentColor
+    )
+  )
+  TopLevelCardSurfaceVariant.Elevated -> null
+  TopLevelCardSurfaceVariant.FilledTonal -> null
+  TopLevelCardSurfaceVariant.Highlighted -> null
 }
 
 /**
@@ -234,6 +249,7 @@ public fun TopLevelCard(
     elevation = CardDefaults.cardElevation(
       defaultElevation = variant.elevation(),
     ),
+    border = variant.border(),
     shape = MaterialTheme.shapes.medium,
   ) {
     if (hasHiddenContent) {

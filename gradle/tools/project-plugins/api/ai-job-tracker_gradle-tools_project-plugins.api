@@ -1,0 +1,110 @@
+public abstract class dev/fnc314/aijobtracker/gradle/plugins/MultiplatformLibrary : org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/config/BackendServiceConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/config/ComposeDependenciesConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/config/DataSourceDependenciesConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/config/DetektConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/config/DokkaConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/config/KoinDependenciesConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/config/NavigationDependenciesConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/config/RemoteDependenciesConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/config/SerializationDependenciesConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/functional/AndroidApplicationConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/functional/AndroidKmpLibraryConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/functional/ComposeConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
+public final class dev/fnc314/aijobtracker/gradle/plugins/functional/KotlinMultiplatformConventionPlugin : dev/fnc314/aijobtracker/gradle/plugins/BaseConventionPlugin, org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+	public fun configurePlugin (Lorg/gradle/api/Project;)V
+	public fun fromCatalog (Lorg/gradle/api/Project;Ldev/fnc314/aijobtracker/gradle/catalog/CatalogTypes;)Ljava/lang/Object;
+}
+
