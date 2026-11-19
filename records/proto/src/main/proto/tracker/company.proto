@@ -1,12 +1,12 @@
 syntax = "proto3";
 
-package tracker.v1;
+package tracker;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
-import "tracker/v1/enums.proto";
+import "tracker/enums.proto";
 
-option java_package = "dev.fnc314.aijobtracker.records.v1";
+option java_package = "dev.fnc314.aijobtracker.records";
 option java_multiple_files = true;
 
 // Image encoding format

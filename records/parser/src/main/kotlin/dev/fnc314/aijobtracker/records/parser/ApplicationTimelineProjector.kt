@@ -1,12 +1,12 @@
 package dev.fnc314.aijobtracker.records.parser
 
 import com.google.protobuf.Timestamp
-import dev.fnc314.aijobtracker.records.v1.SubmissionConfidence
-import dev.fnc314.aijobtracker.records.v1.SubmissionConfirmation
-import dev.fnc314.aijobtracker.records.v1.Timeline
-import dev.fnc314.aijobtracker.records.v1.TrackerEvent
-import dev.fnc314.aijobtracker.records.v1.TrackerEventType
-import dev.fnc314.aijobtracker.records.v1.TrackerStatus
+import dev.fnc314.aijobtracker.records.SubmissionConfidence
+import dev.fnc314.aijobtracker.records.SubmissionConfirmation
+import dev.fnc314.aijobtracker.records.Timeline
+import dev.fnc314.aijobtracker.records.TrackerEvent
+import dev.fnc314.aijobtracker.records.TrackerEventType
+import dev.fnc314.aijobtracker.records.TrackerStatus
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 

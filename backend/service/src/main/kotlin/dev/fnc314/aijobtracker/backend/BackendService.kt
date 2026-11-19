@@ -13,15 +13,15 @@ import dev.fnc314.aijobtracker.records.parser.CompanySectorNormalizer
 import dev.fnc314.aijobtracker.records.parser.DocumentIdGenerator
 import dev.fnc314.aijobtracker.records.parser.EventChainBuilder
 import dev.fnc314.aijobtracker.records.parser.EventChainVerifier
-import dev.fnc314.aijobtracker.records.v1.ApplicationChannel
-import dev.fnc314.aijobtracker.records.v1.CompanyMetrics
-import dev.fnc314.aijobtracker.records.v1.CompanySector
-import dev.fnc314.aijobtracker.records.v1.EventActor
-import dev.fnc314.aijobtracker.records.v1.SubmissionConfirmation
-import dev.fnc314.aijobtracker.records.v1.Timeline
-import dev.fnc314.aijobtracker.records.v1.TrackerEvent
-import dev.fnc314.aijobtracker.records.v1.TrackerEventType
-import dev.fnc314.aijobtracker.records.v1.TrackerStatus
+import dev.fnc314.aijobtracker.records.ApplicationChannel
+import dev.fnc314.aijobtracker.records.CompanyMetrics
+import dev.fnc314.aijobtracker.records.CompanySector
+import dev.fnc314.aijobtracker.records.EventActor
+import dev.fnc314.aijobtracker.records.SubmissionConfirmation
+import dev.fnc314.aijobtracker.records.Timeline
+import dev.fnc314.aijobtracker.records.TrackerEvent
+import dev.fnc314.aijobtracker.records.TrackerEventType
+import dev.fnc314.aijobtracker.records.TrackerStatus
 import java.io.File
 import java.io.FileInputStream
 import java.time.Instant
@@ -1250,6 +1250,104 @@ public object BackendService {
     }
 
     /**
+     * Ensures a single company record exists and is enriched with Hunter.io metadata.
+     * Reuses cached enrichment when `sector`, `linkedinUrl`, and `hunterIoId` were updated within 6 months.
+     *
+     * @param companyName Target company display name.
+     * @param websiteHint Optional domain or homepage URL extracted from a job posting.
+     * @param linkedinUrlHint Optional company LinkedIn URL extracted from a job posting.
+     * @return Firestore company metadata map after enrichment.
+     */
+    public fun ensureCompanyEnriched(
+        companyName: String,
+        websiteHint: String? = null,
+        linkedinUrlHint: String? = null,
+    ): Map<String, Any?> {
+        val companyId = DocumentIdGenerator.slug(companyName, fallback = "unknown-company")
+        val db = remoteDatabase
+        val compRef = db.collection("companies").document(companyId)
+        val snap = compRef.get().get()
+        val existingData = if (snap.exists()) snap.data.orEmpty() else emptyMap()
+
+        val hasSector = !(existingData["sector"] as? String).isNullOrBlank()
+        val hasLinkedinUrl = !(existingData["linkedinUrl"] as? String).isNullOrBlank()
+        val hasHunterIoId = !(existingData["hunterIoId"] as? String).isNullOrBlank()
+        val sixMonthsAgo = Instant.now().minus(Duration.ofDays(183))
+        val lastEnrichedAt = existingData["lastHunterEnrichedAt"]
+        val enrichedRecently = when (lastEnrichedAt) {
+            is Timestamp -> lastEnrichedAt.toDate().toInstant().isAfter(sixMonthsAgo)
+            is String -> runCatching { Instant.parse(lastEnrichedAt).isAfter(sixMonthsAgo) }.getOrDefault(false)
+            else -> false
+        }
+
+        if (!websiteHint.isNullOrBlank() && (existingData["website"] as? String).isNullOrBlank()) {
+            compRef.set(mapOf("website" to websiteHint.removeSuffix("/")), SetOptions.merge()).get()
+        }
+
+        if (hasSector && hasLinkedinUrl && hasHunterIoId && enrichedRecently) {
+            return existingData
+        }
+
+        val rawDomainHost = websiteHint?.takeIf { it.isNotBlank() }
+            ?: (existingData["website"] as? String)?.takeIf { it.isNotBlank() }
+        val normalizedCandidateWebsite = rawDomainHost?.let { hint ->
+            val lower = hint.lowercase()
+            if (lower.endsWith(".jobs") || lower.endsWith(".careers")) {
+                "https://www.${companyId.replace("-", "")}.com"
+            } else {
+                hint
+            }
+        }
+        val fallbackComWebsite = "https://www.${companyId.replace("-", "")}.com"
+        val lookupWebsite = normalizedCandidateWebsite ?: fallbackComWebsite
+
+        var hunterResult = runCatching { fetchHunterCompanyInfo(lookupWebsite) }.getOrDefault(emptyMap())
+        if (hunterResult.isEmpty() && lookupWebsite != fallbackComWebsite) {
+            hunterResult = runCatching { fetchHunterCompanyInfo(fallbackComWebsite) }.getOrDefault(emptyMap())
+        }
+        val officialName = (hunterResult["name"] as? String)?.takeIf { it.isNotBlank() }
+            ?: (existingData["name"] as? String)?.takeIf { it.isNotBlank() }
+            ?: companyName
+        val hunterIndustry = hunterResult["industry"] as? String
+        val hunterSector = hunterResult["sector"] as? String
+        val hunterLinkedinHandle = (hunterResult["linkedin_handle"] as? String)?.takeIf { it.isNotBlank() }
+        val resolvedLinkedinUrl = hunterLinkedinHandle?.let {
+            if (it.startsWith("http")) it else "https://www.linkedin.com/${it.trimStart('/')}"
+        } ?: linkedinUrlHint?.takeIf { it.isNotBlank() }
+
+        val resolvedSector = CompanySectorNormalizer.normalize(
+            companyId = companyId,
+            industryOrSector = hunterIndustry ?: hunterSector,
+            companyName = officialName,
+        ).name
+
+        val enrichResult = enrichCompany(
+            companyId = companyId,
+            companyName = officialName,
+            linkedinUrl = resolvedLinkedinUrl,
+            industry = hunterIndustry ?: hunterSector ?: resolvedSector,
+            logoUrl = hunterResult["logo_url"] as? String,
+            hunterIoId = hunterResult["hunter_io_id"] as? String,
+            description = hunterResult["description"] as? String,
+            foundedYear = hunterResult["foundedYear"] as? Int,
+            companyType = hunterResult["companyType"] as? String,
+            employees = hunterResult["employees"] as? String,
+            employeesCount = hunterResult["employeesCount"] as? Int,
+            location = hunterResult["location"] as? String,
+            city = hunterResult["city"] as? String,
+            state = hunterResult["state"] as? String,
+            country = hunterResult["country"] as? String,
+            subIndustry = hunterResult["subIndustry"] as? String,
+            twitterHandle = hunterResult["twitter_handle"] as? String,
+            crunchbaseHandle = hunterResult["crunchbase_handle"] as? String,
+            tags = (hunterResult["tags"] as? List<*>)?.mapNotNull { it as? String },
+            raised = hunterResult["raised"] as? Long,
+        )
+        @Suppress("UNCHECKED_CAST")
+        return (enrichResult["company"] as? Map<String, Any?>) ?: existingData
+    }
+
+    /**
      * Enriches a company record in Firestore with Hunter.io metadata.
      * Non-destructive and idempotent — only writes fields that are missing or null.
      */
@@ -1802,6 +1900,13 @@ public object BackendService {
         }
 
         // 3. Extract from sender domain (ATS patterns)
+        if (sender.contains("myworkday.com", ignoreCase = true) || sender.contains("myworkdayjobs.com", ignoreCase = true)) {
+            val userPart = sender.substringBefore("@").trim().trim('"', '\'')
+            if (userPart.isNotBlank() && !userPart.equals("noreply", ignoreCase = true) && !userPart.equals("no-reply", ignoreCase = true)) {
+                return userPart
+            }
+        }
+
         val atsDomains = mapOf(
             "greenhouse.io" to null,
             "lever.co" to null,

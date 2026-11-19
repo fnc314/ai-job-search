@@ -7,7 +7,7 @@ This document defines architecture invariants, development workflows, and mandat
 ## 1. Workspace Architecture Map
 
 The `records` project provides the canonical protobuf schema contracts and JVM parsing engines for job search records:
-- **`records-proto`**: Protobuf schema contracts (`src/main/proto/tracker/v1/application.proto`) compiled to Java/Kotlin models.
+- **`records-proto`**: Protobuf schema contracts (`src/main/proto/tracker/application.proto`) compiled to Java/Kotlin models.
 - **`records-parser`**: Multiplatform parsing utilities, timestamp conversions, status normalizers, JPype Python bridge, and legacy row projectors.
 
 ---

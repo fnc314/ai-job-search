@@ -23,6 +23,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
@@ -176,11 +177,11 @@ internal class EmailReadInboxCommand : CliktCommand(name = "read-inbox") {
         val requestBody = Json.encodeToString(
             JsonObject(
                 mapOf(
-                    "user_id" to kotlinx.serialization.json.JsonPrimitive("me"),
-                    "query" to kotlinx.serialization.json.JsonPrimitive(fullQuery),
-                    "max_results" to kotlinx.serialization.json.JsonPrimitive(maxResults),
-                    "verbose" to kotlinx.serialization.json.JsonPrimitive(true),
-                    "include_payload" to kotlinx.serialization.json.JsonPrimitive(true)
+                    "user_id" to JsonPrimitive("me"),
+                    "query" to JsonPrimitive(fullQuery),
+                    "max_results" to JsonPrimitive(maxResults),
+                    "verbose" to JsonPrimitive(true),
+                    "include_payload" to JsonPrimitive(true)
                 )
             )
         )
@@ -199,6 +200,21 @@ internal class EmailReadInboxCommand : CliktCommand(name = "read-inbox") {
                 return
             }
 
+                        // Strip HTML utility to extract real body text before building snippets
+            fun stripHtml(raw: String): String {
+                if (raw.isBlank()) return ""
+                val withoutStyles = raw.replace(Regex("<style[\\s\\S]*?</style>", RegexOption.IGNORE_CASE), "")
+                    .replace(Regex("<script[\\s\\S]*?</script>", RegexOption.IGNORE_CASE), "")
+                val textOnly = withoutStyles.replace(Regex("<[^>]+>"), " ")
+                return textOnly.replace(Regex("&nbsp;"), " ")
+                    .replace(Regex("&amp;"), "&")
+                    .replace(Regex("&lt;"), "<")
+                    .replace(Regex("&gt;"), ">")
+                    .replace(Regex("&quot;"), "\"")
+                    .replace(Regex("\\s+"), " ")
+                    .trim()
+            }
+
             val inboxJson = extractJsonFromOutput(output)
             val parsed = Json.parseToJsonElement(inboxJson)
             val rawMessages = when (parsed) {
@@ -214,27 +230,31 @@ internal class EmailReadInboxCommand : CliktCommand(name = "read-inbox") {
                     ?: obj["id"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
                 val subj = obj["subject"]?.jsonPrimitive?.contentOrNull.orEmpty()
                 val sender = obj["sender"]?.jsonPrimitive?.contentOrNull.orEmpty()
-                val body = obj["messageText"]?.jsonPrimitive?.contentOrNull
+                val rawBody = obj["messageText"]?.jsonPrimitive?.contentOrNull
                     ?: obj["body"]?.jsonPrimitive?.contentOrNull.orEmpty()
-                val snippet = if (body.isNotBlank()) "$subj\n\n$body".take(800) else subj.take(800)
+                val cleanBody = stripHtml(rawBody)
+                val snippet = if (cleanBody.isNotBlank()) "$subj\n\n$cleanBody".take(800) else subj.take(800)
                 val received = obj["messageTimestamp"]?.jsonPrimitive?.contentOrNull
                     ?: obj["receivedAt"]?.jsonPrimitive?.contentOrNull.orEmpty()
+                val labels = obj["labels"]?.jsonArray ?: obj["labelIds"]?.jsonArray ?: JsonArray(emptyList())
 
                 JsonObject(
                     mapOf(
-                        "messageId" to kotlinx.serialization.json.JsonPrimitive(id),
-                        "subject" to kotlinx.serialization.json.JsonPrimitive(subj),
-                        "sender" to kotlinx.serialization.json.JsonPrimitive(sender),
-                        "snippet" to kotlinx.serialization.json.JsonPrimitive(snippet),
-                        "receivedAt" to kotlinx.serialization.json.JsonPrimitive(received)
+                        "messageId" to JsonPrimitive(id),
+                        "subject" to JsonPrimitive(subj),
+                        "sender" to JsonPrimitive(sender),
+                        "snippet" to JsonPrimitive(snippet),
+                        "receivedAt" to JsonPrimitive(received),
+                        "labels" to labels,
+                        "body" to JsonPrimitive(cleanBody)
                     )
                 )
             }
 
             val payload = JsonObject(
                 mapOf(
-                    "lookbackFrom" to kotlinx.serialization.json.JsonPrimitive(since ?: ""),
-                    "query" to kotlinx.serialization.json.JsonPrimitive(fullQuery),
+                    "lookbackFrom" to JsonPrimitive(since ?: ""),
+                    "query" to JsonPrimitive(fullQuery),
                     "messages" to JsonArray(normalizedMessages)
                 )
             )
@@ -332,6 +352,14 @@ internal class EmailCollectCommand : CliktCommand(name = "collect") {
                 receivedAt = receivedAt,
                 snippet = snippet
             )
+
+            // Filter out 2FA / OTP verification noise from generating proposals
+            val isVerificationNoise = Regex(
+                "(?i)(?:verification\\s+code|confirm\\s+your\\s+identity|one-time\\s+passcode|\\botp\\b|security\\s+code|password\\s+reset)"
+            ).containsMatchIn("${subject.orEmpty()} ${snippet.orEmpty()}")
+            if (isVerificationNoise) {
+                continue
+            }
 
             // Match against tracked applications
             val matchResult = EmailClassifier.match(msg, applications)

@@ -65,6 +65,18 @@ public sealed interface JobApplicationStatus {
       override val rank: Int = 4
     }
 
+    /** Async artifact generation or active drafting in progress. */
+    public data object Drafting : Active {
+      override val wireName: String = "DRAFTING"
+      override val rank: Int = 4
+    }
+
+    /** Job posting evaluated by RankScorer, awaiting artifact generation decision. */
+    public data object Ranked : Active {
+      override val wireName: String = "RANKED"
+      override val rank: Int = 4
+    }
+
     /** Application formally submitted to the hiring organization. */
     public data object Submitted : Active {
       override val wireName: String = "SUBMITTED"
@@ -129,6 +141,8 @@ public sealed interface JobApplicationStatus {
         Terminal.Rejected.wireName -> Terminal.Rejected
         Terminal.Hired.wireName -> Terminal.Hired
         Active.Drafted.wireName -> Active.Drafted
+        Active.Drafting.wireName -> Active.Drafting
+        Active.Ranked.wireName -> Active.Ranked
         Active.Submitted.wireName -> Active.Submitted
         Active.RecruiterScreened.wireName -> Active.RecruiterScreened
         "INTERVIEWING" -> Active.Interviewing(interviewProgress)

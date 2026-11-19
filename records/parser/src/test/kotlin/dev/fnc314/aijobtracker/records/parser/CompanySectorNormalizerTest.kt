@@ -1,7 +1,7 @@
 package dev.fnc314.aijobtracker.records.parser
 
 import dev.fnc314.aijobtracker.records.parser.CompanySectorNormalizer
-import dev.fnc314.aijobtracker.records.v1.CompanySector
+import dev.fnc314.aijobtracker.records.CompanySector
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

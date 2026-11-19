@@ -14,6 +14,10 @@ import com.github.ajalt.mordant.terminal.Terminal
 import com.google.cloud.Timestamp
 import dev.fnc314.aijobtracker.frontend.cli.db.RemoteDataSourceProvider
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -52,10 +56,25 @@ internal class BackfillEmailsCommand : CliktCommand(name = "emails") {
 
         if (jobLabelsFile.exists()) {
             try {
-                val parsed = Json.parseToJsonElement(jobLabelsFile.readText()).jsonObject
-                val labelsArray = parsed["labels"]?.jsonArray
-                labelsArray?.forEach {
-                    val label = it.jsonPrimitive.content
+                val parsed = Json.parseToJsonElement(jobLabelsFile.readText())
+                val labelStrings = when (parsed) {
+                    is JsonArray -> parsed.mapNotNull { elem ->
+                        when (elem) {
+                            is JsonObject -> elem["name"]?.jsonPrimitive?.contentOrNull
+                            is JsonPrimitive -> elem.contentOrNull
+                            else -> null
+                        }
+                    }
+                    is JsonObject -> parsed["labels"]?.jsonArray?.mapNotNull { elem ->
+                        when (elem) {
+                            is JsonObject -> elem["name"]?.jsonPrimitive?.contentOrNull
+                            is JsonPrimitive -> elem.contentOrNull
+                            else -> null
+                        }
+                    } ?: emptyList()
+                    else -> emptyList()
+                }
+                labelStrings.forEach { label ->
                     knownJobLabels.add(label)
                     if (label.startsWith("JOB/")) {
                         val firm = label.removePrefix("JOB/").lowercase().replace(" ", "").replace("-", "")

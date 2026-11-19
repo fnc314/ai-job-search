@@ -1,21 +1,21 @@
 package dev.fnc314.aijobtracker.records.parser
 
-import dev.fnc314.aijobtracker.records.v1.ApplicationChannel
-import dev.fnc314.aijobtracker.records.v1.Confidence
-import dev.fnc314.aijobtracker.records.v1.DerivedFrom
-import dev.fnc314.aijobtracker.records.v1.EventActor
-import dev.fnc314.aijobtracker.records.v1.Region
-import dev.fnc314.aijobtracker.records.v1.RoleLocation
-import dev.fnc314.aijobtracker.records.v1.SyncKind
-import dev.fnc314.aijobtracker.records.v1.SyncState
-import dev.fnc314.aijobtracker.records.v1.Tag
-import dev.fnc314.aijobtracker.records.v1.TrackerArtifactKind
-import dev.fnc314.aijobtracker.records.v1.TrackerEditKind
-import dev.fnc314.aijobtracker.records.v1.TrackerEditState
-import dev.fnc314.aijobtracker.records.v1.TrackerEventType
-import dev.fnc314.aijobtracker.records.v1.TrackerStatus
-import dev.fnc314.aijobtracker.records.v1.Trigger
-import dev.fnc314.aijobtracker.records.v1.SubmissionConfidence
+import dev.fnc314.aijobtracker.records.ApplicationChannel
+import dev.fnc314.aijobtracker.records.Confidence
+import dev.fnc314.aijobtracker.records.DerivedFrom
+import dev.fnc314.aijobtracker.records.EventActor
+import dev.fnc314.aijobtracker.records.Region
+import dev.fnc314.aijobtracker.records.RoleLocation
+import dev.fnc314.aijobtracker.records.SyncKind
+import dev.fnc314.aijobtracker.records.SyncState
+import dev.fnc314.aijobtracker.records.Tag
+import dev.fnc314.aijobtracker.records.TrackerArtifactKind
+import dev.fnc314.aijobtracker.records.TrackerEditKind
+import dev.fnc314.aijobtracker.records.TrackerEditState
+import dev.fnc314.aijobtracker.records.TrackerEventType
+import dev.fnc314.aijobtracker.records.TrackerStatus
+import dev.fnc314.aijobtracker.records.Trigger
+import dev.fnc314.aijobtracker.records.SubmissionConfidence
 
 /**
  * Canonical Firestore wire key for [TrackerStatus] proto enum entries.

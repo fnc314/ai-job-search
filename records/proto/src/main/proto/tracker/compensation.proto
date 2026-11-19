@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package tracker.v1;
+package tracker;
 
-option java_package = "dev.fnc314.aijobtracker.records.v1";
+option java_package = "dev.fnc314.aijobtracker.records";
 option java_multiple_files = true;
 
 // Compensation — salary range with min/max/currency/period

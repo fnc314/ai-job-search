@@ -1,8 +1,8 @@
 package dev.fnc314.aijobtracker.records.parser
 
 import com.google.protobuf.Timestamp
-import dev.fnc314.aijobtracker.records.v1.ApplicationChannel
-import dev.fnc314.aijobtracker.records.v1.CompanyMetrics
+import dev.fnc314.aijobtracker.records.ApplicationChannel
+import dev.fnc314.aijobtracker.records.CompanyMetrics
 
 /**
  * Serializer and deserializer mapping between [CompanyMetrics] proto3 messages

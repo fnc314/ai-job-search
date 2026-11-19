@@ -1,7 +1,7 @@
 package dev.fnc314.aijobtracker.records.parser
 
-import dev.fnc314.aijobtracker.records.v1.TrackerEvent
-import dev.fnc314.aijobtracker.records.v1.TrackerEventType
+import dev.fnc314.aijobtracker.records.TrackerEvent
+import dev.fnc314.aijobtracker.records.TrackerEventType
 import java.time.Instant
 
 /**

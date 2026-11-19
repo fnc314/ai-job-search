@@ -4,7 +4,7 @@ The `records` subsystem serves as the strongly-typed contract and schema foundat
 
 ## Modules
 
-- **`:records:records-proto`**: Pure Protocol Buffer definitions (`tracker/v1/*.proto`) generating Kotlin domain models for applications, status enums, timeline events, and audit edits.
+- **`:records:records-proto`**: Pure Protocol Buffer definitions (`tracker/*.proto`) generating Kotlin domain models for applications, status enums, timeline events, and audit edits.
 - **`:records:records-parser`**: Domain parsing logic, timestamp normalization, Firestore remote converters (`toRemote()` / `fromRemote()`), and legacy contract projectors.
 
 ## Architectural Principles

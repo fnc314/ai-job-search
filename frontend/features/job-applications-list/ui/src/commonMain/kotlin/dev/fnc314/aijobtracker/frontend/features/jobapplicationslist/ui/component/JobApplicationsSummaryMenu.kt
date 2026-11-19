@@ -40,7 +40,7 @@ public fun JobApplicationsSummaryMenu(
     modifier: Modifier = Modifier,
 ) {
     val appliedCount = applications.count {
-        it.status == TrackerStatus.Known.APPLIED
+        it.status == TrackerStatus.Known.SUBMITTED
     }
     val interviewingCount = applications.count {
         it.status == TrackerStatus.Known.INTERVIEW

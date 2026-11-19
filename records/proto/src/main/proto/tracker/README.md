@@ -1,10 +1,10 @@
-# Tracker v1 Protobuf Definitions
+# Tracker Protobuf Definitions
 
 Proto3 definitions for the job tracker data model, mirroring `tracker.schema.json`.
 
 ## Package Structure
 
-All protos live under `package tracker.v1` with Java package `dev.fnc314.tools.jobsearch.tracker.v1`.
+All protos live under `package tracker` with Java package `dev.fnc314.tools.jobsearch.tracker`.
 
 ## Files
 
@@ -68,5 +68,5 @@ Python can consume these protos via `grpcio-tools`:
 ```bash
 python -m grpc_tools.protoc -Irecords/proto/src/main/proto \
   --python_out=generated/ \
-  records/proto/src/main/proto/tracker/v1/*.proto
+  records/proto/src/main/proto/tracker/*.proto
 ```

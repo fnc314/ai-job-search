@@ -1,6 +1,6 @@
 package dev.fnc314.aijobtracker.records.parser
 
-import dev.fnc314.aijobtracker.records.v1.CompanySector
+import dev.fnc314.aijobtracker.records.CompanySector
 import java.util.Locale
 
 /**

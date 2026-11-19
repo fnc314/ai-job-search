@@ -1,8 +1,8 @@
 package dev.fnc314.aijobtracker.records.parser
 
 import dev.fnc314.aijobtracker.records.parser.CompanyMetricsParser
-import dev.fnc314.aijobtracker.records.v1.ApplicationChannel
-import dev.fnc314.aijobtracker.records.v1.CompanyMetrics
+import dev.fnc314.aijobtracker.records.ApplicationChannel
+import dev.fnc314.aijobtracker.records.CompanyMetrics
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

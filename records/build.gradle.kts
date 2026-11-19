@@ -9,7 +9,7 @@ val detektVersion = libs.versions.detekt.get()
 
 subprojects {
     group = "dev.fnc314.aijobtracker.records"
-    version = "1.0.0"
+    version = "1.1.0"
 
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "maven-publish")

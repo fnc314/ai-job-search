@@ -31,12 +31,12 @@ class EnumLogicTest {
     @Test
     fun testTrackerStatus_fromFirestoreVariations() {
         assertEquals(TrackerStatus.LEAD, TrackerStatus.fromRemote("status:lead"))
-        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("status:applied"))
-        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("APPLIED"))
-        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("applied"))
-        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("SUBMITTED"))
-        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("submitted"))
-        assertEquals(TrackerStatus.APPLIED, TrackerStatus.fromRemote("status:submitted"))
+        assertEquals(TrackerStatus.SUBMITTED, TrackerStatus.fromRemote("status:applied"))
+        assertEquals(TrackerStatus.SUBMITTED, TrackerStatus.fromRemote("APPLIED"))
+        assertEquals(TrackerStatus.SUBMITTED, TrackerStatus.fromRemote("applied"))
+        assertEquals(TrackerStatus.SUBMITTED, TrackerStatus.fromRemote("SUBMITTED"))
+        assertEquals(TrackerStatus.SUBMITTED, TrackerStatus.fromRemote("submitted"))
+        assertEquals(TrackerStatus.SUBMITTED, TrackerStatus.fromRemote("status:submitted"))
         assertEquals(TrackerStatus.INTERVIEW, TrackerStatus.fromRemote("status:interview"))
         assertEquals(TrackerStatus.OFFER_EXPECTED, TrackerStatus.fromRemote("status:offer"))
     }

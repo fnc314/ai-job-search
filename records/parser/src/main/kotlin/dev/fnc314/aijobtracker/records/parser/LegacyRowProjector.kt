@@ -1,7 +1,7 @@
 package dev.fnc314.aijobtracker.records.parser
 
-import dev.fnc314.aijobtracker.records.v1.JobApplication
-import dev.fnc314.aijobtracker.records.v1.TrackerArtifact
+import dev.fnc314.aijobtracker.records.JobApplication
+import dev.fnc314.aijobtracker.records.TrackerArtifact
 
 /**
  * Transforms typed [JobApplication] protobuf messages and associated [TrackerArtifact] collections

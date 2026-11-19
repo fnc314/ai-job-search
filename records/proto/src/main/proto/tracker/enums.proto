@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package tracker.v1;
+package tracker;
 
-option java_package = "dev.fnc314.aijobtracker.records.v1";
+option java_package = "dev.fnc314.aijobtracker.records";
 option java_multiple_files = true;
 
 // ============================================================================
@@ -32,6 +32,10 @@ enum TrackerStatus {
 
   // Terminal success (rank 11)
   HIRED = 12;                 // Offer accepted, hiring complete
+
+  // Pre-submission active states
+  DRAFTING = 13;              // Async artifact generation / active drafting in progress
+  RANKED = 14;                // Posting evaluated, fit score recorded, not yet drafted
 }
 
 // ============================================================================

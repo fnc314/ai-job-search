@@ -282,7 +282,11 @@ public object EmailClassifier {
             }
         }
 
-        val haystack = "${(message["subject"] as? String).orEmpty()} ${(message["sender"] as? String).orEmpty()} ${(message["snippet"] as? String).orEmpty()}".lowercase()
+        val cleanSnippet = (message["snippet"] as? String).orEmpty()
+            .replace(Regex("(?s)<style.*?>.*?</style>"), " ")
+            .replace(Regex("(?s)<script.*?>.*?</script>"), " ")
+            .replace(Regex("<[^>]+>"), " ")
+        val haystack = "${(message["subject"] as? String).orEmpty()} ${(message["sender"] as? String).orEmpty()} $cleanSnippet".lowercase()
         val matches = applications.keys.filter { appId ->
             val app = applications[appId] ?: return@filter false
             companyMatches(haystack, app)
@@ -291,7 +295,28 @@ public object EmailClassifier {
         return when {
             matches.size == 1 -> MatchResult(applicationId = matches[0])
             matches.isEmpty() -> MatchResult(reason = "no application matched")
-            else -> MatchResult(reason = "ambiguous: matched ${matches.size} applications (${matches.sorted().take(4).joinToString(", ")})")
+            else -> {
+                // If multiple applications from the same company matched, try role-level disambiguation
+                val roleMatches = matches.filter { appId ->
+                    val app = applications[appId] ?: return@filter false
+                    val role = (app["role"] as? String)?.lowercase()?.trim().orEmpty()
+                    if (role.isEmpty()) return@filter false
+                    // Look for distinctive tokens from the role name (excluding generic words)
+                    val stopWords = setOf("senior", "staff", "principal", "lead", "engineer", "software", "developer", "mobile", "android", "ios", "at", "the", "and", "or", "in", "to", "for")
+                    val tokens = role.split(Regex("[^a-z0-9]+")).filter { it.length >= 3 && it !in stopWords }
+                    if (tokens.isNotEmpty()) {
+                        tokens.all { token -> haystack.contains(token) }
+                    } else {
+                        // Fall back to title match
+                        haystack.contains(role)
+                    }
+                }
+                if (roleMatches.size == 1) {
+                    MatchResult(applicationId = roleMatches[0])
+                } else {
+                    MatchResult(reason = "ambiguous: matched ${matches.size} applications (${matches.sorted().take(4).joinToString(", ")})")
+                }
+            }
         }
     }
 

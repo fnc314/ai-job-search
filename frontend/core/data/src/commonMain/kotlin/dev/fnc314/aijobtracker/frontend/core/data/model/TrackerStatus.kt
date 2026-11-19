@@ -63,7 +63,7 @@ public sealed interface TrackerStatus : WireContract {
         DRAFTING(displayName = "Drafting", wireKey = "DRAFTING", wireTag = 1),
 
         /** Formal application submitted to company or hiring platform. */
-        APPLIED(displayName = "Applied", wireKey = "APPLIED", wireTag = 2),
+        SUBMITTED(displayName = "Submitted", wireKey = "SUBMITTED", wireTag = 2),
 
         /** Active interview process underway (screens, technical rounds, onsites). */
         INTERVIEW(displayName = "Interview", wireKey = "INTERVIEW", wireTag = 3),
@@ -89,12 +89,12 @@ public sealed interface TrackerStatus : WireContract {
         override val isTerminal: Boolean
             get() = when (this) {
                 HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> true
-                NONE, UNSPECIFIED, LEAD, DRAFTING, APPLIED, INTERVIEW, OFFER_EXPECTED -> false
+                NONE, UNSPECIFIED, LEAD, DRAFTING, SUBMITTED, INTERVIEW, OFFER_EXPECTED -> false
             }
 
         override val isActive: Boolean
             get() = when (this) {
-                LEAD, DRAFTING, APPLIED, INTERVIEW, OFFER_EXPECTED -> true
+                LEAD, DRAFTING, SUBMITTED, INTERVIEW, OFFER_EXPECTED -> true
                 NONE, UNSPECIFIED, HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> false
             }
 
@@ -102,7 +102,7 @@ public sealed interface TrackerStatus : WireContract {
             get() = when (this) {
                 INTERVIEW, OFFER_EXPECTED, HIRED -> 1
                 DRAFTING, LEAD -> 2
-                APPLIED -> 3
+                SUBMITTED -> 3
                 REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> 4
                 NONE, UNSPECIFIED -> 3
             }
@@ -122,7 +122,7 @@ public sealed interface TrackerStatus : WireContract {
         @Composable
         override fun containerColor(): Color = when (this) {
             LEAD, DRAFTING -> MaterialTheme.colorScheme.surfaceContainerLow
-            APPLIED -> MaterialTheme.colorScheme.tertiaryFixed
+            SUBMITTED -> MaterialTheme.colorScheme.tertiaryFixed
             INTERVIEW -> MaterialTheme.colorScheme.secondaryFixed
             OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.primaryFixed
             REJECTED -> MaterialTheme.colorScheme.errorContainer
@@ -134,7 +134,7 @@ public sealed interface TrackerStatus : WireContract {
         @Composable
         override fun contentColor(): Color = when (this) {
             LEAD, DRAFTING -> MaterialTheme.colorScheme.onSurfaceVariant
-            APPLIED -> MaterialTheme.colorScheme.onTertiaryFixed
+            SUBMITTED -> MaterialTheme.colorScheme.onTertiaryFixed
             INTERVIEW -> MaterialTheme.colorScheme.onSecondaryFixed
             OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.onPrimaryFixed
             REJECTED -> MaterialTheme.colorScheme.onErrorContainer
@@ -175,7 +175,7 @@ public sealed interface TrackerStatus : WireContract {
             val legacy = when (entry) {
                 Known.LEAD -> listOf("status:lead", "lead")
                 Known.DRAFTING -> listOf("status:drafting", "drafting", "draft", "drafted", "status:drafted")
-                Known.APPLIED -> listOf("status:applied", "applied", "screening", "submitted", "status:submitted")
+                Known.SUBMITTED -> listOf("status:submitted", "submitted", "screening", "applied", "status:applied")
                 Known.INTERVIEW -> listOf("status:interview", "interview", "interviewing", "onsite", "recruiter_screened", "recruiter-screened", "status:recruiter-screened")
                 Known.OFFER_EXPECTED -> listOf("status:offer", "offer", "negotiating_pre_offer", "negotiating-pre-offer", "negotiating_post_offer", "negotiating-post-offer")
                 Known.HIRED -> listOf("status:hired", "hired")
@@ -199,7 +199,10 @@ public sealed interface TrackerStatus : WireContract {
         /** Initial opportunity drafting state prior to formal submission. */
         public val DRAFTING: TrackerStatus = Known.DRAFTING
         /** Formal application submitted to company or hiring platform. */
-        public val APPLIED: TrackerStatus = Known.APPLIED
+        public val SUBMITTED: TrackerStatus = Known.SUBMITTED
+        /** Backward-compatible alias for [SUBMITTED]. */
+        @Deprecated("Use SUBMITTED instead", ReplaceWith("SUBMITTED"))
+        public val APPLIED: TrackerStatus = Known.SUBMITTED
         /** Active interview process underway (screens, technical rounds, onsites). */
         public val INTERVIEW: TrackerStatus = Known.INTERVIEW
         /** Candidate expecting or negotiating a formal compensation offer. */

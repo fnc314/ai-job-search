@@ -3,9 +3,9 @@ package dev.fnc314.aijobtracker.records.parser
 import com.google.protobuf.Timestamp
 import dev.fnc314.aijobtracker.records.parser.ApplicationTimelineProjector
 import dev.fnc314.aijobtracker.records.parser.EventNoteRenderer
-import dev.fnc314.aijobtracker.records.v1.TrackerEvent
-import dev.fnc314.aijobtracker.records.v1.TrackerEventType
-import dev.fnc314.aijobtracker.records.v1.TrackerStatus
+import dev.fnc314.aijobtracker.records.TrackerEvent
+import dev.fnc314.aijobtracker.records.TrackerEventType
+import dev.fnc314.aijobtracker.records.TrackerStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

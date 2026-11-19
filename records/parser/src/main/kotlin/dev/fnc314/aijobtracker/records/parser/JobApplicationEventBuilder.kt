@@ -1,13 +1,13 @@
 package dev.fnc314.aijobtracker.records.parser
 
 import com.google.protobuf.Timestamp
-import dev.fnc314.aijobtracker.records.v1.Confidence
-import dev.fnc314.aijobtracker.records.v1.DerivedFrom
-import dev.fnc314.aijobtracker.records.v1.EventActor
-import dev.fnc314.aijobtracker.records.v1.InterviewRound
-import dev.fnc314.aijobtracker.records.v1.TrackerEvent
-import dev.fnc314.aijobtracker.records.v1.TrackerEventType
-import dev.fnc314.aijobtracker.records.v1.TrackerStatus
+import dev.fnc314.aijobtracker.records.Confidence
+import dev.fnc314.aijobtracker.records.DerivedFrom
+import dev.fnc314.aijobtracker.records.EventActor
+import dev.fnc314.aijobtracker.records.InterviewRound
+import dev.fnc314.aijobtracker.records.TrackerEvent
+import dev.fnc314.aijobtracker.records.TrackerEventType
+import dev.fnc314.aijobtracker.records.TrackerStatus
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
