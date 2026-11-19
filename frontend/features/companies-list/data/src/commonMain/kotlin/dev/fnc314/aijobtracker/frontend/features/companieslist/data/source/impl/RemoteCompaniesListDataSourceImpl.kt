@@ -142,11 +142,22 @@ internal class RemoteCompaniesListDataSourceImpl(
             ?.filter { it.isNotEmpty() }
             ?: emptyList()
 
-        val logoFormatStr = (record.getString("logoFormat") ?: record.getString("logo_format")).orEmpty().uppercase()
-        val logoShapeStr = (record.getString("logoShape") ?: record.getString("logo_shape")).orEmpty().uppercase()
+        val logoMap = record.fields["logo"] as? Map<*, *>
+        val logoUrl = (logoMap?.get("url") as? String) ?: record.getString("logoUrl")
+        val logoFormatStr = ((logoMap?.get("format") as? String)
+            ?: record.getString("logoFormat")
+            ?: record.getString("logo_format")).orEmpty().uppercase()
+        val logoShapeStr = ((logoMap?.get("shape") as? String)
+            ?: record.getString("logoShape")
+            ?: record.getString("logo_shape")).orEmpty().uppercase()
 
         val logoFormat = runCatching { LogoFormat.valueOf(logoFormatStr) }.getOrDefault(LogoFormat.UNKNOWN)
         val logoShape = runCatching { LogoShape.valueOf(logoShapeStr) }.getOrDefault(LogoShape.UNKNOWN)
+        val logoWidth = ((logoMap?.get("width") as? Number)?.toInt()
+            ?: (record.getLong("logoWidth") ?: record.getLong("logo_width"))?.toInt()) ?: 0
+        val logoHeight = ((logoMap?.get("height") as? Number)?.toInt()
+            ?: (record.getLong("logoHeight") ?: record.getLong("logo_height"))?.toInt()) ?: 0
+        val logoFetchedAt = InstantParser.parse(logoMap?.get("fetchedAt") ?: record.fields["logoFetchedAt"])
 
         val metricsMap = record.fields["metrics"] as? Map<*, *>
         val metrics = CompanyMetrics.fromMap(metricsMap)
@@ -165,12 +176,12 @@ internal class RemoteCompaniesListDataSourceImpl(
             updatedAt = InstantParser.parse(
                 record.fields["updatedAt"] ?: record.fields["updated_at"],
             ),
-            logoUrl = record.getString("logoUrl"),
+            logoUrl = logoUrl,
             logoFormat = logoFormat,
-            logoWidth = (record.getLong("logoWidth") ?: record.getLong("logo_width"))?.toInt() ?: 0,
-            logoHeight = (record.getLong("logoHeight") ?: record.getLong("logo_height"))?.toInt() ?: 0,
+            logoWidth = logoWidth,
+            logoHeight = logoHeight,
             logoShape = logoShape,
-            logoFetchedAt = InstantParser.parse(record.fields["logoFetchedAt"]),
+            logoFetchedAt = logoFetchedAt,
             metrics = metrics,
             linkedinUrl = record.getString("linkedinUrl"),
             hunterIoId = record.getString("hunterIoId"),

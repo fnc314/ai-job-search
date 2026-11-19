@@ -24,9 +24,9 @@ if [ -z "$DRY_RUN" ]; then
 
   # Fallback to local execution
   echo "No remote endpoint found, running batch enrichment locally..."
-  "${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" run --args="--enrich-batch"
+  "${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" :service:run --args="--enrich-batch"
 else
   echo "Dry run mode — listing companies that need enrichment..."
   echo "(Requires HUNTER_IO_API_KEY for full enrichment; this preview only checks missing fields.)"
-  "${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" run --args="--enrich-batch"
+  "${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" :service:run --args="--enrich-batch"
 fi

@@ -11,7 +11,7 @@ fi
 
 echo "Recalculating company metrics locally (target: ${COMPANY_ARG:-ALL})..."
 if [ -n "${COMPANY_ARG}" ]; then
-  "${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" run --args="--recalculate ${COMPANY_ARG}"
+  "${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" :service:run --args="--recalculate ${COMPANY_ARG}"
 else
-  "${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" run --args="--recalculate"
+  "${MISE_PROJECT_ROOT}/gradlew" -p "${MISE_PROJECT_ROOT}/backend" :service:run --args="--recalculate"
 fi

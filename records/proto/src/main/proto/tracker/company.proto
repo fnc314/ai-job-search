@@ -59,6 +59,15 @@ message CompanyMetrics {
 
 // Company — normalized employer records
 message Company {
+  message Logo {
+    string url = 1;
+    LogoFormat format = 2;
+    int32 width = 3;
+    int32 height = 4;
+    LogoShape shape = 5;
+    google.protobuf.Timestamp fetched_at = 6;
+  }
+
   string id = 1;
   string name = 2;
   repeated string aliases = 3;
@@ -74,4 +83,5 @@ message Company {
   LogoShape logo_shape = 13;
   google.protobuf.Timestamp logo_fetched_at = 14;
   CompanyMetrics metrics = 15;
+  Logo logo = 16;
 }

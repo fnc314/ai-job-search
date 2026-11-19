@@ -28,4 +28,4 @@ else
   echo "  - Keep motorola and motorola-solutions in companies"
 fi
 
-./gradlew -p backend run --args="--migrate-potentials ${DRY_RUN_FLAG}"
+./gradlew -p backend :service:run --args="--migrate-potentials ${DRY_RUN_FLAG}"

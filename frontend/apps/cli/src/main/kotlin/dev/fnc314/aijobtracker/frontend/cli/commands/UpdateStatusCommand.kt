@@ -11,6 +11,8 @@ import dev.fnc314.aijobtracker.records.EventActor
 import dev.fnc314.aijobtracker.records.TrackerEvent
 import dev.fnc314.aijobtracker.records.TrackerEventType
 import dev.fnc314.aijobtracker.records.TrackerStatus
+import dev.fnc314.aijobtracker.backend.BackendService
+import dev.fnc314.aijobtracker.records.parser.DocumentIdGenerator
 import dev.fnc314.aijobtracker.frontend.cli.db.RemoteDataSourceProvider
 import java.time.Instant
 import com.google.cloud.Timestamp
@@ -149,6 +151,22 @@ internal class UpdateStatusCommand : CliktCommand(name = "status") {
                 "updatedAt" to now
             )
         ).get()
+
+        // 3. Recalculate company metrics if status changed
+        val rawCompanyId = snap.getString("companyId")?.takeIf { it.isNotBlank() }
+        val rawCompanyName = snap.getString("company")?.takeIf { it.isNotBlank() }
+        val targetCompanyId = when {
+            rawCompanyId != null -> DocumentIdGenerator.slug(rawCompanyId, fallback = rawCompanyId)
+            rawCompanyName != null -> DocumentIdGenerator.slug(rawCompanyName, fallback = "unknown")
+            else -> null
+        }
+        if (!targetCompanyId.isNullOrBlank() && targetCompanyId != "unknown") {
+            try {
+                BackendService.recalculateCompanyMetrics(targetCompanyId)
+            } catch (e: Exception) {
+                t.println(red("Warning: Failed to recalculate company metrics for $targetCompanyId: ${e.message}"))
+            }
+        }
 
         t.println(green("✓ Successfully updated $applicationId status: $previousStatus -> $newStatus"))
     }

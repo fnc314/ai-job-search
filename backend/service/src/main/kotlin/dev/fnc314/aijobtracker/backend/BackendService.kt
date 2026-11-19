@@ -442,6 +442,77 @@ public object BackendService {
     }
 
     /**
+     * Migrates legacy flat company logo fields (`logoUrl`, `logoFormat`, `logoWidth`, `logoHeight`, `logoShape`, `logoFetchedAt`)
+     * into a structured `logo: { url, format, width, height, shape, fetchedAt }` map on every company document in Firestore.
+     */
+    public fun migrateCompanyLogos(dryRun: Boolean = false): Map<String, Any> {
+        val db = remoteDatabase
+        val companies = db.collection("companies").get().get().documents
+        var updatedCount = 0
+        var alreadyMigratedCount = 0
+        var skippedCount = 0
+
+        for (doc in companies) {
+            val data = doc.data ?: continue
+            val existingLogoMap = data["logo"] as? Map<*, *>
+            val flatUrl = data["logoUrl"] as? String
+
+            if (flatUrl.isNullOrBlank() && existingLogoMap == null) {
+                skippedCount++
+                continue
+            }
+
+            val formatStr = (existingLogoMap?.get("format") as? String)
+                ?: (data["logoFormat"] as? String)
+                ?: (data["logo_format"] as? String)
+                ?: "UNKNOWN"
+            val width = (existingLogoMap?.get("width") as? Number)?.toInt()
+                ?: (data["logoWidth"] as? Number)?.toInt()
+                ?: (data["logo_width"] as? Number)?.toInt()
+                ?: 0
+            val height = (existingLogoMap?.get("height") as? Number)?.toInt()
+                ?: (data["logoHeight"] as? Number)?.toInt()
+                ?: (data["logo_height"] as? Number)?.toInt()
+                ?: 0
+            val shapeStr = (existingLogoMap?.get("shape") as? String)
+                ?: (data["logoShape"] as? String)
+                ?: (data["logo_shape"] as? String)
+                ?: "UNKNOWN"
+            val fetchedAtRaw = existingLogoMap?.get("fetchedAt")
+                ?: data["logoFetchedAt"]
+                ?: data["logo_fetched_at"]
+            val fetchedAt = when (fetchedAtRaw) {
+                is Timestamp -> fetchedAtRaw.toDate().toInstant().toString()
+                is String -> fetchedAtRaw
+                else -> Timestamp.now().toDate().toInstant().toString()
+            }
+            val url = (existingLogoMap?.get("url") as? String) ?: flatUrl.orEmpty()
+
+            val bundledLogo = mapOf(
+                "url" to url,
+                "format" to formatStr.uppercase(),
+                "width" to width,
+                "height" to height,
+                "shape" to shapeStr.uppercase(),
+                "fetchedAt" to fetchedAt,
+            )
+
+            if (!dryRun) {
+                doc.reference.set(mapOf("logo" to bundledLogo), SetOptions.merge()).get()
+            }
+            updatedCount++
+        }
+
+        return mapOf(
+            "status" to "SUCCESS",
+            "dryRun" to dryRun,
+            "totalProcessed" to companies.size,
+            "updatedCount" to updatedCount,
+            "skippedCount" to skippedCount,
+        )
+    }
+
+    /**
      * Pure function to calculate [CompanyMetrics] from an array of application document maps.
      */
     @Suppress("UNCHECKED_CAST", "MagicNumber")
@@ -462,10 +533,10 @@ public object BackendService {
         for (app in applications) {
             val status = (app["status"] as? String)?.uppercase() ?: ""
             when {
-                status in listOf("DRAFTING", "LEAD") -> draft++
-                status in listOf("APPLIED", "NO_RESPONSE") -> submitted++
-                status in listOf("INTERVIEW") -> interviewing++
-                status in listOf("OFFER_EXPECTED", "HIRED", "OFFER_DECLINED") -> offer++
+                status in listOf("DRAFTING", "DRAFTED", "RANKED", "LEAD", "DRAFT") -> draft++
+                status in listOf("SUBMITTED", "APPLIED", "NO_RESPONSE") -> submitted++
+                status in listOf("INTERVIEWING", "INTERVIEW", "RECRUITER_SCREENED") -> interviewing++
+                status in listOf("OFFER", "OFFER_EXPECTED", "NEGOTIATING_PRE_OFFER", "NEGOTIATING_POST_OFFER", "HIRED", "OFFER_DECLINED") -> offer++
                 status in listOf("REJECTED", "APPLICATION_WITHDRAWN") -> rejected++
                 else -> draft++ // Default unmapped to draft category
             }
@@ -1513,8 +1584,18 @@ public object BackendService {
 
         // Logo enrichment
         if (logoUrl != null && (existingData["logoUrl"] as? String).isNullOrBlank()) {
+            val nowTimestamp = Timestamp.now()
             updates["logoUrl"] = logoUrl
-            updates["logoFetchedAt"] = Timestamp.now()
+            updates["logoFetchedAt"] = nowTimestamp
+            val existingLogo = (existingData["logo"] as? Map<*, *>)?.toMutableMap() ?: mutableMapOf<Any?, Any?>()
+            if ((existingLogo["url"] as? String).isNullOrBlank()) {
+                existingLogo["url"] = logoUrl
+                if (!existingLogo.containsKey("format")) existingLogo["format"] = "UNKNOWN"
+                if (!existingLogo.containsKey("height")) existingLogo["height"] = 0
+                if (!existingLogo.containsKey("width")) existingLogo["width"] = 0
+                if (!existingLogo.containsKey("fetchedAt")) existingLogo["fetchedAt"] = nowTimestamp.toString()
+                updates["logo"] = existingLogo
+            }
         }
 
         if (updates.isNotEmpty()) {

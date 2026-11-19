@@ -148,13 +148,20 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
     @Suppress("UNCHECKED_CAST")
     val aliases = (record.fields["aliases"] as? List<String>)
       ?: emptyList()
-    val logoFormatStr = record.getString("logoFormat")?.uppercase()
-      ?: "UNKNOWN"
-    val logoShapeStr = record.getString("logoShape")?.uppercase()
-      ?: "UNKNOWN"
+    val logoMap = record.fields["logo"] as? Map<*, *>
+    val logoUrl = (logoMap?.get("url") as? String) ?: record.getString("logoUrl")
+    val logoFormatStr = ((logoMap?.get("format") as? String)
+      ?: record.getString("logoFormat")).orEmpty().uppercase()
+    val logoShapeStr = ((logoMap?.get("shape") as? String)
+      ?: record.getString("logoShape")).orEmpty().uppercase()
 
     val logoFormat = runCatching { LogoFormat.valueOf(logoFormatStr) }.getOrDefault(LogoFormat.UNKNOWN)
     val logoShape = runCatching { LogoShape.valueOf(logoShapeStr) }.getOrDefault(LogoShape.UNKNOWN)
+    val logoWidth = ((logoMap?.get("width") as? Number)?.toInt()
+      ?: record.getLong("logoWidth")?.toInt()) ?: 0
+    val logoHeight = ((logoMap?.get("height") as? Number)?.toInt()
+      ?: record.getLong("logoHeight")?.toInt()) ?: 0
+    val logoFetchedAt = InstantParser.parse(logoMap?.get("fetchedAt") ?: record.fields["logoFetchedAt"])
 
     return Factory.createCompany(
       id = record.id,
@@ -172,14 +179,12 @@ internal class RemoteJobApplicationDetailsDataSourceImpl(
         record.fields["updatedAt"]
           ?: record.fields["updated_at"],
       ),
-      logoUrl = record.getString("logoUrl"),
+      logoUrl = logoUrl,
       logoFormat = logoFormat,
-      logoWidth = record.getLong("logoWidth")?.toInt()
-        ?: 0,
-      logoHeight = record.getLong("logoHeight")?.toInt()
-        ?: 0,
+      logoWidth = logoWidth,
+      logoHeight = logoHeight,
       logoShape = logoShape,
-      logoFetchedAt = InstantParser.parse(record.fields["logoFetchedAt"]),
+      logoFetchedAt = logoFetchedAt,
       metrics = CompanyMetrics.fromMap(record.fields["metrics"] as? Map<*, *>),
       linkedinUrl = record.getString("linkedinUrl"),
     )

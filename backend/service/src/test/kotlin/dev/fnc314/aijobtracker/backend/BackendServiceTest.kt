@@ -166,4 +166,29 @@ class BackendServiceTest {
         assertEquals(2.0f / 3.0f, percentages["interviewing"])
         assertEquals(1.0f / 3.0f, percentages["submitted"])
     }
+
+    @Test
+    fun `test calculateMetricsForApplications with canonical unified statuses`() {
+        val apps = listOf(
+            mapOf("status" to "SUBMITTED", "fitRating" to 80),
+            mapOf("status" to "INTERVIEWING", "fitRating" to 85),
+            mapOf("status" to "RECRUITER_SCREENED", "fitRating" to 75),
+            mapOf("status" to "OFFER", "fitRating" to 90),
+            mapOf("status" to "NEGOTIATING_POST_OFFER", "fitRating" to 90),
+            mapOf("status" to "DRAFTED", "fitRating" to 70),
+            mapOf("status" to "RANKED", "fitRating" to 65),
+            mapOf("status" to "REJECTED", "fitRating" to 50),
+        )
+
+        val metrics = BackendService.calculateMetricsForApplications(apps)
+
+        @Suppress("UNCHECKED_CAST")
+        val counts = metrics["counts"] as Map<String, Any>
+        assertEquals(8, counts["total"])
+        assertEquals(1, counts["submitted"])
+        assertEquals(2, counts["interviewing"]) // INTERVIEWING + RECRUITER_SCREENED
+        assertEquals(2, counts["offer"]) // OFFER + NEGOTIATING_POST_OFFER
+        assertEquals(2, counts["draft"]) // DRAFTED + RANKED
+        assertEquals(1, counts["rejected"])
+    }
 }

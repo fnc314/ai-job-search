@@ -596,6 +596,34 @@
         "UNKNOWN"
       ]
     },
+    "companyLogo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "$ref": "#/$defs/nullableString",
+          "description": "Direct public URL to the company logo on Hunter.io or CDN."
+        },
+        "format": {
+          "$ref": "#/$defs/logoFormat",
+          "description": "Detected image format (AVIF, WEBP, PNG, SVG)."
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "shape": {
+          "$ref": "#/$defs/logoShape"
+        },
+        "fetchedAt": {
+          "$ref": "#/$defs/isoDateTime"
+        }
+      }
+    },
     "counters": {
       "type": "object",
       "additionalProperties": false,
@@ -1338,6 +1366,10 @@
         },
         "notes": {
           "$ref": "#/$defs/nullableString"
+        },
+        "logo": {
+          "$ref": "#/$defs/companyLogo",
+          "description": "Structured company logo metadata object."
         },
         "logoUrl": {
           "$ref": "#/$defs/nullableString"

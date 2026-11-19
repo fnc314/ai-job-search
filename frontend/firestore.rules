@@ -301,6 +301,7 @@ service cloud.firestore {
              validOptionalNumber(data, 'employeesCount', 0, 10000000) &&
              validOptionalList(data, 'aliases', 100) &&
              validOptionalMap(data, 'metrics') &&
+             validOptionalMap(data, 'logo') &&
              validOptionalTimestampOrString(data, 'createdAt') &&
              validOptionalTimestampOrString(data, 'updatedAt') &&
              validOptionalTimestampOrString(data, 'logoFetchedAt') &&
