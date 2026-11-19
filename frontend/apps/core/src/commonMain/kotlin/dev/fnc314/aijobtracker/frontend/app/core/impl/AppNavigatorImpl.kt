@@ -5,7 +5,7 @@ import dev.fnc314.aijobtracker.frontend.core.navigation.ApplicationId
 import dev.fnc314.aijobtracker.frontend.core.navigation.CompanyId
 import dev.fnc314.aijobtracker.frontend.core.navigation.JobApplicationsTrackerNavKey
 import dev.fnc314.aijobtracker.frontend.core.navigation.Navigator
-import dev.fnc314.aijobtracker.frontend.core.navigation.TopLevelDestinationEnum
+import dev.fnc314.aijobtracker.frontend.core.navigation.TopLevelDestination
 import dev.fnc314.aijobtracker.frontend.features.companydetails.ui.JobApplicationCompanyDetailsRoute
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.ui.JobApplicationDetailRoute
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.ui.JobApplicationListRoute
@@ -18,11 +18,11 @@ import dev.fnc314.aijobtracker.frontend.features.signin.ui.SignInRoute
  * Must remain internal and reside in the `.impl` package to satisfy Konsist architecture tests.
  *
  * @param navigator Wrapper around the Navigation 3 back stack.
- * @param routeResolver Maps [TopLevelDestinationEnum] to actual [JobApplicationsTrackerNavKey] instances.
+ * @param routeResolver Maps [TopLevelDestination] to actual [JobApplicationsTrackerNavKey] instances.
  */
 internal class AppNavigatorImpl(
     private val navigator: Navigator,
-    private val routeResolver: (TopLevelDestinationEnum) -> JobApplicationsTrackerNavKey,
+    private val routeResolver: (TopLevelDestination) -> JobApplicationsTrackerNavKey,
 ) : AppNavigator {
     override fun navigateToApplicationDetails(applicationId: ApplicationId) {
         navigator.navigate(JobApplicationDetailRoute(applicationId.value))
@@ -32,7 +32,7 @@ internal class AppNavigatorImpl(
         navigator.navigate(JobApplicationCompanyDetailsRoute(companyId.value))
     }
 
-    override fun navigateTo(topLevelDestination: TopLevelDestinationEnum) {
+    override fun navigateTo(topLevelDestination: TopLevelDestination) {
         val route = routeResolver(topLevelDestination)
         navigator.navigate(route)
     }

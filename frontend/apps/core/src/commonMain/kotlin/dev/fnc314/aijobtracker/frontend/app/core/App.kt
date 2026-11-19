@@ -39,7 +39,7 @@ import dev.fnc314.aijobtracker.frontend.core.navigation.LocalAppNavigator
 import dev.fnc314.aijobtracker.frontend.core.navigation.JobApplicationsTrackerNavKey
 import dev.fnc314.aijobtracker.frontend.core.navigation.Navigator
 import dev.fnc314.aijobtracker.frontend.core.navigation.ProvideAppNavigator
-import dev.fnc314.aijobtracker.frontend.core.navigation.TopLevelDestinationEnum
+import dev.fnc314.aijobtracker.frontend.core.navigation.TopLevelDestination
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.AddJobApplicationEntryRegistry
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplicationAddApplicationRoute
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplicationAddLeadRoute
@@ -133,13 +133,13 @@ public fun App() {
     val backStack = rememberNavBackStack(navigationSavedStateConfig, initialRoute)
     val navigator = remember(backStack) { Navigator(backStack) }
 
-    // Route resolver maps TopLevelDestinationEnum to actual JobApplicationsTrackerNavKey instances
-    val routeResolver: (TopLevelDestinationEnum) -> JobApplicationsTrackerNavKey = { dest ->
+    // Route resolver maps TopLevelDestination to actual JobApplicationsTrackerNavKey instances
+    val routeResolver: (TopLevelDestination) -> JobApplicationsTrackerNavKey = { dest ->
       when (dest) {
-        TopLevelDestinationEnum.Applications -> JobApplicationListRoute
-        TopLevelDestinationEnum.Companies -> JobApplicationCompaniesRoute
-        TopLevelDestinationEnum.Edits -> AiApplyRoute
-        TopLevelDestinationEnum.Settings -> JobApplicationSettingsRoute
+        TopLevelDestination.Applications -> JobApplicationListRoute
+        TopLevelDestination.Companies -> JobApplicationCompaniesRoute
+        TopLevelDestination.Apply -> AiApplyRoute
+        TopLevelDestination.Settings -> JobApplicationSettingsRoute
       }
     }
     val appNavigator = remember(navigator) {

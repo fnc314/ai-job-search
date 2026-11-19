@@ -9,7 +9,7 @@ import dev.fnc314.aijobtracker.frontend.core.navigation.ApplicationId
 import dev.fnc314.aijobtracker.frontend.core.navigation.FeatureEntryRegistry
 import dev.fnc314.aijobtracker.frontend.core.navigation.JobApplicationsTrackerNavKey
 import dev.fnc314.aijobtracker.frontend.core.navigation.TopBarActions
-import dev.fnc314.aijobtracker.frontend.core.navigation.TopLevelDestinationEnum
+import dev.fnc314.aijobtracker.frontend.core.navigation.TopLevelDestination
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplicationAddApplicationRoute
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplicationAddLeadRoute
 import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.Res
@@ -51,7 +51,7 @@ public class JobApplicationsEntryRegistry : FeatureEntryRegistry {
                     navigator.navigate(JobApplicationAddLeadRoute)
                 },
                 onEditsClick = {
-                    navigator.navigateTo(TopLevelDestinationEnum.Edits)
+                    navigator.navigateTo(TopLevelDestination.Apply)
                 },
                 onSettingsClick = {
                     navigator.navigateToSettings()

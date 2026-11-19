@@ -1,5 +1,5 @@
 <resources>
-    <string name="apply_assistant_title">Apply Assistant</string>
+    <string name="apply_assistant_title">Apply</string>
     <string name="apply_input_mode_url">Job URL</string>
     <string name="apply_input_mode_description">Description</string>
     <string name="apply_input_url_label">Job Posting URL (https://…)</string>

@@ -15,7 +15,7 @@ public interface AppNavigator {
     public fun navigateToCompanyDetails(companyId: CompanyId)
 
     /** Navigate to a top-level destination (bottom nav targets). */
-    public fun navigateTo(topLevelDestination: TopLevelDestinationEnum)
+    public fun navigateTo(topLevelDestination: TopLevelDestination)
 
     /** Navigate to the settings screen. */
     public fun navigateToSettings()

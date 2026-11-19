@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.Business
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Business
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -54,7 +54,7 @@ import dev.fnc314.aijobtracker.frontend.core.navigation.TopBarActionsSlot
 import dev.fnc314.aijobtracker.frontend.core.navigation.TopBarTitleSummarySlot
 import dev.fnc314.aijobtracker.frontend.core.widgets.TopBarTitleDropdown
 import dev.fnc314.aijobtracker.frontend.core.navigation.Navigator
-import dev.fnc314.aijobtracker.frontend.core.navigation.TopLevelDestinationEnum
+import dev.fnc314.aijobtracker.frontend.core.navigation.TopLevelDestination
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplicationAddApplicationRoute
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplicationAddLeadRoute
 import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.JobApplicationCompaniesRoute
@@ -69,8 +69,8 @@ import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_ap
 import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_applications_cd
 import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_companies
 import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_companies_cd
-import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_edits
-import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_edits_cd
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_apply
+import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_apply_cd
 import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_settings_cd
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -79,7 +79,7 @@ import org.jetbrains.compose.resources.stringResource
  * Data class carrying all UI metadata for a top-level destination.
  */
 private data class TopLevelDestinationInfo(
-    val enumValue: TopLevelDestinationEnum,
+    val enumValue: TopLevelDestination,
     val route: JobApplicationsTrackerNavKey,
     val labelRes: StringResource,
     val selectedIcon: ImageVector,
@@ -88,14 +88,14 @@ private data class TopLevelDestinationInfo(
 )
 
 /**
- * Resolves the current [TopLevelDestinationEnum] from the active destination on the back stack.
+ * Resolves the current [TopLevelDestination] from the active destination on the back stack.
  */
-private fun resolveTopLevelDestination(currentDestination: JobApplicationsTrackerNavKey?): TopLevelDestinationEnum? =
+private fun resolveTopLevelDestination(currentDestination: JobApplicationsTrackerNavKey?): TopLevelDestination? =
     when {
-        currentDestination == JobApplicationListRoute -> TopLevelDestinationEnum.Applications
-        currentDestination == JobApplicationCompaniesRoute -> TopLevelDestinationEnum.Companies
-        currentDestination == AiApplyRoute -> TopLevelDestinationEnum.Edits
-        currentDestination == JobApplicationSettingsRoute -> TopLevelDestinationEnum.Settings
+        currentDestination == JobApplicationListRoute -> TopLevelDestination.Applications
+        currentDestination == JobApplicationCompaniesRoute -> TopLevelDestination.Companies
+        currentDestination == AiApplyRoute -> TopLevelDestination.Apply
+        currentDestination == JobApplicationSettingsRoute -> TopLevelDestination.Settings
         else -> null
     }
 
@@ -153,7 +153,7 @@ public fun AppScaffold(
   val topLevelDestinations = remember {
     listOf(
       TopLevelDestinationInfo(
-        enumValue = TopLevelDestinationEnum.Applications,
+        enumValue = TopLevelDestination.Applications,
         route = JobApplicationListRoute,
         labelRes = Res.string.app_nav_applications,
         selectedIcon = Icons.Filled.Home,
@@ -161,7 +161,7 @@ public fun AppScaffold(
         contentDescriptionRes = Res.string.app_nav_applications_cd,
       ),
       TopLevelDestinationInfo(
-        enumValue = TopLevelDestinationEnum.Companies,
+        enumValue = TopLevelDestination.Companies,
         route = JobApplicationCompaniesRoute,
         labelRes = Res.string.app_nav_companies,
         selectedIcon = Icons.Filled.Business,
@@ -169,12 +169,12 @@ public fun AppScaffold(
         contentDescriptionRes = Res.string.app_nav_companies_cd,
       ),
       TopLevelDestinationInfo(
-        enumValue = TopLevelDestinationEnum.Edits,
+        enumValue = TopLevelDestination.Apply,
         route = AiApplyRoute,
-        labelRes = Res.string.app_nav_edits,
-        selectedIcon = Icons.Filled.Edit,
-        unselectedIcon = Icons.Outlined.Edit,
-        contentDescriptionRes = Res.string.app_nav_edits_cd,
+        labelRes = Res.string.app_nav_apply,
+        selectedIcon = Icons.AutoMirrored.Filled.Send,
+        unselectedIcon = Icons.AutoMirrored.Outlined.Send,
+        contentDescriptionRes = Res.string.app_nav_apply_cd,
       ),
     )
   }
