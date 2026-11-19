@@ -80,7 +80,7 @@ internal fun UpdateStatusDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ): Unit {
-    var selectedStatus by remember { mutableStateOf(currentStatus ?: TrackerStatus.APPLIED) }
+    var selectedStatus by remember { mutableStateOf(currentStatus ?: TrackerStatus.SUBMITTED) }
     var note by remember { mutableStateOf("") }
 
     val selectStatusCd: String = stringResource(Res.string.dialog_status_cd)

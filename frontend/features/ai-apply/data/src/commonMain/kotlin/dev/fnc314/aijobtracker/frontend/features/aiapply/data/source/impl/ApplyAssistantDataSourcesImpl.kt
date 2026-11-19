@@ -296,7 +296,7 @@ internal object CanonicalArtifactHelper {
             appendLine()
             if (!evaluation?.aiRationale.isNullOrBlank()) {
                 appendLine("## Calibration Rationale")
-                appendLine(evaluation!!.aiRationale)
+                appendLine(evaluation.aiRationale)
                 appendLine()
             }
             appendLine("## Strengths")

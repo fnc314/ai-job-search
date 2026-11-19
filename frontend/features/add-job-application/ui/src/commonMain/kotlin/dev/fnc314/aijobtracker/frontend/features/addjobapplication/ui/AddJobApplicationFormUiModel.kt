@@ -33,7 +33,7 @@ public data class AddJobApplicationFormUiModel(
     public val roleType: String = "",
     public val workMode: WorkMode = WorkMode.UNSPECIFIED,
     public val channel: ApplicationChannel = ApplicationChannel.UNSPECIFIED,
-    public val status: TrackerStatus = TrackerStatus.APPLIED,
+    public val status: TrackerStatus = TrackerStatus.SUBMITTED,
     public val jobUrl: String = "",
     public val jobApplicationUrl: String = "",
     public val jobId: String = "",
