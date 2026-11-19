@@ -94,7 +94,7 @@ public data class CompanyMetrics(
                 total = (countsMap?.get("total") as? Number)?.toInt() ?: 0,
                 draft = (countsMap?.get("draft") as? Number)?.toInt() ?: 0,
                 submitted = (countsMap?.get("submitted") as? Number)?.toInt() ?: 0,
-                interview = (countsMap?.get("interview") as? Number)?.toInt() ?: 0,
+                interview = ((countsMap?.get("interviewing") ?: countsMap?.get("interview")) as? Number)?.toInt() ?: 0,
                 offer = (countsMap?.get("offer") as? Number)?.toInt() ?: 0,
                 rejected = (countsMap?.get("rejected") as? Number)?.toInt() ?: 0,
             )
@@ -103,7 +103,7 @@ public data class CompanyMetrics(
             val percentages = ApplicationPercentages(
                 draft = (percMap?.get("draft") as? Number)?.toFloat() ?: 0f,
                 submitted = (percMap?.get("submitted") as? Number)?.toFloat() ?: 0f,
-                interview = (percMap?.get("interview") as? Number)?.toFloat() ?: 0f,
+                interview = ((percMap?.get("interviewing") ?: percMap?.get("interview")) as? Number)?.toFloat() ?: 0f,
                 offer = (percMap?.get("offer") as? Number)?.toFloat() ?: 0f,
                 rejected = (percMap?.get("rejected") as? Number)?.toFloat() ?: 0f,
             )

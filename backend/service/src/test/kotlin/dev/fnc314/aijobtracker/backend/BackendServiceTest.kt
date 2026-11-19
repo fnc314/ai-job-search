@@ -126,4 +126,44 @@ class BackendServiceTest {
         val salaryRange = metrics["salaryRange"] as Map<String, Any>
         assertEquals("$180k", salaryRange["display"])
     }
+
+    @Test
+    fun `test calculateMetricsForApplications maps INTERVIEW status to interviewing count`() {
+        val apps = listOf(
+            mapOf(
+                "status" to "INTERVIEW",
+                "fitRating" to 88,
+                "channel" to "REFERRAL",
+                "location" to "Remote"
+            ),
+            mapOf(
+                "status" to "INTERVIEW",
+                "fitRating" to 92,
+                "channel" to "LINKEDIN",
+                "location" to "Pittsburgh, PA"
+            ),
+            mapOf(
+                "status" to "APPLIED",
+                "fitRating" to 85,
+                "channel" to "DIRECT",
+                "location" to "Remote"
+            )
+        )
+
+        val metrics = BackendService.calculateMetricsForApplications(apps)
+
+        @Suppress("UNCHECKED_CAST")
+        val counts = metrics["counts"] as Map<String, Any>
+        assertEquals(3, counts["total"])
+        assertEquals(2, counts["interviewing"])
+        assertEquals(1, counts["submitted"])
+        assertEquals(0, counts["draft"])
+        assertEquals(0, counts["offer"])
+        assertEquals(0, counts["rejected"])
+
+        @Suppress("UNCHECKED_CAST")
+        val percentages = metrics["percentages"] as Map<String, Any>
+        assertEquals(2.0f / 3.0f, percentages["interviewing"])
+        assertEquals(1.0f / 3.0f, percentages["submitted"])
+    }
 }

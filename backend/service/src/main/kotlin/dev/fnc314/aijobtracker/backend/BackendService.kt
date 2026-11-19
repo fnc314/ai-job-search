@@ -127,7 +127,11 @@ public object BackendService {
 
         val incomingMessageId = eventPayload["emailMessageId"] as? String
 
-        return db.runTransaction<Map<String, Any?>> { transaction ->
+        // Capture companyId outside the transaction so it's available after completion
+        var companyId: String? = null
+        var statusChanged = false
+
+        val result = db.runTransaction<Map<String, Any?>> { transaction ->
             val appSnap = transaction.get(appRef).get()
             if (!appSnap.exists()) {
                 throw IllegalArgumentException("Application not found: $applicationId")
@@ -294,6 +298,18 @@ public object BackendService {
 
             transaction.set(appRef, parentUpdate, SetOptions.merge())
 
+            // Capture companyId and status change flag for post-transaction metrics update
+            if (chained.statusTo != TrackerStatus.TRACKER_STATUS_UNSPECIFIED) {
+                statusChanged = true
+                val rawCompanyId = appSnap.getString("companyId")?.takeIf { it.isNotBlank() }
+                val rawCompanyName = appSnap.getString("company")?.takeIf { it.isNotBlank() }
+                companyId = when {
+                    rawCompanyId != null -> DocumentIdGenerator.slug(rawCompanyId, fallback = rawCompanyId)
+                    rawCompanyName != null -> DocumentIdGenerator.slug(rawCompanyName, fallback = "unknown")
+                    else -> null
+                }
+            }
+
             mapOf(
                 "status" to "SUCCESS",
                 "applicationId" to applicationId,
@@ -304,6 +320,17 @@ public object BackendService {
                 "event" to eventDoc
             )
         }.get()
+
+        // Recalculate company metrics when status changes
+        if (statusChanged && !companyId.isNullOrBlank() && companyId != "unknown") {
+            try {
+                recalculateCompanyMetrics(companyId)
+            } catch (e: Exception) {
+                println("Warning: recalculateCompanyMetrics after status change: ${e.message}")
+            }
+        }
+
+        return result
     }
 
     private fun mapToTrackerEvent(id: String, data: Map<String, Any?>): TrackerEvent {

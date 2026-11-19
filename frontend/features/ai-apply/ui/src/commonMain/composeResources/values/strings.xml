@@ -1,0 +1,35 @@
+<resources>
+    <string name="apply_assistant_title">Apply Assistant</string>
+    <string name="apply_input_mode_url">Job URL</string>
+    <string name="apply_input_mode_description">Description</string>
+    <string name="apply_input_url_label">Job Posting URL (https://…)</string>
+    <string name="apply_input_url_placeholder">https://company.com/careers/role</string>
+    <string name="apply_input_description_label">Job Description (Markdown supported)</string>
+    <string name="apply_input_description_placeholder">Paste the role responsibilities, requirements, location, and compensation details…</string>
+    <string name="apply_input_company_label">Company (optional)</string>
+    <string name="apply_input_role_label">Role (optional)</string>
+    <string name="apply_action_evaluate">Evaluate Fit</string>
+    <string name="apply_action_new_session">Start New Evaluation</string>
+    <string name="apply_action_yes">Yes</string>
+    <string name="apply_action_no">No</string>
+    <string name="apply_badge_deterministic">Deterministic Baseline</string>
+    <string name="apply_badge_ai_calibrated">AI Calibrated</string>
+    <string name="apply_badge_ai_refining">Calibrating with AI…</string>
+    <string name="apply_score_label">%1$d / 100</string>
+    <string name="apply_strengths_header">Strengths</string>
+    <string name="apply_gaps_header">Gaps</string>
+    <string name="apply_deal_breakers_header">Deal-Breakers</string>
+    <string name="apply_drafting_in_progress">Drafting tailored CV &amp; cover letter…</string>
+    <string name="apply_artifacts_section_title">Generated Artifacts</string>
+    <string name="apply_artifacts_cv_title">Tailored CV</string>
+    <string name="apply_artifacts_cover_title">Tailored Cover Letter</string>
+    <string name="apply_artifacts_outcome_title">Fit Evaluation Outcome</string>
+    <string name="apply_action_review">Review</string>
+    <string name="apply_action_download">Download</string>
+    <string name="apply_action_open_application">Open Application Record</string>
+    <string name="apply_download_saved">Saved %1$s to Downloads</string>
+    <string name="apply_download_error">Unable to download %1$s</string>
+    <string name="apply_error_empty_input">Enter a valid https:// URL or paste a job description to evaluate.</string>
+    <string name="apply_welcome_title">Evaluate &amp; Apply</string>
+    <string name="apply_welcome_subtitle">Instant deterministic RankScorer fit analysis followed by asynchronous AI calibration and tailored LaTeX/PDF drafting.</string>
+</resources>

@@ -1,0 +1,17 @@
+<resources>
+    <string name="status_none">All</string>
+    <string name="status_unspecified">Unspecified</string>
+    <string name="status_lead">Lead</string>
+    <string name="status_drafting">Drafting</string>
+    <string name="status_drafted">Drafted</string>
+    <string name="status_ranked">Ranked</string>
+    <string name="status_submitted">Submitted</string>
+    <string name="status_interview">Interview</string>
+    <string name="status_offer_expected">Offer Expected</string>
+    <string name="status_hired">Hired</string>
+    <string name="status_rejected">Rejected</string>
+    <string name="status_no_response">No Response</string>
+    <string name="status_offer_declined">Offer Declined</string>
+    <string name="status_application_withdrawn">Application Withdrawn</string>
+    <string name="status_unknown">Unknown (%1$s)</string>
+</resources>
