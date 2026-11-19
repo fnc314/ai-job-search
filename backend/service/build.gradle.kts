@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.kotlinSerialization)
     application
 }
 
@@ -13,6 +14,7 @@ application {
 }
 
 dependencies {
+    implementation(projects.aiClient)
     implementation(projects.jobPostRanking)
     implementation(projects.jobPostScraping)
     implementation(projects.artifactCompilation)

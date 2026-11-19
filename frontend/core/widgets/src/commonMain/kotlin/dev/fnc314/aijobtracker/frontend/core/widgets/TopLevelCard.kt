@@ -77,6 +77,9 @@ public enum class TopLevelCardSurfaceVariant {
   Highlighted,
 }
 
+/**
+ * Resolves the optional [BorderStroke] for this [TopLevelCardSurfaceVariant].
+ */
 @Composable
 public fun TopLevelCardSurfaceVariant.border(): BorderStroke? = when (this) {
   TopLevelCardSurfaceVariant.Surface -> BorderStroke(

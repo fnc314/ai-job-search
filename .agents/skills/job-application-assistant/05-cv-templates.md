@@ -30,6 +30,7 @@ All generated CVs MUST adhere to the following stylistic rules established in th
 
 ### 2. Layout & Hierarchy
 - **Header:** Single-line centered header on the first page only, using `|` as a separator (e.g., `Phone | Email | LinkedIn | ...`).
+- **Title Banner:** Never copy a job posting title 1-to-1 into the blue role banner. Use the banner to state the role succinctly using core role wording (e.g., `SOFTWARE DEVELOPMENT ENGINEER` instead of `SOFTWARE DEVELOPMENT ENGINEER - APP PERFORMANCE, MOBILE APP FOUNDATIONS`), and weave the full posting title and team focus into the Profile Statement paragraph immediately below.
 - **Areas of Expertise:** Distributed 3-column layout (Left | Center | Right) using `\tabular*` spanning the full text width. Use `\renewcommand{\arraystretch}{1.5}` for generous vertical spacing. **NO vertical bars** in this section.
 - **Experience Items:**
   - **Line 1:** Job Title (left) and Dates (right) in `H3/H4` (Inconsolata, bold, `color1`).

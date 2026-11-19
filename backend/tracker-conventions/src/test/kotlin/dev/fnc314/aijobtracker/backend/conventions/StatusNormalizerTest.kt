@@ -12,12 +12,15 @@ class StatusNormalizerTest {
         assertEquals("INTERVIEWING", StatusNormalizer.normalizeStatus("INTERVIEWING"))
         assertEquals("HIRED", StatusNormalizer.normalizeStatus("HIRED"))
         assertEquals("REJECTED", StatusNormalizer.normalizeStatus("REJECTED"))
+        assertEquals("DRAFTING", StatusNormalizer.normalizeStatus("DRAFTING"))
+        assertEquals("RANKED", StatusNormalizer.normalizeStatus("RANKED"))
     }
 
     @Test
     fun testNormalizeStatusLegacyInput() {
         assertEquals("DRAFTED", StatusNormalizer.normalizeStatus("draft"))
-        assertEquals("DRAFTED", StatusNormalizer.normalizeStatus("drafting"))
+        assertEquals("DRAFTING", StatusNormalizer.normalizeStatus("drafting"))
+        assertEquals("RANKED", StatusNormalizer.normalizeStatus("ranked"))
         assertEquals("SUBMITTED", StatusNormalizer.normalizeStatus("applied"))
         assertEquals("RECRUITER_SCREENED", StatusNormalizer.normalizeStatus("screening"))
         assertEquals("INTERVIEWING", StatusNormalizer.normalizeStatus("interview"))

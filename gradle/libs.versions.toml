@@ -59,7 +59,7 @@
   node = "26.13.0"
   protobuf = "4.36.2"
   protobuf-gradle-plugin = "0.10.1"
-  records = "1.0.0"
+  records = "1.1.0"
 
 [libraries]
   android-gradle-plugin = { group = "com.android.tools.build", name = "gradle-api", version.ref = "agp" }

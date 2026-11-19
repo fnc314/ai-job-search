@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import dev.fnc314.aijobtracker.frontend.core.designsystem.componentSizes
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus
-import dev.fnc314.aijobtracker.frontend.core.data.model.displayName
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 
 /**
@@ -31,7 +30,7 @@ public fun StatusBadge(
     textAlign: TextAlign = TextAlign.Start,
     maxLines: Int = 1,
 ): Unit {
-    val displayName = status.displayName()
+    val displayName = status.localizedDisplayName()
     val containerColor = status.containerColor()
     val contentColor = status.contentColor()
 

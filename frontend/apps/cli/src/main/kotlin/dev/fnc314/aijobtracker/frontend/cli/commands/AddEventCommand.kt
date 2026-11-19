@@ -8,10 +8,10 @@ import com.github.ajalt.mordant.rendering.TextColors.red
 import com.github.ajalt.mordant.terminal.Terminal
 import dev.fnc314.aijobtracker.records.parser.ApplicationTimelineProjector
 import dev.fnc314.aijobtracker.records.parser.EventChainBuilder
-import dev.fnc314.aijobtracker.records.v1.EventActor
-import dev.fnc314.aijobtracker.records.v1.TrackerEvent
-import dev.fnc314.aijobtracker.records.v1.TrackerEventType
-import dev.fnc314.aijobtracker.records.v1.TrackerStatus
+import dev.fnc314.aijobtracker.records.EventActor
+import dev.fnc314.aijobtracker.records.TrackerEvent
+import dev.fnc314.aijobtracker.records.TrackerEventType
+import dev.fnc314.aijobtracker.records.TrackerStatus
 import dev.fnc314.aijobtracker.frontend.cli.db.RemoteDataSourceProvider
 import java.time.Instant
 import com.google.cloud.Timestamp

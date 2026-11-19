@@ -13,7 +13,7 @@ import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.ui.di.job
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.ui.di.jobApplicationsListFeatureModule
 import dev.fnc314.aijobtracker.frontend.features.settings.ui.di.settingsFeatureModule
 import dev.fnc314.aijobtracker.frontend.features.signin.ui.di.signInFeatureModule
-import dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.di.trackerEditsFeatureModule
+import dev.fnc314.aijobtracker.frontend.features.aiapply.ui.di.aiApplyFeatureModule
 import org.koin.core.annotation.KoinApplication
 import org.koin.core.annotation.Module
 import org.koin.core.module.Module as KoinModule
@@ -44,7 +44,7 @@ public val appModule: KoinModule = module {
     signInFeatureModule,
     settingsFeatureModule,
     addJobApplicationFeatureModule,
-    trackerEditsFeatureModule,
+    aiApplyFeatureModule,
     jobApplicationsListFeatureModule,
     jobApplicationDetailsFeatureModule,
     companiesListFeatureModule,

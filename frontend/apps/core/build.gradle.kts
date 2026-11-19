@@ -39,7 +39,7 @@ kotlin {
       implementation(projects.featuresCompanyDetailsUi)
       implementation(projects.featuresSettingsUi)
       implementation(projects.featuresAddJobApplicationUi)
-      implementation(projects.featuresTrackerEditsUi)
+      implementation(projects.featuresAiApplyUi)
       implementation(projects.featuresArtifactPreviewerUi)
 
       // Lifecycle

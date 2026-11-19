@@ -1,6 +1,7 @@
 package dev.fnc314.aijobtracker.backend
 
 import dev.fnc314.aijobtracker.backend.routes.applicationRoutes
+import dev.fnc314.aijobtracker.backend.routes.artifactRoutes
 import dev.fnc314.aijobtracker.backend.routes.compilerRoutes
 import dev.fnc314.aijobtracker.backend.routes.rankingRoutes
 import dev.fnc314.aijobtracker.backend.routes.scrapingRoutes
@@ -146,6 +147,7 @@ public fun main(args: Array<String>): Unit {
                 rankingRoutes()
                 applicationRoutes()
                 compilerRoutes()
+                artifactRoutes()
 
                 post("/applications/{id}/events") {
                 val applicationId = call.parameters["id"]

@@ -58,6 +58,8 @@ public data class JobApplicationItemUiModel(
             TrackerStatus.Known.UNSPECIFIED,
             TrackerStatus.Known.LEAD,
             TrackerStatus.Known.DRAFTING,
+            TrackerStatus.Known.DRAFTED,
+            TrackerStatus.Known.RANKED,
             -> false
             else -> true
         }

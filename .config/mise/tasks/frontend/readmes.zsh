@@ -15,6 +15,7 @@ MODULES=(
     "core/navigation"
     "core/widgets"
     "features/add-job-application"
+    "features/ai-apply"
     "features/artifact-previewer"
     "features/companies-list"
     "features/company-details"

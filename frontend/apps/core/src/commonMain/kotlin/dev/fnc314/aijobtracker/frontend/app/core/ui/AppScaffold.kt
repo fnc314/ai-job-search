@@ -62,7 +62,7 @@ import dev.fnc314.aijobtracker.frontend.features.companydetails.ui.JobApplicatio
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.ui.JobApplicationDetailRoute
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.ui.JobApplicationListRoute
 import dev.fnc314.aijobtracker.frontend.features.settings.ui.JobApplicationSettingsRoute
-import dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.JobApplicationEditsRoute
+import dev.fnc314.aijobtracker.frontend.features.aiapply.ui.AiApplyRoute
 import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.Res
 import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_action_back
 import dev.fnc314.aijobtracker.frontend.apps_core.generated.resources.app_nav_applications
@@ -94,7 +94,7 @@ private fun resolveTopLevelDestination(currentDestination: JobApplicationsTracke
     when {
         currentDestination == JobApplicationListRoute -> TopLevelDestinationEnum.Applications
         currentDestination == JobApplicationCompaniesRoute -> TopLevelDestinationEnum.Companies
-        currentDestination == JobApplicationEditsRoute -> TopLevelDestinationEnum.Edits
+        currentDestination == AiApplyRoute -> TopLevelDestinationEnum.Edits
         currentDestination == JobApplicationSettingsRoute -> TopLevelDestinationEnum.Settings
         else -> null
     }
@@ -105,7 +105,7 @@ private fun resolveTopLevelDestination(currentDestination: JobApplicationsTracke
 private fun isTopLevelDestination(key: JobApplicationsTrackerNavKey?): Boolean =
     key == JobApplicationListRoute ||
         key == JobApplicationCompaniesRoute ||
-        key == JobApplicationEditsRoute
+        key == AiApplyRoute
 
 
 /**
@@ -170,7 +170,7 @@ public fun AppScaffold(
       ),
       TopLevelDestinationInfo(
         enumValue = TopLevelDestinationEnum.Edits,
-        route = JobApplicationEditsRoute,
+        route = AiApplyRoute,
         labelRes = Res.string.app_nav_edits,
         selectedIcon = Icons.Filled.Edit,
         unselectedIcon = Icons.Outlined.Edit,

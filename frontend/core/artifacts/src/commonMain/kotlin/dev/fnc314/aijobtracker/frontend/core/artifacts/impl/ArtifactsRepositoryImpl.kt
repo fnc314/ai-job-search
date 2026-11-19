@@ -25,13 +25,15 @@ internal class ArtifactsRepositoryImpl(
 
     override suspend fun getArtifacts(applicationId: String): List<TrackerArtifact> =
         withContext(Dispatchers.Default) {
-            cache[applicationId]?.let { return@withContext it }
+            cache[applicationId]?.takeIf { it.isNotEmpty() }?.let { return@withContext it }
             val collectionPath = "applications/$applicationId/artifacts"
             val records = remoteDataSource.getCollection(collectionPath)
             val artifacts = records.map {
                 mapRecordToTrackerArtifact(it, applicationId)
             }
-            cache[applicationId] = artifacts
+            if (artifacts.isNotEmpty()) {
+                cache[applicationId] = artifacts
+            }
             artifacts
         }
 
@@ -39,6 +41,9 @@ internal class ArtifactsRepositoryImpl(
         applicationId: String,
         artifactId: String,
     ): TrackerArtifact? = withContext(Dispatchers.Default) {
+        val cachedMatch = cache[applicationId]?.find { it.id == artifactId }
+        if (cachedMatch != null) return@withContext cachedMatch
+        cache.remove(applicationId)
         getArtifacts(applicationId).find { it.id == artifactId }
     }
 

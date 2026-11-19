@@ -13,6 +13,7 @@ dependencies {
     dokka(libs.project.plugins)
 
     // Backend Subsystem
+    dokka("dev.fnc314.tools.jobtracker.backend:ai-client:1.0.0")
     dokka("dev.fnc314.tools.jobtracker.backend:service:1.0.0")
     dokka("dev.fnc314.tools.jobtracker.backend:job-post-ranking:1.0.0")
     dokka("dev.fnc314.tools.jobtracker.backend:tracker-conventions:1.0.0")
@@ -37,6 +38,9 @@ dependencies {
     dokka("dev.fnc314.aijobtracker.frontend:features-add-job-application-data:1.0.0")
     dokka("dev.fnc314.aijobtracker.frontend:features-add-job-application-domain:1.0.0")
     dokka("dev.fnc314.aijobtracker.frontend:features-add-job-application-ui:1.0.0")
+    dokka("dev.fnc314.aijobtracker.frontend:features-ai-apply-data:1.0.0")
+    dokka("dev.fnc314.aijobtracker.frontend:features-ai-apply-domain:1.0.0")
+    dokka("dev.fnc314.aijobtracker.frontend:features-ai-apply-ui:1.0.0")
     dokka("dev.fnc314.aijobtracker.frontend:features-artifact-previewer-data:1.0.0")
     dokka("dev.fnc314.aijobtracker.frontend:features-artifact-previewer-domain:1.0.0")
     dokka("dev.fnc314.aijobtracker.frontend:features-artifact-previewer-ui:1.0.0")

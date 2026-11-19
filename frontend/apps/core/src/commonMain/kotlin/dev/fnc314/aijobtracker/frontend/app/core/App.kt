@@ -58,8 +58,8 @@ import dev.fnc314.aijobtracker.frontend.features.settings.ui.SettingsEntryRegist
 import dev.fnc314.aijobtracker.frontend.features.signin.data.repository.AuthRepository
 import dev.fnc314.aijobtracker.frontend.features.signin.ui.SignInEntryRegistry
 import dev.fnc314.aijobtracker.frontend.features.signin.ui.SignInRoute
-import dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.JobApplicationEditsRoute
-import dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.TrackerEditsEntryRegistry
+import dev.fnc314.aijobtracker.frontend.features.aiapply.ui.AiApplyEntryRegistry
+import dev.fnc314.aijobtracker.frontend.features.aiapply.ui.AiApplyRoute
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
@@ -79,7 +79,7 @@ private val navigationSavedStateConfig = SavedStateConfiguration {
       subclass(JobApplicationAddApplicationRoute::class, JobApplicationAddApplicationRoute.serializer())
       subclass(JobApplicationAddLeadRoute::class, JobApplicationAddLeadRoute.serializer())
       subclass(JobApplicationSettingsRoute::class, JobApplicationSettingsRoute.serializer())
-      subclass(JobApplicationEditsRoute::class, JobApplicationEditsRoute.serializer())
+      subclass(AiApplyRoute::class, AiApplyRoute.serializer())
       subclass(ArtifactPreviewRoute::class, ArtifactPreviewRoute.serializer())
     }
   }
@@ -138,7 +138,7 @@ public fun App() {
       when (dest) {
         TopLevelDestinationEnum.Applications -> JobApplicationListRoute
         TopLevelDestinationEnum.Companies -> JobApplicationCompaniesRoute
-        TopLevelDestinationEnum.Edits -> JobApplicationEditsRoute
+        TopLevelDestinationEnum.Edits -> AiApplyRoute
         TopLevelDestinationEnum.Settings -> JobApplicationSettingsRoute
       }
     }
@@ -157,7 +157,7 @@ public fun App() {
       koinInject<CompanyDetailsEntryRegistry>(),
       koinInject<SettingsEntryRegistry>(),
       koinInject<AddJobApplicationEntryRegistry>(),
-      koinInject<TrackerEditsEntryRegistry>(),
+      koinInject<AiApplyEntryRegistry>(),
       koinInject<ArtifactPreviewerEntryRegistry>(),
     )
 

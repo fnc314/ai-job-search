@@ -55,7 +55,9 @@ public data class JobApplicationCardUiModel(
             TrackerStatus.Known.NONE,
             TrackerStatus.Known.UNSPECIFIED,
             TrackerStatus.Known.LEAD,
-            TrackerStatus.Known.DRAFTING -> false
+            TrackerStatus.Known.DRAFTING,
+            TrackerStatus.Known.DRAFTED,
+            TrackerStatus.Known.RANKED -> false
             else -> true
         }
 

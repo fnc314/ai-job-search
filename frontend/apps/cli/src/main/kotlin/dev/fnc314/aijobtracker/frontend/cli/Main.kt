@@ -6,10 +6,12 @@ import com.github.ajalt.clikt.core.subcommands
 import dev.fnc314.aijobtracker.frontend.cli.commands.AddApplicationCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.AddEventCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.AlignCommand
+import dev.fnc314.aijobtracker.frontend.cli.commands.ApplyCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.BackfillParentCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.ArtifactsCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.BulkCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.CheckCommand
+import dev.fnc314.aijobtracker.frontend.cli.commands.DeleteApplicationCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.EditCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.EmailCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.ExportCommand
@@ -40,6 +42,7 @@ internal class TrackerCommand : CliktCommand(name = "tracker") {
             ListApplicationsCommand(),
             GetApplicationCommand(),
             AddApplicationCommand(),
+            DeleteApplicationCommand(),
             EditCommand(),
             ExportCommand(),
             ImportCommand(),
@@ -52,6 +55,7 @@ internal class TrackerCommand : CliktCommand(name = "tracker") {
             AddEventCommand(),
             BackfillParentCommand(),
             AlignCommand(),
+            ApplyCommand(),
             RankCommand(),
             SalaryCommand(),
             SeedCommand(),
@@ -70,6 +74,6 @@ internal class TrackerCommand : CliktCommand(name = "tracker") {
  */
 public fun main(args: Array<String>) {
     JobSearchCli()
-        .subcommands(TrackerCommand(), ProposalCommand(), SalaryCommand(), EmailCommand(), ArtifactsCommand(), ReportCommand())
+        .subcommands(TrackerCommand(), ApplyCommand(), ProposalCommand(), SalaryCommand(), EmailCommand(), ArtifactsCommand(), ReportCommand())
         .main(args)
 }

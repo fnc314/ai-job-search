@@ -52,7 +52,10 @@ public fun JobApplicationsSummaryMenu(
             it.status == TrackerStatus.Known.OFFER_DECLINED
     }
     val draftCount = applications.count {
-        it.status == TrackerStatus.Known.DRAFTING || it.status == TrackerStatus.Known.LEAD
+        it.status == TrackerStatus.Known.DRAFTING ||
+            it.status == TrackerStatus.Known.DRAFTED ||
+            it.status == TrackerStatus.Known.RANKED ||
+            it.status == TrackerStatus.Known.LEAD
     }
 
     Column(

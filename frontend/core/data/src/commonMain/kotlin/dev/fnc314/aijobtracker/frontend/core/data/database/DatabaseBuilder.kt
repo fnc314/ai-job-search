@@ -28,6 +28,9 @@ public expect fun attachInspector(database: AppDatabase)
  */
 public fun createLocalDatabase(): AppDatabase? {
   return runCatching {
-    getDatabaseBuilder()?.build()?.also { attachInspector(it) }
+    getDatabaseBuilder()
+      ?.fallbackToDestructiveMigration(dropAllTables = true)
+      ?.build()
+      ?.also { attachInspector(it) }
   }.getOrNull()
 }

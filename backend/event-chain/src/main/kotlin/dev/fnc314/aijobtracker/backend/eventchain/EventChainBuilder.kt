@@ -1,7 +1,7 @@
 package dev.fnc314.aijobtracker.backend.eventchain
 
-import dev.fnc314.aijobtracker.records.v1.TrackerEvent
-import dev.fnc314.aijobtracker.records.v1.TrackerStatus
+import dev.fnc314.aijobtracker.records.TrackerEvent
+import dev.fnc314.aijobtracker.records.TrackerStatus
 import java.time.Instant
 
 /**

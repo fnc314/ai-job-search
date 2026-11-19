@@ -169,8 +169,16 @@ public fun ArtifactPreviewScreen(
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                     ) {
+                        val displayContent = if (
+                            filename.endsWith(".tex", ignoreCase = true) &&
+                            !content!!.trimStart().startsWith("```")
+                        ) {
+                            "```latex\n${content!!}\n```"
+                        } else {
+                            content!!
+                        }
                         Markdown(
-                            content = content!!,
+                            content = displayContent,
                             colors = markdownColor(),
                             typography = markdownTypography(
                                 h1 = MaterialTheme.typography.headlineSmall,

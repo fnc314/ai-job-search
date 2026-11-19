@@ -3,16 +3,27 @@ package dev.fnc314.aijobtracker.frontend.core.data.database
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
+import dev.fnc314.aijobtracker.frontend.core.data.database.dao.ApplyAssistantDao
 import dev.fnc314.aijobtracker.frontend.core.data.database.dao.JobApplicationDao
+import dev.fnc314.aijobtracker.frontend.core.data.database.entity.ApplyMessageEntity
+import dev.fnc314.aijobtracker.frontend.core.data.database.entity.ApplySessionEntity
 import dev.fnc314.aijobtracker.frontend.core.data.database.entity.JobApplicationEntity
 
 /**
  * Multiplatform Room 3 embedded database providing local relational caching and offline-first queries.
  *
- * Configured with [JobApplicationEntity] schema tables and registered type converters [DatabaseConverters].
+ * Configured with [JobApplicationEntity], [ApplySessionEntity], and [ApplyMessageEntity] schema
+ * tables and registered type converters [DatabaseConverters].
  * Initialized across Android, Desktop JVM, iOS, and Web via expect/actual `DatabaseBuilder`.
  */
-@Database(entities = [JobApplicationEntity::class], version = 1)
+@Database(
+    entities = [
+        JobApplicationEntity::class,
+        ApplySessionEntity::class,
+        ApplyMessageEntity::class,
+    ],
+    version = 2,
+)
 @ColumnTypeConverters(DatabaseConverters::class)
 public abstract class AppDatabase : RoomDatabase() {
 
@@ -22,4 +33,11 @@ public abstract class AppDatabase : RoomDatabase() {
      * @return The [JobApplicationDao] instance.
      */
     public abstract fun jobApplicationDao(): JobApplicationDao
+
+    /**
+     * Data Access Object exposing persistence and reactive queries for Apply Assistant sessions.
+     *
+     * @return The [ApplyAssistantDao] instance.
+     */
+    public abstract fun applyAssistantDao(): ApplyAssistantDao
 }

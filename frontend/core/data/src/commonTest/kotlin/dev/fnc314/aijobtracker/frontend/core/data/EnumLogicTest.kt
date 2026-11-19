@@ -31,6 +31,12 @@ class EnumLogicTest {
     @Test
     fun testTrackerStatus_fromFirestoreVariations() {
         assertEquals(TrackerStatus.LEAD, TrackerStatus.fromRemote("status:lead"))
+        assertEquals(TrackerStatus.DRAFTING, TrackerStatus.fromRemote("DRAFTING"))
+        assertEquals(TrackerStatus.DRAFTING, TrackerStatus.fromRemote("status:drafting"))
+        assertEquals(TrackerStatus.DRAFTED, TrackerStatus.fromRemote("DRAFTED"))
+        assertEquals(TrackerStatus.DRAFTED, TrackerStatus.fromRemote("drafted"))
+        assertEquals(TrackerStatus.RANKED, TrackerStatus.fromRemote("RANKED"))
+        assertEquals(TrackerStatus.RANKED, TrackerStatus.fromRemote("status:ranked"))
         assertEquals(TrackerStatus.SUBMITTED, TrackerStatus.fromRemote("status:applied"))
         assertEquals(TrackerStatus.SUBMITTED, TrackerStatus.fromRemote("APPLIED"))
         assertEquals(TrackerStatus.SUBMITTED, TrackerStatus.fromRemote("applied"))
@@ -58,6 +64,8 @@ class EnumLogicTest {
         // Active pipeline stages
         assertTrue(TrackerStatus.LEAD.isActive)
         assertTrue(TrackerStatus.DRAFTING.isActive)
+        assertTrue(TrackerStatus.DRAFTED.isActive)
+        assertTrue(TrackerStatus.RANKED.isActive)
         assertTrue(TrackerStatus.APPLIED.isActive)
         assertTrue(TrackerStatus.INTERVIEW.isActive)
         assertTrue(TrackerStatus.OFFER_EXPECTED.isActive)
@@ -80,6 +88,8 @@ class EnumLogicTest {
         assertFalse(TrackerStatus.APPLIED.isTerminal)
         assertFalse(TrackerStatus.INTERVIEW.isTerminal)
         assertFalse(TrackerStatus.DRAFTING.isTerminal)
+        assertFalse(TrackerStatus.DRAFTED.isTerminal)
+        assertFalse(TrackerStatus.RANKED.isTerminal)
         assertFalse(TrackerStatus.Unrecognized("custom").isTerminal)
     }
 
@@ -88,6 +98,7 @@ class EnumLogicTest {
         TrackerStatus.entries.forEach { status ->
             assertTrue(status.displayName().isNotBlank(), "DisplayName must not be blank for ${status.wireKey}")
             assertEquals(status.displayName, status.displayName())
+            assertEquals((status as TrackerStatus.Known).name, status.wireKey)
             assertEquals(status.wireKey, status.toRemote())
         }
     }

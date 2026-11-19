@@ -17,7 +17,7 @@ rules_version = '2';
 //   - role: string (optional, max 200 chars)
 //   - roleType: string (optional, max 100 chars)
 //   - channel: string (optional, max 100 chars)
-//   - statusRank: int (optional, 0..11)
+//   - statusRank: int (optional, 0..20)
 //   - isOpen: bool (optional)
 //   - contactPerson: string (optional, max 200 chars)
 //   - contactEmail: string (optional, max 200 chars)
@@ -99,6 +99,20 @@ rules_version = '2';
 //
 // Collection: emails
 // Document ID: [messageId]
+//
+// Collection: artifact_jobs
+// Document ID: [jobId]
+// Fields:
+//   - jobId: string (optional, 1..200 chars)
+//   - applicationId: string (optional, 1..200 chars)
+//   - status: string (optional, 1..50 chars)
+//   - cvArtifactId: string (optional, max 200 chars)
+//   - cvPdfUrl: string (optional, max 2000 chars)
+//   - coverLetterArtifactId: string (optional, max 200 chars)
+//   - coverLetterPdfUrl: string (optional, max 2000 chars)
+//   - error: string (optional, max 10000 chars)
+//   - createdAt: timestamp or string (optional)
+//   - updatedAt: timestamp or string (optional)
 //
 // ===============================================================
 
@@ -207,7 +221,7 @@ service cloud.firestore {
              validOptionalString(data, 'statusDate', 0, 100) &&
              validOptionalString(data, 'statusNote', 0, 10000) &&
              validOptionalBool(data, 'isOpen') &&
-             validOptionalNumber(data, 'statusRank', 0, 11) &&
+             validOptionalNumber(data, 'statusRank', 0, 20) &&
              validOptionalNumber(data, 'fitRating', 0, 100) &&
              validOptionalNumber(data, 'schemaVersion', 0, 1000) &&
              validOptionalList(data, 'tags', 100) &&
@@ -349,6 +363,19 @@ service cloud.firestore {
              validOptionalTimestampOrString(data, 'createdAt');
     }
 
+    function isValidArtifactJob(data) {
+      return validOptionalString(data, 'jobId', 1, 200) &&
+             validOptionalString(data, 'applicationId', 1, 200) &&
+             validOptionalString(data, 'status', 1, 50) &&
+             validOptionalString(data, 'cvArtifactId', 0, 200) &&
+             validOptionalString(data, 'cvPdfUrl', 0, 2000) &&
+             validOptionalString(data, 'coverLetterArtifactId', 0, 200) &&
+             validOptionalString(data, 'coverLetterPdfUrl', 0, 2000) &&
+             validOptionalString(data, 'error', 0, 10000) &&
+             validOptionalTimestampOrString(data, 'createdAt') &&
+             validOptionalTimestampOrString(data, 'updatedAt');
+    }
+
     // ===============================================================
     // Collection Match Rules
     // ===============================================================
@@ -455,6 +482,16 @@ service cloud.firestore {
                        isValidEmail(request.resource.data);
       allow update: if isCandidateUser() &&
                        isValidEmail(request.resource.data);
+      allow delete: if isCandidateUser();
+    }
+
+    // Artifact Jobs Collection (async artifact generation progress)
+    match /artifact_jobs/{jobId} {
+      allow read: if isCandidateUser();
+      allow create: if isCandidateUser() &&
+                       isValidArtifactJob(request.resource.data);
+      allow update: if isCandidateUser() &&
+                       isValidArtifactJob(request.resource.data);
       allow delete: if isCandidateUser();
     }
 

@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`152251_fix-company-metrics-defect.md`](./2026-11-19/152251_fix-company-metrics-defect.md) | Completed | Fix company metrics defect: frontend `interviewing` field name mismatch, wire metrics recalculation on status change in `appendEventTransactional()`, and backfill 111 companies |
 | [`144800_email-processing-pipeline-refinement.md`](./2026-11-19/144800_email-processing-pipeline-refinement.md) | Completed | Email processing pipeline refinements and architectural hardening: pre-strip HTML snippets, persist labels and body in inbox JSON, resilient job labels JSON schema parsing, OTP/noise filtering, and Workday sender extraction |
 | [`112121_apply-assistant-android.md`](./2026-11-18/112121_apply-assistant-android.md) | Completed | Extend `/apply` workflow to Android app: dual-tier evaluation (instant deterministic RankScorer + animated AI rank), ai/client module, repurpose Edits destination as single dedicated Apply Assistant, eliminate all FABs, clean top bar, status progression (DRAFTING -> DRAFTED -> RANKED), drop v1 proto path, and version bumps |
 | [`111300_canonical_status_unification_applied_vs_submitted.md`](./2026-11-18/111300_canonical_status_unification_applied_vs_submitted.md) | Completed | Rectify APPLIED vs SUBMITTED status discrepancy across Protobuf enums, records normalizers, frontend models, Firestore data, and UI presentation |

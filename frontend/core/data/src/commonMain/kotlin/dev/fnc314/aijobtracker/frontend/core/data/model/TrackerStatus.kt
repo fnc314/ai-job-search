@@ -3,6 +3,29 @@ package dev.fnc314.aijobtracker.frontend.core.data.model
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.Res
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_application_withdrawn
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_drafted
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_drafting
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_hired
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_interview
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_lead
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_no_response
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_none
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_offer_declined
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_offer_expected
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_ranked
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_rejected
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_submitted
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_unknown
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_unspecified
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
+
+private const val SECTION_INTERVIEW_OR_OFFER = 1
+private const val SECTION_ACTIVE_PIPELINE = 2
+private const val SECTION_SUBMITTED = 3
+private const val SECTION_CLOSED = 4
 
 /**
  * Lifecycle states of a job application tracked within the system.
@@ -16,6 +39,13 @@ public sealed interface TrackerStatus : WireContract {
     /** Returns the human-readable display label. */
     public fun displayName(): String = displayName
 
+    /** Resolves the localized user-facing label for this status from Compose resources. */
+    @Composable
+    public fun localizedDisplayName(): String = when (this) {
+        is Known -> stringResource(labelRes)
+        is Unrecognized -> stringResource(Res.string.status_unknown, wireKey)
+    }
+
     /** Returns the canonical remote document string representation. */
     public fun toRemote(): String = wireKey
 
@@ -25,7 +55,7 @@ public sealed interface TrackerStatus : WireContract {
     /** Indicates whether the application is currently active and requires ongoing monitoring or engagement. */
     public val isActive: Boolean
 
-    /** Resolves the category section group for list organization: 1=Interviewing, 2=Drafting, 3=Applied, 4=Rejected. */
+    /** Resolves the category section group for list organization: 1=Interviewing, 2=Drafting/Pre-submission, 3=Submitted, 4=Rejected. */
     public val sectionOrder: Int
 
     /** Resolves whether the card should render with subdued/disabled alpha and styling. */
@@ -46,65 +76,79 @@ public sealed interface TrackerStatus : WireContract {
      * Closed vocabulary of known application lifecycle states.
      */
     public enum class Known(
+        /** Localized string resource for displaying this status in Compose UI. */
+        public val labelRes: StringResource,
         override val displayName: String,
-        override val wireKey: String,
         override val wireTag: Int = -1,
     ) : TrackerStatus {
         /** Sentinel value representing an unfiltered filter state matching all applications. */
-        NONE(displayName = "All", wireKey = "NONE"),
+        NONE(labelRes = Res.string.status_none, displayName = "All"),
 
         /** Fallback status when the remote status string is missing or unspecified. */
-        UNSPECIFIED(displayName = "Unspecified", wireKey = "UNSPECIFIED", wireTag = 0),
+        UNSPECIFIED(labelRes = Res.string.status_unspecified, displayName = "Unspecified", wireTag = 0),
 
         /** Pre-funnel opportunity lead captured prior to active drafting. */
-        LEAD(displayName = "Lead", wireKey = "LEAD", wireTag = 10),
+        LEAD(labelRes = Res.string.status_lead, displayName = "Lead", wireTag = 10),
 
-        /** Initial opportunity drafting state prior to formal submission. */
-        DRAFTING(displayName = "Drafting", wireKey = "DRAFTING", wireTag = 1),
+        /** Async artifact generation or active drafting currently in progress. */
+        DRAFTING(labelRes = Res.string.status_drafting, displayName = "Drafting", wireTag = 11),
+
+        /** Application draft and artifacts prepared; pending formal submission. */
+        DRAFTED(labelRes = Res.string.status_drafted, displayName = "Drafted", wireTag = 12),
+
+        /** Job posting evaluated by fit scorer; awaiting decision to draft assets. */
+        RANKED(labelRes = Res.string.status_ranked, displayName = "Ranked", wireTag = 13),
 
         /** Formal application submitted to company or hiring platform. */
-        SUBMITTED(displayName = "Submitted", wireKey = "SUBMITTED", wireTag = 2),
+        SUBMITTED(labelRes = Res.string.status_submitted, displayName = "Submitted", wireTag = 2),
 
         /** Active interview process underway (screens, technical rounds, onsites). */
-        INTERVIEW(displayName = "Interview", wireKey = "INTERVIEW", wireTag = 3),
+        INTERVIEW(labelRes = Res.string.status_interview, displayName = "Interview", wireTag = 3),
 
         /** Candidate expecting or negotiating a formal compensation offer. */
-        OFFER_EXPECTED(displayName = "Offer Expected", wireKey = "OFFER_EXPECTED", wireTag = 4),
+        OFFER_EXPECTED(labelRes = Res.string.status_offer_expected, displayName = "Offer Expected", wireTag = 4),
 
         /** Candidate accepted offer and successfully completed hiring. */
-        HIRED(displayName = "Hired", wireKey = "HIRED", wireTag = 5),
+        HIRED(labelRes = Res.string.status_hired, displayName = "Hired", wireTag = 5),
 
         /** Application was rejected by employer. */
-        REJECTED(displayName = "Rejected", wireKey = "REJECTED", wireTag = 6),
+        REJECTED(labelRes = Res.string.status_rejected, displayName = "Rejected", wireTag = 6),
 
         /** Employer did not respond within standard follow-up horizon (>30 days). */
-        NO_RESPONSE(displayName = "No Response", wireKey = "NO_RESPONSE", wireTag = 7),
+        NO_RESPONSE(labelRes = Res.string.status_no_response, displayName = "No Response", wireTag = 7),
 
         /** Candidate declined an offer extended by the company. */
-        OFFER_DECLINED(displayName = "Offer Declined", wireKey = "OFFER_DECLINED", wireTag = 8),
+        OFFER_DECLINED(labelRes = Res.string.status_offer_declined, displayName = "Offer Declined", wireTag = 8),
 
         /** Candidate voluntarily withdrew application from consideration. */
-        APPLICATION_WITHDRAWN(displayName = "Application Withdrawn", wireKey = "APPLICATION_WITHDRAWN", wireTag = 9);
+        APPLICATION_WITHDRAWN(
+            labelRes = Res.string.status_application_withdrawn,
+            displayName = "Application Withdrawn",
+            wireTag = 9,
+        );
+
+        override val wireKey: String
+            get() = name
 
         override val isTerminal: Boolean
             get() = when (this) {
                 HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> true
-                NONE, UNSPECIFIED, LEAD, DRAFTING, SUBMITTED, INTERVIEW, OFFER_EXPECTED -> false
+                NONE, UNSPECIFIED, LEAD, DRAFTING, DRAFTED, RANKED, SUBMITTED, INTERVIEW, OFFER_EXPECTED -> false
             }
 
         override val isActive: Boolean
             get() = when (this) {
-                LEAD, DRAFTING, SUBMITTED, INTERVIEW, OFFER_EXPECTED -> true
+                LEAD, DRAFTING, DRAFTED, RANKED, SUBMITTED, INTERVIEW, OFFER_EXPECTED -> true
                 NONE, UNSPECIFIED, HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> false
             }
 
         override val sectionOrder: Int
             get() = when (this) {
-                INTERVIEW, OFFER_EXPECTED, HIRED -> 1
-                DRAFTING, LEAD -> 2
-                SUBMITTED -> 3
-                REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> 4
-                NONE, UNSPECIFIED -> 3
+                INTERVIEW, OFFER_EXPECTED, HIRED -> SECTION_INTERVIEW_OR_OFFER
+                LEAD, DRAFTING, DRAFTED, RANKED -> SECTION_ACTIVE_PIPELINE
+                SUBMITTED -> SECTION_SUBMITTED
+                REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> SECTION_CLOSED
+                NONE, UNSPECIFIED -> SECTION_SUBMITTED
             }
 
         override val isSubduedCard: Boolean
@@ -115,13 +159,13 @@ public sealed interface TrackerStatus : WireContract {
 
         override val isActionRequiredCard: Boolean
             get() = when (this) {
-                DRAFTING, LEAD -> true
+                LEAD, DRAFTING, DRAFTED, RANKED -> true
                 else -> false
             }
 
         @Composable
         override fun containerColor(): Color = when (this) {
-            LEAD, DRAFTING -> MaterialTheme.colorScheme.surfaceContainerLow
+            LEAD, DRAFTING, DRAFTED, RANKED -> MaterialTheme.colorScheme.surfaceContainerLow
             SUBMITTED -> MaterialTheme.colorScheme.tertiaryFixed
             INTERVIEW -> MaterialTheme.colorScheme.secondaryFixed
             OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.primaryFixed
@@ -133,7 +177,7 @@ public sealed interface TrackerStatus : WireContract {
 
         @Composable
         override fun contentColor(): Color = when (this) {
-            LEAD, DRAFTING -> MaterialTheme.colorScheme.onSurfaceVariant
+            LEAD, DRAFTING, DRAFTED, RANKED -> MaterialTheme.colorScheme.onSurfaceVariant
             SUBMITTED -> MaterialTheme.colorScheme.onTertiaryFixed
             INTERVIEW -> MaterialTheme.colorScheme.onSecondaryFixed
             OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.onPrimaryFixed
@@ -149,12 +193,12 @@ public sealed interface TrackerStatus : WireContract {
      * Preserves the verbatim incoming [wireKey] without loss of fidelity.
      */
     public data class Unrecognized(
-        override val wireKey: String
+        override val wireKey: String,
     ) : TrackerStatus {
         override val displayName: String get() = "Unknown ($wireKey)"
         override val isTerminal: Boolean get() = false
         override val isActive: Boolean get() = false
-        override val sectionOrder: Int get() = 3
+        override val sectionOrder: Int get() = SECTION_SUBMITTED
         override val isSubduedCard: Boolean get() = false
         override val isActionRequiredCard: Boolean get() = false
 
@@ -174,7 +218,9 @@ public sealed interface TrackerStatus : WireContract {
         private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
             val legacy = when (entry) {
                 Known.LEAD -> listOf("status:lead", "lead")
-                Known.DRAFTING -> listOf("status:drafting", "drafting", "draft", "drafted", "status:drafted")
+                Known.DRAFTING -> listOf("status:drafting", "drafting", "draft")
+                Known.DRAFTED -> listOf("status:drafted", "drafted")
+                Known.RANKED -> listOf("status:ranked", "ranked")
                 Known.SUBMITTED -> listOf("status:submitted", "submitted", "screening", "applied", "status:applied")
                 Known.INTERVIEW -> listOf("status:interview", "interview", "interviewing", "onsite", "recruiter_screened", "recruiter-screened", "status:recruiter-screened")
                 Known.OFFER_EXPECTED -> listOf("status:offer", "offer", "negotiating_pre_offer", "negotiating-pre-offer", "negotiating_post_offer", "negotiating-post-offer")
@@ -196,8 +242,12 @@ public sealed interface TrackerStatus : WireContract {
         public val UNSPECIFIED: TrackerStatus = Known.UNSPECIFIED
         /** Pre-funnel opportunity lead captured prior to active drafting. */
         public val LEAD: TrackerStatus = Known.LEAD
-        /** Initial opportunity drafting state prior to formal submission. */
+        /** Async artifact generation or active drafting currently in progress. */
         public val DRAFTING: TrackerStatus = Known.DRAFTING
+        /** Application draft and artifacts prepared; pending formal submission. */
+        public val DRAFTED: TrackerStatus = Known.DRAFTED
+        /** Job posting evaluated by fit scorer; awaiting decision to draft assets. */
+        public val RANKED: TrackerStatus = Known.RANKED
         /** Formal application submitted to company or hiring platform. */
         public val SUBMITTED: TrackerStatus = Known.SUBMITTED
         /** Backward-compatible alias for [SUBMITTED]. */

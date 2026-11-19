@@ -116,7 +116,7 @@ internal fun UpdateStatusDialog(
                     ) {
                         TrackerStatus.entries.filter { it != TrackerStatus.UNSPECIFIED }.forEach { status ->
                             DropdownMenuItem(
-                                text = { Text(status.displayName()) },
+                                text = { Text(status.localizedDisplayName()) },
                                 onClick = {
                                     selectedStatus = status
                                     expanded = false

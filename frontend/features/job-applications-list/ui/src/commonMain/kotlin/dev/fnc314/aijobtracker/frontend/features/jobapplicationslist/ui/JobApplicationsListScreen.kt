@@ -2,11 +2,6 @@
 
 package dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -26,24 +20,15 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +37,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -61,7 +45,6 @@ import dev.fnc314.aijobtracker.frontend.core.data.settings.AppSettings
 import dev.fnc314.aijobtracker.frontend.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.aijobtracker.frontend.core.designsystem.WindowWidthSizeClass
 import dev.fnc314.aijobtracker.frontend.core.designsystem.componentSizes
-import dev.fnc314.aijobtracker.frontend.core.designsystem.iconSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 import dev.fnc314.aijobtracker.frontend.core.widgets.EmptyStateWidget
 import dev.fnc314.aijobtracker.frontend.core.widgets.ErrorBannerWidget
@@ -75,13 +58,8 @@ import dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.ui.componen
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.ui.component.JobApplicationsSummaryMenu
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.ui.component.SortMenu
 import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.Res
-import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.list_action_add_application
-import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.list_action_add_lead
 import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.list_empty_message
 import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.list_error_prefix
-import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.list_fab_cd
-import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.list_fab_icon_cd
-import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.list_jump_to_top_cd
 import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.list_jump_to_top_tooltip
 import dev.fnc314.aijobtracker.frontend.features_job_applications_list_ui.generated.resources.list_tooltip_refresh
 import org.jetbrains.compose.resources.stringResource
@@ -237,8 +215,6 @@ internal fun JobApplicationsListContent(
   onIntent: (JobApplicationsListUiIntent) -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  var fabMenuExpanded by remember { mutableStateOf(false) }
-  val focusManager = LocalFocusManager.current
   val windowSizeClass = LocalWindowSizeClass.current
   val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
   val coroutineScope = rememberCoroutineScope()
@@ -255,14 +231,6 @@ internal fun JobApplicationsListContent(
       listState.scrollToItem(0)
     } else {
       gridState.scrollToItem(0)
-    }
-  }
-
-  // Derive whether to show the "Jump to Top" action
-  val showJumpToTop by remember {
-    derivedStateOf {
-      val firstVisible = if (isCompact) listState.firstVisibleItemIndex else gridState.firstVisibleItemIndex
-      firstVisible > 1
     }
   }
 
@@ -352,7 +320,7 @@ internal fun JobApplicationsListContent(
             start = MaterialTheme.spacing.medium,
             top = MaterialTheme.spacing.small,
             end = MaterialTheme.spacing.medium,
-            bottom = MaterialTheme.spacing.fabBottomPadding,
+            bottom = MaterialTheme.spacing.medium,
           )
 
           when (windowSizeClass.widthSizeClass) {
@@ -536,95 +504,6 @@ internal fun JobApplicationsListContent(
               }
             }
           }
-        }
-      }
-    }
-
-    // Floating Action Buttons column (Jump to Top + Add FAB)
-    val fabCd: String = stringResource(Res.string.list_fab_cd)
-    val jumpToTopCd: String = stringResource(Res.string.list_jump_to_top_cd)
-    Column(
-      modifier = Modifier
-        .align(Alignment.BottomEnd)
-        .padding(MaterialTheme.spacing.medium),
-      horizontalAlignment = Alignment.End,
-      verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
-    ) {
-      AnimatedVisibility(
-        visible = showJumpToTop,
-        enter = fadeIn() + scaleIn(),
-        exit = fadeOut() + scaleOut(),
-      ) {
-        SmallFloatingActionButton(
-          onClick = {
-            coroutineScope.launch {
-              if (isCompact) {
-                listState.animateScrollToItem(0)
-              } else {
-                gridState.animateScrollToItem(0)
-              }
-            }
-          },
-          modifier = Modifier.semantics { contentDescription = jumpToTopCd },
-          containerColor = MaterialTheme.colorScheme.secondaryContainer,
-          contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        ) {
-          Icon(
-            imageVector = Icons.Default.KeyboardArrowUp,
-            contentDescription = jumpToTopCd,
-          )
-        }
-      }
-
-      Box {
-        FloatingActionButton(
-          onClick = {
-            focusManager.clearFocus()
-            fabMenuExpanded = true
-          },
-          modifier = Modifier.semantics { contentDescription = fabCd },
-          contentColor = MaterialTheme.colorScheme.onPrimary,
-          containerColor = MaterialTheme.colorScheme.primary,
-        ) {
-          Icon(
-            imageVector = Icons.Default.Add,
-            contentDescription = stringResource(Res.string.list_fab_icon_cd),
-          )
-        }
-        DropdownMenu(
-          expanded = fabMenuExpanded,
-          onDismissRequest = { fabMenuExpanded = false },
-        ) {
-          DropdownMenuItem(
-            text = { Text(stringResource(Res.string.list_action_add_application)) },
-            leadingIcon = {
-              Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-              )
-            },
-            onClick = {
-              fabMenuExpanded = false
-              onIntent(JobApplicationsListUiIntent.ClickAddApplication)
-            },
-          )
-          DropdownMenuItem(
-            text = { Text(stringResource(Res.string.list_action_add_lead)) },
-            leadingIcon = {
-              Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-              )
-            },
-            onClick = {
-              fabMenuExpanded = false
-              onIntent(JobApplicationsListUiIntent.ClickAddLead)
-            },
-          )
         }
       }
     }

@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus
-import dev.fnc314.aijobtracker.frontend.core.data.model.displayName
 import dev.fnc314.aijobtracker.frontend.core.designsystem.iconSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationslist.domain.usecase.FilterJobApplicationsUseCase.ApplicationAge
@@ -63,9 +62,9 @@ internal fun FilterMenu(
 
     val filterLabel: String = when {
         selectedStatus != TrackerStatus.NONE && selectedAge != ApplicationAge.NONE ->
-            stringResource(Res.string.list_filter_label_status_age, selectedStatus.displayName(), selectedAge.displayName)
+            stringResource(Res.string.list_filter_label_status_age, selectedStatus.localizedDisplayName(), selectedAge.displayName)
         selectedStatus != TrackerStatus.NONE ->
-            stringResource(Res.string.list_filter_label_status, selectedStatus.displayName())
+            stringResource(Res.string.list_filter_label_status, selectedStatus.localizedDisplayName())
         selectedAge != ApplicationAge.NONE ->
             stringResource(Res.string.list_filter_label_age, selectedAge.displayName)
         else ->
@@ -167,8 +166,10 @@ internal fun FilterMenu(
             )
 
             val statuses = listOf(
+                TrackerStatus.RANKED,
                 TrackerStatus.DRAFTING,
-                TrackerStatus.APPLIED,
+                TrackerStatus.DRAFTED,
+                TrackerStatus.SUBMITTED,
                 TrackerStatus.INTERVIEW,
                 TrackerStatus.OFFER_EXPECTED,
                 TrackerStatus.HIRED,
@@ -181,7 +182,7 @@ internal fun FilterMenu(
             statuses.forEach { status ->
                 val isSelected = selectedStatus == status
                 DropdownMenuItem(
-                    text = { Text(status.displayName()) },
+                    text = { Text(status.localizedDisplayName()) },
                     trailingIcon = {
                         if (isSelected) {
                             Icon(

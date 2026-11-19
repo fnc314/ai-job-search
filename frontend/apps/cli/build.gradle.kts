@@ -25,4 +25,5 @@ dependencies {
     implementation("dev.fnc314.tools.jobtracker.backend:job-post-ranking:1.0.0")
     implementation("dev.fnc314.tools.jobtracker.backend:email-classification:1.0.0")
     implementation("dev.fnc314.tools.jobtracker.backend:service:1.0.0")
+    implementation("dev.fnc314.tools.jobtracker.backend:ai-client:1.0.0")
 }

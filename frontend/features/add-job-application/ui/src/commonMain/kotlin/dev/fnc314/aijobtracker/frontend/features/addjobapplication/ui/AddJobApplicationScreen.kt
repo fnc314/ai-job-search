@@ -328,7 +328,7 @@ private fun StatusDropdown(
         modifier = modifier.fillMaxWidth(),
     ) {
         OutlinedTextField(
-            value = selected.displayName(),
+            value = selected.localizedDisplayName(),
             onValueChange = {},
             readOnly = true,
             label = { Text(stringResource(Res.string.add_app_status_label)) },
@@ -346,7 +346,7 @@ private fun StatusDropdown(
         ) {
             TrackerStatus.entries.filter { it != TrackerStatus.UNSPECIFIED }.forEach { status ->
                 DropdownMenuItem(
-                    text = { Text(status.displayName()) },
+                    text = { Text(status.localizedDisplayName()) },
                     onClick = {
                         onSelected(status)
                         expanded = false

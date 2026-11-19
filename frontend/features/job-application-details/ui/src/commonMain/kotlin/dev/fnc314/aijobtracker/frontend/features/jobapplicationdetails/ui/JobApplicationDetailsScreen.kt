@@ -14,13 +14,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.sharp.Edit
-import androidx.compose.material.icons.sharp.Notifications
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -44,7 +37,6 @@ import dev.fnc314.aijobtracker.frontend.core.data.settings.AppSettings
 import dev.fnc314.aijobtracker.frontend.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.aijobtracker.frontend.core.designsystem.WindowWidthSizeClass
 import dev.fnc314.aijobtracker.frontend.core.designsystem.componentSizes
-import dev.fnc314.aijobtracker.frontend.core.designsystem.iconSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 import dev.fnc314.aijobtracker.frontend.core.navigation.BackHandler
 import dev.fnc314.aijobtracker.frontend.core.navigation.LocalTopBarTitleSummarySlot
@@ -59,8 +51,6 @@ import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.ui.compon
 import dev.fnc314.aijobtracker.frontend.features.jobapplicationdetails.ui.component.JobApplicationDetailsSummaryMenu
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.Res
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_action_go_back
-import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_action_record_event
-import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_action_update_status
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_applied_on
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_company_aliases
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_company_industry
@@ -68,7 +58,6 @@ import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.gene
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_company_profile_title
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_company_website
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_error_prefix
-import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_fab_cd
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_fit_rating_label
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_label_gaps
 import dev.fnc314.aijobtracker.frontend.features_job_application_details_ui.generated.resources.detail_last_updated
@@ -173,30 +162,6 @@ private fun JobApplicationDetailContent(
   modifier: Modifier = Modifier,
 ) {
   val model = state.model
-  var showStatusDialog by remember { mutableStateOf(false) }
-  var showEventDialog by remember { mutableStateOf(false) }
-  var fabMenuExpanded by remember { mutableStateOf(false) }
-
-  if (showStatusDialog) {
-    UpdateStatusDialog(
-      currentStatus = model.status,
-      onConfirm = { status, date, note ->
-        onIntent(JobApplicationDetailUiIntent.UpdateStatus(newStatus = status, date = date, note = note))
-        showStatusDialog = false
-      },
-      onDismiss = { showStatusDialog = false },
-    )
-  }
-
-  if (showEventDialog) {
-    RecordEventDialog(
-      onConfirm = { type, note, scheduledAt ->
-        onIntent(JobApplicationDetailUiIntent.RecordEvent(type = type, notes = note.orEmpty(), scheduledAt = scheduledAt))
-        showEventDialog = false
-      },
-      onDismiss = { showEventDialog = false },
-    )
-  }
 
   val windowSizeClass = LocalWindowSizeClass.current
   val isWide = windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact
@@ -248,7 +213,7 @@ private fun JobApplicationDetailContent(
               )
 
               ApplicationTimelineSection(model = model)
-              Spacer(modifier = Modifier.height(MaterialTheme.spacing.fabBottomPadding))
+              Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
             }
           }
         } else {
@@ -276,62 +241,9 @@ private fun JobApplicationDetailContent(
             )
 
             ApplicationTimelineSection(model = model)
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.fabBottomPadding))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
           }
         }
-      }
-    }
-
-    // Details Menu FAB
-    Box(
-      modifier = Modifier
-        .align(Alignment.BottomEnd)
-        .padding(MaterialTheme.spacing.medium),
-    ) {
-      FloatingActionButton(
-        onClick = { fabMenuExpanded = true },
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-      ) {
-        Icon(
-          imageVector = Icons.Default.Edit,
-          contentDescription = stringResource(Res.string.detail_fab_cd),
-        )
-      }
-      DropdownMenu(
-        expanded = fabMenuExpanded,
-        onDismissRequest = { fabMenuExpanded = false },
-      ) {
-        DropdownMenuItem(
-          text = { Text(stringResource(Res.string.detail_action_update_status)) },
-          leadingIcon = {
-            Icon(
-              imageVector = Icons.Sharp.Notifications,
-              contentDescription = null,
-              tint = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-            )
-          },
-          onClick = {
-            fabMenuExpanded = false
-            showStatusDialog = true
-          },
-        )
-        DropdownMenuItem(
-          text = { Text(stringResource(Res.string.detail_action_record_event)) },
-          leadingIcon = {
-            Icon(
-              imageVector = Icons.Sharp.Edit,
-              contentDescription = null,
-              tint = MaterialTheme.colorScheme.secondary,
-              modifier = Modifier.size(MaterialTheme.iconSizes.standard),
-            )
-          },
-          onClick = {
-            fabMenuExpanded = false
-            showEventDialog = true
-          },
-        )
       }
     }
   }

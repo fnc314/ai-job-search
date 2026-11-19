@@ -244,9 +244,9 @@ private fun EventsTimelineDescription(
         }
 
         if (event.statusFrom != null || event.statusTo != null) {
-          val transitionFrom = event.statusFrom?.displayName()
+          val transitionFrom = event.statusFrom?.localizedDisplayName()
             ?: stringResource(Res.string.timeline_transition_start)
-          val transitionTo = event.statusTo?.displayName()
+          val transitionTo = event.statusTo?.localizedDisplayName()
             ?: stringResource(Res.string.timeline_transition_current)
 
           Text(
