@@ -94,6 +94,6 @@ After `appendEventTransactional()` completes successfully and status changed, `r
 ## 5. Bookkeeping
 - [x] Plan persisted at `.agents/plans/2026-11-19/152251_fix-company-metrics-defect.md`
 - [x] Registry `README.md` row added / status synchronized
-- [ ] Craft a single commit of all changed files
-- [ ] Stage changed files and craft a commit message based on the name of this file
-- [ ] Push `git push origin main`
+- [x] Craft a single commit of all changed files
+- [x] Stage changed files and craft a commit message based on the name of this file
+- [x] Push `git push origin main`
