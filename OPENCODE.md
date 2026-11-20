@@ -2,20 +2,20 @@
 <!-- OpenCode config — imports AGENTS.md -->
 
 > **🤖 OPENCODE SYSTEM INSTRUCTION:**
-> You are operating in the `ai-job-search` workspace. **Do not invent workflows.**
-> Your single source of truth for all commands and execution logic is located in `AGENTS.md` and the `.agents/commands/` directory. 
+> You are operating in the `ai-job-tracker` workspace. **Do not invent workflows.**
+> Your single source of truth for all commands and execution logic is located in `AGENTS.md` and the `.agents/commands/` directory.
 > Whenever the user triggers a mode (setup, scrape, apply, etc.), you must strictly read and execute the instructions defined in those core files to prevent workflow drift.
 
 
 # OpenCode Quickstart Guide
 
-Welcome to the AI Job Search workspace! This repository is fully compatible with OpenCode. 
+Welcome to the AI Job Search workspace! This repository is fully compatible with OpenCode.
 To get started with your automated job search, follow these exact steps in your OpenCode chat:
 
 ### 1. Prerequisite: Install LaTeX
 If you want OpenCode to automatically generate PDF files on your local machine, you must install a LaTeX compiler first:
 - **Windows**: Install [MiKTeX](https://miktex.org/download) (ensure you select "Always install missing packages on-the-fly" during setup).
-- **Mac**: Install MacTeX (`brew install mactex`).
+- **Mac**: Install BasicTeX (`brew install --cask basictex` + `sudo tlmgr install inconsolata tex-gyre titlesec textpos enumitem ulem xltxtra`) or MacTeX.
 - **Linux**: Install TeX Live (`sudo apt-get install texlive-full`).
 
 *(Note: If you skip this, OpenCode will still generate `.tex` source files which you can manually compile online via Overleaf).*

@@ -539,7 +539,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 **Creation Date:** 2026-11-14
 
 **Completed Date:** 2026-11-15
-**Objective:** Eradicate all known public-surface tool-naming violations recorded in `docs/interface-naming-baseline.txt` by renaming them to role/capability-based terminology (`Remote`, `Local`, `Network`, `Blob`, `Email`) per `docs/interface-naming-exceptions.md` and the `AGENTS.md` rules, shrinking the baseline to zero.
+**Objective:** Eradicate all known public-surface tool-naming violations recorded in `docs/interface-naming-baseline.md` by renaming them to role/capability-based terminology (`Remote`, `Local`, `Network`, `Blob`, `Email`) per `docs/interface-naming-exceptions.md` and the `AGENTS.md` rules, shrinking the baseline to zero.
 
 **Scope:**
 
@@ -552,7 +552,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
   - Rename `backend/service` public symbols (e.g. `ComposioWebhookRoute` / `firestore`).
   - Rename Python deployable modules/functions in `scripts/`: `scripts/contract.py` (`to_remote`/`from_remote`), `gmail_fetch.py` -> `email_fetch.py`, GCS scripts (`migrate_gcs.py`, `purge_gcs_legacy.py`, `relocate_gcs_*.py`) -> `blob_*`, and Firestore scripts (`backup_firestore.py`, `restore_firestore.py`, etc.) -> `remote_*`.
   - Update any skill/command documentation naming (`gmail-sync.md` -> `email-sync.md`).
-  - Prune resolved entries from `docs/interface-naming-baseline.txt` until empty.
+  - Prune resolved entries from `docs/interface-naming-baseline.md` until empty.
 - Out of Scope:
   - Generic terms (e.g., `sheet` / spreadsheet), which are explicitly allowed.
   - Allowed exceptions documented in `docs/interface-naming-exceptions.md` (e.g., `KmpInspector`, direct `koin` calls, external-contract payload keys).
@@ -565,7 +565,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 - [x] `JPypeBridge` is refactored to `PythonBridge` with `toRemote()` / `fromRemote()`.
 - [x] CLI/Terminal/Backend classes no longer expose tool names (`FirestoreProvider` -> `RemoteDataSourceProvider`, etc.).
 - [x] `scripts/` deployable modules no longer contain tool-named filenames or public functions.
-- [x] `docs/interface-naming-baseline.txt` contains zero entries (or only permanent external contract exceptions).
+- [x] `docs/interface-naming-baseline.md` contains zero entries (or only permanent external contract exceptions).
 - [x] `mise run dev:guards` passes with the reduced/empty baseline.
 - [x] `mise run dev:konsist` and `mise run frontend:detekt` pass with zero violations.
 
@@ -584,7 +584,7 @@ This file tracks outstanding work for the AI job search repository. Each entry i
 
 | Date       | Change            | Details                              |
 |------------|-------------------|--------------------------------------|
-| 2026-11-15 | Completed         | Eradicated all 51 baseline entries across Kotlin and Python codebases: migrated 11 Kotlin enums to `toRemote()`/`fromRemote()`, renamed `createRoomDatabase` to `createLocalDatabase`, `FirestoreProvider` to `RemoteDataSourceProvider`, `BackendService.firestore` to `remoteDatabase`, `ComposioWebhookRoute` to `EmailWebhookRoute`, `FirebaseDependenciesConventionPlugin` to `RemoteDependenciesConventionPlugin`, `JPypeBridge` to `PythonBridge`, and renamed Python scripts/functions (`email_fetch`, `blob_*`, `remote_*`). Shrunk `docs/interface-naming-baseline.txt` to zero violations. |
+| 2026-11-15 | Completed         | Eradicated all 51 baseline entries across Kotlin and Python codebases: migrated 11 Kotlin enums to `toRemote()`/`fromRemote()`, renamed `createRoomDatabase` to `createLocalDatabase`, `FirestoreProvider` to `RemoteDataSourceProvider`, `BackendService.firestore` to `remoteDatabase`, `ComposioWebhookRoute` to `EmailWebhookRoute`, `FirebaseDependenciesConventionPlugin` to `RemoteDependenciesConventionPlugin`, `JPypeBridge` to `PythonBridge`, and renamed Python scripts/functions (`email_fetch`, `blob_*`, `remote_*`). Shrunk `docs/interface-naming-baseline.md` to zero violations. |
 | 2026-11-14 | Item created      | Initial entry                        |
 
 ---

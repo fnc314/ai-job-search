@@ -9,7 +9,7 @@ To get started with your automated job search, follow these exact steps in your 
 ### 1. Prerequisite: Install LaTeX
 If you want Codex to automatically generate PDF files on your local machine, you must install a LaTeX compiler first:
 - **Windows**: Install [MiKTeX](https://miktex.org/download) (ensure you select "Always install missing packages on-the-fly" during setup).
-- **Mac**: Install MacTeX (`brew install mactex`).
+- **Mac**: Install BasicTeX (`brew install --cask basictex` + `sudo tlmgr install inconsolata tex-gyre titlesec textpos enumitem ulem xltxtra`) or MacTeX.
 - **Linux**: Install TeX Live (`sudo apt-get install texlive-full`).
 
 *(Note: If you skip this, Codex will still generate `.tex` source files which you can manually compile online via Overleaf).*

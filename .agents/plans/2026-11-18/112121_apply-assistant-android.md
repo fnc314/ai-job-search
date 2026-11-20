@@ -1,12 +1,12 @@
 # Implementation Plan: Apply Assistant Android (Dual-Rank, CLI-Aligned, Edits Destination Replacement & Zero FAB)
 
-**Status:** Completed  
-**Date:** 2026-11-18  
-**Target:** `frontend`, `backend`, and `records` (cross-subsystem)  
-**Harness:** Antigravity  
-**Model:** gemini-2.5-pro  
-**Evaluates:** [`apply-assistant-android.md`](../../.junie/plans/apply-assistant-android.md), [`session-261118-102429-10p9`](/Users/fnc314/.junie/sessions/session-261118-102429-10p9/transcript.md)  
-**Schema Authority:** [`tracker.schema.json`](../tracker.schema.json)  
+**Status:** Completed
+**Date:** 2026-11-18
+**Target:** `frontend`, `backend`, and `records` (cross-subsystem)
+**Harness:** Antigravity
+**Model:** gemini-2.5-pro
+**Evaluates:** [`apply-assistant-android.md`](../../.junie/plans/apply-assistant-android.md), [`session-261118-102429-10p9`](/Users/fnc314/.junie/sessions/session-261118-102429-10p9/transcript.md)
+**Schema Authority:** [`tracker.schema.json`](../tracker.schema.json)
 
 ---
 
@@ -70,7 +70,7 @@ Per repository rule and `SingleAbstractMethodArchitectureTest.kt`:
 - All callers must invoke instances directly via `invoke` operator syntax (`evaluateJobUseCase(input)`).
 
 ### Invariant 2: Interface-First Naming & `ai/client` Module
-Per repository rule and `docs/interface-naming-baseline.txt`:
+Per repository rule and `../../../docs/interface-naming-baseline.md`:
 - All public interfaces must use abstraction vocabulary:
   - `NetworkApplyAssistantDataSource` (raw HTTP to backend Ktor)
   - `RemoteApplyAssistantDataSource` (Firestore listener and mutations)

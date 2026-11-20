@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/fnc314/ai-job-search/job_search_tracker.schema.json",
+  "$id": "https://github.com/fnc314/ai-job-tracker/job_search_tracker.schema.json",
   "title": "Job Search Tracker Row",
   "description": "Canonical contract for one row of job_search_tracker.csv. The CSV is the source of truth; this schema is enforced by scripts/export_tracker_json.py before any export, and defines the Firestore document shape. Strings are never null in the CSV (empty cell = absent), and become JSON null in the export.",
   "x-csv-header": [

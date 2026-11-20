@@ -159,7 +159,7 @@ If you prefer a package manager, `winget install Oven-sh.Bun` also works on Wind
 Install a LaTeX distribution to compile the generated `.tex` files to PDF:
 
 - **Windows:** [MiKTeX](https://miktex.org/download)
-- **macOS:** [MacTeX](https://tug.org/mactex/)
+- **macOS:** [BasicTeX](https://www.tug.org/mactex/morepackages.html) (`brew install --cask basictex` — recommended ~400MB) or full [MacTeX](https://tug.org/mactex/) (~10GB)
 - **Linux:** `sudo apt install texlive-full` or `sudo dnf install texlive-scheme-full`
 
 The CV compiles with `lualatex` (pdflatex often fails on modern MiKTeX installs with `fontawesome5` font-expansion errors). The cover letter compiles with `xelatex` because `cover.cls` requires `fontspec` for its custom Lato/Raleway fonts.
@@ -168,7 +168,14 @@ The CV compiles with `lualatex` (pdflatex often fails on modern MiKTeX installs 
 
 Full TeX distributions work out of the box, but minimal distributions need a few extra packages before the stock templates compile.
 
-On macOS, a user-level TinyTeX install avoids a system-wide installer and does not require `sudo`:
+```bash
+# Recommended lightweight setup on macOS via Homebrew:
+brew install --cask basictex
+sudo tlmgr update --self
+sudo tlmgr install inconsolata tex-gyre titlesec textpos enumitem ulem xltxtra
+```
+
+Alternatively, on macOS a user-level TinyTeX install avoids a system-wide installer and does not require `sudo`:
 
 ```bash
 curl -fsSL https://yihui.org/tinytex/install-bin-unix.sh -o /tmp/tinytex-install-bin-unix.sh

@@ -86,7 +86,7 @@ All technical architecture, design, and migration plans for `frontend` must adhe
 - **Date Subdirectory & 24-Hour Timestamp Filename**: Plans must **NEVER** be stored as flat files. Each plan must be placed in a `YYYY-MM-DD/` folder based on its creation date and prefixed with a 24-hour clock timestamp: `HHMMSS_<plan-name>.md` (using `00`-`23` for `HH`).
 - **Registry Synchronization**: Upon creating or updating any plan, the agent must immediately update `frontend/.agents/plans/README.md` with the link (`./YYYY-MM-DD/HHMMSS_<plan-name>.md`), status, and scope description.
 - **Mandatory Opening Frontmatter**: Every plan must start from the canonical template [`.agents/plans/TEMPLATE.md`](../../.agents/plans/TEMPLATE.md): an H1 `# <Type> Plan: <Title>`, then `**Status:**`, `**Date:**`, `**Target:**` (plus optional `Evaluates` / `Schema Authority` / `Depends On` / `Supersedes`), then `---`. No YAML `sessionId` blocks.
-- **Repository Root Execution**: Always execute `git` and `mise` commands from the repository root (`/Users/fnc314/Work/Search/ai-job-search`) so pre-commit hooks and `mise.toml` task sources resolve properly.
+- **Repository Root Execution**: Always execute `git` and `mise` commands from the repository root (`/Users/fnc314/Work/Search/ai-job-tracker`) so pre-commit hooks and `mise.toml` task sources resolve properly.
 
 ### Rule 7: Zero-Warning Compilation & Clean Build Logs
 - Build logs must remain clean of compiler warnings and deprecations.
@@ -101,7 +101,7 @@ All technical architecture, design, and migration plans for `frontend` must adhe
 - **Canonical Company Slugs**: Always derive `companyId` via `DocumentIdGenerator.slug()` (or `canonicalCompanySlug` in KMP `commonMain`) so employer variants (`"Meta Platforms"` vs `"Meta"`, `"Ford Motor Company"` vs `"Ford"`) never create duplicate company cards.
 
 ### Rule 9: Interface-First Naming (MANDATORY)
-Every `public` declaration (explicit API mode makes this exact) is named for its role, never its tool. Data sources are `Remote*` / `Network*` / `Local*` (Firestore → Remote, raw HTTP → Network, Room/filesystem → Local); enum persistence conversion is `toRemote()` / `fromRemote()`. Tool names (Firestore, Firebase, GCS, Gmail, Room, Ktor, Kermit, JPype) are allowed only in `internal`/`private` code or `impl/` packages, plus `KmpInspector` and direct `koin` calls. Existing violations are baselined in `docs/interface-naming-baseline.txt` (shrink only) and enforced by `KonsistArchitectureTest`, Detekt `ForbiddenClassName`, and `mise run dev:guards`. See the root `AGENTS.md` and `docs/interface-naming-exceptions.md`.
+Every `public` declaration (explicit API mode makes this exact) is named for its role, never its tool. Data sources are `Remote*` / `Network*` / `Local*` (Firestore → Remote, raw HTTP → Network, Room/filesystem → Local); enum persistence conversion is `toRemote()` / `fromRemote()`. Tool names (Firestore, Firebase, GCS, Gmail, Room, Ktor, Kermit, JPype) are allowed only in `internal`/`private` code or `impl/` packages, plus `KmpInspector` and direct `koin` calls. Existing violations are baselined in `../docs/interface-naming-baseline.md` (shrink only) and enforced by `KonsistArchitectureTest`, Detekt `ForbiddenClassName`, and `mise run dev:guards`. See the root `AGENTS.md` and `docs/interface-naming-exceptions.md`.
 
 ---
 

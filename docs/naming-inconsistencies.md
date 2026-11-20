@@ -8,10 +8,10 @@ This document tracks identified naming, branding, and structural inconsistencies
 
 | Artifact / Context | Current Name / Value | Inconsistency | Recommended v2.0.0 Target |
 | :--- | :--- | :--- | :--- |
-| **GitHub Repository** | `ai-job-search` | Repository is named `ai-job-search`, but user-facing product & dashboard brand as "Job Application Tracker" / `ai-job-tracker`. | Standardize repository and documentation references to `ai-job-tracker` (or establish clear hierarchy: `ai-job-tracker` application within `ai-job-search` platform). |
-| **Custom Domain** | `https://ai-job-tracker.fnc314.dev` | Subdomain uses `ai-job-tracker`, diverging from repo slug `ai-job-search`. | Keep `ai-job-tracker.fnc314.dev` as primary public domain; align repo docs and header titles. |
-| **Root Settings / Project Name** | `rootProject.name = "FNC314JobSearchTracker"` in `frontend/settings.gradle.kts` | PascalCase legacy name required by Compose Multiplatform resource code generator (`fnc314jobsearchtracker.*`). | Migrate generated resource namespace cleanly to `dev.fnc314.tools.jobtracker.frontend.resources` or `aijobtracker` once CMP allows custom resource package configuration. |
-| **CLI & Tools Brand** | Mixed references: `job-tracker`, `ai-job-search`, `jobsearch` | `mise run tracker` vs repo name `ai-job-search` vs internal packages. | Adopt unified product namespace `job-tracker` across all CLI interfaces. |
+| **GitHub Repository** | `ai-job-tracker` | Repository is named `ai-job-tracker`, but user-facing product & dashboard brand as "Job Application Tracker" / `ai-job-tracker`. | Standardize repository and documentation references to `ai-job-tracker` (or establish clear hierarchy: `ai-job-tracker` application within `ai-job-tracker` platform). |
+| **Custom Domain** | `https://ai-job-tracker.fnc314.dev` | Subdomain uses `ai-job-tracker`, diverging from repo slug `ai-job-tracker`. | Keep `ai-job-tracker.fnc314.dev` as primary public domain; align repo docs and header titles. |
+| **Root Settings / Project Name** | `rootProject.name = "ai-job-tracker_frontend"` in `frontend/settings.gradle.kts` | PascalCase legacy name required by Compose Multiplatform resource code generator (`fnc314jobsearchtracker.*`). | Migrate generated resource namespace cleanly to `dev.fnc314.tools.jobtracker.frontend.resources` or `aijobtracker` once CMP allows custom resource package configuration. |
+| **CLI & Tools Brand** | Mixed references: `job-tracker`, `ai-job-tracker`, `jobsearch` | `mise run tracker` vs repo name `ai-job-tracker` vs internal packages. | Adopt unified product namespace `job-tracker` across all CLI interfaces. |
 
 ---
 

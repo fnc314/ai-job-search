@@ -1,9 +1,9 @@
 # Implementation Plan: Eradicate Interface Naming Baseline Violations (RM-012)
 
-**Status:** Completed  
-**Date:** 2026-11-15  
-**Target:** repository-wide  
-**Depends On:** [`022100_interface-first-naming-policy.md`](./2026-11-14/022100_interface-first-naming-policy.md)  
+**Status:** Completed
+**Date:** 2026-11-15
+**Target:** repository-wide
+**Depends On:** [`022100_interface-first-naming-policy.md`](./2026-11-14/022100_interface-first-naming-policy.md)
 
 ---
 
@@ -11,7 +11,7 @@
 
 This plan executed **[RM-012] ("Eradicate Interface Naming Baseline Violations")**, systematically renaming all 51 legacy tool-named symbols and file paths across Kotlin and Python codebases to role/capability-based terminology (`Remote`, `Local`, `Network`, `Blob`, `Email`) per the `AGENTS.md` interface-first naming policy.
 
-All violations recorded in `docs/interface-naming-baseline.txt` have been eradicated without any deprecation baggage, shrinking the baseline to zero entries.
+All violations recorded in `../../../docs/interface-naming-baseline.md` have been eradicated without any deprecation baggage, shrinking the baseline to zero entries.
 
 ## 2. Changes Implemented
 
@@ -51,7 +51,7 @@ All violations recorded in `docs/interface-naming-baseline.txt` have been eradic
 - Updated referencing mise tasks in `.config/mise/tasks/admin/`, `.config/mise/tasks/artifacts/`, and `.config/mise/tasks/email/`.
 
 ### 6. Baseline & Roadmap
-- Regenerated `docs/interface-naming-baseline.txt` with zero entries.
+- Regenerated `../../../docs/interface-naming-baseline.md` with zero entries.
 - Marked `RM-012` as `DONE (100%)` in `ROADMAP.md`.
 
 ## 3. Verification

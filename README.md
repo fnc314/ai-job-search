@@ -189,7 +189,7 @@ mise run dev:guards                 # Verify supply-chain permissions and naming
 1. **AI Assistant CLI**: [Claude Code](https://claude.ai/code), [Gemini CLI / Antigravity](https://github.com/google-gemini), [OpenCode](https://opencode.dev), or Codex.
 2. **Task Runner**: [mise](https://mise.jdx.dev/) (`brew install mise` or `curl https://mise.run | sh`).
 3. **Runtimes**: JDK 17+ (JDK 21 recommended), Python 3.10+, [Bun](https://bun.sh).
-4. **Document Compilers**: `lualatex` (for CV) and `xelatex` (for Cover Letter) via MacTeX, TeX Live, or MiKTeX; `pdftotext` (`brew install poppler`).
+4. **Document Compilers**: `lualatex` or `pdflatex` (for CV) and `xelatex` (for Cover Letter) via BasicTeX (`brew install --cask basictex` — recommended lightweight option), MacTeX, TeX Live, or MiKTeX; `pdftotext` (`brew install poppler`).
 
 ### Setup
 

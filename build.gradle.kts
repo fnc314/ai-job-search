@@ -2,12 +2,11 @@ plugins {
     alias(libs.plugins.dokka)
 }
 
-// Root build file for ai-job-search composite monorepo
+// Root build file for ai-job-tracker composite monorepo
 
 dependencies {
     // Records Subsystem
-    dokka(libs.records.parser)
-    dokka(libs.records.proto)
+    dokka(libs.bundles.dev.fnc314.aijobtracker.records)
 
     // Tools & Project Plugins
     dokka(libs.project.plugins)

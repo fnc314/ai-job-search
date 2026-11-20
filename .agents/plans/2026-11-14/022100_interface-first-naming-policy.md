@@ -1,11 +1,11 @@
 # Implementation Plan: Interface-First Naming Policy
 
-**Status:** Completed  
-**Date:** 2026-11-14  
-**Target:** repository-wide  
-**Harness:** Antigravity  
-**Model:** Claude Sonnet 5.5 (Low)  
-**Session:** 8d551734-c2d7-4cc1-9332-9920dc74c273  
+**Status:** Completed
+**Date:** 2026-11-14
+**Target:** repository-wide
+**Harness:** Antigravity
+**Model:** Claude Sonnet 5.5 (Low)
+**Session:** 8d551734-c2d7-4cc1-9332-9920dc74c273
 
 ---
 
@@ -13,7 +13,7 @@
 Public surfaces are named for the interface (Remote / Local / Network / Blob / Email), never the tool. "Public" means *deployable*: anything that does work could ship to GCP. `sheet` is generic and allowed; `gmail` is being eradicated. Conversion pair: `toRemote()` / `fromRemote()`. Exemptions: KmpInspector, direct `koin` calls, `impl/`/internal adapters, external-contract identifiers.
 
 ## 2. Architecture & Design Principles
-Forward-only enforcement with a shrink-only baseline ([`docs/interface-naming-baseline.txt`](../../../docs/interface-naming-baseline.txt)); existing violations are documented in [`docs/interface-naming-exceptions.md`](../../../docs/interface-naming-exceptions.md) and renamed in a follow-up plan.
+Forward-only enforcement with a shrink-only baseline ([`../../../docs/interface-naming-baseline.md`](../../../docs/interface-naming-baseline.md)); existing violations are documented in [`docs/interface-naming-exceptions.md`](../../../docs/interface-naming-exceptions.md) and renamed in a follow-up plan.
 
 ## 3. Proposed Changes & Implementation Steps
 - Policy: root `AGENTS.md`, `frontend/AGENTS.md` Rule 9, `records/AGENTS.md` Rule 4.

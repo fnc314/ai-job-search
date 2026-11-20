@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/fnc314/ai-job-search/tracker.schema.json",
+  "$id": "https://github.com/fnc314/ai-job-tracker/tracker.schema.json",
   "title": "Job Search Tracker",
   "description": "Single contract for every document in the tracker store. Validates the JSON boundary (what scripts/tracker.py reads and writes); Firestore Timestamps are produced from these ISO strings on write. The enum registry lives ONLY in $defs so it cannot drift from the fields it constrains.",
   "schemaVersion": 13,

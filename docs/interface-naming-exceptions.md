@@ -6,7 +6,7 @@ does work (calls tools, reads/writes storage, produces artifacts) could be packa
 Thin convenience wrappers are out of scope. `sheet` is a generic term and is allowed.
 
 Enforcement: Konsist (`KonsistArchitectureTest`), Detekt `ForbiddenClassName`, and `mise run dev:guards`
-(Kotlin + Python). All three honor [`interface-naming-baseline.txt`](./interface-naming-baseline.txt), which may only shrink.
+(Kotlin + Python). All three honor [`interface-naming-baseline.md`](interface-naming-baseline.md), which may only shrink.
 
 ## Documented exceptions
 | Exception | Reason |
