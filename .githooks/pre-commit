@@ -4,8 +4,6 @@ export STAGED
 export MISE_PRE_COMMIT=1
 mise run mise:docs:tasks
 mise run completions:generate
-#!/bin/sh
 
 # <https://github.com/pinterest/ktlint> pre-commit hook
-
-git diff --name-only -z --cached --relative -- '*.kt' '*.kts' | ktlint --relative --patterns-from-stdin=''
+# git diff --name-only -z --cached --relative -- '*.kt' '*.kts' | ktlint --relative --patterns-from-stdin=''

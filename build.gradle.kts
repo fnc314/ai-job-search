@@ -12,13 +12,13 @@ dependencies {
     dokka(libs.project.plugins)
 
     // Backend Subsystem
-    dokka("dev.fnc314.tools.jobtracker.backend:ai-client:1.0.0")
-    dokka("dev.fnc314.tools.jobtracker.backend:service:1.0.0")
-    dokka("dev.fnc314.tools.jobtracker.backend:job-post-ranking:1.0.0")
-    dokka("dev.fnc314.tools.jobtracker.backend:tracker-conventions:1.0.0")
-    dokka("dev.fnc314.tools.jobtracker.backend:email-classification:1.0.0")
-    dokka("dev.fnc314.tools.jobtracker.backend:company-metadata-enrichment:1.0.0")
-    dokka("dev.fnc314.tools.jobtracker.backend:event-chain:1.0.0")
+    dokka("dev.fnc314.aijobtracker.backend:ai-client:1.0.0")
+    dokka("dev.fnc314.aijobtracker.backend:service:1.0.0")
+    dokka("dev.fnc314.aijobtracker.backend:job-post-ranking:1.0.0")
+    dokka("dev.fnc314.aijobtracker.backend:tracker-conventions:1.0.0")
+    dokka("dev.fnc314.aijobtracker.backend:email-classification:1.0.0")
+    dokka("dev.fnc314.aijobtracker.backend:company-metadata-enrichment:1.0.0")
+    dokka("dev.fnc314.aijobtracker.backend:event-chain:1.0.0")
 
     // Frontend Subsystem
     dokka("dev.fnc314.aijobtracker.frontend:apps-core:1.0.0")
@@ -66,7 +66,7 @@ dependencies {
     dokka("dev.fnc314.aijobtracker.frontend:features-tracker-edits-ui:1.0.0")
 
     // Internal Subsystem
-    dokka("dev.fnc314.tools.jobtracker.internal:apps-terminal-roadmap:1.0.0")
+    dokka("dev.fnc314.aijobtracker.internal:apps-terminal-roadmap:1.0.0")
 }
 
 dokka {

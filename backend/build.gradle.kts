@@ -5,7 +5,7 @@ plugins {
 }
 
 subprojects {
-    group = "dev.fnc314.tools.jobtracker.backend"
+    group = "dev.fnc314.aijobtracker.backend"
     version = "1.0.0"
 
     apply(plugin = "dev.fnc314.aijobtracker.dokka")

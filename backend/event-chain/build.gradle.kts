@@ -35,7 +35,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
-            groupId = "dev.fnc314.tools.jobtracker.backend"
+            groupId = "dev.fnc314.aijobtracker.backend"
             artifactId = "event-chain"
             version = "1.0.0"
         }
