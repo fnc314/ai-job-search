@@ -322,7 +322,11 @@ internal class EmailCollectCommand : CliktCommand(name = "collect") {
             } else {
                 val map = mutableMapOf<String, Any?>()
                 obj.forEach { (k, v) ->
-                    map[k] = v.jsonPrimitive.contentOrNull
+                    map[k] = when (v) {
+                        is JsonPrimitive -> v.contentOrNull
+                        is JsonArray -> v.mapNotNull { it.jsonPrimitive.contentOrNull }
+                        else -> v.toString()
+                    }
                 }
                 newMessages.add(map)
             }
@@ -368,7 +372,7 @@ internal class EmailCollectCommand : CliktCommand(name = "collect") {
                 val app = applications[appId] ?: emptyMap()
                 val currentStatus = app["status"]?.toString() ?: "UNKNOWN"
 
-                val classified = EmailClassifier.classify(subject, snippet)
+                val classified = EmailClassifier.classify(subject, msg["body"]?.toString() ?: snippet)
                 val eventType = classified?.eventType ?: "RECEIVED"
                 val statusTo = classified?.statusTo
                 val confidence = classified?.confidence ?: "LOW_CONFIDENCE"

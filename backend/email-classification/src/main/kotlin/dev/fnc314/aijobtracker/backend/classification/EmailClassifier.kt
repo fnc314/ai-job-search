@@ -139,7 +139,7 @@ public object EmailClassifier {
                 "not moving forward",
                 "regret to inform",
                 "no longer under consideration",
-                "\\bnot selected\\b",
+                "(?<!if you['’]re )(?<!if you are )\\bnot selected\\b",
                 "won't be moving forward",
                 "will not be moving forward",
                 "decided to (?:move forward|proceed) with other",

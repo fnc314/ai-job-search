@@ -24,6 +24,17 @@ class EmailClassifierTest {
     }
 
     @Test
+    fun testClassifyConfirmationWithConditionalNotSelectedDoesNotReject() {
+        val result = EmailClassifier.classify(
+            "Application Confirmation: Staff Software Engineer at Owner.com",
+            "Thank you for your interest in Owner.com! We received your application for the Staff Software Engineer opening. If you're not selected for this opening, keep an eye on our jobs page."
+        )
+        assertNotNull(result)
+        assertEquals("ACKNOWLEDGE", result.eventType)
+        assertNull(result.statusTo)
+    }
+
+    @Test
     fun testClassifyRejectionTakesPrecedence() {
         // A rejection that also says "thank you for applying" should be REJECT
         val result = EmailClassifier.classify(
