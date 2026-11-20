@@ -9,6 +9,7 @@ The `records` subsystem serves as the strongly-typed contract and schema foundat
 
 ## Architectural Principles
 
-1. **Schema Authority**: The canonical contract mirrors `tracker.schema.json`.
-2. **Interface-First Naming**: Public surfaces are named for their roles and capabilities (`toRemote()`, `fromRemote()`, `RemoteSync`), strictly avoiding underlying tool names.
-3. **Zero Android Dependencies**: Records modules target pure JVM/Kotlin Multiplatform for broad cross-subsystem consumption.
+1. **Schema Authority**: The canonical contract mirrors `tracker.schema.json` and [`JOB-APPLICATION-STATES.md`](../JOB-APPLICATION-STATES.md).
+2. **Canonical State Progression & Gate 0**: All models adhere to the unidirectional lifecycle: `UNSPECIFIED` $\rightarrow$ `RANKED` $\rightarrow$ `DRAFTING` $\rightarrow$ `DRAFTED` $\rightarrow$ `SUBMITTED`. Ingestion is gated by `PostingSimilarity` pre-deduplication, and unmapped status strings default to `TRACKER_STATUS_UNSPECIFIED`.
+3. **Interface-First Naming**: Public surfaces are named for their roles and capabilities (`toRemote()`, `fromRemote()`, `RemoteSync`), strictly avoiding underlying tool names.
+4. **Zero Android Dependencies**: Records modules target pure JVM/Kotlin Multiplatform for broad cross-subsystem consumption.

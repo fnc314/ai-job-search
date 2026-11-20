@@ -14,6 +14,7 @@ Manage job applications — evaluate fit, draft artifacts, and transition status
 - **`--role <role>`** — Target role title override
 - **`--ai-rank`** — Run Tier 2 AI semantic calibration (default: enabled)
 - **`--draft-assets`** — Generate tailored CV and cover letter sources
-- **`--submitted`** — Mark application as SUBMITTED
+- **`--submitted`** — Mark application as SUBMITTED (explicit confirmation only; not combinable with --draft-assets)
+- **`--resolve <resolution>`** — Resolve a Gate 0 duplicate collision: merge | new | skip
 - **`--persist`** — Persist status transitions to Firestore
 - **`--output-dir <dir>`** — Root directory for generated artifacts

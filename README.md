@@ -29,7 +29,7 @@ Simultaneously, this repository doubles as an **enterprise flagship portfolio** 
 
 ## System Overview & Unified Agent Flow
 
-Whether you drive your search via **Claude Code**, **Google Gemini / Antigravity**, **OpenCode**, or **Codex**, the system standardizes agent capabilities through the **Universal Agent Pattern** (`.agents/`).
+Whether you drive your search via **Claude Code**, **Google Gemini / Antigravity**, **OpenCode**, or **Codex**, the system standardizes agent capabilities through the **Universal Agent Pattern** (`.agents/`). For detailed state definitions, Gate 0 deduplication, and transition requirements, see [`JOB-APPLICATION-STATES.md`](./JOB-APPLICATION-STATES.md).
 
 ```mermaid
 flowchart TD
