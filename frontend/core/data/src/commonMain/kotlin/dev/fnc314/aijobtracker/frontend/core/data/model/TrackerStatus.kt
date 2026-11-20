@@ -212,27 +212,29 @@ public sealed interface TrackerStatus : WireContract {
     /** Companion object providing lookup and shortcut accessors for [TrackerStatus]. */
     public companion object {
         /** Default fallback value for [TrackerStatus]. */
-        public val DEFAULT: TrackerStatus = Known.UNSPECIFIED
+        public val DEFAULT: TrackerStatus by lazy { Known.UNSPECIFIED }
 
         // Static O(1) multi-key lookup map built using stdlib extension with legacy aliases
-        private val lookup: Map<String, Known> = Known.entries.toWireLookupMap { entry ->
-            val legacy = when (entry) {
-                Known.LEAD -> listOf("status:lead", "lead")
-                Known.DRAFTING -> listOf("status:drafting", "drafting", "draft")
-                Known.DRAFTED -> listOf("status:drafted", "drafted")
-                Known.RANKED -> listOf("status:ranked", "ranked")
-                Known.SUBMITTED -> listOf("status:submitted", "submitted", "screening", "applied", "status:applied")
-                Known.INTERVIEW -> listOf("status:interview", "interview", "interviewing", "onsite", "recruiter_screened", "recruiter-screened", "status:recruiter-screened")
-                Known.OFFER_EXPECTED -> listOf("status:offer", "offer", "negotiating_pre_offer", "negotiating-pre-offer", "negotiating_post_offer", "negotiating-post-offer")
-                Known.HIRED -> listOf("status:hired", "hired")
-                Known.REJECTED -> listOf("status:rejected", "rejected")
-                Known.NO_RESPONSE -> listOf("status:no-response", "no-response", "no_response")
-                Known.OFFER_DECLINED -> listOf("status:offer-declined", "offer-declined", "offer_declined")
-                Known.APPLICATION_WITHDRAWN -> listOf("status:withdrawn", "withdrawn")
-                Known.NONE -> listOf("status:none", "all")
-                Known.UNSPECIFIED -> listOf("status:unspecified", "unspecified")
+        private val lookup: Map<String, Known> by lazy {
+            Known.entries.toWireLookupMap { entry ->
+                val legacy = when (entry) {
+                    Known.LEAD -> listOf("status:lead", "lead")
+                    Known.DRAFTING -> listOf("status:drafting", "drafting", "draft")
+                    Known.DRAFTED -> listOf("status:drafted", "drafted")
+                    Known.RANKED -> listOf("status:ranked", "ranked")
+                    Known.SUBMITTED -> listOf("status:submitted", "submitted", "screening", "applied", "status:applied")
+                    Known.INTERVIEW -> listOf("status:interview", "interview", "interviewing", "onsite", "recruiter_screened", "recruiter-screened", "status:recruiter-screened")
+                    Known.OFFER_EXPECTED -> listOf("status:offer", "offer", "negotiating_pre_offer", "negotiating-pre-offer", "negotiating_post_offer", "negotiating-post-offer")
+                    Known.HIRED -> listOf("status:hired", "hired")
+                    Known.REJECTED -> listOf("status:rejected", "rejected")
+                    Known.NO_RESPONSE -> listOf("status:no-response", "no-response", "no_response")
+                    Known.OFFER_DECLINED -> listOf("status:offer-declined", "offer-declined", "offer_declined")
+                    Known.APPLICATION_WITHDRAWN -> listOf("status:withdrawn", "withdrawn")
+                    Known.NONE -> listOf("status:none", "all")
+                    Known.UNSPECIFIED -> listOf("status:unspecified", "unspecified")
+                }
+                legacy + listOf(entry.name.lowercase().replace("_", "-"))
             }
-            legacy + listOf(entry.name.lowercase().replace("_", "-"))
         }
 
         // Backward-compatible shortcut properties matching standard enum names

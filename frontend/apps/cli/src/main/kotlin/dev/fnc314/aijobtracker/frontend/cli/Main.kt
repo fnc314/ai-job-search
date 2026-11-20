@@ -12,6 +12,7 @@ import dev.fnc314.aijobtracker.frontend.cli.commands.ArtifactsCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.BulkCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.CheckCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.DeleteApplicationCommand
+import dev.fnc314.aijobtracker.frontend.cli.commands.DevicesCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.EditCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.EmailCommand
 import dev.fnc314.aijobtracker.frontend.cli.commands.ExportCommand
@@ -43,6 +44,7 @@ internal class TrackerCommand : CliktCommand(name = "tracker") {
             GetApplicationCommand(),
             AddApplicationCommand(),
             DeleteApplicationCommand(),
+            DevicesCommand(),
             EditCommand(),
             ExportCommand(),
             ImportCommand(),

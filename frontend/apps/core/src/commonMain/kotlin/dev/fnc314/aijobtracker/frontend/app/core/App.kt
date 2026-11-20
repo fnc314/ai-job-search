@@ -45,6 +45,8 @@ import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplica
 import dev.fnc314.aijobtracker.frontend.features.addjobapplication.ui.JobApplicationAddLeadRoute
 import dev.fnc314.aijobtracker.frontend.features.artifactpreviewer.ui.ArtifactPreviewerEntryRegistry
 import dev.fnc314.aijobtracker.frontend.features.artifactpreviewer.ui.ArtifactPreviewRoute
+import dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.JobApplicationEditsRoute
+import dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.TrackerEditsEntryRegistry
 import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.CompaniesEntryRegistry
 import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.JobApplicationCompaniesRoute
 import dev.fnc314.aijobtracker.frontend.features.companydetails.ui.CompanyDetailsEntryRegistry
@@ -139,6 +141,7 @@ public fun App() {
         TopLevelDestination.Applications -> JobApplicationListRoute
         TopLevelDestination.Companies -> JobApplicationCompaniesRoute
         TopLevelDestination.Apply -> AiApplyRoute
+        TopLevelDestination.Edits -> JobApplicationEditsRoute
         TopLevelDestination.Settings -> JobApplicationSettingsRoute
       }
     }
@@ -159,6 +162,7 @@ public fun App() {
       koinInject<AddJobApplicationEntryRegistry>(),
       koinInject<AiApplyEntryRegistry>(),
       koinInject<ArtifactPreviewerEntryRegistry>(),
+      koinInject<TrackerEditsEntryRegistry>(),
     )
 
     // React to authentication changes

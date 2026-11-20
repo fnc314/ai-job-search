@@ -1,6 +1,8 @@
 package dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.repository
 
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEdit
+import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEventType
+import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus
 
 /**
  * Domain repository contract managing staging, review, approval, and rejection of edit proposals.
@@ -38,4 +40,15 @@ public interface TrackerEditsRepository {
      * @return Count of proposals transitioned to EXPIRED.
      */
     public suspend fun expireStaleEdits(): Int
+
+    /**
+     * Updates an individual item/transition within a pending proposal before approval.
+     */
+    public suspend fun editProposedChange(
+        proposalId: String,
+        itemIndex: Int,
+        newEventType: TrackerEventType,
+        newStatusTo: TrackerStatus?,
+        reason: String?
+    ): TrackerEdit
 }

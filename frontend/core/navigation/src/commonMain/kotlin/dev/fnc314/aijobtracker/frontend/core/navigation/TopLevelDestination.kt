@@ -3,14 +3,26 @@ package dev.fnc314.aijobtracker.frontend.core.navigation
 /**
  * Finite enum of top-level destinations for bottom navigation and navigation rail.
  *
- * Replaces the runtime `is JobApplicationListRoute` / `is JobApplicationCompaniesRoute` checks in `AppScaffold`
- * with a type-safe, extensible enum. Since `core/navigation` cannot depend on feature
- * route classes or string resources, this enum is a simple identifier. All UI metadata
- * (icons, labels, routes) is resolved by `AppScaffold` using a mapping function.
+ * Mapped to and from canonical proto definition in `dev.fnc314.aijobtracker.records.TopLevelDestination`.
  */
 public enum class TopLevelDestination {
     Applications,
     Companies,
     Apply,
-    Settings,
+    Edits,
+    Settings;
+
+    public companion object {
+        /**
+         * Resolves the UI destination enum from the shared proto enum name or string key.
+         */
+        public fun fromProtoName(name: String?): TopLevelDestination? = when (name?.uppercase()) {
+            "TOP_LEVEL_DESTINATION_APPLICATIONS", "APPLICATIONS" -> Applications
+            "TOP_LEVEL_DESTINATION_COMPANIES", "COMPANIES" -> Companies
+            "TOP_LEVEL_DESTINATION_APPLY", "APPLY" -> Apply
+            "TOP_LEVEL_DESTINATION_EDITS", "EDITS" -> Edits
+            "TOP_LEVEL_DESTINATION_SETTINGS", "SETTINGS" -> Settings
+            else -> null
+        }
+    }
 }

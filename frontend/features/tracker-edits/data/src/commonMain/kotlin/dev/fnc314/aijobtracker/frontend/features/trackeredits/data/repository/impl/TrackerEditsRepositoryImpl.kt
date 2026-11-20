@@ -1,6 +1,8 @@
 package dev.fnc314.aijobtracker.frontend.features.trackeredits.data.repository.impl
 
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEdit
+import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEventType
+import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.data.source.LocalTrackerEditsDataSource
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.data.source.RemoteTrackerEditsDataSource
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.repository.TrackerEditsRepository
@@ -37,5 +39,17 @@ internal class TrackerEditsRepositoryImpl(
         val remaining = remoteDataSource.getPendingEdits()
         localDataSource.savePendingEdits(remaining)
         return expiredCount
+    }
+
+    override suspend fun editProposedChange(
+        proposalId: String,
+        itemIndex: Int,
+        newEventType: TrackerEventType,
+        newStatusTo: TrackerStatus?,
+        reason: String?
+    ): TrackerEdit {
+        val updated = remoteDataSource.editProposedChange(proposalId, itemIndex, newEventType, newStatusTo, reason)
+        localDataSource.savePendingEdits(listOf(updated))
+        return updated
     }
 }

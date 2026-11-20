@@ -2260,6 +2260,14 @@ public object BackendService {
 
         if (!dryRun) {
             db.collection("pending-proposals").document(proposalId).set(proposal)
+            try {
+                dev.fnc314.aijobtracker.backend.service.NotificationDispatchService.notifyNewProposal(
+                    proposalId = proposalId,
+                    stagedChangesCount = changes.size
+                )
+            } catch (e: Exception) {
+                println("Notice: FCM dispatch skipped or failed: ${e.message}")
+            }
         }
 
         return mapOf(

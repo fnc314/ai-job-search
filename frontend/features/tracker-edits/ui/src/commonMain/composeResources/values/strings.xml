@@ -20,4 +20,12 @@
     <string name="edits_reason_label">Reason: %1$s</string>
     <string name="edits_source_email_from">From: %1$s</string>
     <string name="edits_source_email_subject">Subject: %1$s</string>
+    <string name="edits_action_edit">Edit Transition</string>
+    <string name="edits_action_undo">UNDO</string>
+    <string name="edits_snackbar_approved">Approved edit for %1$s</string>
+    <string name="edits_snackbar_rejected">Rejected edit for %1$s</string>
+    <string name="edits_inline_event_type">Event Type</string>
+    <string name="edits_inline_target_status">Target Status</string>
+    <string name="edits_inline_save">Save Changes</string>
+    <string name="edits_inline_cancel">Cancel</string>
 </resources>

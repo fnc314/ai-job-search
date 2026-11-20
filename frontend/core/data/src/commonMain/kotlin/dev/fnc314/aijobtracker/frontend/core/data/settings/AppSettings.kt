@@ -45,6 +45,7 @@ public data class AppSettings(
     public val enableInAppTextViewer: Boolean = false,
     public val renderMarkdownInternally: Boolean = false,
     public val enableKmpInspector: Boolean = false,
+    public val swipeRightToApprove: Boolean = true,
 ) {
     /**
      * Resolves whether the active theme should be dark given the host platform's current dark state.

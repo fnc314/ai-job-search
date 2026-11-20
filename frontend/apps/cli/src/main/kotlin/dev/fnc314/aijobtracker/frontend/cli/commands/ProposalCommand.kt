@@ -38,6 +38,7 @@ public class ProposalCommand : CliktCommand(name = "proposals") {
             RejectProposalCommand(),
             ExpireProposalsCommand(),
             EditProposalCommand(),
+            PurgeProposalsCommand(),
         )
     }
 
@@ -451,5 +452,38 @@ internal class EditProposalCommand : CliktCommand(name = "edit") {
         ).get()
 
         t.println(green("✓ Updated item [$index1] in proposal $proposalId: eventType=${targetChange["eventType"]}, statusTo=${targetChange["statusTo"]}, appId=${targetChange["applicationId"]}"))
+    }
+}
+
+internal class PurgeProposalsCommand : CliktCommand(name = "purge") {
+    private val state: String? by option("--state", help = "Filter state to purge (default: PENDING)")
+    private val force: Boolean by option("--force", "-f", help = "Bypass confirmation prompt").flag(default = false)
+
+    override fun run() {
+        val t = Terminal(nonInteractiveWidth = 200)
+        val allowWrites = System.getenv("TRACKER_ALLOW_WRITES") == "1"
+        if (!allowWrites) {
+            t.println(red("Error: Writes are disabled. Set TRACKER_ALLOW_WRITES=1 to purge proposals."))
+            return
+        }
+
+        val db = RemoteDataSourceProvider.remote
+        var query = db.collection("pending-proposals") as com.google.cloud.firestore.Query
+        val targetState = (state ?: "PENDING").removePrefix("proposal:").uppercase()
+        query = query.whereEqualTo("state", targetState)
+
+        val docs = query.get().get().documents
+        if (docs.isEmpty()) {
+            t.println(gray("No proposals found with state $targetState."))
+            return
+        }
+
+        var deletedCount = 0
+        for (doc in docs) {
+            doc.reference.delete().get()
+            deletedCount++
+        }
+
+        t.println(green("✓ Successfully purged $deletedCount proposal(s) with state $targetState."))
     }
 }

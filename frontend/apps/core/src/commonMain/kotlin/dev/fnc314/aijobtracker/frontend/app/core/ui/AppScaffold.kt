@@ -95,6 +95,7 @@ private fun resolveTopLevelDestination(currentDestination: JobApplicationsTracke
         currentDestination == JobApplicationListRoute -> TopLevelDestination.Applications
         currentDestination == JobApplicationCompaniesRoute -> TopLevelDestination.Companies
         currentDestination == AiApplyRoute -> TopLevelDestination.Apply
+        currentDestination == dev.fnc314.aijobtracker.frontend.features.trackeredits.ui.JobApplicationEditsRoute -> TopLevelDestination.Edits
         currentDestination == JobApplicationSettingsRoute -> TopLevelDestination.Settings
         else -> null
     }

@@ -25,6 +25,9 @@ public sealed interface SettingsUiIntent {
 
     /** Toggles the in-app Markdown/text viewer (mobile only). */
     public data class ToggleInAppTextViewer(public val enabled: Boolean) : SettingsUiIntent
+
+    /** Deregisters the active device from receiving push notifications. */
+    public data object DeregisterNotifications : SettingsUiIntent
 }
 
 /**
@@ -44,4 +47,6 @@ public data class SettingsUiModel(
     public val kmpInspectorEnabled: Boolean,
     public val showInAppTextViewerSetting: Boolean = PlatformCapabilities.supportsInAppTextViewerToggle,
     public val inAppTextViewerEnabled: Boolean = false,
+    public val supportsPushNotifications: Boolean = PlatformCapabilities.supportsPushNotifications,
+    public val notificationsDeregistered: Boolean = false,
 )

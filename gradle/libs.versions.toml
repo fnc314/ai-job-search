@@ -30,6 +30,7 @@
   firebase-auth = "25.0.0"
   firebase-bom = "35.2.0"
   firebase-firestore = "27.2.0"
+  firebase-messaging = "24.1.0"
   google-id = "1.2.1"
   google-play-services = "4.6.0"
   junit = "4.13.2"
@@ -106,6 +107,7 @@
   firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebase-auth" }
   firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
   firebase-firestore = { module = "com.google.firebase:firebase-firestore", version.ref = "firebase-firestore" }
+  firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebase-messaging" }
   firebase-remote-config = { module = "com.google.firebase:firebase-config-ktx" }
   google-id = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "google-id" }
   junit = { module = "junit:junit", version.ref = "junit" }

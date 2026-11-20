@@ -1,10 +1,12 @@
 package dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.di
 
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.ApproveEditUseCase
+import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.EditProposedChangeUseCase
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.ExpireStaleEditsUseCase
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.LoadPendingEditsUseCase
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.RejectEditUseCase
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.impl.ApproveEditUseCaseImpl
+import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.impl.EditProposedChangeUseCaseImpl
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.impl.ExpireStaleEditsUseCaseImpl
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.impl.LoadPendingEditsUseCaseImpl
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.impl.RejectEditUseCaseImpl
@@ -21,4 +23,5 @@ public val trackerEditsDomainModule: Module = module {
     factoryOf(::ExpireStaleEditsUseCaseImpl) bind ExpireStaleEditsUseCase::class
     factoryOf(::LoadPendingEditsUseCaseImpl) bind LoadPendingEditsUseCase::class
     factoryOf(::RejectEditUseCaseImpl) bind RejectEditUseCase::class
+    factoryOf(::EditProposedChangeUseCaseImpl) bind EditProposedChangeUseCase::class
 }

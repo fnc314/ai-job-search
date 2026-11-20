@@ -22,4 +22,7 @@
   <string name="settings_in_app_text_viewer_subtitle">Open Markdown (.md) and text (.txt) files inside the app instead of launching external applications</string>
   <string name="settings_in_app_text_viewer_enabled">In-app viewer is enabled</string>
   <string name="settings_in_app_text_viewer_disabled">In-app viewer is disabled (uses external apps)</string>
+  <string name="settings_section_notifications">Notifications</string>
+  <string name="settings_notifications_deregister_button">Deregister Device from Notifications</string>
+  <string name="settings_notifications_deregistered_status">Device has been deregistered from push notifications.</string>
 </resources>

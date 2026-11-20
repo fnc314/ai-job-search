@@ -26,6 +26,17 @@ public sealed interface TrackerEditsUiIntent {
     /** Triggers batch transition of expired pending edits to dead-letter status. */
     public data object ExpireStaleEdits : TrackerEditsUiIntent
 
+    /**
+     * Manually overrides a proposed change before approval.
+     */
+    public data class EditProposedChange(
+        public val proposalId: String,
+        public val itemIndex: Int,
+        public val newEventType: dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEventType,
+        public val newStatusTo: dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus? = null,
+        public val reason: String? = null,
+    ) : TrackerEditsUiIntent
+
     /** Requests back navigation to the preceding screen. */
     public data object ClickBack : TrackerEditsUiIntent
 }

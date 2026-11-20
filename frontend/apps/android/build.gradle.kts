@@ -11,6 +11,8 @@ dependencies {
 
   implementation(libs.androidx.activity.compose)
   implementation(libs.androidx.core.ktx)
+  implementation(libs.firebase.messaging)
+  implementation(libs.koin.core)
 
   implementation(libs.bundles.compose.tooling)
   debugImplementation(libs.compose.uiTooling)

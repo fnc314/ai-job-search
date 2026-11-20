@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.fnc314.aijobtracker.frontend.core.data.settings.AppSettings
 import dev.fnc314.aijobtracker.frontend.core.data.settings.UiMode
+import dev.fnc314.aijobtracker.frontend.features.settings.domain.usecase.DeregisterDeviceNotificationsUseCase
 import dev.fnc314.aijobtracker.frontend.features.settings.domain.usecase.ObserveSettingsUseCase
 import dev.fnc314.aijobtracker.frontend.features.settings.domain.usecase.UpdateSettingsUseCase
 import dev.fnc314.aijobtracker.frontend.features.signin.data.repository.AuthRepository
@@ -21,10 +22,12 @@ public class SettingsViewModel(
   private val observeSettingsUseCase: ObserveSettingsUseCase,
   private val updateSettingsUseCase: UpdateSettingsUseCase,
   private val authRepository: AuthRepository,
+  private val deregisterDeviceNotificationsUseCase: DeregisterDeviceNotificationsUseCase,
 ) : ViewModel() {
 
   private val _isNavigatingBack: MutableStateFlow<Boolean> = MutableStateFlow(false)
   private val _isSigningOut: MutableStateFlow<Boolean> = MutableStateFlow(false)
+  private val _notificationsDeregistered: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
   private val seedSuggestions: List<String> = listOf(
     "#2F5597", // Professional Blue
@@ -42,7 +45,8 @@ public class SettingsViewModel(
     observeSettingsUseCase(),
     _isNavigatingBack,
     _isSigningOut,
-  ) { settings: AppSettings, isNavigatingBack: Boolean, isSigningOut: Boolean ->
+    _notificationsDeregistered,
+  ) { settings: AppSettings, isNavigatingBack: Boolean, isSigningOut: Boolean, notificationsDeregistered: Boolean ->
     when {
       isNavigatingBack -> SettingsUiState.NavigateBack
       isSigningOut -> SettingsUiState.NavigateToSignIn
@@ -54,6 +58,7 @@ public class SettingsViewModel(
           randomSeedSuggestions = seedSuggestions,
           kmpInspectorEnabled = settings.enableKmpInspector,
           inAppTextViewerEnabled = settings.renderMarkdownInternally,
+          notificationsDeregistered = notificationsDeregistered,
         ),
       )
     }
@@ -74,6 +79,7 @@ public class SettingsViewModel(
       is SettingsUiIntent.ChangeSeedColor -> handleChangeSeedColor(intent.hex)
       is SettingsUiIntent.ToggleKmpInspector -> handleKmpInspectorToggle(intent.enabled)
       is SettingsUiIntent.ToggleInAppTextViewer -> handleInAppTextViewerToggle(intent.enabled)
+      SettingsUiIntent.DeregisterNotifications -> handleDeregisterNotifications()
       SettingsUiIntent.ClickSignOut -> handleSignOut()
       SettingsUiIntent.ClickBack -> handleClickBack()
     }
@@ -104,6 +110,13 @@ public class SettingsViewModel(
     if (normalized.length == 6 && normalized.matches(Regex("[0-9a-fA-F]{6}"))) {
       val currentSettings: AppSettings = observeSettingsUseCase().value
       updateSettingsUseCase(currentSettings.copy(seedColorHex = "#$normalized"))
+    }
+  }
+
+  private fun handleDeregisterNotifications() {
+    viewModelScope.launch {
+      deregisterDeviceNotificationsUseCase()
+      _notificationsDeregistered.value = true
     }
   }
 

@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package tracker;
+
+import "google/protobuf/timestamp.proto";
+import "tracker/enums.proto";
+
+option java_package = "dev.fnc314.aijobtracker.records";
+option java_multiple_files = true;
+
+// Shared navigation reference points across backend and frontend
+enum TopLevelDestination {
+  TOP_LEVEL_DESTINATION_UNSPECIFIED = 0;
+  TOP_LEVEL_DESTINATION_APPLICATIONS = 1;
+  TOP_LEVEL_DESTINATION_COMPANIES = 2;
+  TOP_LEVEL_DESTINATION_APPLY = 3;
+  TOP_LEVEL_DESTINATION_EDITS = 4;
+  TOP_LEVEL_DESTINATION_SETTINGS = 5;
+}
+
+enum DevicePlatform {
+  DEVICE_PLATFORM_UNSPECIFIED = 0;
+  DEVICE_PLATFORM_ANDROID = 1;
+  DEVICE_PLATFORM_IOS = 2;
+  DEVICE_PLATFORM_DESKTOP = 3;
+  DEVICE_PLATFORM_WEB = 4;
+}
+
+message DeviceRegistration {
+  string deviceId = 1;
+  string token = 2;
+  DevicePlatform platform = 3;
+  google.protobuf.Timestamp updatedAt = 4;
+}
+
+message DeviceHeartbeat {
+  string deviceId = 1;
+  DevicePlatform platform = 2;
+  string make = 3;                  // e.g. "Google", "Apple"
+  string model = 4;                 // e.g. "Pixel 8 Pro", "MacBookPro"
+  string osVersion = 5;             // e.g. "Android 15", "macOS 15.1"
+  string appVersion = 6;
+  string targetProposalId = 7;
+  google.protobuf.Timestamp timestamp = 8;
+}
+
+message TrackerNotificationPayload {
+  TopLevelDestination destination = 1;  // Strongly typed destination enum
+  string route = 2;                     // Fallback string route identifier (e.g. "trackeredits")
+  string proposalId = 3;                // Target proposal ID
+  string title = 4;                     // Notification title
+  string body = 5;                      // Human-readable message body
+  int32 stagedChangesCount = 6;         // Count of staged change items
+  TrackerEventType dominantEventType = 7;
+  TrackerStatus targetStatus = 8;
+  google.protobuf.Timestamp dispatchedAt = 9;
+}

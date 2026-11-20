@@ -41,6 +41,9 @@ kotlin {
       implementation(projects.featuresAddJobApplicationUi)
       implementation(projects.featuresAiApplyUi)
       implementation(projects.featuresArtifactPreviewerUi)
+      implementation(projects.featuresTrackerEditsDomain)
+      implementation(projects.featuresTrackerEditsData)
+      implementation(projects.featuresTrackerEditsUi)
 
       // Lifecycle
       implementation(libs.bundles.androidx.lifecycle.compose)

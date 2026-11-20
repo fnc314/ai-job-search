@@ -4,6 +4,8 @@ import dev.fnc314.aijobtracker.frontend.core.data.model.Confidence
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEdit
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEditKind
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEditState
+import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEventType
+import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerStatus
 import dev.fnc314.aijobtracker.frontend.core.data.model.Trigger
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.repository.TrackerEditsRepository
 import dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.ApproveEditUseCase
@@ -75,6 +77,16 @@ class TrackerEditsUseCasesTest {
         }
 
         override suspend fun expireStaleEdits(): Int = expiredCount
+
+        override suspend fun editProposedChange(
+            proposalId: String,
+            itemIndex: Int,
+            newEventType: TrackerEventType,
+            newStatusTo: TrackerStatus?,
+            reason: String?
+        ): TrackerEdit {
+            return helper.createTestEdit(id = proposalId, state = TrackerEditState.PENDING)
+        }
     }
 
     // --- LoadPendingEditsUseCase & ExpireStaleEditsUseCase Tests (5 Tests) ---
@@ -179,5 +191,22 @@ class TrackerEditsUseCasesTest {
         assertEquals(TrackerEditKind.STATUS, rejected.kind)
         assertEquals("app-1", approved.applicationId)
         assertEquals("app-1", rejected.applicationId)
+    }
+
+    @Test
+    fun testEditProposedChange_PreservesPendingState() = runTest {
+        val repo = FakeTrackerEditsRepository(this@TrackerEditsUseCasesTest)
+        val useCase = dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.impl.EditProposedChangeUseCaseImpl(repo)
+        val result = useCase(
+            dev.fnc314.aijobtracker.frontend.features.trackeredits.domain.usecase.EditProposedChangeUseCase.Params(
+                proposalId = "edit-override",
+                itemIndex = 0,
+                newEventType = TrackerEventType.ACKNOWLEDGE,
+                newStatusTo = TrackerStatus.Known.UNSPECIFIED,
+                reason = "Not a rejection"
+            )
+        )
+        assertEquals("edit-override", result.id)
+        assertEquals(TrackerEditState.PENDING, result.state)
     }
 }

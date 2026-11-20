@@ -11,4 +11,7 @@ public expect object PlatformCapabilities {
      * False on Desktop (JVM) and Web, which always delegate to OS-configured editors or browser handlers.
      */
     public val supportsInAppTextViewerToggle: Boolean
+
+    /** Whether this platform supports push notification registration and device management. */
+    public val supportsPushNotifications: Boolean
 }

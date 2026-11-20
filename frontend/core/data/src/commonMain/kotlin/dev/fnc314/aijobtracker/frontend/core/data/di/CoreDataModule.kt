@@ -13,6 +13,10 @@ import dev.fnc314.aijobtracker.frontend.core.data.source.RemoteDataSource
 import dev.fnc314.aijobtracker.frontend.core.data.source.createRemoteDataSource
 import dev.fnc314.aijobtracker.frontend.core.data.source.impl.LocalDataSourceImpl
 import dev.fnc314.aijobtracker.frontend.core.data.source.impl.NetworkDataSourceImpl
+import dev.fnc314.aijobtracker.frontend.core.data.platform.PlatformDeviceInfoProvider
+import dev.fnc314.aijobtracker.frontend.core.data.platform.createPlatformDeviceInfoProvider
+import dev.fnc314.aijobtracker.frontend.core.data.source.NotificationRemoteDataSource
+import dev.fnc314.aijobtracker.frontend.core.data.source.impl.NotificationRemoteDataSourceImpl
 import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
@@ -38,5 +42,7 @@ public val coreDataModule: Module = module {
     single { DatabaseHolder(createLocalDatabase()) }
     single<LocalDataSource> { LocalDataSourceImpl(get()) }
     single<NetworkDataSource> { NetworkDataSourceImpl(get()) }
+    single<NotificationRemoteDataSource> { NotificationRemoteDataSourceImpl(get()) }
+    single<PlatformDeviceInfoProvider> { createPlatformDeviceInfoProvider() }
     single<RemoteDataSource> { createRemoteDataSource() }
 }

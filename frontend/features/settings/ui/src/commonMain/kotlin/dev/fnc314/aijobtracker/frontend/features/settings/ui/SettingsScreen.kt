@@ -76,6 +76,9 @@ import dev.fnc314.aijobtracker.frontend.features_settings_ui.generated.resources
 import dev.fnc314.aijobtracker.frontend.features_settings_ui.generated.resources.settings_label_theme
 import dev.fnc314.aijobtracker.frontend.features_settings_ui.generated.resources.settings_section_account
 import dev.fnc314.aijobtracker.frontend.features_settings_ui.generated.resources.settings_section_appearance
+import dev.fnc314.aijobtracker.frontend.features_settings_ui.generated.resources.settings_section_notifications
+import dev.fnc314.aijobtracker.frontend.features_settings_ui.generated.resources.settings_notifications_deregister_button
+import dev.fnc314.aijobtracker.frontend.features_settings_ui.generated.resources.settings_notifications_deregistered_status
 import dev.fnc314.aijobtracker.frontend.features_settings_ui.generated.resources.settings_theme_dark
 import dev.fnc314.aijobtracker.frontend.features_settings_ui.generated.resources.settings_theme_light
 import dev.fnc314.aijobtracker.frontend.features_settings_ui.generated.resources.settings_theme_system
@@ -441,6 +444,42 @@ internal fun SettingsContent(
                               style = MaterialTheme.typography.labelLarge,
                               modifier = Modifier.fillMaxWidth()
                             )
+                        }
+                    }
+                }
+            }
+
+            // Section: Push Notifications (Mobile / supported platforms)
+            if (model.supportsPushNotifications) {
+                OutlinedCard(
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(MaterialTheme.spacing.medium),
+                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.settings_section_notifications),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        if (model.notificationsDeregistered) {
+                            Text(
+                                text = stringResource(Res.string.settings_notifications_deregistered_status),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.tertiary,
+                            )
+                        } else {
+                            OutlinedButton(
+                                shape = MaterialTheme.shapes.medium,
+                                onClick = { onIntent(SettingsUiIntent.DeregisterNotifications) },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text(stringResource(Res.string.settings_notifications_deregister_button))
+                            }
                         }
                     }
                 }
