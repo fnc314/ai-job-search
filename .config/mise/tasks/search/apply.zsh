@@ -6,7 +6,8 @@
 #USAGE flag "--role <role>" help="Target role title override"
 #USAGE flag "--ai-rank" negate="--no-ai-rank" help="Run Tier 2 AI semantic calibration (default: enabled)"
 #USAGE flag "--draft-assets" negate="--no-draft-assets" help="Generate tailored CV and cover letter sources"
-#USAGE flag "--submitted" negate="--no-submitted" help="Mark application as SUBMITTED"
+#USAGE flag "--submitted" negate="--no-submitted" help="Mark application as SUBMITTED (explicit confirmation only; not combinable with --draft-assets)"
+#USAGE flag "--resolve <resolution>" help="Resolve a Gate 0 duplicate collision: merge | new | skip"
 #USAGE flag "--persist" help="Persist status transitions to Firestore"
 #USAGE flag "--output-dir <dir>" help="Root directory for generated artifacts"
 

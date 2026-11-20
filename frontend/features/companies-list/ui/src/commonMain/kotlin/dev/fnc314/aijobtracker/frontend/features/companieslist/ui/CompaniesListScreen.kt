@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -56,6 +57,7 @@ import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.component.Comp
 import dev.fnc314.aijobtracker.frontend.features.companieslist.ui.component.CompanyFilterMenu
 import dev.fnc314.aijobtracker.frontend.features_companies_list_ui.generated.resources.Res
 import dev.fnc314.aijobtracker.frontend.features_companies_list_ui.generated.resources.companies_empty_message
+import dev.fnc314.aijobtracker.frontend.features_companies_list_ui.generated.resources.companies_refresh_tooltip
 import dev.fnc314.aijobtracker.frontend.features_companies_list_ui.generated.resources.companies_search_placeholder
 import dev.fnc314.aijobtracker.frontend.features_companies_list_ui.generated.resources.companies_sort_menu_tooltip
 import org.jetbrains.compose.resources.stringResource
@@ -134,26 +136,38 @@ internal fun CompaniesListContent(
                 onFilterChange = { onIntent(CompaniesListUiIntent.ChangeStatusFilter(it)) },
             )
 
-            Box {
-                TooltipIconButton(
-                    tooltip = stringResource(Res.string.companies_sort_menu_tooltip),
-                    icon = Icons.AutoMirrored.Filled.List,
-                    onClick = { sortMenuExpanded = true },
-                )
-                DropdownMenu(
-                    expanded = sortMenuExpanded,
-                    onDismissRequest = { sortMenuExpanded = false },
-                ) {
-                    CompanySortOption.entries.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(option.displayName) },
-                            onClick = {
-                                sortMenuExpanded = false
-                                onIntent(CompaniesListUiIntent.ChangeSort(option))
-                            },
-                        )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+            ) {
+                Box {
+                    TooltipIconButton(
+                        tooltip = stringResource(Res.string.companies_sort_menu_tooltip),
+                        icon = Icons.AutoMirrored.Filled.List,
+                        onClick = { sortMenuExpanded = true },
+                    )
+                    DropdownMenu(
+                        expanded = sortMenuExpanded,
+                        onDismissRequest = { sortMenuExpanded = false },
+                    ) {
+                        CompanySortOption.entries.forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option.displayName) },
+                                onClick = {
+                                    sortMenuExpanded = false
+                                    onIntent(CompaniesListUiIntent.ChangeSort(option))
+                                },
+                            )
+                        }
                     }
                 }
+                TooltipIconButton(
+                    tooltip = stringResource(Res.string.companies_refresh_tooltip),
+                    icon = Icons.Default.Refresh,
+                    onClick = {
+                        onIntent(CompaniesListUiIntent.Refresh)
+                    },
+                )
             }
         }
 

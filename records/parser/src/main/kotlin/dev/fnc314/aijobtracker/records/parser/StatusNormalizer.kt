@@ -8,6 +8,7 @@ package dev.fnc314.aijobtracker.records.parser
 public object StatusNormalizer {
   private val canonicalStatuses: Set<String> =
     setOf(
+      UNSPECIFIED_STATUS,
       "NO_RESPONSE",
       "OFFER_DECLINED",
       "APPLICATION_WITHDRAWN",
@@ -26,6 +27,10 @@ public object StatusNormalizer {
 
   private val legacyStatusMap: Map<String, String> =
     mapOf(
+      "scraped" to UNSPECIFIED_STATUS,
+      "status:scraped" to UNSPECIFIED_STATUS,
+      "unspecified" to UNSPECIFIED_STATUS,
+      "" to UNSPECIFIED_STATUS,
       "draft" to "DRAFTED",
       "drafting" to "DRAFTING",
       "status:drafting" to "DRAFTING",
@@ -78,6 +83,7 @@ public object StatusNormalizer {
   @Suppress("MagicNumber")
   public val statusRank: Map<String, Int> =
     mapOf(
+      UNSPECIFIED_STATUS to 4,
       "NO_RESPONSE" to 0,
       "OFFER_DECLINED" to 1,
       "APPLICATION_WITHDRAWN" to 2,
@@ -114,6 +120,7 @@ public object StatusNormalizer {
    */
   public val terminalStatuses: Set<String> =
     setOf(
+      UNSPECIFIED_STATUS,
       "NO_RESPONSE",
       "OFFER_DECLINED",
       "APPLICATION_WITHDRAWN",
@@ -130,7 +137,9 @@ public object StatusNormalizer {
   /**
    * Maps an arbitrary raw status string to a valid canonical status identifier.
    *
-   * Performs case-insensitive matching and whitespace trimming. Defaults to `"SUBMITTED"` when unmapped.
+   * Performs case-insensitive matching and whitespace trimming. Unmapped input falls back to the neutral
+   * [UNSPECIFIED_STATUS] (a scraped, not-yet-ranked record) — never to `SUBMITTED`, so an unknown string
+   * can never silently advance a record through the funnel.
    *
    * @param raw The raw status text to normalize.
    * @return The canonical status key (e.g., `"INTERVIEWING"`).
@@ -140,8 +149,11 @@ public object StatusNormalizer {
     val upper = trimmed.uppercase()
     if (upper in canonicalStatuses) return upper
     val lower = trimmed.lowercase()
-    return legacyStatusMap[lower] ?: "SUBMITTED"
+    return legacyStatusMap[lower] ?: UNSPECIFIED_STATUS
   }
+
+  /** Neutral wire status for scraped, not-yet-ranked records (proto `TRACKER_STATUS_UNSPECIFIED`). */
+  public const val UNSPECIFIED_STATUS: String = "TRACKER_STATUS_UNSPECIFIED"
 
   private const val DEFAULT_STATUS_RANK: Int = 99
 

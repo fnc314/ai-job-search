@@ -1,6 +1,7 @@
 package dev.fnc314.aijobtracker.frontend.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -12,6 +13,7 @@ import com.github.ajalt.mordant.rendering.TextColors.yellow
 import com.github.ajalt.mordant.terminal.Terminal
 import dev.fnc314.aijobtracker.backend.ai.client.AiRankingRequest
 import dev.fnc314.aijobtracker.backend.routes.ApplyPipelineCoordinator
+import dev.fnc314.aijobtracker.backend.routes.DuplicateResolution
 import dev.fnc314.aijobtracker.frontend.cli.db.RemoteDataSourceProvider
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -34,9 +36,23 @@ internal class ApplyCommand : CliktCommand(name = "apply") {
         .flag(default = false)
     private val outputRoot: String by option("--output-dir", help = "Root directory for generated artifacts")
         .default("job-applications")
+    private val resolve: String? by option(
+        "--resolve",
+        help = "Resolve a Gate 0 duplicate collision: merge | new | skip",
+    )
 
     override fun run() = runBlocking {
         val t = Terminal()
+        if (markSubmitted && draftAssets) {
+            t.println(red("--submitted cannot be combined with --draft-assets: drafting ends at DRAFTED; submission is confirmed separately."))
+            throw ProgramResult(1)
+        }
+        val resolution = resolve?.let { raw ->
+            runCatching { DuplicateResolution.valueOf(raw.uppercase()) }.getOrElse {
+                t.println(red("Invalid --resolve '$raw' (expected merge | new | skip)"))
+                throw ProgramResult(1)
+            }
+        }
         if (allowWrites) {
             RemoteDataSourceProvider.assertWritesAllowed("apply pipeline")
         }
@@ -57,7 +73,19 @@ internal class ApplyCommand : CliktCommand(name = "apply") {
             roleOverride = roleOverride,
             providedApplicationId = null,
             persistToRemote = allowWrites,
+            resolution = resolution,
         )
+
+        if (deterministic.similarApplications.isNotEmpty()) {
+            t.println(yellow("Gate 0: posting resembles existing record(s):"))
+            deterministic.similarApplications.forEach {
+                t.println(yellow("  • ${it.applicationId} [${it.status}] \"${it.role}\" — ${it.reason} (${"%.2f".format(it.score)})"))
+            }
+        }
+        if (deterministic.blockedForReview) {
+            t.println(red("Blocked before any write. Re-run with --resolve merge | new | skip."))
+            throw ProgramResult(2)
+        }
 
         if (deterministic.postingText.isBlank()) {
             t.println(red("Unable to extract posting text from target: $target"))

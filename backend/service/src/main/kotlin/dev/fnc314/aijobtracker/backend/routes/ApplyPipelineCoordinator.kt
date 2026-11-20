@@ -13,6 +13,8 @@ import dev.fnc314.aijobtracker.backend.compilation.DocumentCompilerService
 import dev.fnc314.aijobtracker.backend.ranking.RankResult
 import dev.fnc314.aijobtracker.backend.ranking.RankScorer
 import dev.fnc314.aijobtracker.records.parser.DocumentIdGenerator
+import dev.fnc314.aijobtracker.records.parser.PostingSimilarity
+import dev.fnc314.aijobtracker.records.parser.StatusNormalizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -66,7 +68,33 @@ public data class DeterministicApplyResponse(
     public val postingText: String = "",
     /** True when the record was persisted to Firestore as RANKED. */
     public val persisted: Boolean = false,
+    /** True when Gate 0 found similar records and halted before any write; user must resolve. */
+    public val blockedForReview: Boolean = false,
+    /** Existing applications that collide with this posting. */
+    public val similarApplications: List<SimilarApplicationSummary> = emptyList(),
 )
+
+/** A pre-existing application that Gate 0 considers identical or similar to an incoming posting. */
+@Serializable
+public data class SimilarApplicationSummary(
+    public val applicationId: String,
+    public val role: String,
+    public val status: String,
+    public val score: Double,
+    public val reason: String,
+)
+
+/** User decision for a Gate 0 collision. */
+public enum class DuplicateResolution {
+    /** Treat as the existing record (re-post / URL update); never creates a new document. */
+    MERGE,
+
+    /** A distinct opening; creates a new document (suffixing the id if it collides). */
+    NEW,
+
+    /** Duplicate; stop without writing. */
+    SKIP,
+}
 
 /**
  * Immediate HTTP 202 response returned when an asynchronous artifact job is accepted.
@@ -542,6 +570,7 @@ public object ApplyPipelineCoordinator {
         roleOverride: String?,
         providedApplicationId: String?,
         persistToRemote: Boolean,
+        resolution: DuplicateResolution? = null,
     ): DeterministicApplyResponse {
         val parsed = fetchAndParsePosting(url, rawText)
         val initialEval = RankScorer.evaluate(parsed.postingText)
@@ -591,11 +620,29 @@ public object ApplyPipelineCoordinator {
         }.trim()
 
         val evaluated = RankScorer.evaluate(scoringInput)
-        val applicationId = providedApplicationId?.takeIf { it.isNotBlank() }
+        val proposedId = providedApplicationId?.takeIf { it.isNotBlank() }
             ?: DocumentIdGenerator.documentId(company, role)
 
+        // Gate 0: never create or mutate a record before deduplication. Ambiguity blocks.
+        val similar = if (persistToRemote && providedApplicationId.isNullOrBlank()) {
+            runCatching { findSimilarApplications(company, role, url) }.getOrDefault(emptyList())
+        } else {
+            emptyList()
+        }
+        var applicationId = proposedId
+        var blocked = false
+        if (similar.isNotEmpty()) {
+            when (resolution) {
+                null, DuplicateResolution.SKIP -> blocked = true
+                DuplicateResolution.MERGE -> applicationId = similar.first().candidate.id
+                DuplicateResolution.NEW -> if (similar.any { it.candidate.id == proposedId }) {
+                    applicationId = "$proposedId--${LocalDate.now()}"
+                }
+            }
+        }
+
         var persisted = false
-        if (persistToRemote) {
+        if (persistToRemote && !blocked) {
             persisted = runCatching {
                 persistRankedApplication(
                     applicationId = applicationId,
@@ -622,7 +669,41 @@ public object ApplyPipelineCoordinator {
             rankResult = evaluated.copy(company = company, role = role),
             postingText = parsed.postingText,
             persisted = persisted,
+            blockedForReview = blocked,
+            similarApplications = similar.map {
+                SimilarApplicationSummary(
+                    applicationId = it.candidate.id,
+                    role = it.candidate.role,
+                    status = it.candidate.status,
+                    score = it.score,
+                    reason = it.reason,
+                )
+            },
         )
+    }
+
+    /** Loads same-company and same-URL applications and runs [PostingSimilarity] against them. */
+    private fun findSimilarApplications(
+        company: String,
+        role: String,
+        url: String?,
+    ): List<PostingSimilarity.Match> {
+        val apps = BackendService.remoteDatabase.collection("applications")
+        val companyId = DocumentIdGenerator.slug(company)
+        val docs = buildList {
+            if (companyId.isNotEmpty()) addAll(apps.whereEqualTo("companyId", companyId).get().get().documents)
+            if (!url.isNullOrBlank()) addAll(apps.whereEqualTo("jobUrl", url).get().get().documents)
+        }.distinctBy { it.id }
+        val candidates = docs.map { doc ->
+            PostingSimilarity.Candidate(
+                id = doc.id,
+                companyId = doc.getString("companyId").orEmpty(),
+                role = doc.getString("role").orEmpty(),
+                jobUrl = doc.getString("jobUrl"),
+                status = doc.getString("status").orEmpty(),
+            )
+        }
+        return PostingSimilarity.findSimilar(company, role, url, candidates)
     }
 
     /**
@@ -823,6 +904,13 @@ public object ApplyPipelineCoordinator {
             runCatching {
                 writeArtifactJobDocument(finalSnapshot)
                 if (finalSnapshot.status == "SUCCESS") {
+                    val postingFile = File(artifactDir, "job-posting.md").apply { writeText(postingText) }
+                    val uploadTargets = listOfNotNull(
+                        finalSnapshot.cvPdfUrl, File(artifactDir, "$cvBaseName.tex").path,
+                        finalSnapshot.coverLetterPdfUrl, File(artifactDir, "$coverBaseName.tex").path,
+                        finalSnapshot.outcomeUrl, postingFile.path,
+                    ).map(::File).filter { it.isFile }.distinctBy { it.absolutePath }
+                    val remoteUrls = uploadArtifactBlobs(applicationId, uploadTargets)
                     writeArtifactSubcollectionDocuments(
                         applicationId = applicationId,
                         cvArtifactId = finalSnapshot.cvArtifactId ?: "cv_$fileStem",
@@ -836,17 +924,54 @@ public object ApplyPipelineCoordinator {
                         outcomeArtifactId = finalSnapshot.outcomeArtifactId ?: "outcome_$fileStem",
                         outcomePath = finalSnapshot.outcomeUrl ?: File(artifactDir, "outcome.md").path,
                         outcomeContent = outcomeContent,
+                        postingPath = postingFile.path,
+                        postingContent = postingText,
+                        remoteUrls = remoteUrls,
                     )
-                    transitionApplicationStatus(
-                        applicationId = applicationId,
-                        newStatus = "DRAFTED",
-                        note = "Tailored CV and cover letter drafted ($jobId).",
-                    )
+                    // DRAFTED only once every artifact lives on the remote, bound to this record.
+                    if (remoteUrls.size == uploadTargets.size) {
+                        transitionApplicationStatus(
+                            applicationId = applicationId,
+                            newStatus = "DRAFTED",
+                            note = "Tailored CV and cover letter drafted; ${remoteUrls.size} artifacts uploaded ($jobId).",
+                        )
+                    } else {
+                        transitionApplicationStatus(
+                            applicationId = applicationId,
+                            newStatus = "DRAFTING",
+                            note = "Remained DRAFTING: uploaded ${remoteUrls.size}/${uploadTargets.size} artifacts ($jobId).",
+                        )
+                    }
                 }
             }
         }
 
         return finalSnapshot
+    }
+
+    /** Uploads files to blob storage under `artifacts/<applicationId>/`; returns filename -> remote URL for successes. */
+    private fun uploadArtifactBlobs(
+        applicationId: String,
+        files: List<File>,
+    ): Map<String, String> {
+        val bucketName = System.getenv("TRACKER_BUCKET") ?: "dev-fnc314-ai-job-tracker-artifacts"
+        val bucket = runCatching {
+            com.google.firebase.cloud.StorageClient.getInstance().bucket(bucketName)
+        }.getOrNull() ?: return emptyMap()
+        return files.mapNotNull { file ->
+            runCatching {
+                val blobPath = "artifacts/$applicationId/${file.name}"
+                bucket.create(blobPath, file.readBytes(), contentTypeFor(file.name))
+                file.name to "gs://$bucketName/$blobPath"
+            }.getOrNull()
+        }.toMap()
+    }
+
+    private fun contentTypeFor(name: String): String = when (name.substringAfterLast('.').lowercase()) {
+        "pdf" -> "application/pdf"
+        "md" -> "text/markdown"
+        "tex" -> "text/x-tex"
+        else -> "application/octet-stream"
     }
 
     private fun writeArtifactSubcollectionDocuments(
@@ -862,6 +987,9 @@ public object ApplyPipelineCoordinator {
         outcomeArtifactId: String,
         outcomePath: String,
         outcomeContent: String,
+        postingPath: String,
+        postingContent: String,
+        remoteUrls: Map<String, String>,
     ) {
         val db = BackendService.remoteDatabase
         val now = Timestamp.now()
@@ -900,10 +1028,26 @@ public object ApplyPipelineCoordinator {
                 "size" to outcomeContent.length.toLong(),
                 "createdAt" to now,
             ),
+            mapOf(
+                "artifactId" to "posting_$applicationId",
+                "applicationId" to applicationId,
+                "kind" to "artifact:posting",
+                "filename" to "job-posting.md",
+                "contentType" to "text/markdown",
+                "localPath" to postingPath,
+                "content" to postingContent,
+                "size" to postingContent.length.toLong(),
+                "createdAt" to now,
+            ),
         )
         entries.forEach { data ->
             val id = data["artifactId"] as String
-            artifactsCol.document(id).set(data, SetOptions.merge()).get()
+            val localName = File(data["localPath"] as String).name
+            val pdfName = localName.substringBeforeLast('.') + ".pdf"
+            val enriched: MutableMap<String, Any> = data.toMutableMap()
+            (remoteUrls[localName] ?: remoteUrls[data["filename"] as String])?.let { enriched["remoteUrl"] = it }
+            remoteUrls[pdfName]?.let { enriched["pdfRemoteUrl"] = it }
+            artifactsCol.document(id).set(enriched as Map<String, Any>, SetOptions.merge()).get()
         }
     }
 
@@ -975,6 +1119,17 @@ public object ApplyPipelineCoordinator {
                 ),
                 SetOptions.merge(),
             ).get()
+        }
+        // Never regress a record that has already moved past ranking (e.g. DRAFTED, SUBMITTED).
+        val priorStatus = if (snap.exists()) snap.getString("status").orEmpty() else ""
+        val rankable = priorStatus.isBlank() ||
+            StatusNormalizer.normalizeStatus(priorStatus) in setOf(StatusNormalizer.UNSPECIFIED_STATUS, "RANKED")
+        if (!rankable) {
+            docRef.set(mapOf("fitRating" to result.overall, "updatedAt" to now), SetOptions.merge()).get()
+            return
+        }
+        if (snap.exists()) {
+            docRef.set(mapOf("status" to "RANKED", "fitRating" to result.overall, "updatedAt" to now), SetOptions.merge()).get()
         }
         BackendService.appendEventTransactional(
             applicationId = applicationId,

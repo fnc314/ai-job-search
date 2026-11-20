@@ -59,6 +59,12 @@ public sealed interface JobApplicationStatus {
   public sealed interface Active : JobApplicationStatus {
     override val isTerminal: Boolean get() = false
 
+    /** Scraped and deduplicated, not yet ranked. Neutral fallback for unrecognized input. */
+    public data object Scraped : Active {
+      override val wireName: String = StatusNormalizer.UNSPECIFIED_STATUS
+      override val rank: Int = 4
+    }
+
     /** Initial application preparation before submission. */
     public data object Drafted : Active {
       override val wireName: String = "DRAFTED"
@@ -149,7 +155,7 @@ public sealed interface JobApplicationStatus {
         Active.NegotiatingPreOffer.wireName -> Active.NegotiatingPreOffer
         Active.Offer.wireName -> Active.Offer
         Active.NegotiatingPostOffer.wireName -> Active.NegotiatingPostOffer
-        else -> Active.Submitted
+        else -> Active.Scraped
       }
     }
   }
