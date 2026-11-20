@@ -1,43 +1,53 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-    val rootRepoDir = System.getenv("WORKSPACE_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
-        ?: System.getenv("MISE_PROJECT_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
-        ?: if (settings.layout.settingsDirectory.file("gradle/libs.versions.toml").asFile.exists()) {
-            settings.settingsDir
-        } else {
-            settings.settingsDir.parentFile
-        }
-    includeBuild("${rootRepoDir}/gradle/tools/project-plugins")
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
+  val rootRepoDir =
+    System.getenv("WORKSPACE_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
+      ?: System.getenv("MISE_PROJECT_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
+      ?: if (settings.layout.settingsDirectory
+          .file("gradle/libs.versions.toml")
+          .asFile
+          .exists()
+      ) {
+        settings.settingsDir
+      } else {
+        settings.settingsDir.parentFile
+      }
+  includeBuild("$rootRepoDir/gradle/tools/project-plugins")
 }
 
 dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
+  repositories {
+    google()
+    mavenCentral()
+  }
+  val rootRepoDir =
+    System.getenv("WORKSPACE_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
+      ?: System.getenv("MISE_PROJECT_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
+      ?: if (settings.layout.settingsDirectory
+          .file("gradle/libs.versions.toml")
+          .asFile
+          .exists()
+      ) {
+        settings.settingsDir
+      } else {
+        settings.settingsDir.parentFile
+      }
+  versionCatalogs {
+    if (findByName("libs") == null) {
+      create("libs") {
+        from(files("$rootRepoDir/gradle/libs.versions.toml"))
+      }
     }
-    val rootRepoDir = System.getenv("WORKSPACE_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
-        ?: System.getenv("MISE_PROJECT_ROOT")?.let { java.io.File(it) }?.takeIf { it.exists() }
-        ?: if (settings.layout.settingsDirectory.file("gradle/libs.versions.toml").asFile.exists()) {
-            settings.settingsDir
-        } else {
-            settings.settingsDir.parentFile
-        }
-    versionCatalogs {
-        if (findByName("libs") == null) {
-            create("libs") {
-                from(files("${rootRepoDir}/gradle/libs.versions.toml"))
-            }
-        }
-        if (findByName("local") == null) {
-            create("local") {
-                from(files("${rootRepoDir}/gradle/local.versions.toml"))
-            }
-        }
+    if (findByName("local") == null) {
+      create("local") {
+        from(files("$rootRepoDir/gradle/local.versions.toml"))
+      }
     }
+  }
 }

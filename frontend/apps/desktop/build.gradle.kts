@@ -17,11 +17,11 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "dev.fnc314.tools.jobtracker.app.desktop.MainKt"
+        mainClass = "dev.fnc314.aijobtracker.frontend.app.desktop.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "dev.fnc314.tools.jobtracker"
+            packageName = "dev.fnc314.aijobtracker"
             packageVersion = local.versions.version.get()
         }
     }
