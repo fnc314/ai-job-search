@@ -20,6 +20,7 @@ This directory contains design and implementation plans for the `frontend` proje
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`015319_desktop-jvm-google-signin-oauth-loopback.md`](./2026-11-20/015319_desktop-jvm-google-signin-oauth-loopback.md) | Draft | Google Sign-In via Browser Loopback OAuth 2.0 with PKCE on Desktop (JVM) to unlock Compose desktop app |
 | [`184800_collapsible-sections-animated-chevron-plan.md`](./2026-11-17/184800_collapsible-sections-animated-chevron-plan.md) | Completed | Collapsible categorized job application sections with smooth animated chevron (> when collapsed, v when open) |
 | [`131500_compose-multiplatform-pdf-rendering-plan.md`](./2026-11-16/131500_compose-multiplatform-pdf-rendering-plan.md) | Completed | In-app cross-platform PDF rendering solution in Compose Multiplatform across Android (PdfRenderer), iOS (CoreGraphics), Desktop (PDFBox), and Web |
 | [`004109_job-applications-categorized-sections-plan.md`](./2026-11-16/004109_job-applications-categorized-sections-plan.md) | Completed | Categorized sections (Interviewing, In Draft, Applied, Rejected) with sticky headers, quick-jump navigation, and differentiated Material 3 card styling |
