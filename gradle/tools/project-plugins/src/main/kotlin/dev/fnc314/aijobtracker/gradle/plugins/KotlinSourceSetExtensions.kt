@@ -9,58 +9,57 @@ import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 internal val KotlinMultiplatformExtension.commonMain: KotlinSourceSet
-    get() = sourceSets.getByName("commonMain")
+  get() = sourceSets.getByName("commonMain")
 
 internal fun KotlinMultiplatformExtension.commonMain(configure: KotlinSourceSet.() -> Unit): KotlinSourceSet =
-    commonMain.apply(configure)
+  commonMain.apply(configure)
 
 internal val KotlinMultiplatformExtension.commonTest: KotlinSourceSet
-    get() = sourceSets.getByName("commonTest")
+  get() = sourceSets.getByName("commonTest")
 
 internal fun KotlinMultiplatformExtension.commonTest(configure: KotlinSourceSet.() -> Unit): KotlinSourceSet =
-    commonTest.apply(configure)
-
+  commonTest.apply(configure)
 
 internal val KotlinMultiplatformExtension.jvmMain: KotlinSourceSet?
-    get() = sourceSets.findByName("jvmMain")
+  get() = sourceSets.findByName("jvmMain")
 
 internal fun KotlinMultiplatformExtension.jvmMain(configure: KotlinSourceSet.() -> Unit) {
-    jvmMain?.apply(configure)
+  jvmMain?.apply(configure)
 }
 
 internal val KotlinMultiplatformExtension.iosMain: KotlinSourceSet?
-    get() = sourceSets.findByName("iosMain")
+  get() = sourceSets.findByName("iosMain")
 
 internal fun KotlinMultiplatformExtension.iosMain(configure: KotlinSourceSet.() -> Unit) {
-    iosMain?.apply(configure)
+  iosMain?.apply(configure)
 }
 
 internal val Project.kotlinMultiplatform: KotlinMultiplatformExtension
-    get() = extensions.getByType(KotlinMultiplatformExtension::class.java)
+  get() = extensions.getByType(KotlinMultiplatformExtension::class.java)
 
-internal inline fun Project.kotlinMultiplatform(crossinline configure: KotlinMultiplatformExtension.() -> Unit): Unit {
-    kotlinMultiplatform.configure()
+internal inline fun Project.kotlinMultiplatform(crossinline configure: KotlinMultiplatformExtension.() -> Unit) {
+  kotlinMultiplatform.configure()
 }
 
 internal val Project.hasKotlinPlugin: Boolean
-    get() = plugins.let {
-        it.hasPlugin(
-            CatalogTypes.Plugins.KOTLIN_JVM(this).get().pluginId
-        ) ||
-                it.hasPlugin(
-                    CatalogTypes.Plugins.KOTLIN_MULTIPLATFORM(this).get().pluginId
-                )
-    }
+  get() = plugins.let {
+    it.hasPlugin(
+      CatalogTypes.Plugins.KOTLIN_JVM(this).get().pluginId,
+    ) ||
+      it.hasPlugin(
+        CatalogTypes.Plugins.KOTLIN_MULTIPLATFORM(this).get().pluginId,
+      )
+  }
 
 internal val Project.hasAndroidPlugin: Boolean
-    get() = plugins.let {
-        it.hasPlugin(
-            CatalogTypes.Plugins.ANDROID_APPLICATION(this).get().pluginId
-        ) ||
-                it.hasPlugin(
-                    CatalogTypes.Plugins.ANDROID_MULTIPLATFORM_LIBRARY(this).get().pluginId
-                )
-    }
+  get() = plugins.let {
+    it.hasPlugin(
+      CatalogTypes.Plugins.ANDROID_APPLICATION(this).get().pluginId,
+    ) ||
+      it.hasPlugin(
+        CatalogTypes.Plugins.ANDROID_MULTIPLATFORM_LIBRARY(this).get().pluginId,
+      )
+  }
 
 /**
  * Initializes the [KotlinMultiplatformExtension] on the receiver [Project]
@@ -69,43 +68,43 @@ internal val Project.hasAndroidPlugin: Boolean
  * @receiver A [Project] instance
  */
 @OptIn(
-    ExperimentalAbiValidation::class,
-    ExperimentalKotlinGradlePluginApi::class,
+  ExperimentalAbiValidation::class,
+  ExperimentalKotlinGradlePluginApi::class,
 )
 internal inline fun Project.configureKotlinMultiplatformExtension(
-    optIns: Set<String> = emptySet(),
-    crossinline furtherConfig: context(Project) KotlinMultiplatformExtension.() -> Unit = {},
+  optIns: Set<String> = emptySet(),
+  crossinline furtherConfig: context(Project) KotlinMultiplatformExtension.() -> Unit = {},
 ) {
-    this@configureKotlinMultiplatformExtension.kotlinMultiplatform {
-        dependencies {
+  this@configureKotlinMultiplatformExtension.kotlinMultiplatform {
+    dependencies {
 
-        }
-        explicitApi()
-        abiValidation {
-            it.referenceDumpDir.set(
-                this@configureKotlinMultiplatformExtension.layout.projectDirectory.dir("api")
-            )
-        }
-        jvmToolchain(
-            CatalogTypes.Versions.JVM_TOOLCHAIN.asInt(this@configureKotlinMultiplatformExtension)
-        )
-        compilerOptions {
-            verbose.set(true)
-            apiVersion.set(
-                this@configureKotlinMultiplatformExtension.kotlinApiAndLanguageVersion
-            )
-            languageVersion.set(
-                this@configureKotlinMultiplatformExtension.kotlinApiAndLanguageVersion
-            )
-            optIn.set(optIns)
-        }
-        context(this@configureKotlinMultiplatformExtension) {
-            furtherConfig()
-        }
     }
+    explicitApi()
+    abiValidation {
+      it.referenceDumpDir.set(
+        this@configureKotlinMultiplatformExtension.layout.projectDirectory.dir("api"),
+      )
+    }
+    jvmToolchain(
+      CatalogTypes.Versions.JVM_TOOLCHAIN.asInt(this@configureKotlinMultiplatformExtension),
+    )
+    compilerOptions {
+      verbose.set(true)
+      apiVersion.set(
+        this@configureKotlinMultiplatformExtension.kotlinApiAndLanguageVersion,
+      )
+      languageVersion.set(
+        this@configureKotlinMultiplatformExtension.kotlinApiAndLanguageVersion,
+      )
+      optIn.set(optIns)
+    }
+    context(this@configureKotlinMultiplatformExtension) {
+      furtherConfig()
+    }
+  }
 }
 
 internal val Project.kotlinApiAndLanguageVersion: KotlinVersion
-    get() = CatalogTypes.Versions.KOTLIN.asString(this).let {
-        KotlinVersion.fromVersion(it.substringBeforeLast("."))
-    }
+  get() = CatalogTypes.Versions.KOTLIN.asString(this).let {
+    KotlinVersion.fromVersion(it.substringBeforeLast("."))
+  }
