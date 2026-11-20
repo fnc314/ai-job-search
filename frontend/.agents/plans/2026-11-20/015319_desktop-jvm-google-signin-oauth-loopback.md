@@ -110,12 +110,37 @@ sequenceDiagram
   )
   ```
 
-### 3.5 Session Persistence (`getCurrentUser()` & `signOut()`)
-- Store the active session / refresh token in a local desktop preference store (e.g., `java.util.prefs.Preferences` or a user-scoped JSON in `~/.config/ai-job-tracker/auth.json`).
-- On app launch, `getCurrentUser()` reads the persisted token:
-  - If valid and not expired, returns `UserAccount`.
-  - If expired, refreshes via `refresh_token`.
-- `signOut()` clears the local credential cache and resets `_authState` to `AuthState.Unauthenticated`.
+### 3.5 Secure Session Persistence & Hardware Vault (`getCurrentUser()` & `signOut()`)
+Authentication tokens and refresh credentials must **never** be stored in plaintext files (`.json`, `.properties`, or Java `Preferences`). Desktop persistence must adhere to hardware-backed or OS-level encrypted credential vaults:
+
+1. **macOS (Primary Developer Target): Apple Keychain (`/usr/bin/security`)**
+   - Store OAuth refresh tokens and session payload in the user's macOS Login Keychain under service name `dev.fnc314.aijobtracker.auth`:
+     ```bash
+     # Save / Update password:
+     security add-generic-password -U -a "dev.fnc314.aijobtracker" -s "dev.fnc314.aijobtracker.auth" -w "<ENCRYPTED_TOKEN_PAYLOAD>"
+     
+     # Retrieve password:
+     security find-generic-password -a "dev.fnc314.aijobtracker" -s "dev.fnc314.aijobtracker.auth" -w
+     
+     # Delete on signOut():
+     security delete-generic-password -a "dev.fnc314.aijobtracker" -s "dev.fnc314.aijobtracker.auth"
+     ```
+   - Execution is sandboxed to the active OS user session, encrypted via macOS FileVault/APFS hardware keystore, and protected from other local users or repository scans.
+
+2. **Cross-Platform Fallback (Linux / Windows / Headless): AES-256-GCM Encrypted Store**
+   - If macOS Keychain is unavailable (e.g. Linux without Secret Service / DBus or Windows without DPAPI):
+     - Encrypt tokens using AES-GCM (256-bit key) with random 96-bit IV via Java Cryptography Architecture (`javax.crypto.Cipher`).
+     - Derive key using PBKDF2WithHmacSHA256 bound to hardware identifiers / user home directory salt.
+     - Restrict file permissions strictly to user-only (`0600` / `PosixFilePermissions.fromString("rw-------")`) inside `~/.config/ai-job-tracker/auth.vault`.
+
+3. **Lifecycle Integration:**
+   - **On App Startup (`getCurrentUser()`):** 
+     - Queries macOS Keychain for `dev.fnc314.aijobtracker.auth`.
+     - If credentials exist and token is valid, returns `UserAccount`.
+     - If access token is expired, executes a token refresh with Google's token endpoint using the stored refresh token, updates the Keychain entry, and returns the refreshed `UserAccount`.
+   - **On Sign Out (`signOut()`):** 
+     - Deletes the generic password from the Keychain and zeroes in-memory token buffers.
+     - Resets `_authState` to `AuthState.Unauthenticated`.
 
 ---
 
