@@ -3,23 +3,23 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
 }
 
 dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
+  repositories {
+    google()
+    mavenCentral()
+  }
+  versionCatalogs {
+    create("local") {
+      from(files("gradle/local.versions.toml"))
     }
-    versionCatalogs {
-        create("local") {
-            from(files("gradle/local.versions.toml"))
-        }
-    }
+  }
 }
 
 rootProject.name = "ai-job-tracker"

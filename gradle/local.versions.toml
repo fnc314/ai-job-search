@@ -20,7 +20,7 @@
   backend-job-post-scraping = { module = "dev.fnc314.aijobtracker.backend:job-post-scraping", version.ref = "version" }
   backend-artifact-compilation = { module = "dev.fnc314.aijobtracker.backend:artifact-compilation", version.ref = "version" }
 
-  # Frontend Subsystem - Apps & Core
+  # Frontend Subsystem — Apps & Core
   frontend-apps-core = { module = "dev.fnc314.aijobtracker.frontend:apps-core", version.ref = "version" }
   frontend-apps-cli = { module = "dev.fnc314.aijobtracker.frontend:apps-cli", version.ref = "version" }
   frontend-apps-terminal = { module = "dev.fnc314.aijobtracker.frontend:apps-terminal", version.ref = "version" }
@@ -35,7 +35,7 @@
   frontend-core-network = { module = "dev.fnc314.aijobtracker.frontend:core-network", version.ref = "version" }
   frontend-core-widgets = { module = "dev.fnc314.aijobtracker.frontend:core-widgets", version.ref = "version" }
 
-  # Frontend Subsystem - Features
+  # Frontend Subsystem — Features
   frontend-features-add-job-application-data = { module = "dev.fnc314.aijobtracker.frontend:features-add-job-application-data", version.ref = "version" }
   frontend-features-add-job-application-domain = { module = "dev.fnc314.aijobtracker.frontend:features-add-job-application-domain", version.ref = "version" }
   frontend-features-add-job-application-ui = { module = "dev.fnc314.aijobtracker.frontend:features-add-job-application-ui", version.ref = "version" }

@@ -26,8 +26,8 @@ plugins {
 val frontendVersion = local.versions.version.get()
 
 subprojects {
-    group = "dev.fnc314.aijobtracker.frontend"
-    version = frontendVersion
+  group = "dev.fnc314.aijobtracker.frontend"
+  version = frontendVersion
 
-    apply(plugin = "dev.fnc314.aijobtracker.dokka")
+  apply(plugin = "dev.fnc314.aijobtracker.dokka")
 }

@@ -1,0 +1,6 @@
+# Set default behavior to automatically normalize line endings to LF
+* text=auto eol=lf
+
+# Force text files to use LF line endings
+*.{kt,kts,toml,json,md,properties,yml,yaml} text eol=lf
+*.{sh,zsh} text eol=lf
