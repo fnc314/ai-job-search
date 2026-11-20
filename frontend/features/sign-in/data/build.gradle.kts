@@ -9,7 +9,13 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.coreData)
+            implementation(projects.coreNetwork)
             implementation(libs.kotlinx.coroutines.core)
+        }
+        jvmMain.dependencies {
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.cio)
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }
