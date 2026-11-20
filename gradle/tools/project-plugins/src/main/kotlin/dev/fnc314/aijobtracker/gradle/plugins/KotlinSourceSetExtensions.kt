@@ -23,9 +23,8 @@ internal fun KotlinMultiplatformExtension.commonTest(configure: KotlinSourceSet.
 internal val KotlinMultiplatformExtension.jvmMain: KotlinSourceSet?
   get() = sourceSets.findByName("jvmMain")
 
-internal fun KotlinMultiplatformExtension.jvmMain(configure: KotlinSourceSet.() -> Unit) {
+internal fun KotlinMultiplatformExtension.jvmMain(configure: KotlinSourceSet.() -> Unit): KotlinSourceSet? =
   jvmMain?.apply(configure)
-}
 
 internal val KotlinMultiplatformExtension.iosMain: KotlinSourceSet?
   get() = sourceSets.findByName("iosMain")
@@ -86,7 +85,7 @@ internal inline fun Project.configureKotlinMultiplatformExtension(
       )
     }
     jvmToolchain(
-      CatalogTypes.Versions.JVM_TOOLCHAIN.asInt(this@configureKotlinMultiplatformExtension),
+      CatalogTypes.Versions.JVM_TOOLCHAIN.asInt(project = this@configureKotlinMultiplatformExtension),
     )
     compilerOptions {
       verbose.set(true)
@@ -98,13 +97,13 @@ internal inline fun Project.configureKotlinMultiplatformExtension(
       )
       optIn.set(optIns)
     }
-    context(this@configureKotlinMultiplatformExtension) {
+    context(with = this@configureKotlinMultiplatformExtension) {
       furtherConfig()
     }
   }
 }
 
 internal val Project.kotlinApiAndLanguageVersion: KotlinVersion
-  get() = CatalogTypes.Versions.KOTLIN.asString(this).let {
+  get() = CatalogTypes.Versions.KOTLIN.asString(project = this).let {
     KotlinVersion.fromVersion(it.substringBeforeLast("."))
   }
