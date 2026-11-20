@@ -195,7 +195,7 @@ mise run dev:guards                 # Verify supply-chain permissions and naming
 
 ```bash
 # 1. Clone repository and install toolchains
-git clone https://github.com/fnc314/ai-job-search.git
+git clone https://github.com/fnc314/ai-job-tracker.git
 cd ai-job-search
 mise install
 
