@@ -65,6 +65,8 @@
     <string name="parsing_error">PARSING ERROR</string>
 
     <!-- Categorized Section Headers & Jump Actions -->
+    <string name="list_section_expand_section">Expand section</string>
+    <string name="list_section_collapse_section">Collapse section</string>
     <string name="list_section_interviewing">Interviewing</string>
     <string name="list_section_drafting">In Draft</string>
     <string name="list_section_applied">Applied</string>

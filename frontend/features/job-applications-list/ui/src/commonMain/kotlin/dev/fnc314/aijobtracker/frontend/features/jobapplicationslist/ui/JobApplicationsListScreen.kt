@@ -208,7 +208,6 @@ public fun JobApplicationsListScreen(
   }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun JobApplicationsListContent(
   content: JobApplicationsListUiState.Content,
@@ -348,13 +347,6 @@ internal fun JobApplicationsListContent(
                           collapsedSections - sectionOrder
                         }
                       },
-                      availableSections = activeSections,
-                      onJumpToSection = { targetOrder ->
-                        val targetIndex = sectionOffsets[targetOrder] ?: 0
-                        coroutineScope.launch {
-                          listState.animateScrollToItem(targetIndex)
-                        }
-                      },
                     )
                   }
 
@@ -409,13 +401,6 @@ internal fun JobApplicationsListContent(
                           collapsedSections - sectionOrder
                         }
                       },
-                      availableSections = activeSections,
-                      onJumpToSection = { targetOrder ->
-                        val targetIndex = sectionOffsets[targetOrder] ?: 0
-                        coroutineScope.launch {
-                          gridState.animateScrollToItem(targetIndex)
-                        }
-                      },
                     )
                   }
 
@@ -468,13 +453,6 @@ internal fun JobApplicationsListContent(
                           collapsedSections + sectionOrder
                         } else {
                           collapsedSections - sectionOrder
-                        }
-                      },
-                      availableSections = activeSections,
-                      onJumpToSection = { targetOrder ->
-                        val targetIndex = sectionOffsets[targetOrder] ?: 0
-                        coroutineScope.launch {
-                          gridState.animateScrollToItem(targetIndex)
                         }
                       },
                     )
