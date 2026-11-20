@@ -67,17 +67,21 @@ flowchart TD
 ### Gate 1: Non-Regression of Progressed Applications
 - When `RankScorer` re-evaluates an application that already progressed beyond initial ranking (e.g. `DRAFTED`, `SUBMITTED`, `INTERVIEWING`), it updates `fitRating` and emits `RECALCULATE_FIT` **without regressing `status` back to `RANKED`**.
 
-### Gate 2: Mandatory Remote Object Storage (GCS) Binding
+### Gate 2: Mandatory Remote Object Storage (GCS) Binding & Synchronization
 - Generated LaTeX CVs, cover letters, `job-posting.md`, and `outcome.md` must be uploaded to `gs://$TRACKER_BUCKET/artifacts/<applicationId>/` before the application can enter `DRAFTED`.
 - Firestore `applications/{id}.artifacts` must contain the populated references with `remoteUrl` and `pdfRemoteUrl`.
 - If upload fails, the application remains in `DRAFTING`.
+- **Pre-Submission & Post-Submission Re-Sync Invariant:**
+  - Whenever `/apply` is re-invoked on an existing application, or when the user mentions that they have submitted the application (advancing status to `SUBMITTED`), or when email reconciliation detects submission confirmation, the local application artifact folder (`job-applications/<company>/<role>/...`) MUST be scanned and all matching artifacts (`.pdf`, `.md`, `.tex`, `.txt`) **re-uploaded to GCS and synchronized in Firestore**.
+  - This ensures any manual edits, custom responses (e.g. application form questionnaire answers), updated CV/cover letter tweaks, or supplemental attachments crafted outside of the automated flow are immediately captured in the remote source of truth and rendered in consuming UIs.
 
-### Gate 3: Submission Exclusivity
+### Gate 3: Submission Exclusivity & Out-of-Band Asset Reconciliation
 - `/apply` pipelines and automated drafting scripts **never** default or auto-advance to `SUBMITTED`.
 - The `--submitted` flag cannot be combined with asset drafting in `apply`.
 - Submission is triggered strictly by:
-  1. Explicit user directive (`/outcome <company>` or `tracker edit <id> --status SUBMITTED`).
+  1. Explicit user directive (`/outcome <company>`, `tracker status <id> SUBMITTED`, or user stating they submitted the application).
   2. Automated confirmation email detection via `email:collect`.
+- **Reconciliation on Submission:** Upon transitioning an application to `SUBMITTED` through either channel, the system triggers a delta sync on the local artifact directory to ensure out-of-band application responses and updated resumes/letters are fully persisted to GCS and Firestore before finalizing the submission event.
 
 ### Gate 4: Post-Submission Email-Driven Funnel
 - From `SUBMITTED` onward, transitions (`RECRUITER_SCREENED`, `INTERVIEWING`, `OFFER`, `REJECTED`) are driven almost exclusively via `email:collect` and proposal reconciliation (`proposals:approve`).
