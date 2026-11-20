@@ -156,6 +156,19 @@
   wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
 
 [bundles]
+  androidx-lifecycle-compose = [
+    "androidx-lifecycle-viewmodelCompose",
+    "androidx-lifecycle-runtimeCompose",
+  ]
+  coil = [
+    "coil-compose",
+    "coil-core",
+    "coil-network-ktor3",
+  ]
+  compose-tooling = [
+    "compose-uiToolingPreview",
+    "compose-uiTooling",
+  ]
   compose-ui = [
     "compose-runtime",
     "compose-foundation",
@@ -166,27 +179,6 @@
     "compose-material-icons-core",
     "compose-material-icons-extended",
     "kotlinx-collections-immutable",
-  ]
-  compose-tooling = [
-    "compose-uiToolingPreview",
-    "compose-uiTooling",
-  ]
-  ktor-client = [
-    "ktor-client-core",
-    "ktor-serialization-kotlinx-json",
-    "ktor-content-negotiation",
-  ]
-  ktor-client-android = [
-    "ktor-client-okhttp",
-  ]
-  ktor-client-ios = [
-    "ktor-client-darwin",
-  ]
-  ktor-client-js = [
-    "ktor-client-js",
-  ]
-  ktor-client-jvm = [
-    "ktor-client-cio",
   ]
   firebase-android = [
     "firebase-firestore",
@@ -208,9 +200,22 @@
     "koin-core",
     "koin-annotations",
   ]
-  androidx-lifecycle-compose = [
-    "androidx-lifecycle-viewmodelCompose",
-    "androidx-lifecycle-runtimeCompose",
+  ktor-client = [
+    "ktor-client-core",
+    "ktor-serialization-kotlinx-json",
+    "ktor-content-negotiation",
+  ]
+  ktor-client-android = [
+    "ktor-client-okhttp",
+  ]
+  ktor-client-ios = [
+    "ktor-client-darwin",
+  ]
+  ktor-client-js = [
+    "ktor-client-js",
+  ]
+  ktor-client-jvm = [
+    "ktor-client-cio",
   ]
   material3-adaptive = [
     "compose-material3-adaptive",
@@ -218,31 +223,16 @@
     "compose-material3-adaptive-navigation3",
     "compose-material3-adaptive-navigationsuite",
   ]
-  serialization = [
-    "kotlinx-serialization-json",
-  ]
   navigation3 = [
     "navigation3-runtime",
     "navigation3-ui",
   ]
-  testing = [
-    "kotlin-test",
-    "kotlinx-coroutines-test",
-    "kotlinx-serialization-json",
-    "kotlinx-collections-immutable",
-    "kotlinx-datetime",
-  ]
-  testing-jvm = [
-    "junit",
-    "kotlin-testJunit",
-  ]
-  testing-android = [
-    "androidx-testExt-junit",
-    "androidx-testRunner",
-  ]
   room = [
     "androidx-room3-runtime",
     "androidx-room3-common",
+  ]
+  serialization = [
+    "kotlinx-serialization-json",
   ]
   sqlite-bundled = [
     "androidx-sqlite-bundled",
@@ -251,10 +241,20 @@
     "androidx-sqlite-web",
     "wrappers-browser",
   ]
-  coil = [
-    "coil-compose",
-    "coil-core",
-    "coil-network-ktor3",
+  testing = [
+    "kotlin-test",
+    "kotlinx-coroutines-test",
+    "kotlinx-serialization-json",
+    "kotlinx-collections-immutable",
+    "kotlinx-datetime",
+  ]
+  testing-android = [
+    "androidx-testExt-junit",
+    "androidx-testRunner",
+  ]
+  testing-jvm = [
+    "junit",
+    "kotlin-testJunit",
   ]
 
 [plugins]
