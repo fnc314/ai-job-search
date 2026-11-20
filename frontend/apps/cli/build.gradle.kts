@@ -12,8 +12,8 @@ application {
 }
 
 dependencies {
-    implementation(libs.records.proto)
-    implementation(libs.records.parser)
+    implementation(local.records.proto)
+    implementation(local.records.parser)
     implementation(projects.coreData)
     implementation(libs.clikt)
     implementation(libs.mordant)
@@ -21,10 +21,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.json)
-    // job-post-ranking is published by the backend composite build
-    val backendVersion = libs.versions.dev.fnc314.aijobtracker.backend.get()
-    implementation("dev.fnc314.aijobtracker.backend:job-post-ranking:$backendVersion")
-    implementation("dev.fnc314.aijobtracker.backend:email-classification:$backendVersion")
-    implementation("dev.fnc314.aijobtracker.backend:service:$backendVersion")
-    implementation("dev.fnc314.aijobtracker.backend:ai-client:$backendVersion")
+    // backend modules published by composite build
+    implementation(local.backend.job.post.ranking)
+    implementation(local.backend.email.classification)
+    implementation(local.backend.service)
+    implementation(local.backend.ai.client)
 }

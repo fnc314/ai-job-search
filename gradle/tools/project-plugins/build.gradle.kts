@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "dev.fnc314.aijobtracker.tools"
-version = libs.versions.dev.fnc314.aijobtracker.asProvider().get()
+version = local.versions.version.get()
 
 dokka {
   dokkaPublications.html {

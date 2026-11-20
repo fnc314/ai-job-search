@@ -12,8 +12,8 @@ application {
 }
 
 dependencies {
-    implementation(libs.records.proto)
-    implementation(libs.records.parser)
+    implementation(local.records.proto)
+    implementation(local.records.parser)
     implementation(projects.coreData)
     implementation(libs.clikt)
     implementation(libs.mordant)

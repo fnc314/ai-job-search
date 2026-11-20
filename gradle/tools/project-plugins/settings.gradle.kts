@@ -18,5 +18,8 @@ dependencyResolutionManagement {
         create("libs") {
             from(files("../../libs.versions.toml"))
         }
+        create("local") {
+            from(files("../../local.versions.toml"))
+        }
     }
 }

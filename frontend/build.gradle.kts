@@ -23,7 +23,7 @@ plugins {
 }
 
 
-val frontendVersion = libs.versions.dev.fnc314.aijobtracker.asProvider().get()
+val frontendVersion = local.versions.version.get()
 
 subprojects {
     group = "dev.fnc314.aijobtracker.frontend"

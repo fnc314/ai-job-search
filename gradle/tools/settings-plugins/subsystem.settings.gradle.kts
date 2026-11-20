@@ -34,5 +34,10 @@ dependencyResolutionManagement {
                 from(files("${rootRepoDir}/gradle/libs.versions.toml"))
             }
         }
+        if (findByName("local") == null) {
+            create("local") {
+                from(files("${rootRepoDir}/gradle/local.versions.toml"))
+            }
+        }
     }
 }

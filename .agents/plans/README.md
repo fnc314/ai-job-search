@@ -24,6 +24,7 @@ Every architecture plan created by any agent must strictly adhere to these parad
 
 | Plan | Status | Scope / Focus Area |
 | :--- | :--- | :--- |
+| [`003405_local-versions-catalog-decoupling.md`](./2026-11-20/003405_local-versions-catalog-decoupling.md) | Completed | Decouple local repository project declarations into `gradle/local.versions.toml` with single unified `[versions]` block, register `local` catalog across included builds, and replace raw Dokka coordinates with type-safe bundles |
 | [`171800_company-logo-refactor-and-metrics-calculation-fix.md`](./2026-11-19/171800_company-logo-refactor-and-metrics-calculation-fix.md) | Completed | Refactor company `logo` metadata to structured sub-object across schema, proto, models, rules, and Firestore; fix application status aggregation buckets in `calculateMetricsForApplications()` and wire mise company tasks |
 | [`152251_fix-company-metrics-defect.md`](./2026-11-19/152251_fix-company-metrics-defect.md) | Completed | Fix company metrics defect: frontend `interviewing` field name mismatch, wire metrics recalculation on status change in `appendEventTransactional()`, and backfill 111 companies |
 | [`144800_email-processing-pipeline-refinement.md`](./2026-11-19/144800_email-processing-pipeline-refinement.md) | Completed | Email processing pipeline refinements and architectural hardening: pre-strip HTML snippets, persist labels and body in inbox JSON, resilient job labels JSON schema parsing, OTP/noise filtering, and Workday sender extraction |

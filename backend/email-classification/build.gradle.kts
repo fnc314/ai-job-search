@@ -36,7 +36,7 @@ publishing {
             from(components["java"])
             groupId = "dev.fnc314.aijobtracker.backend"
             artifactId = "email-classification"
-            version = libs.versions.dev.fnc314.aijobtracker.backend.get()
+            version = local.versions.version.get()
         }
     }
 }

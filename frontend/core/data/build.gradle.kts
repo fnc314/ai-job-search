@@ -23,8 +23,8 @@ kotlin {
     jvmMain.dependencies {
       implementation(libs.pdfbox)
       implementation(libs.bundles.ktor.client.jvm)
-      implementation(libs.records.proto)
-      implementation(libs.records.parser)
+      implementation(local.records.proto)
+      implementation(local.records.parser)
       implementation(libs.kmp.inspector)
       implementation(libs.kmp.inspector.room)
     }

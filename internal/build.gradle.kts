@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.local.dokka) apply false
 }
 
-val internalVersion = libs.versions.dev.fnc314.aijobtracker.asProvider().get()
+val internalVersion = local.versions.version.get()
 
 subprojects {
     group = "dev.fnc314.aijobtracker.internal"

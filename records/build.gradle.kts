@@ -7,7 +7,7 @@ plugins {
 
 val detektVersion = libs.versions.detekt.get()
 
-val recordsVersion = libs.versions.records.get()
+val recordsVersion = local.versions.version.get()
 
 subprojects {
     group = "dev.fnc314.aijobtracker.records"

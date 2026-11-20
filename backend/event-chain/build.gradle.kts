@@ -20,7 +20,7 @@ kotlin {
 
 dependencies {
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.records.proto)
+    implementation(local.records.proto)
     implementation(libs.protobuf.kotlin)
 
     testImplementation(kotlin("test"))
@@ -37,7 +37,7 @@ publishing {
             from(components["java"])
             groupId = "dev.fnc314.aijobtracker.backend"
             artifactId = "event-chain"
-            version = libs.versions.dev.fnc314.aijobtracker.backend.get()
+            version = local.versions.version.get()
         }
     }
 }
