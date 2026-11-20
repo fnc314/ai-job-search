@@ -47,6 +47,8 @@ public object DocumentIdGenerator {
     private val companySlugAliases: Map<String, String> = mapOf(
         "meta-platforms" to "meta",
         "facebook" to "meta",
+        "motorola" to "motorola-solutions",
+        "motorola-mobility" to "motorola-solutions",
         "ford-motor-company" to "ford",
         "ford-motor" to "ford",
         "alphabet" to "google",

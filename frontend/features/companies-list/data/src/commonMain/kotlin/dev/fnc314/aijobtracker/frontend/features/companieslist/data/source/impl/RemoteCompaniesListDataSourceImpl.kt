@@ -20,6 +20,8 @@ private val PARENTHETICAL_REGEX = Regex("(?<=\\w)\\s*\\([A-Za-z0-9]+\\)")
 private val COMPANY_SLUG_ALIASES: Map<String, String> = mapOf(
     "meta-platforms" to "meta",
     "facebook" to "meta",
+    "motorola" to "motorola-solutions",
+    "motorola-mobility" to "motorola-solutions",
     "ford-motor-company" to "ford-motor",
     "ford" to "ford-motor",
     "alphabet" to "google",

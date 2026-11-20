@@ -2666,7 +2666,7 @@ public object BackendService {
         val snapshot = db.collection("companies").get().get()
 
         // Companies to explicitly keep in the companies collection
-        val keepList = setOf("motorola", "motorola-solutions")
+        val keepList = setOf("motorola-solutions")
 
         // Companies explicitly approved for deletion via interactive review
         val deleteList = setOf(

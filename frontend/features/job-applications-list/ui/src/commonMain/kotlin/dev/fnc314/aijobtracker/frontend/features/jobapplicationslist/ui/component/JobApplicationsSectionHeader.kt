@@ -96,9 +96,8 @@ public fun JobApplicationsSectionHeader(
     onJumpToSection: (Int) -> Unit,
     modifier: Modifier = Modifier,
     isExpanded: Boolean = true,
-    onToggleExpand: (() -> Unit)? = null,
+    onToggleExpand: (() -> Unit),
 ) {
-    var menuExpanded by remember { mutableStateOf(false) }
     val title = resolveSectionTitle(sectionOrder)
     val icon = resolveSectionIcon(sectionOrder)
     val chevronRotation by animateFloatAsState(targetValue = if (isExpanded) 90f else 0f)
@@ -107,7 +106,7 @@ public fun JobApplicationsSectionHeader(
         1 -> MaterialTheme.colorScheme.primaryContainer
         2 -> MaterialTheme.colorScheme.tertiaryContainer
         3 -> MaterialTheme.colorScheme.surfaceContainerHigh
-        4 -> MaterialTheme.colorScheme.surfaceContainerLowest
+        4 -> MaterialTheme.colorScheme.surfaceContainerLow
         else -> MaterialTheme.colorScheme.surfaceContainer
     }
 
@@ -131,6 +130,10 @@ public fun JobApplicationsSectionHeader(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable(
+                  role = Role.Button,
+                  onClick = onToggleExpand
+                )
                 .padding(
                     horizontal = MaterialTheme.spacing.medium,
                     vertical = MaterialTheme.spacing.small,
@@ -139,14 +142,9 @@ public fun JobApplicationsSectionHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
-                modifier = if (onToggleExpand != null) {
-                    Modifier
-                        .clip(MaterialTheme.shapes.small)
-                        .clickable(role = Role.Button, onClick = onToggleExpand)
-                        .padding(vertical = 2.dp, horizontal = 2.dp)
-                } else {
-                    Modifier
-                },
+                modifier = Modifier
+                  .clip(MaterialTheme.shapes.small)
+                  .padding(vertical = 2.dp, horizontal = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
             ) {
@@ -182,58 +180,6 @@ public fun JobApplicationsSectionHeader(
                         color = contentColor,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                     )
-                }
-            }
-
-            if (availableSections.size > 1) {
-                Box {
-                    Row(
-                        modifier = Modifier
-                            .clip(MaterialTheme.shapes.small)
-                            .clickable { menuExpanded = true }
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.list_section_jump_tooltip),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = contentColor,
-                        )
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = stringResource(Res.string.list_section_jump_tooltip),
-                            modifier = Modifier.size(16.dp),
-                            tint = contentColor,
-                        )
-                    }
-
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false },
-                    ) {
-                        availableSections
-                            .filter { it != sectionOrder }
-                            .forEach { targetOrder ->
-                                val targetTitle = resolveSectionTitle(targetOrder)
-                                val targetIcon = resolveSectionIcon(targetOrder)
-                                DropdownMenuItem(
-                                    text = { Text(targetTitle) },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = targetIcon,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(18.dp),
-                                        )
-                                    },
-                                    onClick = {
-                                        menuExpanded = false
-                                        onJumpToSection(targetOrder)
-                                    },
-                                )
-                            }
-                    }
                 }
             }
         }
