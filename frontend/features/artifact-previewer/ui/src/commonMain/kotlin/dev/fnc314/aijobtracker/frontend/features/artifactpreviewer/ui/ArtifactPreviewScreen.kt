@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.CircularProgressIndicator
@@ -177,38 +178,40 @@ public fun ArtifactPreviewScreen(
                         } else {
                             content!!
                         }
-                        Markdown(
-                            content = displayContent,
-                            colors = markdownColor(),
-                            typography = markdownTypography(
-                                h1 = MaterialTheme.typography.headlineSmall,
-                                h2 = MaterialTheme.typography.titleLarge,
-                                h3 = MaterialTheme.typography.titleMedium,
-                                h4 = MaterialTheme.typography.titleSmall,
-                                h5 = MaterialTheme.typography.bodyLarge,
-                                h6 = MaterialTheme.typography.bodyMedium,
-                                paragraph = MaterialTheme.typography.bodyLarge,
-                                code = MaterialTheme.typography.bodyMedium,
-                                inlineCode = MaterialTheme.typography.bodyMedium,
-                                quote = MaterialTheme.typography.bodyMedium,
-                                ordered = MaterialTheme.typography.bodyLarge,
-                                bullet = MaterialTheme.typography.bodyLarge,
-                                list = MaterialTheme.typography.bodyLarge,
-                                textLink = TextLinkStyles(
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.Bold,
-                                        textDecoration = TextDecoration.Underline,
-                                    ).toSpanStyle(),
+                        SelectionContainer {
+                            Markdown(
+                                content = displayContent,
+                                colors = markdownColor(),
+                                typography = markdownTypography(
+                                    h1 = MaterialTheme.typography.headlineSmall,
+                                    h2 = MaterialTheme.typography.titleLarge,
+                                    h3 = MaterialTheme.typography.titleMedium,
+                                    h4 = MaterialTheme.typography.titleSmall,
+                                    h5 = MaterialTheme.typography.bodyLarge,
+                                    h6 = MaterialTheme.typography.bodyMedium,
+                                    paragraph = MaterialTheme.typography.bodyLarge,
+                                    code = MaterialTheme.typography.bodyMedium,
+                                    inlineCode = MaterialTheme.typography.bodyMedium,
+                                    quote = MaterialTheme.typography.bodyMedium,
+                                    ordered = MaterialTheme.typography.bodyLarge,
+                                    bullet = MaterialTheme.typography.bodyLarge,
+                                    list = MaterialTheme.typography.bodyLarge,
+                                    textLink = TextLinkStyles(
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.Bold,
+                                            textDecoration = TextDecoration.Underline,
+                                        ).toSpanStyle(),
+                                    ),
+                                    table = MaterialTheme.typography.bodyMedium,
+                                    alertTitle = MaterialTheme.typography.bodyLarge,
                                 ),
-                                table = MaterialTheme.typography.bodyMedium,
-                                alertTitle = MaterialTheme.typography.bodyLarge,
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .verticalScroll(rememberScrollState())
-                                .padding(MaterialTheme.spacing.medium),
-                        )
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState())
+                                    .padding(MaterialTheme.spacing.medium),
+                            )
+                        }
                     }
                 }
             }

@@ -33,6 +33,7 @@ import com.composables.icons.fontawesome.FontAwesome
 import com.composables.icons.fontawesome.brands.Linkedin
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 import dev.fnc314.aijobtracker.frontend.core.navigation.LocalTopBarTitleSummarySlot
+import dev.fnc314.aijobtracker.frontend.core.widgets.AppText
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyLogoImage
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyLogoSize
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyMetricsTextRow
@@ -248,7 +249,7 @@ private fun CompanyOverviewCard(
               )
             }
             if (!details.website.isNullOrBlank()) {
-              Text(
+              AppText(
                 text = details.website,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary,

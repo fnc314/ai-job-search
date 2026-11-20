@@ -40,6 +40,7 @@ import dev.fnc314.aijobtracker.frontend.core.designsystem.componentSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
 import dev.fnc314.aijobtracker.frontend.core.navigation.BackHandler
 import dev.fnc314.aijobtracker.frontend.core.navigation.LocalTopBarTitleSummarySlot
+import dev.fnc314.aijobtracker.frontend.core.widgets.AppText
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyLogoImage
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyLogoSize
 import dev.fnc314.aijobtracker.frontend.core.widgets.ErrorBannerWidget
@@ -333,7 +334,7 @@ internal fun ApplicationSummarySection(
       }
 
       model.jobUrl?.let { url ->
-        Text(
+        AppText(
           text = stringResource(Res.string.detail_prefix_job_url, url),
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.primary,
@@ -341,20 +342,20 @@ internal fun ApplicationSummarySection(
       }
 
       model.jobApplicationUrl?.let { url ->
-        Text(
+        AppText(
           text = stringResource(Res.string.detail_prefix_app_url, url),
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.primary,
         )
       }
 
-      Text(
+      AppText(
         text = model.submittedAt(),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
 
-      Text(
+      AppText(
         text = stringResource(Res.string.detail_last_updated, model.lastUpdatedDisplay()),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -467,13 +468,13 @@ internal fun CompanyProfileSection(
         )
       }
       company.website?.let { website ->
-        Text(
+        AppText(
           text = stringResource(Res.string.detail_company_website, website),
           style = MaterialTheme.typography.bodyMedium,
         )
       }
       company.industry?.let { industry ->
-        Text(
+        AppText(
           text = stringResource(Res.string.detail_company_industry, industry),
           style = MaterialTheme.typography.bodyMedium,
         )

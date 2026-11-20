@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.fnc314.aijobtracker.frontend.core.designsystem.LocalWindowSizeClass
 import dev.fnc314.aijobtracker.frontend.core.designsystem.spacing
+import dev.fnc314.aijobtracker.frontend.core.widgets.AppText
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyLogoImage
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyLogoSize
 import dev.fnc314.aijobtracker.frontend.core.widgets.CompanyMetricsTextRow
@@ -111,7 +112,7 @@ public fun CompanyCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 if (!isCompact && !model.website.isNullOrBlank()) {
-                    Text(
+                    AppText(
                         text = model.website,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
@@ -202,7 +203,7 @@ private fun CompanyExpandedMetadataSection(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
     ) {
         if (!model.website.isNullOrBlank()) {
-            Text(
+            AppText(
                 text = model.website,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary,

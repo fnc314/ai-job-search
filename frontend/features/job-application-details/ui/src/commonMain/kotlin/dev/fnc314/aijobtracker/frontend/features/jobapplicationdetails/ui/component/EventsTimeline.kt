@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import dev.fnc314.aijobtracker.frontend.core.widgets.AppText
 import dev.fnc314.aijobtracker.frontend.core.data.model.TrackerEvent
 import dev.fnc314.aijobtracker.frontend.core.designsystem.componentSizes
 import dev.fnc314.aijobtracker.frontend.core.designsystem.iconSizes
@@ -217,7 +218,7 @@ private fun EventsTimelineDescription(
 
         event.note?.let { note ->
 
-          Text(
+          AppText(
             text = note,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
