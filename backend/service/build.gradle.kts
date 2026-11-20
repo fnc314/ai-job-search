@@ -18,6 +18,7 @@ dependencies {
     implementation(projects.jobPostRanking)
     implementation(projects.jobPostScraping)
     implementation(projects.artifactCompilation)
+    implementation(projects.oauth)
     implementation(local.records.proto)
     implementation(local.records.parser)
     implementation(libs.ktor.server.core)

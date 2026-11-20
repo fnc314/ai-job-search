@@ -2,7 +2,7 @@
 
 **Status:** In Progress
 **Date:** 2026-11-20
-**Target:** `backend/service/src/main/kotlin/dev/fnc314/aijobtracker/backend/routes/AuthRoutes.kt`, `backend/service/src/main/kotlin/dev/fnc314/aijobtracker/backend/BackendService.kt`, `frontend/features/sign-in/data/src/jvmMain/kotlin/dev/fnc314/aijobtracker/frontend/features/signin/data/PlatformSignInHandler.jvm.kt`
+**Target:** `backend/oauth`, `backend/service/src/main/kotlin/dev/fnc314/aijobtracker/backend/routes/AuthRoutes.kt`, `frontend/features/sign-in/data/src/jvmMain/kotlin/dev/fnc314/aijobtracker/frontend/features/signin/data/PlatformSignInHandler.jvm.kt`
 
 ---
 

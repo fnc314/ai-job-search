@@ -56,6 +56,10 @@ public object BackendService {
         FirestoreClient.getFirestore(FirebaseApp.getInstance())
     }
 
+    public fun initFirebaseApp(): Unit {
+        initFirebase()
+    }
+
     private fun initFirebase() {
         if (initialized) return
         try {
