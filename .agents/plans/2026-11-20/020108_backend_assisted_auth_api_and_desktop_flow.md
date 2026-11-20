@@ -10,6 +10,7 @@
 
 Instead of handling third-party token exchange, client secrets, and token validation directly on the client, identity exchange is delegated to the cloud backend (`backend/service`).
 
+- **OAuth Client Type Requirement:** Uses a dedicated Google OAuth 2.0 **Desktop App** Client ID (`dev.fnc314.aijobtracker.desktop`). Per RFC 8252, Google automatically permits ephemeral dynamic loopback redirect ports on `http://127.0.0.1:<port>/callback` without requiring fixed port registrations, preventing port collision failures (`BindException`).
 - **Endpoint:** `POST /api/auth/sign-in` (and alias `POST /api/auth/sign-up`)
 - **Protocol:** Multi-provider authentication gateway supporting `provider = "google"`, `code`, `codeVerifier`, `redirectUri`.
 - **Backend Role (GCP / Cloud Run):**
@@ -19,7 +20,7 @@ Instead of handling third-party token exchange, client secrets, and token valida
   4. Mints a Firebase Custom Auth Token via Firebase Admin SDK (`FirebaseAuth.getInstance().createCustomToken(uid, claims)`).
   5. Returns a structured JSON session response enclosing `UserAccount` and the Firebase custom token.
 - **Client Role (Desktop JVM / WasmJS):**
-  1. Launches user browser to provider consent screen with PKCE parameters.
+  1. Launches user browser to provider consent screen using the Desktop App Client ID with PKCE parameters.
   2. Binds ephemeral loopback server (`127.0.0.1:0`) to capture redirect callback `code` and `state`.
   3. Calls `POST /api/auth/sign-in` on the backend service.
   4. Stores the returned session securely in macOS Keychain / encrypted vault.

@@ -49,7 +49,9 @@ internal actual class PlatformSignInHandler {
         val port = server.start()
         val redirectUri = "http://127.0.0.1:$port/callback"
 
-        val clientId = "375389268913-83qulec8m6ap7pgrtgk2sg64v9l9ket2.apps.googleusercontent.com"
+        val clientId = System.getenv("GOOGLE_OAUTH_DESKTOP_CLIENT_ID")
+            ?: System.getenv("GOOGLE_OAUTH_CLIENT_ID")
+            ?: error("Missing GOOGLE_OAUTH_DESKTOP_CLIENT_ID or GOOGLE_OAUTH_CLIENT_ID environment variable")
         val authUrl = StringBuilder("https://accounts.google.com/o/oauth2/v2/auth")
             .append("?client_id=").append(URLEncoder.encode(clientId, StandardCharsets.UTF_8))
             .append("&redirect_uri=").append(URLEncoder.encode(redirectUri, StandardCharsets.UTF_8))

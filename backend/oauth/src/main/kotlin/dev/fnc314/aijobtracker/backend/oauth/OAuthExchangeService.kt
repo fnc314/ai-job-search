@@ -78,9 +78,11 @@ public object OAuthExchangeService {
         redirectUri: String,
         firebaseAuth: FirebaseAuth,
     ): AuthUser {
-        val clientId = System.getenv("GOOGLE_OAUTH_CLIENT_ID")
-            ?: "375389268913-83qulec8m6ap7pgrtgk2sg64v9l9ket2.apps.googleusercontent.com"
+        val clientId = System.getenv("GOOGLE_OAUTH_DESKTOP_CLIENT_ID")
+            ?: System.getenv("GOOGLE_OAUTH_CLIENT_ID")
+            ?: throw IllegalStateException("Missing GOOGLE_OAUTH_DESKTOP_CLIENT_ID or GOOGLE_OAUTH_CLIENT_ID environment variable")
         val clientSecret = System.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
+            ?: throw IllegalStateException("Missing GOOGLE_OAUTH_CLIENT_SECRET environment variable")
 
         val formData = mutableMapOf(
             "code" to code,
