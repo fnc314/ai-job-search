@@ -1,15 +1,12 @@
-[settings]
-  experimental = true
-
 [tools]
-  bun = "1.4.4"
+  bun = "1.4.5"
   usage = { version = "7.4.0", workflow = "publish-cli.yml" }
-  gradle = "9.9.1"
+  gradle = "9.9.2"
   java = "26.0.2+101"
   node = "26.13.1"
   ktlint = "1.8.0"
-  firebase = "15.36.0"
-  gcloud = "593.0.0"
+  firebase = "15.37.0"
+  gcloud = "594.0.0"
 
 [env]
   GOOGLE_CLOUD_LOCATION = "global"
@@ -23,3 +20,6 @@
   TUI_LOG_COOLDOWN_HOURS = "24"                                                        # Hours between cleanup prompts
   ANDROID_USER_HOME = "{{env.HOME}}/.android"
   ANDROID_HOME = "{{env.HOME}}/.android/sdk"
+
+[settings]
+  experimental = true
