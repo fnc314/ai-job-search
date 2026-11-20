@@ -24,8 +24,8 @@ android {
     applicationId = "dev.fnc314.aijobtracker"
     minSdk = libs.versions.android.min.sdk.get().toInt()
     targetSdk = libs.versions.android.target.sdk.get().toInt()
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = 20702
+    versionName = libs.versions.dev.fnc314.aijobtracker.asProvider().get()
   }
   packaging {
     resources {

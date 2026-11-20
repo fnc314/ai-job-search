@@ -111,7 +111,9 @@ class FrontendArchitectureTest : BaseArchitectureTest() {
 
     @Test
     fun `public declarations do not name a tool`() {
-        val baseline = File(rootDir, "docs/interface-naming-baseline.txt")
+        val baselineFile = File(rootDir, "docs/interface-naming-baseline.md").takeIf { it.exists() }
+            ?: File(rootDir, "docs/interface-naming-baseline.txt")
+        val baseline = baselineFile
             .readLines()
             .filter { it.isNotBlank() && !it.startsWith("#") }
             .toSet()

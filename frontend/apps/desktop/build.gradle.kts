@@ -22,7 +22,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "dev.fnc314.tools.jobtracker"
-            packageVersion = "1.0.0"
+            packageVersion = libs.versions.dev.fnc314.aijobtracker.asProvider().get()
         }
     }
 }

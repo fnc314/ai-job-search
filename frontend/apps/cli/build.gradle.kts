@@ -22,8 +22,9 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.json)
     // job-post-ranking is published by the backend composite build
-    implementation("dev.fnc314.tools.jobtracker.backend:job-post-ranking:1.0.0")
-    implementation("dev.fnc314.tools.jobtracker.backend:email-classification:1.0.0")
-    implementation("dev.fnc314.tools.jobtracker.backend:service:1.0.0")
-    implementation("dev.fnc314.tools.jobtracker.backend:ai-client:1.0.0")
+    val backendVersion = libs.versions.dev.fnc314.aijobtracker.backend.get()
+    implementation("dev.fnc314.aijobtracker.backend:job-post-ranking:$backendVersion")
+    implementation("dev.fnc314.aijobtracker.backend:email-classification:$backendVersion")
+    implementation("dev.fnc314.aijobtracker.backend:service:$backendVersion")
+    implementation("dev.fnc314.aijobtracker.backend:ai-client:$backendVersion")
 }

@@ -4,9 +4,11 @@ plugins {
     alias(libs.plugins.local.dokka) apply false
 }
 
+val backendVersion = libs.versions.dev.fnc314.aijobtracker.backend.get()
+
 subprojects {
     group = "dev.fnc314.aijobtracker.backend"
-    version = "1.0.0"
+    version = backendVersion
 
     apply(plugin = "dev.fnc314.aijobtracker.dokka")
 }

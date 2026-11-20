@@ -23,9 +23,11 @@ plugins {
 }
 
 
+val frontendVersion = libs.versions.dev.fnc314.aijobtracker.asProvider().get()
+
 subprojects {
     group = "dev.fnc314.aijobtracker.frontend"
-    version = "1.0.0"
+    version = frontendVersion
 
     apply(plugin = "dev.fnc314.aijobtracker.dokka")
 }

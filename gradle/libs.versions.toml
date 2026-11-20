@@ -25,8 +25,9 @@
   compose-rules = "0.6.8"
   desugar = "2.1.5"
   detekt = "1.23.8"
+  dev-fnc314-aijobtracker = "2.7.2"
   dev-fnc314-aijobtracker-backend = "2.7.2"
-  records = "1.1.0"
+  records = "2.7.2"
   dokka = "2.3.0"
   firebase-admin = "9.5.0"
   firebase-auth = "25.0.0"
@@ -153,7 +154,7 @@
   navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
   navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
   pdfbox = { module = "org.apache.pdfbox:pdfbox", version.ref = "pdfbox" }
-  project-plugins = { module = "dev.fnc314.aijobtracker.tools:ai-job-tracker_gradle-tools_project-plugins", version = "1.0.0" }
+  project-plugins = { module = "dev.fnc314.aijobtracker.tools:ai-job-tracker_gradle-tools_project-plugins", version.ref = "dev-fnc314-aijobtracker" }
   protobuf-bom = { module = "com.google.protobuf:protobuf-bom", version.ref = "protobuf" }
   protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
   records-parser = { group = "dev.fnc314.aijobtracker.records", name = "records-parser", version.ref = "records" }
