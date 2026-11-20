@@ -5,5 +5,10 @@ export MISE_PRE_COMMIT=1
 mise run mise:docs:tasks
 mise run completions:generate
 
+# Sync any local application artifacts modified in job-applications/
+# if [[ -d "job-applications" ]]; then
+#     TRACKER_ALLOW_WRITES=1 mise run artifacts:sync
+# fi
+
 # <https://github.com/pinterest/ktlint> pre-commit hook
 # git diff --name-only -z --cached --relative -- '*.kt' '*.kts' | ktlint --relative --patterns-from-stdin=''
