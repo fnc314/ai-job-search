@@ -1,5 +1,5 @@
 [versions]
-  agp = "9.5.1"
+  agp = "9.5.2"
   android-build-tools = "37.0.0"
   android-compile-sdk = "37"
   android-compile-sdk-minor = "2"
@@ -30,7 +30,7 @@
   firebase-auth = "25.0.0"
   firebase-bom = "35.2.0"
   firebase-firestore = "27.2.0"
-  firebase-messaging = "24.1.0"
+  firebase-messaging = "26.0.2"
   google-id = "1.2.1"
   google-play-services = "4.6.0"
   junit = "4.13.2"
