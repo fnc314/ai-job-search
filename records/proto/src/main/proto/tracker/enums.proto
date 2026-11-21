@@ -20,6 +20,7 @@ enum TrackerStatus {
   OFFER_DECLINED = 2;         // Candidate declined extended offer
   APPLICATION_WITHDRAWN = 3;  // Candidate voluntarily withdrew
   REJECTED = 4;               // Employer rejected candidate
+  PULLED = 15;                // Role/posting removed or closed by employer before hire
 
   // Active funnel states (ranks 4-10)
   DRAFTED = 5;                // Application draft prepared; pending submission

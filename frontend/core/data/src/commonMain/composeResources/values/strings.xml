@@ -13,5 +13,6 @@
     <string name="status_no_response">No Response</string>
     <string name="status_offer_declined">Offer Declined</string>
     <string name="status_application_withdrawn">Application Withdrawn</string>
+    <string name="status_pulled">Pulled</string>
     <string name="status_unknown">Unknown (%1$s)</string>
 </resources>

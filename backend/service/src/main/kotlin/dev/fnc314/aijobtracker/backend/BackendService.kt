@@ -541,7 +541,7 @@ public object BackendService {
                 status in listOf("SUBMITTED", "APPLIED", "NO_RESPONSE") -> submitted++
                 status in listOf("INTERVIEWING", "INTERVIEW", "RECRUITER_SCREENED") -> interviewing++
                 status in listOf("OFFER", "OFFER_EXPECTED", "NEGOTIATING_PRE_OFFER", "NEGOTIATING_POST_OFFER", "HIRED", "OFFER_DECLINED") -> offer++
-                status in listOf("REJECTED", "APPLICATION_WITHDRAWN") -> rejected++
+                status in listOf("REJECTED", "APPLICATION_WITHDRAWN", "PULLED") -> rejected++
                 else -> draft++ // Default unmapped to draft category
             }
 

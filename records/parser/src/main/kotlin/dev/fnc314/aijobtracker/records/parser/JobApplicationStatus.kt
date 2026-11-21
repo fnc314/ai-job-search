@@ -40,6 +40,12 @@ public sealed interface JobApplicationStatus {
       override val rank: Int = 2
     }
 
+    /** Role or job posting was pulled, closed, or cancelled by employer before application completion. */
+    public data object Pulled : Terminal {
+      override val wireName: String = "PULLED"
+      override val rank: Int = 2
+    }
+
     /** Application was rejected by the employer. */
     public data object Rejected : Terminal {
       override val wireName: String = "REJECTED"

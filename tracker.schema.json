@@ -131,7 +131,8 @@
       "no_response": "NO_RESPONSE",
       "no response": "NO_RESPONSE",
       "offer_declined": "OFFER_DECLINED",
-      "withdrawn": "APPLICATION_WITHDRAWN"
+      "withdrawn": "APPLICATION_WITHDRAWN",
+      "pulled": "PULLED"
     },
     "artifactPathRule": {
       "description": "cv_file and cover_letter_file are polymorphic in the historical record. The importer must branch on the prefix and never assume a local file: 4 of 89 populated cells are Google Docs URLs, 45 are absolute Google Drive mount paths, and only 40 are repo-relative.",
@@ -223,6 +224,7 @@
         "NO_RESPONSE",
         "OFFER_DECLINED",
         "APPLICATION_WITHDRAWN",
+        "PULLED",
         "REJECTED",
         "DRAFTING",
         "DRAFTED",
@@ -239,6 +241,7 @@
         "NO_RESPONSE": 0,
         "OFFER_DECLINED": 1,
         "APPLICATION_WITHDRAWN": 2,
+        "PULLED": 2,
         "REJECTED": 3,
         "DRAFTED": 4,
         "DRAFTING": 4,
@@ -257,6 +260,7 @@
         "status:no-response": 0,
         "status:offer-declined": 1,
         "status:withdrawn": 2,
+        "status:pulled": 2,
         "status:rejected": 3,
         "status:lead": 4,
         "status:drafting": 4,
@@ -269,11 +273,13 @@
         "NO_RESPONSE",
         "OFFER_DECLINED",
         "APPLICATION_WITHDRAWN",
+        "PULLED",
         "REJECTED",
         "HIRED",
         "status:no-response",
         "status:offer-declined",
         "status:withdrawn",
+        "status:pulled",
         "status:rejected",
         "status:hired"
       ]

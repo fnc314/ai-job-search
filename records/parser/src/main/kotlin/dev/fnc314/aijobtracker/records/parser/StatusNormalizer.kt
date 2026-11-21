@@ -12,6 +12,7 @@ public object StatusNormalizer {
       "NO_RESPONSE",
       "OFFER_DECLINED",
       "APPLICATION_WITHDRAWN",
+      "PULLED",
       "REJECTED",
       "DRAFTING",
       "DRAFTED",
@@ -74,6 +75,8 @@ public object StatusNormalizer {
       "application_withdrawn" to "APPLICATION_WITHDRAWN",
       "application-withdrawn" to "APPLICATION_WITHDRAWN",
       "status:withdrawn" to "APPLICATION_WITHDRAWN",
+      "pulled" to "PULLED",
+      "status:pulled" to "PULLED",
     )
 
   /**
@@ -87,6 +90,7 @@ public object StatusNormalizer {
       "NO_RESPONSE" to 0,
       "OFFER_DECLINED" to 1,
       "APPLICATION_WITHDRAWN" to 2,
+      "PULLED" to 2,
       "REJECTED" to 3,
       "DRAFTED" to 4,
       "DRAFTING" to 4,
@@ -124,12 +128,14 @@ public object StatusNormalizer {
       "NO_RESPONSE",
       "OFFER_DECLINED",
       "APPLICATION_WITHDRAWN",
+      "PULLED",
       "REJECTED",
       "HIRED",
       // Legacy support
       "status:no-response",
       "status:offer-declined",
       "status:withdrawn",
+      "status:pulled",
       "status:rejected",
       "status:hired",
     )

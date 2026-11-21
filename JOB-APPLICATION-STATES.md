@@ -30,29 +30,31 @@ flowchart TD
 
 ## 2. State Definitions & Semantics
 
-| State | Wire Key (`TrackerStatus`) | Rank | Kind | Description |
-| :--- | :--- | :---: | :---: | :--- |
-| **Scraped / Unspecified** | `TRACKER_STATUS_UNSPECIFIED` | 4 | Neutral Active | Newly scraped or ingested listing. Awaiting ranking or review. **Default fallback for unmapped input.** |
-| **Ranked** | `RANKED` | 4 | Active | Evaluated against candidate profile via `RankScorer` (`search:rank`). Fit score (0-100) and rationale recorded via append-only event. |
-| **Drafting** | `DRAFTING` | 4 | Active | Application workflow (`/apply`) invoked. Tailoring of CV, cover letter, `job-posting.md`, and `outcome.md` in progress. |
-| **Drafted** | `DRAFTED` | 4 | Active | All artifacts compiled locally, validated, **uploaded to Remote Object Storage (GCS)** under `artifacts/<id>/`, and strictly registered in Firestore `applications/{id}.artifacts`. Immediately visible in `@frontend/apps`. |
-| **Submitted** | `SUBMITTED` | 5 | Active | Application formally submitted to the hiring organization. Transitioned **only** upon explicit user confirmation or automated application acknowledgment email reconciliation. |
-| **Recruiter Screened** | `RECRUITER_SCREENED` | 6 | Active | Recruiter screening scheduled or completed. Triggered by email scan. |
-| **Interviewing** | `INTERVIEWING` | 7 | Active | Technical, architectural, or behavioral interview loop in progress. Carries strongly-typed `InterviewProgress`. |
-| **Negotiating Pre-Offer** | `NEGOTIATING_PRE_OFFER` | 8 | Active | Leveling, compensation alignment, or team match discussion underway. |
-| **Offer** | `OFFER` | 9 | Active | Formal offer extended by employer. |
-| **Negotiating Post-Offer** | `NEGOTIATING_POST_OFFER` | 10 | Active | Counter-offer or post-offer negotiation in progress. |
-| **Hired** | `HIRED` | 11 | Terminal Success | Candidate accepted offer; successful hire completed. |
-| **No Response** | `NO_RESPONSE` | 0 | Terminal Inactive | Employer silence exceeding 30 days. |
-| **Offer Declined** | `OFFER_DECLINED` | 1 | Terminal Inactive | Candidate declined extended offer. |
-| **Application Withdrawn** | `APPLICATION_WITHDRAWN` | 2 | Terminal Inactive | Candidate voluntarily withdrew from consideration. |
-| **Rejected** | `REJECTED` | 3 | Terminal Inactive | Employer rejected candidate. Transitioned via email scan proposal reconciliation. |
+| State                      | Wire Key (`TrackerStatus`)   | Rank |       Kind        | Description                                                                                                                                                                                                                  |
+| :------------------------- | :--------------------------- | :--: | :---------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Scraped / Unspecified**  | `TRACKER_STATUS_UNSPECIFIED` |  4   |  Neutral Active   | Newly scraped or ingested listing. Awaiting ranking or review. **Default fallback for unmapped input.**                                                                                                                      |
+| **Ranked**                 | `RANKED`                     |  4   |      Active       | Evaluated against candidate profile via `RankScorer` (`search:rank`). Fit score (0-100) and rationale recorded via append-only event.                                                                                        |
+| **Drafting**               | `DRAFTING`                   |  4   |      Active       | Application workflow (`/apply`) invoked. Tailoring of CV, cover letter, `job-posting.md`, and `outcome.md` in progress.                                                                                                      |
+| **Drafted**                | `DRAFTED`                    |  4   |      Active       | All artifacts compiled locally, validated, **uploaded to Remote Object Storage (GCS)** under `artifacts/<id>/`, and strictly registered in Firestore `applications/{id}.artifacts`. Immediately visible in `@frontend/apps`. |
+| **Submitted**              | `SUBMITTED`                  |  5   |      Active       | Application formally submitted to the hiring organization. Transitioned **only** upon explicit user confirmation or automated application acknowledgment email reconciliation.                                               |
+| **Recruiter Screened**     | `RECRUITER_SCREENED`         |  6   |      Active       | Recruiter screening scheduled or completed. Triggered by email scan.                                                                                                                                                         |
+| **Interviewing**           | `INTERVIEWING`               |  7   |      Active       | Technical, architectural, or behavioral interview loop in progress. Carries strongly-typed `InterviewProgress`.                                                                                                              |
+| **Negotiating Pre-Offer**  | `NEGOTIATING_PRE_OFFER`      |  8   |      Active       | Leveling, compensation alignment, or team match discussion underway.                                                                                                                                                         |
+| **Offer**                  | `OFFER`                      |  9   |      Active       | Formal offer extended by employer.                                                                                                                                                                                           |
+| **Negotiating Post-Offer** | `NEGOTIATING_POST_OFFER`     |  10  |      Active       | Counter-offer or post-offer negotiation in progress.                                                                                                                                                                         |
+| **Hired**                  | `HIRED`                      |  11  | Terminal Success  | Candidate accepted offer; successful hire completed.                                                                                                                                                                         |
+| **No Response**            | `NO_RESPONSE`                |  0   | Terminal Inactive | Employer silence exceeding 30 days.                                                                                                                                                                                          |
+| **Offer Declined**         | `OFFER_DECLINED`             |  1   | Terminal Inactive | Candidate declined extended offer.                                                                                                                                                                                           |
+| **Application Withdrawn**  | `APPLICATION_WITHDRAWN`      |  2   | Terminal Inactive | Candidate voluntarily withdrew from consideration.                                                                                                                                                                           |
+| **Pulled**                 | `PULLED`                     |  2   | Terminal Inactive | Role or job posting was pulled, closed, or cancelled by the employer before completion.                                                                                                                                      |
+| **Rejected**               | `REJECTED`                   |  3   | Terminal Inactive | Employer rejected candidate. Transitioned via email scan proposal reconciliation.                                                                                                                                            |
 
 ---
 
 ## 3. Strict Transition Gates
 
 ### Gate 0: Pre-Ingestion Deduplication & Ambiguity Halting
+
 - **Rule:** No database record may be created or mutated before deduplication against existing Firestore applications is complete.
 - **Implementation:** [`PostingSimilarity.kt`](file:///Users/fnc314/Work/Search/ai-job-tracker/records/parser/src/main/kotlin/dev/fnc314/aijobtracker/records/parser/PostingSimilarity.kt).
 - **Collision Criteria:**
@@ -65,9 +67,11 @@ flowchart TD
   - `skip`: Discard duplicate; abort without writing.
 
 ### Gate 1: Non-Regression of Progressed Applications
+
 - When `RankScorer` re-evaluates an application that already progressed beyond initial ranking (e.g. `DRAFTED`, `SUBMITTED`, `INTERVIEWING`), it updates `fitRating` and emits `RECALCULATE_FIT` **without regressing `status` back to `RANKED`**.
 
 ### Gate 2: Mandatory Remote Object Storage (GCS) Binding & Synchronization
+
 - Generated LaTeX CVs, cover letters, `job-posting.md`, and `outcome.md` must be uploaded to `gs://$TRACKER_BUCKET/artifacts/<applicationId>/` before the application can enter `DRAFTED`.
 - Firestore `applications/{id}.artifacts` must contain the populated references with `remoteUrl` and `pdfRemoteUrl`.
 - If upload fails, the application remains in `DRAFTING`.
@@ -76,6 +80,7 @@ flowchart TD
   - This ensures any manual edits, custom responses (e.g. application form questionnaire answers), updated CV/cover letter tweaks, or supplemental attachments crafted outside of the automated flow are immediately captured in the remote source of truth and rendered in consuming UIs.
 
 ### Gate 3: Submission Exclusivity & Out-of-Band Asset Reconciliation
+
 - `/apply` pipelines and automated drafting scripts **never** default or auto-advance to `SUBMITTED`.
 - The `--submitted` flag cannot be combined with asset drafting in `apply`.
 - Submission is triggered strictly by:
@@ -84,5 +89,6 @@ flowchart TD
 - **Reconciliation on Submission:** Upon transitioning an application to `SUBMITTED` through either channel, the system triggers a delta sync on the local artifact directory to ensure out-of-band application responses and updated resumes/letters are fully persisted to GCS and Firestore before finalizing the submission event.
 
 ### Gate 4: Post-Submission Email-Driven Funnel
+
 - From `SUBMITTED` onward, transitions (`RECRUITER_SCREENED`, `INTERVIEWING`, `OFFER`, `REJECTED`) are driven almost exclusively via `email:collect` and proposal reconciliation (`proposals:approve`).
 - Manual status changes are reserved for withdrawals or offline interactions.

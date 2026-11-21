@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.Res
 import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_application_withdrawn
+import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_pulled
 import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_drafted
 import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_drafting
 import dev.fnc314.aijobtracker.frontend.core_data.generated.resources.status_hired
@@ -125,6 +126,13 @@ public sealed interface TrackerStatus : WireContract {
             labelRes = Res.string.status_application_withdrawn,
             displayName = "Application Withdrawn",
             wireTag = 9,
+        ),
+
+        /** Position/posting was pulled or removed by the employer. */
+        PULLED(
+            labelRes = Res.string.status_pulled,
+            displayName = "Pulled",
+            wireTag = 15,
         );
 
         override val wireKey: String
@@ -132,14 +140,14 @@ public sealed interface TrackerStatus : WireContract {
 
         override val isTerminal: Boolean
             get() = when (this) {
-                HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> true
+                HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN, PULLED -> true
                 NONE, UNSPECIFIED, LEAD, DRAFTING, DRAFTED, RANKED, SUBMITTED, INTERVIEW, OFFER_EXPECTED -> false
             }
 
         override val isActive: Boolean
             get() = when (this) {
                 LEAD, DRAFTING, DRAFTED, RANKED, SUBMITTED, INTERVIEW, OFFER_EXPECTED -> true
-                NONE, UNSPECIFIED, HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> false
+                NONE, UNSPECIFIED, HIRED, REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN, PULLED -> false
             }
 
         override val sectionOrder: Int
@@ -147,13 +155,13 @@ public sealed interface TrackerStatus : WireContract {
                 INTERVIEW, OFFER_EXPECTED, HIRED -> SECTION_INTERVIEW_OR_OFFER
                 LEAD, DRAFTING, DRAFTED, RANKED -> SECTION_ACTIVE_PIPELINE
                 SUBMITTED -> SECTION_SUBMITTED
-                REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> SECTION_CLOSED
+                REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN, PULLED -> SECTION_CLOSED
                 NONE, UNSPECIFIED -> SECTION_SUBMITTED
             }
 
         override val isSubduedCard: Boolean
             get() = when (this) {
-                REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN -> true
+                REJECTED, NO_RESPONSE, OFFER_DECLINED, APPLICATION_WITHDRAWN, PULLED -> true
                 else -> false
             }
 
@@ -171,7 +179,7 @@ public sealed interface TrackerStatus : WireContract {
             OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.primaryFixed
             REJECTED -> MaterialTheme.colorScheme.errorContainer
             NO_RESPONSE -> MaterialTheme.colorScheme.surfaceContainerLow
-            OFFER_DECLINED, APPLICATION_WITHDRAWN -> MaterialTheme.colorScheme.error
+            OFFER_DECLINED, APPLICATION_WITHDRAWN, PULLED -> MaterialTheme.colorScheme.error
             NONE, UNSPECIFIED -> MaterialTheme.colorScheme.primaryFixedDim
         }
 
@@ -183,7 +191,7 @@ public sealed interface TrackerStatus : WireContract {
             OFFER_EXPECTED, HIRED -> MaterialTheme.colorScheme.onPrimaryFixed
             REJECTED -> MaterialTheme.colorScheme.onErrorContainer
             NO_RESPONSE -> MaterialTheme.colorScheme.onSurface
-            OFFER_DECLINED, APPLICATION_WITHDRAWN -> MaterialTheme.colorScheme.onError
+            OFFER_DECLINED, APPLICATION_WITHDRAWN, PULLED -> MaterialTheme.colorScheme.onError
             NONE, UNSPECIFIED -> MaterialTheme.colorScheme.onPrimaryFixedVariant
         }
     }
@@ -230,6 +238,7 @@ public sealed interface TrackerStatus : WireContract {
                     Known.NO_RESPONSE -> listOf("status:no-response", "no-response", "no_response")
                     Known.OFFER_DECLINED -> listOf("status:offer-declined", "offer-declined", "offer_declined")
                     Known.APPLICATION_WITHDRAWN -> listOf("status:withdrawn", "withdrawn")
+                    Known.PULLED -> listOf("status:pulled", "pulled")
                     Known.NONE -> listOf("status:none", "all")
                     Known.UNSPECIFIED -> listOf("status:unspecified", "unspecified")
                 }
@@ -269,6 +278,8 @@ public sealed interface TrackerStatus : WireContract {
         public val OFFER_DECLINED: TrackerStatus = Known.OFFER_DECLINED
         /** Candidate voluntarily withdrew application from consideration. */
         public val APPLICATION_WITHDRAWN: TrackerStatus = Known.APPLICATION_WITHDRAWN
+        /** Position/posting was pulled or removed by the employer. */
+        public val PULLED: TrackerStatus = Known.PULLED
 
         /** All known canonical entries for pickers, dropdowns, and filters. */
         public val entries: List<TrackerStatus> = Known.entries
